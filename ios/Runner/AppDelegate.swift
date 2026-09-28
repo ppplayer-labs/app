@@ -10,6 +10,24 @@ import WebKit
   private let visibilityPatchScript = """
     Object.defineProperty(document, 'hidden', { get: () => false });
     Object.defineProperty(document, 'visibilityState', { get: () => 'visible' });
+    Object.defineProperty(document, 'webkitHidden', { get: () => false });
+    Object.defineProperty(document, 'webkitVisibilityState', { get: () => 'visible' });
+
+    if (navigator.mediaSession) {
+      navigator.mediaSession.metadata = null;
+      navigator.mediaSession.setActionHandler('play', null);
+      navigator.mediaSession.setActionHandler('pause', null);
+      navigator.mediaSession.setActionHandler('seekto', null);
+      navigator.mediaSession.setActionHandler('previoustrack', null);
+      navigator.mediaSession.setActionHandler('nexttrack', null);
+    }
+
+    const stopPropagation = (e) => { e.stopImmediatePropagation(); };
+    window.addEventListener('visibilitychange', stopPropagation, true);
+    window.addEventListener('webkitvisibilitychange', stopPropagation, true);
+    window.addEventListener('pagehide', stopPropagation, true);
+    window.addEventListener('blur', stopPropagation, true);
+
     document.dispatchEvent(new Event('visibilitychange'));
   """
 

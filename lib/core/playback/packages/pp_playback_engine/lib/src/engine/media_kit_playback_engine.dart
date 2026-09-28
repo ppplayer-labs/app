@@ -1105,12 +1105,19 @@ class MediaKitPlaybackEngine implements PlaybackController {
               _intendedState == PlaybackState.paused) {
             _latePauseGeneration = null;
           }
+          var finalNewState = newState;
           if (newState == PlaybackState.paused &&
               _intendedState == PlaybackState.playing) {
             if (ytState.playerState == yt.PlayerState.paused &&
                 _latePauseGeneration == gen) {
               _latePauseGeneration = null;
               unawaited(_dispatchIFramePlay(gen, 'late-pause'));
+            } else if (ytState.playerState == yt.PlayerState.paused) {
+              _diag(
+                'BRIDGE SPURIOUS-PAUSE: intendedState=playing. Forcing playVideo() to combat background suspension.',
+              );
+              finalNewState = PlaybackState.playing; // Prevent emitting paused!
+              unawaited(_dispatchIFramePlay(gen, 'spurious-pause'));
             }
             if (ytState.playerState == yt.PlayerState.unStarted) return;
           }
@@ -1119,8 +1126,8 @@ class MediaKitPlaybackEngine implements PlaybackController {
             _confirmedPositionGeneration = gen;
           }
 
-          if (newState != _currentStatus.state) {
-            _updateStatus(_currentStatus.copyWith(state: newState));
+          if (finalNewState != _currentStatus.state) {
+            _updateStatus(_currentStatus.copyWith(state: finalNewState));
           }
         }),
       );

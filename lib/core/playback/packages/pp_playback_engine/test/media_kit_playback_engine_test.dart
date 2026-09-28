@@ -79,7 +79,7 @@ class FakeNativeAdapter implements INativePlayerAdapter {
   Stream<VideoParams> get videoParamsStream => _videoParamsCtrl.stream;
 
   @override
-  Future<void> open(String uri, {bool play = false}) async {
+  Future<void> open(String uri, {bool play = false, Map<String, String>? httpHeaders}) async {
     opens++;
     if (openCompleter != null) await openCompleter!.future;
     if (!_disposed) _bufferingCtrl.add(true);
@@ -111,6 +111,21 @@ class FakeNativeAdapter implements INativePlayerAdapter {
   Future<void> setRate(double rate) async {}
   @override
   Future<void> setSubtitleTrack(SubtitleTrack track) async {}
+  
+  @override
+  Future<void> setSubtitleAppearance({double? textSize, int? backgroundColor}) async {}
+  @override
+  Future<void> setSubtitleDelay(Duration delay) async {}
+  @override
+  bool get supportsExternalSubtitles => false;
+  @override
+  bool get supportsSubtitleBackgroundStyling => false;
+  @override
+  bool get supportsSubtitleDelay => false;
+  @override
+  bool get supportsSubtitleTextSize => false;
+  @override
+  bool get supportsTrackSelection => false;
 
   @override
   Future<void> dispose() async {
