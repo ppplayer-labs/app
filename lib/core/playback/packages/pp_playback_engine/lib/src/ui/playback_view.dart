@@ -32,6 +32,8 @@ class PlaybackView extends StatefulWidget {
 class _PlaybackViewState extends State<PlaybackView> {
   bool _toggle = false;
   Size? _lastSize;
+  Widget? _cachedYoutubePlayer;
+  YoutubePlayerController? _lastController;
   Timer? _pumpTimer;
 
   @override
@@ -76,36 +78,43 @@ class _PlaybackViewState extends State<PlaybackView> {
 
     if (widget.status.isIFrameMode &&
         widget.controller.youtubeController != null) {
-      debugPrint(
-        'PlaybackView: Building YouTube player for ${widget.status.activeVideoId}',
-      );
-      return ColoredBox(
-        color: Colors.transparent,
-        child: LayoutBuilder(
+      
+      if (_cachedYoutubePlayer == null || _lastController != widget.controller.youtubeController) {
+        _lastController = widget.controller.youtubeController;
+        _cachedYoutubePlayer = YoutubePlayer(
+          key: const ValueKey('pp_youtube_iframe'),
+          controller: _lastController!,
+          backgroundColor: Colors.transparent,
+        );
+      }
+
+      Widget playerWidget = _cachedYoutubePlayer!;
+
+      if (isWindows) {
+        playerWidget = LayoutBuilder(
           builder: (context, constraints) {
             // Alternate the width by 0.01px to FORCE a layout pass every build.
-            // This causes the Win32 platform view to update its global position,
-            // which keeps the video tracking the window correctly during resize/maximize.
-            final targetWidth =
-                constraints.maxWidth - (isWindows && !_toggle ? 0.01 : 0.0);
+            // This causes the Win32 platform view to update its global position.
+            final targetWidth = constraints.maxWidth - (!_toggle ? 0.01 : 0.0);
             return SizedBox(
               width: targetWidth < 0 ? 0.0 : targetWidth,
               height: constraints.maxHeight,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  YoutubePlayer(
-                    key: const ValueKey('pp_youtube_iframe'),
-                    controller: widget.controller.youtubeController!,
-                    backgroundColor: Colors.transparent,
-                  ),
-                  if (widget.status.state == PlaybackState.preparing ||
-                      widget.status.state == PlaybackState.buffering)
-                    Center(child: PPLogoLoader(size: 60, color: Colors.white)),
-                ],
-              ),
+              child: _cachedYoutubePlayer!,
             );
           },
+        );
+      }
+
+      return ColoredBox(
+        color: Colors.transparent,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            playerWidget,
+            if (widget.status.state == PlaybackState.preparing ||
+                widget.status.state == PlaybackState.buffering)
+              Center(child: PPLogoLoader(size: 60, color: Colors.white)),
+          ],
         ),
       );
     }

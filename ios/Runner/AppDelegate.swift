@@ -54,9 +54,6 @@ import MediaPlayer
       document.addEventListener('visibilitychange', stop, true);
       document.addEventListener('webkitvisibilitychange', stop, true);
 
-      // Immediately reassert 'visible' so any already-registered listeners
-      // that fire synchronously on foreground return see the patched value.
-      document.dispatchEvent(new Event('visibilitychange'));
     })();
   """
 
@@ -102,26 +99,7 @@ import MediaPlayer
     schedulePatchScan()
     startupLog("schedulePatchScan called")
 
-    // Re-apply the visibility patch in two critical windows:
-    //
-    // 1. willResignActive (going to background) — fires BEFORE iOS dispatches
-    //    the real visibilitychange to WKWebView. This prevents YouTube's iframe
-    //    listener from seeing document.hidden === true and pausing.
-    //
-    // 2. willEnterForeground (coming back) — fires BEFORE the WKWebView
-    //    processes any pending visibility events that queued while backgrounded.
-    NotificationCenter.default.addObserver(
-      self,
-      selector: #selector(appWillEnterForeground),
-      name: UIApplication.willResignActiveNotification,
-      object: nil
-    )
-    NotificationCenter.default.addObserver(
-      self,
-      selector: #selector(appWillEnterForeground),
-      name: UIApplication.willEnterForegroundNotification,
-      object: nil
-    )
+
 
     let result = super.application(application, didFinishLaunchingWithOptions: launchOptions)
     startupLog("super.application complete")
@@ -155,19 +133,7 @@ import MediaPlayer
   // AVAudioSession helpers
   // ---------------------------------------------------------------------------
 
-  /// Called when app returns to foreground — re-injects the visibility patch
-  /// immediately so it's in place before the WKWebView fires visibilitychange.
-  @objc private func appWillEnterForeground() {
-    NSLog("[ppplayer] appWillEnterForeground — re-injecting visibility patch")
-    for webView in patchedWebViews.allObjects {
-      // Reset the guard flag so the IIFE re-runs on next evaluation.
-      webView.evaluateJavaScript(
-        "window.__ppplayerVisibilityPatched = false;",
-        completionHandler: nil
-      )
-      webView.evaluateJavaScript(visibilityPatchScript, completionHandler: nil)
-    }
-  }
+
 
   /// Activates the audio session right before playback starts.
   /// Called from Dart via the ios_media_controls method channel.

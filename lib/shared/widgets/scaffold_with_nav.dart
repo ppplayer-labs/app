@@ -46,6 +46,11 @@ class ScaffoldWithNav extends ConsumerStatefulWidget {
 class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
   final GlobalKey _stackKey = GlobalKey();
 
+  double _stableSafeTop = 0.0;
+  double _stableSafeBottom = 0.0;
+  double _stableSafeLeft = 0.0;
+  double _stableSafeRight = 0.0;
+
   @override
   Widget build(BuildContext context) {
     final playbackEngine = ref.watch(playbackControllerProvider);
@@ -85,7 +90,20 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
         ? BoxFit.contain
         : BoxFit.cover;
 
-    final screenSize = MediaQuery.of(context).size;
+    final rawPadding = MediaQuery.paddingOf(context);
+    if (rawPadding.top > 0) _stableSafeTop = rawPadding.top;
+    if (rawPadding.bottom > 0) _stableSafeBottom = rawPadding.bottom;
+    if (rawPadding.left > 0) _stableSafeLeft = rawPadding.left;
+    if (rawPadding.right > 0) _stableSafeRight = rawPadding.right;
+
+    final stablePadding = EdgeInsets.only(
+      top: (rawPadding.top == 0.0 && Platform.isIOS) ? _stableSafeTop : rawPadding.top,
+      bottom: (rawPadding.bottom == 0.0 && Platform.isIOS) ? _stableSafeBottom : rawPadding.bottom,
+      left: (rawPadding.left == 0.0 && Platform.isIOS) ? _stableSafeLeft : rawPadding.left,
+      right: (rawPadding.right == 0.0 && Platform.isIOS) ? _stableSafeRight : rawPadding.right,
+    );
+
+    final screenSize = MediaQuery.sizeOf(context);
     final screenWidth = screenSize.width;
 
     final videoLayout = ref.watch(videoLayoutProvider);
@@ -126,12 +144,11 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
     double renderRadius = 0;
 
     // Calculate bottom bar height mathematically to avoid 1-frame RenderBox lag out of Offstage
-    final safeBottom = MediaQuery.paddingOf(context).bottom;
     final bottomBarHeight = (isPlayerScreen || pipPresentation)
         ? 0.0
         : (isDesktop
               ? 90.0
-              : (68.0 + safeBottom + 72.0)); // 68 (nav) + 72 (miniplayer)
+              : (68.0 + _stableSafeBottom + 72.0)); // 68 (nav) + 72 (miniplayer)
 
     if (isPlayerScreen) {
       if (videoLayout.isVisible && videoLayout.isReady) {
@@ -433,7 +450,9 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
       );
     }
 
-    return Focus(
+    return MediaQuery(
+      data: MediaQuery.of(context).copyWith(padding: stablePadding),
+      child: Focus(
       autofocus: true,
       canRequestFocus: true,
       onKeyEvent: (node, event) {
@@ -762,7 +781,7 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
           ],
         ),
       ),
-    );
+    ));
   }
 }
 
