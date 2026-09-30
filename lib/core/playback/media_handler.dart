@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:windows_taskbar/windows_taskbar.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../player/player_provider.dart';
 import '../services/favorites_provider.dart';
@@ -9,6 +10,9 @@ import '../services/favorites_provider.dart';
 /// An [AudioHandler] that bridges the Flutter player state with the system media controls.
 /// It doesn't play audio itself (the WebView does), but it reports the state to the OS.
 class PpPlayerAudioHandler extends BaseAudioHandler with QueueHandler {
+  static const _iosControlsChannel = MethodChannel(
+    'com.ppplayer.app/ios_media_controls',
+  );
   PpPlayerAudioHandler(this._containerProvider) {
     // Initial state: stopped
     playbackState.add(
@@ -34,6 +38,21 @@ class PpPlayerAudioHandler extends BaseAudioHandler with QueueHandler {
 
   String? _lastTrackId;
   ProviderSubscription<AsyncValue<bool>>? _favoriteSub;
+  bool _audioSessionActivated = false;
+
+  /// Activates the iOS AVAudioSession before playback starts.
+  /// This is deferred from app launch to avoid blocking the main thread.
+  Future<void> _ensureAudioSessionActive() async {
+    if (_audioSessionActivated) return;
+    if (!kIsWeb && Platform.isIOS) {
+      _audioSessionActivated = true;
+      try {
+        await _iosControlsChannel.invokeMethod('activateAudioSession');
+      } catch (_) {
+        // Non-fatal — playback will still proceed; session may already be active.
+      }
+    }
+  }
 
   void _updateTaskbar(bool isFav, {bool? playing}) {
     if (kIsWeb ||
@@ -194,6 +213,7 @@ class PpPlayerAudioHandler extends BaseAudioHandler with QueueHandler {
 
   @override
   Future<void> play() async {
+    await _ensureAudioSessionActive();
     _container.read(playerProvider.notifier).resume();
   }
 

@@ -40,10 +40,19 @@ Future<void> _requestNotificationPermission() async {
 }
 
 void main() async {
+  final startupWatch = Stopwatch()..start();
+  void startupLog(String message) {
+    debugPrint('[startup ${startupWatch.elapsedMilliseconds}ms] $message');
+  }
+
+  startupLog('main() entered');
   WidgetsFlutterBinding.ensureInitialized();
+  startupLog('Flutter binding initialized');
   MediaKit.ensureInitialized();
+  startupLog('MediaKit initialized');
 
   // Load environment variables (wrap in try-catch in case it's missing)
+  startupLog('dotenv load start');
   try {
     await dotenv.load(fileName: '.env');
   } catch (e) {
@@ -51,13 +60,17 @@ void main() async {
       'Warning: .env file not found or could not be loaded. Relying on --dart-define or defaults.',
     );
   }
+  startupLog('dotenv load complete');
 
   // Request notification permissions for background service stability on Android 13+
+  startupLog('notification permission check start');
   await _requestNotificationPermission();
+  startupLog('notification permission check complete');
 
   PipHandler.init();
 
   // Init Hive for prefs/queue
+  startupLog('Hive init start');
   String? dbPath;
   if (!kIsWeb) {
     final appDir = await getApplicationSupportDirectory();
@@ -66,6 +79,7 @@ void main() async {
   } else {
     await Hive.initFlutter();
   }
+  startupLog('Hive init complete');
 
   // Initialize Ads if on mobile - delay to avoid startup contention
   if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
@@ -74,25 +88,41 @@ void main() async {
     });
   }
 
+  startupLog('AppDatabase init start');
   final appDatabase = AppDatabase(dbPath);
+  startupLog('AppDatabase init complete (uses background isolate via NativeDatabase.createInBackground)');
 
   // Initialize the container first (needed by builder)
+  startupLog('ProviderContainer init');
   globalContainer = ProviderContainer(
     overrides: [appDatabaseProvider.overrideWithValue(appDatabase)],
   );
 
-  // Configure AudioSession for background playback & audio focus
-  final session = await AudioSession.instance;
-  await session.configure(const AudioSessionConfiguration.music());
+  // Configure AudioSession for background playback & audio focus.
+  // Skip on iOS — AppDelegate.swift owns AVAudioSession configuration and
+  // calling configure() here would cause redundant XPC calls to the
+  // audio daemon and potentially conflict with AppDelegate's setup.
+  startupLog('AudioSession configure start');
+  if (!kIsWeb && !Platform.isIOS) {
+    final session = await AudioSession.instance;
+    await session.configure(const AudioSessionConfiguration.music());
+  }
+  startupLog('AudioSession configure complete');
 
   // Initialize the audio handler bridge
   final PpPlayerAudioHandler handler;
 
-  if (!kIsWeb && Platform.isMacOS) {
-    // macOS: WebKit provides its own Now Playing integration for the YouTube iframe.
-    // If we register audio_service, it creates a duplicate card in the Control Center.
-    // By instantiating our handler directly without AudioService.init, our internal
-    // Riverpod states work, but the OS doesn't get duplicate notifications.
+  // On iOS: PPPlayer's native AppDelegate.swift owns MPRemoteCommandCenter and
+  // MPNowPlayingInfoCenter. AudioService.init on iOS calls
+  // _platform.configure() which invokes the audio_service Obj-C plugin's
+  // "configure" handler — that is a fast no-op (just stores interval values).
+  // However it also registers static global MPRemoteCommandCenter handlers
+  // that would conflict with any future native-side control registration.
+  // We bypass it on iOS for the same reason we do on macOS, routing all
+  // control events through the com.ppplayer.app/ios_media_controls channel.
+  startupLog('AudioHandler init start');
+  if (!kIsWeb && (Platform.isMacOS || Platform.isIOS)) {
+    // macOS/iOS: instantiate without registering an audio_service background isolate.
     handler = PpPlayerAudioHandler(() => globalContainer);
   } else {
     handler = await AudioService.init(
@@ -107,8 +137,10 @@ void main() async {
       ),
     );
   }
+  startupLog('AudioHandler init complete');
 
   // Re-initialize/Update container with the actual handler instance
+  startupLog('ProviderContainer re-init with handler');
   globalContainer = ProviderContainer(
     overrides: [
       // Provide the drift database instance app-wide
@@ -119,7 +151,9 @@ void main() async {
   );
 
   // Initialize background media sync service
+  startupLog('MediaSyncService init');
   globalContainer.read(mediaSyncServiceProvider);
+  startupLog('MediaSyncService ready');
 
   // Initialize native dock menu service for macOS
   if (!kIsWeb && Platform.isMacOS) {
@@ -155,6 +189,7 @@ void main() async {
   // Instrument Flutter Lifecycle
   AppLifecycleListener(onStateChange: (AppLifecycleState state) {});
 
+  startupLog('runApp called');
   runApp(
     UncontrolledProviderScope(
       container: globalContainer,
