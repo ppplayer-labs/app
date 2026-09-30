@@ -51,6 +51,9 @@ import MediaPlayer
       window.addEventListener('webkitvisibilitychange', stop, true);
       window.addEventListener('pagehide', stop, true);
       window.addEventListener('blur', stop, true);
+      window.addEventListener('focus', stop, true);
+      window.addEventListener('focusin', stop, true);
+      window.addEventListener('focusout', stop, true);
       document.addEventListener('visibilitychange', stop, true);
       document.addEventListener('webkitvisibilitychange', stop, true);
 
@@ -74,7 +77,7 @@ import MediaPlayer
       try AVAudioSession.sharedInstance().setCategory(
         .playback,
         mode: .default,
-        options: []
+        options: [.mixWithOthers]
       )
     } catch {
       NSLog("[ppplayer] Failed to configure audio category: %@", error.localizedDescription)
