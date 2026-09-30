@@ -21,28 +21,43 @@ import MediaPlayer
   // WKWebView visibility-patch state
   // ---------------------------------------------------------------------------
   private var patchTimer: Timer?
+
+  // Weak set of all WKWebViews that have been patched, for fast re-injection
+  // when the app returns from background.
+  private var patchedWebViews = NSHashTable<WKWebView>.weakObjects()
   private let visibilityPatchScript = """
-    Object.defineProperty(document, 'hidden', { get: () => false });
-    Object.defineProperty(document, 'visibilityState', { get: () => 'visible' });
-    Object.defineProperty(document, 'webkitHidden', { get: () => false });
-    Object.defineProperty(document, 'webkitVisibilityState', { get: () => 'visible' });
+    (function() {
+      if (window.__ppplayerVisibilityPatched) return;
+      window.__ppplayerVisibilityPatched = true;
 
-    if (navigator.mediaSession) {
-      navigator.mediaSession.metadata = null;
-      navigator.mediaSession.setActionHandler('play', null);
-      navigator.mediaSession.setActionHandler('pause', null);
-      navigator.mediaSession.setActionHandler('seekto', null);
-      navigator.mediaSession.setActionHandler('previoustrack', null);
-      navigator.mediaSession.setActionHandler('nexttrack', null);
-    }
+      Object.defineProperty(document, 'hidden', { get: () => false, configurable: true });
+      Object.defineProperty(document, 'visibilityState', { get: () => 'visible', configurable: true });
+      Object.defineProperty(document, 'webkitHidden', { get: () => false, configurable: true });
+      Object.defineProperty(document, 'webkitVisibilityState', { get: () => 'visible', configurable: true });
 
-    const stopPropagation = (e) => { e.stopImmediatePropagation(); };
-    window.addEventListener('visibilitychange', stopPropagation, true);
-    window.addEventListener('webkitvisibilitychange', stopPropagation, true);
-    window.addEventListener('pagehide', stopPropagation, true);
-    window.addEventListener('blur', stopPropagation, true);
+      if (navigator.mediaSession) {
+        navigator.mediaSession.metadata = null;
+        navigator.mediaSession.setActionHandler('play', null);
+        navigator.mediaSession.setActionHandler('pause', null);
+        navigator.mediaSession.setActionHandler('seekto', null);
+        navigator.mediaSession.setActionHandler('previoustrack', null);
+        navigator.mediaSession.setActionHandler('nexttrack', null);
+      }
 
-    document.dispatchEvent(new Event('visibilitychange'));
+      // Swallow visibilitychange at the capture phase on both window and document
+      // so YouTube's iframe listener never sees document.hidden === true.
+      const stop = (e) => { e.stopImmediatePropagation(); };
+      window.addEventListener('visibilitychange', stop, true);
+      window.addEventListener('webkitvisibilitychange', stop, true);
+      window.addEventListener('pagehide', stop, true);
+      window.addEventListener('blur', stop, true);
+      document.addEventListener('visibilitychange', stop, true);
+      document.addEventListener('webkitvisibilitychange', stop, true);
+
+      // Immediately reassert 'visible' so any already-registered listeners
+      // that fire synchronously on foreground return see the patched value.
+      document.dispatchEvent(new Event('visibilitychange'));
+    })();
   """
 
   override func application(
@@ -87,6 +102,27 @@ import MediaPlayer
     schedulePatchScan()
     startupLog("schedulePatchScan called")
 
+    // Re-apply the visibility patch in two critical windows:
+    //
+    // 1. willResignActive (going to background) — fires BEFORE iOS dispatches
+    //    the real visibilitychange to WKWebView. This prevents YouTube's iframe
+    //    listener from seeing document.hidden === true and pausing.
+    //
+    // 2. willEnterForeground (coming back) — fires BEFORE the WKWebView
+    //    processes any pending visibility events that queued while backgrounded.
+    NotificationCenter.default.addObserver(
+      self,
+      selector: #selector(appWillEnterForeground),
+      name: UIApplication.willResignActiveNotification,
+      object: nil
+    )
+    NotificationCenter.default.addObserver(
+      self,
+      selector: #selector(appWillEnterForeground),
+      name: UIApplication.willEnterForegroundNotification,
+      object: nil
+    )
+
     let result = super.application(application, didFinishLaunchingWithOptions: launchOptions)
     startupLog("super.application complete")
     return result
@@ -118,6 +154,20 @@ import MediaPlayer
   // ---------------------------------------------------------------------------
   // AVAudioSession helpers
   // ---------------------------------------------------------------------------
+
+  /// Called when app returns to foreground — re-injects the visibility patch
+  /// immediately so it's in place before the WKWebView fires visibilitychange.
+  @objc private func appWillEnterForeground() {
+    NSLog("[ppplayer] appWillEnterForeground — re-injecting visibility patch")
+    for webView in patchedWebViews.allObjects {
+      // Reset the guard flag so the IIFE re-runs on next evaluation.
+      webView.evaluateJavaScript(
+        "window.__ppplayerVisibilityPatched = false;",
+        completionHandler: nil
+      )
+      webView.evaluateJavaScript(visibilityPatchScript, completionHandler: nil)
+    }
+  }
 
   /// Activates the audio session right before playback starts.
   /// Called from Dart via the ios_media_controls method channel.
@@ -199,19 +249,21 @@ import MediaPlayer
         injectionTime: .atDocumentStart,
         forMainFrameOnly: false
       )
-      
+
       var hasInjected = false
       for s in webView.configuration.userContentController.userScripts {
         if s.source == self.visibilityPatchScript {
-           hasInjected = true
-           break
+          hasInjected = true
+          break
         }
       }
-      
+
       if !hasInjected {
-          webView.configuration.userContentController.addUserScript(script)
-          webView.evaluateJavaScript(self.visibilityPatchScript, completionHandler: nil)
+        webView.configuration.userContentController.addUserScript(script)
+        webView.evaluateJavaScript(self.visibilityPatchScript, completionHandler: nil)
       }
+      // Track this webView for fast foreground re-injection.
+      patchedWebViews.add(webView)
       found = true
     }
 
