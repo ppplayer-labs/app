@@ -39,6 +39,7 @@ class MainActivity : AudioServiceActivity() {
         super.configureFlutterEngine(flutterEngine)
         flutterEngine.plugins.add(WebViewPlugin())
         flutterEngine.plugins.add(LocalFilesPlugin())
+        flutterEngine.plugins.add(NetworkOutputsPlugin())
         methodChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
         methodChannel?.setMethodCallHandler { call, result ->
             when (call.method) {

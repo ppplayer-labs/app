@@ -128,6 +128,22 @@ class MediaSyncService {
 
   Future<void> _resolveArtwork(String trackId, String artworkUrl) async {
     try {
+      if (artworkUrl.startsWith('/') || artworkUrl.startsWith('file://')) {
+        if (_lastTrackId == trackId && !_isDisposed) {
+          _lastArtCacheFile = artworkUrl.startsWith('file://')
+              ? artworkUrl.substring(7)
+              : artworkUrl;
+          if (_lastStatus?.track != null) {
+            _pushMetadata(_lastStatus!.track!, _lastDuration ?? Duration.zero);
+          }
+        }
+        return;
+      }
+
+      if (!artworkUrl.startsWith('http')) {
+        return;
+      }
+
       // 1. Check if already cached locally
       final fileInfo = await PPImageCacheManager.instance.getFileFromCache(
         artworkUrl,

@@ -78,8 +78,8 @@ class _PlaybackViewState extends State<PlaybackView> {
 
     if (widget.status.isIFrameMode &&
         widget.controller.youtubeController != null) {
-      
-      if (_cachedYoutubePlayer == null || _lastController != widget.controller.youtubeController) {
+      if (_cachedYoutubePlayer == null ||
+          _lastController != widget.controller.youtubeController) {
         _lastController = widget.controller.youtubeController;
         _cachedYoutubePlayer = YoutubePlayer(
           key: const ValueKey('pp_youtube_iframe'),

@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pp_playback_engine/pp_playback_engine.dart';
 import '../models/track.dart';
 import 'hybrid_playback_engine.dart';
+import 'local_file_playback_controller.dart';
+import '../network_outputs/network_output_providers.dart';
 
 export 'playback_service.dart' show playbackServiceProvider, PlaybackService;
 export 'package:pp_playback_engine/pp_playback_engine.dart';
@@ -86,8 +88,8 @@ extension TrackToPlayback on Track {
       artworkUrl: albumImage,
       duration: durationMs != null ? Duration(milliseconds: durationMs!) : null,
       sourceType: playbackSource,
-      // For local tracks, the localFilePath comes from the db (set by LocalFileResolver).
-      // That path has already been processed (e.g. Uri.file() called) and is a valid URI string.
+      // Preserve the durable locator. Local/remote acquisition resolves it
+      // immediately before reading, without persisting a temporary resolved path.
       localMediaUri: localFilePath,
       networkMediaUri: networkStreamUrl,
       isVideo: isVideoFile,
@@ -97,14 +99,24 @@ extension TrackToPlayback on Track {
   }
 }
 
-/// The primary playback controller used by the app.
-final playbackControllerProvider = Provider<PlaybackController>((ref) {
+/// The primary local playback engine.
+final localPlaybackControllerProvider = Provider<PlaybackController>((ref) {
   final PlaybackController engine;
 
   if (defaultTargetPlatform == TargetPlatform.android) {
     engine = HybridPlaybackEngine();
   } else {
-    engine = MediaKitPlaybackEngine();
+    final mediaKit = MediaKitPlaybackEngine();
+    engine =
+        {
+          TargetPlatform.iOS,
+          TargetPlatform.macOS,
+        }.contains(defaultTargetPlatform)
+        ? LocalFilePlaybackController(
+            mediaKit,
+            acquireFileLease: acquireAppleOutputFileLease,
+          )
+        : mediaKit;
   }
 
   ref.onDispose(() {
@@ -112,6 +124,12 @@ final playbackControllerProvider = Provider<PlaybackController>((ref) {
   });
 
   return engine;
+});
+
+/// The primary playback controller used by the app. This wraps the local engine
+/// with network capabilities.
+final playbackControllerProvider = Provider<PlaybackController>((ref) {
+  return ref.watch(networkOutputControllerProvider);
 });
 
 /// A persistent GlobalKey to keep the Video surface alive across navigation changes.

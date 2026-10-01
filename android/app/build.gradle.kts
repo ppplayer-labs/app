@@ -67,4 +67,5 @@ flutter {
 
 dependencies {
     implementation("androidx.documentfile:documentfile:1.0.1")
+    implementation("com.google.android.gms:play-services-cast-framework:22.3.1")
 }

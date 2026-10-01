@@ -170,7 +170,10 @@ class FakePlaybackController implements PlaybackController {
   @override
   Future<void> setSubtitleDelay(Duration delay) async {}
   @override
-  Future<void> setSubtitleAppearance({double? textSize, int? backgroundColor}) async {}
+  Future<void> setSubtitleAppearance({
+    double? textSize,
+    int? backgroundColor,
+  }) async {}
 }
 
 // ---------------------------------------------------------------------------
@@ -196,7 +199,9 @@ ProviderContainer makeContainer({
       playbackServiceProvider.overrideWithValue(service),
       playbackControllerProvider.overrideWithValue(controller),
       settingsProvider.overrideWith(FakeSettingsNotifier.new),
-      networkStreamServiceProvider.overrideWithValue(FakeNetworkStreamService()),
+      networkStreamServiceProvider.overrideWithValue(
+        FakeNetworkStreamService(),
+      ),
     ],
   );
 }
@@ -376,10 +381,7 @@ void main() {
 
       expect(service.resolveCallCount, 1);
       expect(controller.playedIds, isEmpty);
-      expect(
-        container.read(playerProvider).loadError,
-        'network error',
-      );
+      expect(container.read(playerProvider).loadError, 'network error');
     });
 
     // ------------------------------------------------------------------

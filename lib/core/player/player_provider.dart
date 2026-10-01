@@ -376,6 +376,7 @@ class PlayerNotifier extends Notifier<PlayerState> {
     final nextIdx = queue.currentIndex + 1;
     if (nextIdx < queue.tracks.length) {
       final nextTrack = queue.tracks[nextIdx];
+      if (nextTrack.sourceType != TrackSourceType.online) return;
       ref.read(playbackServiceProvider).prefetchNext(nextTrack, null);
     }
   }

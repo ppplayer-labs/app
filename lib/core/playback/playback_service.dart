@@ -60,6 +60,7 @@ class PlaybackService {
     Track track,
     String? regionCode,
   ) async {
+    if (track.sourceType != TrackSourceType.online) return [];
     // Check 10-minute negative cache
     if (_negativeCache.containsKey(track.spotifyId)) {
       if (DateTime.now().difference(_negativeCache[track.spotifyId]!) <
@@ -99,6 +100,7 @@ class PlaybackService {
 
   /// Prefetches candidates for a track to populate resolver state.
   Future<void> prefetchNext(Track track, String? regionCode) async {
+    if (track.sourceType != TrackSourceType.online) return;
     if (track.youtubeVideoId != null) return;
     if (_negativeCache.containsKey(track.spotifyId)) return;
     if (_prefetchedCandidates.containsKey(track.spotifyId)) return;

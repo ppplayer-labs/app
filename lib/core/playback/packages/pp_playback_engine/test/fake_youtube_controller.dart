@@ -48,10 +48,26 @@ class FakeYoutubeController extends Fake implements yt.YoutubePlayerController {
     _streamController.add(_value);
   }
 
-  void emitState(String videoId, yt.PlayerState state) {
+  yt.PlayerState livePlayerState = yt.PlayerState.unknown;
+  Completer<yt.PlayerState>? playerStateCompletion;
+  int playerStateChecks = 0;
+
+  @override
+  Future<yt.PlayerState> get playerState {
+    playerStateChecks++;
+    return playerStateCompletion?.future ?? Future.value(livePlayerState);
+  }
+
+  void emitState(
+    String videoId,
+    yt.PlayerState state, {
+    yt.PlayerState? liveState,
+    yt.YoutubeMetaData? metadata,
+  }) {
+    livePlayerState = liveState ?? state;
     _value = yt.YoutubePlayerValue(
       playerState: state,
-      metaData: yt.YoutubeMetaData(videoId: videoId),
+      metaData: metadata ?? yt.YoutubeMetaData(videoId: videoId),
     );
     _streamController.add(_value);
   }
@@ -86,10 +102,22 @@ class FakeYoutubeController extends Fake implements yt.YoutubePlayerController {
   @override
   Future<void> setPlaybackRate(double playbackRate) =>
       record('setPlaybackRate', {'playbackRate': playbackRate});
+  Completer<double>? currentTimeCompletion, durationCompletion;
+  int currentTimeChecks = 0;
+  int durationChecks = 0;
+
   @override
-  Future<double> get currentTime async => 12;
+  Future<double> get currentTime {
+    currentTimeChecks++;
+    return currentTimeCompletion?.future ?? Future.value(12);
+  }
+
   @override
-  Future<double> get duration async => 200;
+  Future<double> get duration {
+    durationChecks++;
+    return durationCompletion?.future ?? Future.value(200);
+  }
+
   @override
   Future<void> close() => _streamController.close();
   @override

@@ -8,9 +8,7 @@ import 'package:flutter/material.dart' hide RepeatMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:ppplayer/l10n/app_localizations.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
-import 'package:ppplayer/core/cache/image_cache_manager.dart';
 import '../../core/playback/playback_providers.dart';
 import '../../core/player/player_provider.dart';
 import '../../core/player/video_layout_provider.dart';
@@ -632,8 +630,7 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
                 Positioned.fill(
                   child: Opacity(
                     opacity: 0.03,
-                    child: CachedNetworkImage(
-                      cacheManager: PPImageCacheManager.instance,
+                    child: PPImage(
                       imageUrl:
                           'https://www.transparenttextures.com/patterns/p6.png',
                       repeat: ImageRepeat.repeat,
@@ -661,7 +658,12 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
               if (!isPipMode)
                 PlayerOverlays(
                   isFullscreen: isFullscreen,
-                  alwaysShowControls: !hasVideo || (isQueueView && !isDesktop) || (!kIsWeb && Platform.isWindows && (status?.isIFrameMode ?? false)),
+                  alwaysShowControls:
+                      !hasVideo ||
+                      (isQueueView && !isDesktop) ||
+                      (!kIsWeb &&
+                          Platform.isWindows &&
+                          (status?.isIFrameMode ?? false)),
                   onToggleFullscreen: () => _setFullscreen(!isFullscreen),
                   onCollapse: () {
                     if (isFullscreen) {
@@ -1348,10 +1350,7 @@ class _VinylArtworkState extends State<_VinylArtwork>
                             ),
                           ],
                           image: DecorationImage(
-                            image: CachedNetworkImageProvider(
-                              widget.imageUrl,
-                              cacheManager: PPImageCacheManager.instance,
-                            ),
+                            image: PPImage.getImageProvider(widget.imageUrl),
                             fit: BoxFit.cover,
                           ),
                         ),

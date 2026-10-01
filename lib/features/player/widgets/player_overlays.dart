@@ -13,6 +13,8 @@ import '../../../core/db/app_database.dart' as db;
 import '../../../shared/widgets/context_menu/content_context_menu.dart';
 import '../player_providers.dart';
 import 'subtitle_panel.dart';
+import '../../../core/network_outputs/network_output_providers.dart';
+import '../../network_outputs/output_picker.dart';
 
 class PlayerOverlays extends ConsumerStatefulWidget {
   final VoidCallback onToggleFullscreen;
@@ -80,7 +82,8 @@ class _PlayerOverlaysState extends ConsumerState<PlayerOverlays> {
     if (widget.alwaysShowControls && !oldWidget.alwaysShowControls) {
       if (!ref.read(controlsVisibilityProvider)) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) ref.read(controlsVisibilityProvider.notifier).setVisible(true);
+          if (mounted)
+            ref.read(controlsVisibilityProvider.notifier).setVisible(true);
         });
       }
     }
@@ -335,6 +338,33 @@ class _PlayerOverlaysState extends ConsumerState<PlayerOverlays> {
                                     const Spacer(),
                                     // Queue button moved to bottom bar
                                     const SizedBox(width: 8),
+                                    // Output / Cast button
+                                    Builder(
+                                      builder: (btnContext) {
+                                        final outputState = ref.watch(
+                                          networkOutputSnapshotProvider,
+                                        );
+                                        final isRemote = outputState.connected;
+                                        return TactileIconButton(
+                                          icon: isRemote
+                                              ? Icons.cast_connected
+                                              : Icons.cast,
+                                          color: isRemote
+                                              ? colorScheme.primary
+                                              : Colors.white.withValues(
+                                                  alpha: 0.8,
+                                                ),
+                                          hoverColor: colorScheme.primary,
+                                          tooltip: isRemote
+                                              ? 'Playing on ${outputState.selectedOutput.name}'
+                                              : 'Play On',
+                                          onTap: () {
+                                            _onInteraction();
+                                            showOutputPicker(btnContext, ref);
+                                          },
+                                        );
+                                      },
+                                    ),
                                     if (playerState.supportsSpeed) ...[
                                       Builder(
                                         builder: (btnContext) =>

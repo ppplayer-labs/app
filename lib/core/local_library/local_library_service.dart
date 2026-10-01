@@ -13,6 +13,7 @@ import 'package:ppplayer/core/models/track.dart' show Track;
 import 'local_track_source.dart';
 import 'metadata_extractor.dart';
 import 'local_file_resolver.dart';
+import 'managed_local_file_store.dart';
 import 'audio_format_registry.dart';
 import 'video_probe_service.dart';
 import 'm3u_handler.dart';
@@ -27,7 +28,15 @@ class LocalLibraryService {
   final AppDatabase _db;
   final Uuid _uuid = const Uuid();
 
-  LocalLibraryService(this._db);
+  LocalLibraryService(
+    this._db, {
+    TargetPlatform? platform,
+    ManagedLocalFileStore? managedStore,
+  }) : _platform = platform ?? defaultTargetPlatform,
+       _managedStore = managedStore ?? ManagedLocalFileStore();
+  final TargetPlatform _platform;
+  final ManagedLocalFileStore _managedStore;
+  bool get _isIOS => _platform == TargetPlatform.iOS;
 
   Future<List<Track>> importFiles() async {
     final result = await FilePicker.pickFiles(
@@ -46,7 +55,7 @@ class LocalLibraryService {
       String locator = file.path!;
       TrackSourceType mechanism = TrackSourceType.absolutePath;
 
-      if (Platform.isAndroid && locator.contains('/cache/')) {
+      if (_isIOS || (Platform.isAndroid && locator.contains('/cache/'))) {
         final copyPath = await _moveToManagedCopy(locator, file.name);
         if (copyPath == null) continue;
         locator = copyPath;
@@ -94,7 +103,7 @@ class LocalLibraryService {
       String locator = file.path!;
       TrackSourceType mechanism = TrackSourceType.absolutePath;
 
-      if (Platform.isAndroid && locator.contains('/cache/')) {
+      if (_isIOS || (Platform.isAndroid && locator.contains('/cache/'))) {
         final copyPath = await _moveToManagedCopy(locator, file.name);
         if (copyPath == null) continue;
         locator = copyPath;
@@ -133,7 +142,7 @@ class LocalLibraryService {
       String locator = path;
       TrackSourceType mechanism = TrackSourceType.absolutePath;
 
-      if (Platform.isAndroid && locator.contains('/cache/')) {
+      if (_isIOS || (Platform.isAndroid && locator.contains('/cache/'))) {
         final copyPath = await _moveToManagedCopy(
           locator,
           path.split('/').last,
@@ -268,7 +277,7 @@ class LocalLibraryService {
     String locator = filePath;
     TrackSourceType mechanism = TrackSourceType.absolutePath;
 
-    if (Platform.isAndroid && locator.contains('/cache/')) {
+    if (_isIOS || (Platform.isAndroid && locator.contains('/cache/'))) {
       final copyPath = await _moveToManagedCopy(locator, fileName);
       if (copyPath == null) throw Exception('Failed to read playlist from URI');
       locator = copyPath;
@@ -283,7 +292,10 @@ class LocalLibraryService {
 
     onProgress?.call('Importing playlist...');
 
-    final bytes = await File(locator).readAsBytes();
+    final playlistPath = Uri.tryParse(locator)?.scheme == 'pp-local'
+        ? await _managedStore.resolve(locator)
+        : locator;
+    final bytes = await File(playlistPath).readAsBytes();
     final isTemporary =
         locator.contains('/cache/') ||
         locator.contains('/tmp/') ||
@@ -473,6 +485,11 @@ class LocalLibraryService {
 
   Future<String?> _moveToManagedCopy(String tempPath, String name) async {
     try {
+      if (_isIOS) {
+        final locator = await _managedStore.importFile(tempPath, name);
+        debugPrint('[LocalLibrary] import.managed_copy persisted=true');
+        return locator;
+      }
       final appDir = await getApplicationDocumentsDirectory();
       final targetDir = Directory('${appDir.path}/local_music');
       await targetDir.create(recursive: true);
@@ -583,132 +600,144 @@ class LocalLibraryService {
 
     String extractPath = locator;
     bool isTemp = false;
-    if (mechanism == TrackSourceType.androidContentUri) {
-      final temp = await copyContentUriToTempFile(locator, 'temp.audio');
-      if (temp != null) {
-        extractPath = temp;
-        isTemp = true;
-      } else {
-        return null;
-      }
+    bool scopedBookmark = false;
+    if (Uri.tryParse(locator)?.scheme == 'pp-local') {
+      extractPath = await _managedStore.resolve(locator);
+    } else if (mechanism == TrackSourceType.iOsSecurityBookmark) {
+      final resolved = await resolveSecurityScopedBookmark(locator);
+      if (resolved == null) return null;
+      extractPath = resolved;
+      scopedBookmark = true;
     }
+    try {
+      if (mechanism == TrackSourceType.androidContentUri) {
+        final temp = await copyContentUriToTempFile(locator, 'temp.audio');
+        if (temp != null) {
+          extractPath = temp;
+          isTemp = true;
+        } else {
+          return null;
+        }
+      }
 
-    var metadata = await extractMetadata(extractPath);
+      var metadata = await extractMetadata(extractPath);
 
-    // --- Video probe ---
-    // Determine whether to probe based on scope and extension.
-    final ext = AudioFormatRegistry.extensionOf(locator);
-    final shouldProbe =
-        scopeHint == ImportMediaScope.video ||
-        (scopeHint == ImportMediaScope.both &&
-            AudioFormatRegistry.isVideoFormatCandidate(ext));
+      // --- Video probe ---
+      // Determine whether to probe based on scope and extension.
+      final ext = AudioFormatRegistry.extensionOf(extractPath);
+      final shouldProbe =
+          scopeHint == ImportMediaScope.video ||
+          (scopeHint == ImportMediaScope.both &&
+              AudioFormatRegistry.isVideoFormatCandidate(ext));
 
-    bool isVideo = false;
-    if (shouldProbe) {
-      // Build a URI suitable for media_kit.
-      final probeUri = mechanism == TrackSourceType.androidContentUri
-          ? locator // content:// URI passed directly
-          : Uri.file(extractPath).toString();
+      bool isVideo = false;
+      if (shouldProbe) {
+        // Build a URI suitable for media_kit.
+        final probeUri = mechanism == TrackSourceType.androidContentUri
+            ? locator // content:// URI passed directly
+            : Uri.file(extractPath).toString();
 
-      final probeResult = await VideoProbeService.probe(probeUri);
-      switch (probeResult) {
-        case VideoProbeResult.hasVideo:
-          isVideo = true;
-          if (metadata.artworkPath == null) {
-            final thumbPath =
-                await VideoThumbnailGenerator.generateAndSaveThumbnail(
-                  extractPath,
+        final probeResult = await VideoProbeService.probe(probeUri);
+        switch (probeResult) {
+          case VideoProbeResult.hasVideo:
+            isVideo = true;
+            if (metadata.artworkPath == null) {
+              final thumbPath =
+                  await VideoThumbnailGenerator.generateAndSaveThumbnail(
+                    extractPath,
+                  );
+              if (thumbPath != null) {
+                metadata = ExtractedMetadata(
+                  title: metadata.title,
+                  artistName: metadata.artistName,
+                  albumArtist: metadata.albumArtist,
+                  albumName: metadata.albumName,
+                  albumGroupKey: metadata.albumGroupKey,
+                  year: metadata.year,
+                  genre: metadata.genre,
+                  trackNumber: metadata.trackNumber,
+                  trackTotal: metadata.trackTotal,
+                  discNumber: metadata.discNumber,
+                  discTotal: metadata.discTotal,
+                  durationMs: metadata.durationMs,
+                  artworkPath: thumbPath,
+                  artworkMimeType: 'image/jpeg',
                 );
-            if (thumbPath != null) {
-              metadata = ExtractedMetadata(
-                title: metadata.title,
-                artistName: metadata.artistName,
-                albumArtist: metadata.albumArtist,
-                albumName: metadata.albumName,
-                albumGroupKey: metadata.albumGroupKey,
-                year: metadata.year,
-                genre: metadata.genre,
-                trackNumber: metadata.trackNumber,
-                trackTotal: metadata.trackTotal,
-                discNumber: metadata.discNumber,
-                discTotal: metadata.discTotal,
-                durationMs: metadata.durationMs,
-                artworkPath: thumbPath,
-                artworkMimeType: 'image/jpeg',
-              );
+              }
             }
-          }
-        case VideoProbeResult.audioOnly:
-          isVideo = false;
-          debugPrint(
-            'VideoProbe: $displayPath is audio-only (no video stream)',
+          case VideoProbeResult.audioOnly:
+            isVideo = false;
+            debugPrint(
+              'VideoProbe: $displayPath is audio-only (no video stream)',
+            );
+          case VideoProbeResult.probeFailed:
+            // Failed probe: leave isVideo=false (safe default; will stay in audio
+            // library or remain unclassified until a future rescan).
+            debugPrint(
+              'VideoProbe: $displayPath probe failed/timed out; defaulting to audio',
+            );
+          case VideoProbeResult.cancelled:
+            debugPrint('VideoProbe: $displayPath probe cancelled');
+        }
+      }
+
+      await _db.upsertLocalFile(
+        LocalFilesCompanion.insert(
+          libraryId: libraryId,
+          mechanism: mechanism.name,
+          locator: locator,
+          displayPath: displayPath,
+          deduplicationKey: dedupeKey,
+          availabilityStatus: const drift.Value('available'),
+          lastScannedAt: DateTime.now(),
+          importRootLocator: drift.Value(importRootLocator),
+          albumArtist: drift.Value(metadata.albumArtist),
+          albumGroupKey: drift.Value(metadata.albumGroupKey),
+          trackNumber: drift.Value(metadata.trackNumber),
+          trackTotal: drift.Value(metadata.trackTotal),
+          discNumber: drift.Value(metadata.discNumber),
+          discTotal: drift.Value(metadata.discTotal),
+          genre: drift.Value(metadata.genre),
+          releaseYear: drift.Value(metadata.year),
+          artworkPath: drift.Value(metadata.artworkPath),
+          artworkMimeType: drift.Value(metadata.artworkMimeType),
+          isVideo: drift.Value(isVideo),
+        ),
+      );
+
+      await _db
+          .into(_db.tracks)
+          .insertOnConflictUpdate(
+            TracksCompanion.insert(
+              spotifyId: libraryId,
+              name: metadata.title,
+              artistId: 'local',
+              artistName: metadata.artistName,
+              albumId: drift.Value(metadata.albumGroupKey),
+              albumName: drift.Value(metadata.albumName),
+              albumImage: drift.Value(metadata.artworkPath),
+              durationMs: drift.Value(metadata.durationMs),
+            ),
           );
-        case VideoProbeResult.probeFailed:
-          // Failed probe: leave isVideo=false (safe default; will stay in audio
-          // library or remain unclassified until a future rescan).
-          debugPrint(
-            'VideoProbe: $displayPath probe failed/timed out; defaulting to audio',
-          );
-        case VideoProbeResult.cancelled:
-          debugPrint('VideoProbe: $displayPath probe cancelled');
+
+      return Track.fromLocalFile(
+        libraryId: libraryId,
+        name: metadata.title,
+        artistName: metadata.artistName,
+        albumName: metadata.albumName,
+        localFilePath: locator,
+        localArtworkPath: metadata.artworkPath,
+        durationMs: metadata.durationMs,
+        isVideoFile: isVideo,
+      );
+    } finally {
+      if (scopedBookmark) await stopAccessingSecurityScopedBookmark(locator);
+      if (isTemp) {
+        try {
+          await File(extractPath).delete();
+        } catch (_) {}
       }
     }
-
-    if (isTemp) {
-      try {
-        File(extractPath).deleteSync();
-      } catch (_) {}
-    }
-
-    await _db.upsertLocalFile(
-      LocalFilesCompanion.insert(
-        libraryId: libraryId,
-        mechanism: mechanism.name,
-        locator: locator,
-        displayPath: displayPath,
-        deduplicationKey: dedupeKey,
-        availabilityStatus: const drift.Value('available'),
-        lastScannedAt: DateTime.now(),
-        importRootLocator: drift.Value(importRootLocator),
-        albumArtist: drift.Value(metadata.albumArtist),
-        albumGroupKey: drift.Value(metadata.albumGroupKey),
-        trackNumber: drift.Value(metadata.trackNumber),
-        trackTotal: drift.Value(metadata.trackTotal),
-        discNumber: drift.Value(metadata.discNumber),
-        discTotal: drift.Value(metadata.discTotal),
-        genre: drift.Value(metadata.genre),
-        releaseYear: drift.Value(metadata.year),
-        artworkPath: drift.Value(metadata.artworkPath),
-        artworkMimeType: drift.Value(metadata.artworkMimeType),
-        isVideo: drift.Value(isVideo),
-      ),
-    );
-
-    await _db
-        .into(_db.tracks)
-        .insertOnConflictUpdate(
-          TracksCompanion.insert(
-            spotifyId: libraryId,
-            name: metadata.title,
-            artistId: 'local',
-            artistName: metadata.artistName,
-            albumId: drift.Value(metadata.albumGroupKey),
-            albumName: drift.Value(metadata.albumName),
-            albumImage: drift.Value(metadata.artworkPath),
-            durationMs: drift.Value(metadata.durationMs),
-          ),
-        );
-
-    return Track.fromLocalFile(
-      libraryId: libraryId,
-      name: metadata.title,
-      artistName: metadata.artistName,
-      albumName: metadata.albumName,
-      localFilePath: locator,
-      localArtworkPath: metadata.artworkPath,
-      durationMs: metadata.durationMs,
-      isVideoFile: isVideo,
-    );
   }
 
   String _hashLocator(String loc) {

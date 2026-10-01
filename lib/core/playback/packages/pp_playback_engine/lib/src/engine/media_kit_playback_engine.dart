@@ -319,6 +319,23 @@ class MediaKitPlaybackEngine implements PlaybackController {
   bool _ready = false;
   int? _latePauseGeneration;
 
+  // YouTube can repeat a paused value for metadata/quality updates. On iOS,
+  // coalesce corrections and invalidate delayed checks when a newer playback
+  // event or user intent arrives. A short cooldown still permits retries if
+  // the first command did not actually resume playback.
+  (int, int)? _iosPauseRecoveryEpisode;
+  Object? _iosPauseRecoveryToken;
+  Timer? _iosPauseRecoveryCooldown;
+
+  bool get _isIOS => !kIsWeb && defaultTargetPlatform == TargetPlatform.iOS;
+
+  void _cancelIOSPauseRecovery() {
+    _iosPauseRecoveryCooldown?.cancel();
+    _iosPauseRecoveryCooldown = null;
+    _iosPauseRecoveryEpisode = null;
+    _iosPauseRecoveryToken = null;
+  }
+
   bool _valid(int generation) =>
       !_disposed && _attemptActive && generation == _playGeneration;
 
@@ -988,6 +1005,9 @@ class MediaKitPlaybackEngine implements PlaybackController {
           if (eventId.isNotEmpty && eventId != _currentStatus.track?.id) return;
 
           final gen = _playGeneration;
+          if (_isIOS && ytState.playerState != yt.PlayerState.paused) {
+            _cancelIOSPauseRecovery();
+          }
           _diag(
             'BRIDGE gen=$gen iframeState=${ytState.playerState} '
             'engineState=${_currentStatus.state} intended=$_intendedState '
@@ -1113,11 +1133,15 @@ class MediaKitPlaybackEngine implements PlaybackController {
               _latePauseGeneration = null;
               unawaited(_dispatchIFramePlay(gen, 'late-pause'));
             } else if (ytState.playerState == yt.PlayerState.paused) {
-              _diag(
-                'BRIDGE SPURIOUS-PAUSE: intendedState=playing. Forcing playVideo() to combat background suspension.',
-              );
               finalNewState = PlaybackState.playing; // Prevent emitting paused!
-              unawaited(_dispatchIFramePlay(gen, 'spurious-pause'));
+              if (_isIOS) {
+                unawaited(_recoverIOSIFramePause(gen));
+              } else {
+                _diag(
+                  'BRIDGE SPURIOUS-PAUSE: intendedState=playing. Forcing playVideo() to combat background suspension.',
+                );
+                unawaited(_dispatchIFramePlay(gen, 'spurious-pause'));
+              }
             }
             if (ytState.playerState == yt.PlayerState.unStarted) return;
           }
@@ -1223,6 +1247,7 @@ class MediaKitPlaybackEngine implements PlaybackController {
       'intendedWas=$_intendedState gen=$_playGeneration',
     );
     _intentRevision++;
+    _cancelIOSPauseRecovery();
     _watchdogTimer?.cancel();
     _intendedState = PlaybackState.paused;
 
@@ -1281,13 +1306,73 @@ class MediaKitPlaybackEngine implements PlaybackController {
     }
   }
 
+  Future<void> _recoverIOSIFramePause(int generation) async {
+    final revision = _intentRevision;
+    final episode = (generation, revision);
+    if (_iosPauseRecoveryEpisode == episode) return;
+    _iosPauseRecoveryEpisode = episode;
+    final token = Object();
+    _iosPauseRecoveryToken = token;
+
+    bool eligibleWithoutToken() =>
+        _valid(generation) &&
+        revision == _intentRevision &&
+        _intendedState == PlaybackState.playing;
+    bool eligible() =>
+        identical(_iosPauseRecoveryToken, token) && eligibleWithoutToken();
+
+    try {
+      final liveState = await _youtubeController!.playerState.timeout(
+        const Duration(milliseconds: 400),
+      );
+      if (!eligible()) return;
+      if (liveState != yt.PlayerState.paused) {
+        _iosPauseRecoveryEpisode = null;
+        _diag(
+          'IOS PAUSE-RECOVERY skipped: liveState=$liveState gen=$generation',
+        );
+        return;
+      }
+      _diag('IOS PAUSE-RECOVERY confirmed paused gen=$generation');
+      await _dispatchIFramePlay(
+        generation,
+        'ios-confirmed-pause',
+        restoreVolume: false,
+        recoveryIsCurrent: eligible,
+      );
+    } catch (error) {
+      if (eligible()) {
+        // A failed state query gives no reason to poke an already-playing
+        // player. Allow a later pause update to retry the check.
+        _iosPauseRecoveryEpisode = null;
+        _diag('IOS PAUSE-RECOVERY state check failed: $error');
+      }
+    } finally {
+      if (identical(_iosPauseRecoveryToken, token)) {
+        _iosPauseRecoveryToken = null;
+        if (_iosPauseRecoveryEpisode == episode && eligibleWithoutToken()) {
+          _iosPauseRecoveryCooldown?.cancel();
+          _iosPauseRecoveryCooldown = Timer(const Duration(seconds: 1), () {
+            if (_iosPauseRecoveryEpisode == episode) {
+              _iosPauseRecoveryEpisode = null;
+            }
+            _iosPauseRecoveryCooldown = null;
+          });
+        }
+      }
+    }
+  }
+
   Future<void> _dispatchIFramePlay(
     int expectedGeneration,
-    String source,
-  ) async {
+    String source, {
+    bool restoreVolume = true,
+    bool Function()? recoveryIsCurrent,
+  }) async {
     bool eligible() =>
         _valid(expectedGeneration) &&
         _intendedState == PlaybackState.playing &&
+        (recoveryIsCurrent?.call() ?? true) &&
         (BackgroundPlaybackExperiment.enabled || !isActivityStopped);
     if (!eligible()) {
       if (_valid(expectedGeneration) && isActivityStopped) {
@@ -1300,9 +1385,11 @@ class MediaKitPlaybackEngine implements PlaybackController {
     final revision = _intentRevision;
     _lastPlayedGeneration = expectedGeneration;
     try {
-      await _youtubeController!.setVolume(
-        (_currentStatus.volume * 100).toInt(),
-      );
+      if (restoreVolume) {
+        await _youtubeController!.setVolume(
+          (_currentStatus.volume * 100).toInt(),
+        );
+      }
       if (!eligible() || revision != _intentRevision) return;
       _diag('DISPATCH playVideo gen=$expectedGeneration source=$source');
       final command = _youtubeController!.playVideo();
@@ -1321,6 +1408,7 @@ class MediaKitPlaybackEngine implements PlaybackController {
   @override
   Future<void> resume() async {
     _intentRevision++;
+    _cancelIOSPauseRecovery();
     _diag(
       'ENGINE resume() iframeMode=${_currentStatus.isIFrameMode} '
       'activityStopped=$isActivityStopped gen=$_playGeneration',
@@ -1372,6 +1460,7 @@ class MediaKitPlaybackEngine implements PlaybackController {
   Future<void> stop() async {
     _playGeneration++;
     _intentRevision++;
+    _cancelIOSPauseRecovery();
     _attemptActive = false;
     _latePauseGeneration = null;
     _watchdogTimer?.cancel();
@@ -1565,6 +1654,11 @@ class MediaKitPlaybackEngine implements PlaybackController {
     _lastPolledPosition = -1;
     _frozenPositionTicks = 0;
     _iframePositionTimer?.cancel();
+    final serialize = _isIOS;
+    var pollInFlight = false;
+    if (serialize) {
+      _diag('IOS position polling: serialized, using cached metadata duration');
+    }
     _iframePositionTimer = Timer.periodic(const Duration(milliseconds: 500), (
       timer,
     ) async {
@@ -1572,6 +1666,8 @@ class MediaKitPlaybackEngine implements PlaybackController {
         timer.cancel();
         return;
       }
+      if (serialize && pollInFlight) return;
+      pollInFlight = true;
 
       double currentTime;
       double duration;
@@ -1581,12 +1677,23 @@ class MediaKitPlaybackEngine implements PlaybackController {
         currentTime = await _youtubeController!.currentTime.timeout(
           const Duration(milliseconds: 400),
         );
-        duration = await _youtubeController!.duration.timeout(
-          const Duration(milliseconds: 400),
-        );
+        final metadata = _youtubeController!.value.metaData;
+        if (serialize &&
+            _currentStatus.track?.liveStatus == PlaybackLiveStatus.onDemand &&
+            metadata.videoId == _currentStatus.track?.id &&
+            metadata.duration > Duration.zero) {
+          duration = metadata.duration.inMilliseconds / 1000.0;
+        } else {
+          duration = await _youtubeController!.duration.timeout(
+            const Duration(milliseconds: 400),
+          );
+        }
       } catch (e) {
         return;
+      } finally {
+        pollInFlight = false;
       }
+      if (serialize && !_valid(generation)) return;
 
       // Synthetic end-of-track detection (for macOS App Nap).
       if (duration > 0 &&
@@ -1660,6 +1767,7 @@ class MediaKitPlaybackEngine implements PlaybackController {
   Future<void> dispose() async {
     if (_disposed) return;
     _disposed = true;
+    _cancelIOSPauseRecovery();
     _attemptActive = false;
     _playGeneration++;
     _watchdogTimer?.cancel();

@@ -632,10 +632,12 @@ class YoutubePlayerController implements YoutubePlayerIFrameAPI {
 
   @override
   Future<PlayerState> get playerState async {
-    final stateCode = await _runWithResult('getPlayerState');
+    // WKWebView can return JavaScript numbers as doubles (e.g. 2.0). Compare
+    // numeric values so an actual paused state is recognized on iOS.
+    final stateCode = num.tryParse(await _runWithResult('getPlayerState'));
 
     return PlayerState.values.firstWhere(
-      (state) => state.code.toString() == stateCode,
+      (state) => state.code == stateCode,
       orElse: () => PlayerState.unknown,
     );
   }

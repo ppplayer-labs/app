@@ -29,6 +29,7 @@ class FakeEngine implements PlaybackController {
 
   // Counters for assertion
   int playCalls = 0;
+  bool? lastAutoplay;
   int pauseCallsFromHandoff = 0;
   int resumeCalls = 0;
   final List<String> callLog = [];
@@ -62,10 +63,15 @@ class FakeEngine implements PlaybackController {
     Duration startAt = Duration.zero,
   }) async {
     playCalls++;
+    lastAutoplay = play;
     callLog.add('play(${track.id})');
     emit(_status.copyWith(state: PlaybackState.buffering));
     if (playCompleter != null) await playCompleter!.future;
-    emit(_status.copyWith(state: PlaybackState.playing));
+    emit(
+      _status.copyWith(
+        state: play ? PlaybackState.playing : PlaybackState.paused,
+      ),
+    );
   }
 
   @override
@@ -136,7 +142,10 @@ class FakeEngine implements PlaybackController {
   @override
   Future<void> setSubtitleDelay(Duration delay) async {}
   @override
-  Future<void> setSubtitleAppearance({double? textSize, int? backgroundColor}) async {}
+  Future<void> setSubtitleAppearance({
+    double? textSize,
+    int? backgroundColor,
+  }) async {}
 }
 
 // ---------------------------------------------------------------------------
@@ -167,6 +176,18 @@ void main() {
   tearDown(() {
     engine.dispose();
     PipHandler.resetForTest();
+  });
+
+  test('paused load preserves autoplay=false for local restoration', () async {
+    await engine.play(
+      _track,
+      startAt: const Duration(seconds: 12),
+      play: false,
+    );
+    await pump();
+    expect(fg.lastAutoplay, isFalse);
+    expect(engine.currentStatus.state, PlaybackState.paused);
+    expect(bg.playCalls, 0);
   });
 
   // =========================================================================

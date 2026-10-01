@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:media_kit/media_kit.dart' show VideoParams, SubtitleTrack;
 import 'package:media_kit_video/media_kit_video.dart' show VideoController;
 import 'package:flutter_test/flutter_test.dart';
@@ -79,7 +80,11 @@ class FakeNativeAdapter implements INativePlayerAdapter {
   Stream<VideoParams> get videoParamsStream => _videoParamsCtrl.stream;
 
   @override
-  Future<void> open(String uri, {bool play = false, Map<String, String>? httpHeaders}) async {
+  Future<void> open(
+    String uri, {
+    bool play = false,
+    Map<String, String>? httpHeaders,
+  }) async {
     opens++;
     if (openCompleter != null) await openCompleter!.future;
     if (!_disposed) _bufferingCtrl.add(true);
@@ -111,9 +116,12 @@ class FakeNativeAdapter implements INativePlayerAdapter {
   Future<void> setRate(double rate) async {}
   @override
   Future<void> setSubtitleTrack(SubtitleTrack track) async {}
-  
+
   @override
-  Future<void> setSubtitleAppearance({double? textSize, int? backgroundColor}) async {}
+  Future<void> setSubtitleAppearance({
+    double? textSize,
+    int? backgroundColor,
+  }) async {}
   @override
   Future<void> setSubtitleDelay(Duration delay) async {}
   @override
@@ -178,11 +186,318 @@ void main() {
     });
   }
 
-  Future<void> ready(WidgetTester tester) async {
-    await engine.play(track);
-    controller.emitState(track.id, yt.PlayerState.cued);
+  Future<void> ready(
+    WidgetTester tester, {
+    PlaybackTrack playbackTrack = track,
+  }) async {
+    await engine.play(playbackTrack);
+    controller.emitState(playbackTrack.id, yt.PlayerState.cued);
     await tester.pump();
   }
+
+  void iosTest(String name, Future<void> Function(WidgetTester) body) {
+    engineTest(name, (tester) async {
+      try {
+        await body(tester);
+      } finally {
+        // Flutter checks debug overrides before package tearDown runs.
+        debugDefaultTargetPlatformOverride = null;
+      }
+    });
+  }
+
+  group('iOS pause recovery', () {
+    setUp(() => debugDefaultTargetPlatformOverride = TargetPlatform.iOS);
+    tearDown(() => debugDefaultTargetPlatformOverride = null);
+
+    Future<void> playing(WidgetTester tester) async {
+      await ready(tester);
+      controller.emitState(track.id, yt.PlayerState.playing);
+      await tester.pump();
+    }
+
+    iosTest('stale paused callback leaves live playback untouched', (
+      tester,
+    ) async {
+      await playing(tester);
+      controller.emitState(
+        track.id,
+        yt.PlayerState.paused,
+        liveState: yt.PlayerState.playing,
+      );
+      await tester.pump();
+      expect(controller.playerStateChecks, 1);
+      expect(controller.count('play'), 1);
+      expect(controller.count('volume'), 1);
+      expect(engine.currentStatus.state, PlaybackState.playing);
+
+      // A genuine pause following a stale callback must still be recoverable,
+      // even when no intervening playing callback arrives through the bridge.
+      controller.emitState(track.id, yt.PlayerState.paused);
+      await tester.pump();
+      expect(controller.playerStateChecks, 2);
+      expect(controller.count('play'), 2);
+      expect(controller.count('volume'), 1);
+    });
+
+    iosTest('duplicate pauses issue one correction without restoring volume', (
+      tester,
+    ) async {
+      await playing(tester);
+      controller.playerStateCompletion = Completer<yt.PlayerState>();
+      for (var i = 0; i < 20; i++) {
+        controller.emitState(track.id, yt.PlayerState.paused);
+      }
+      await tester.pump();
+      expect(controller.playerStateChecks, 1);
+      controller.playerStateCompletion!.complete(yt.PlayerState.paused);
+      await tester.pump();
+      expect(controller.count('play'), 2);
+      expect(controller.count('volume'), 1);
+
+      controller.emitState(track.id, yt.PlayerState.paused);
+      await tester.pump(const Duration(milliseconds: 900));
+      expect(controller.playerStateChecks, 1);
+      expect(controller.count('play'), 2);
+    });
+
+    iosTest('missing playing acknowledgement permits retry after cooldown', (
+      tester,
+    ) async {
+      await playing(tester);
+      controller.emitState(track.id, yt.PlayerState.paused);
+      await tester.pump();
+      expect(controller.count('play'), 2);
+      await tester.pump(const Duration(seconds: 1));
+      controller.emitState(track.id, yt.PlayerState.paused);
+      await tester.pump();
+      expect(controller.playerStateChecks, 2);
+      expect(controller.count('play'), 3);
+      expect(controller.count('volume'), 1);
+    });
+
+    for (final recoveredState in [
+      yt.PlayerState.playing,
+      yt.PlayerState.buffering,
+    ]) {
+      iosTest('${recoveredState.name} invalidates a pending state check', (
+        tester,
+      ) async {
+        await playing(tester);
+        controller.playerStateCompletion = Completer<yt.PlayerState>();
+        controller.emitState(track.id, yt.PlayerState.paused);
+        await tester.pump();
+        expect(controller.playerStateChecks, 1);
+        controller.emitState(track.id, recoveredState);
+        await tester.pump();
+        controller.playerStateCompletion!.complete(yt.PlayerState.paused);
+        await tester.pump();
+        expect(controller.count('play'), 1);
+        expect(controller.count('volume'), 1);
+      });
+    }
+
+    for (final action in ['pause', 'replacement', 'dispose']) {
+      iosTest('$action invalidates a pending state check', (tester) async {
+        await playing(tester);
+        controller.playerStateCompletion = Completer<yt.PlayerState>();
+        controller.emitState(track.id, yt.PlayerState.paused);
+        await tester.pump();
+        expect(controller.playerStateChecks, 1);
+        switch (action) {
+          case 'pause':
+            await engine.pause();
+          case 'replacement':
+            await engine.play(other);
+          case 'dispose':
+            await engine.dispose();
+        }
+        controller.playerStateCompletion!.complete(yt.PlayerState.paused);
+        await tester.pump();
+        expect(controller.count('play'), 1);
+        expect(controller.count('volume'), 1);
+      });
+    }
+
+    iosTest('explicit resume restores volume and invalidates recovery', (
+      tester,
+    ) async {
+      await playing(tester);
+      controller.playerStateCompletion = Completer<yt.PlayerState>();
+      controller.emitState(track.id, yt.PlayerState.paused);
+      await tester.pump();
+      await engine.resume();
+      expect(
+        controller.commands
+            .skip(controller.commands.length - 2)
+            .map((command) => command.name),
+        ['volume', 'play'],
+      );
+      controller.playerStateCompletion!.complete(yt.PlayerState.paused);
+      await tester.pump();
+      expect(controller.count('play'), 2);
+      expect(controller.count('volume'), 2);
+      expect(controller.playerStateChecks, 1);
+    });
+
+    iosTest('state query timeout does not restart playback and allows retry', (
+      tester,
+    ) async {
+      await playing(tester);
+      controller.playerStateCompletion = Completer<yt.PlayerState>();
+      controller.emitState(track.id, yt.PlayerState.paused);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 401));
+      expect(controller.count('play'), 1);
+      expect(controller.count('volume'), 1);
+      controller.playerStateCompletion!.complete(yt.PlayerState.paused);
+      await tester.pump();
+      expect(controller.count('play'), 1);
+
+      controller.playerStateCompletion = null;
+      controller.emitState(track.id, yt.PlayerState.paused);
+      await tester.pump();
+      expect(controller.playerStateChecks, 2);
+      expect(controller.count('play'), 2);
+      expect(controller.count('volume'), 1);
+    });
+  });
+
+  group('iOS position polling', () {
+    setUp(() => debugDefaultTargetPlatformOverride = TargetPlatform.iOS);
+    tearDown(() => debugDefaultTargetPlatformOverride = null);
+    const onDemandTrack = PlaybackTrack(
+      id: 'videoAAAAAA',
+      title: 'A',
+      liveStatus: PlaybackLiveStatus.onDemand,
+    );
+
+    iosTest('matching metadata duration avoids a duration bridge query', (
+      tester,
+    ) async {
+      await ready(tester, playbackTrack: onDemandTrack);
+      controller.emitState(
+        track.id,
+        yt.PlayerState.playing,
+        metadata: yt.YoutubeMetaData(
+          videoId: track.id,
+          duration: const Duration(milliseconds: 120500),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(controller.currentTimeChecks, 1);
+      expect(controller.durationChecks, 0);
+      expect(
+        engine.currentStatus.duration,
+        const Duration(milliseconds: 120500),
+      );
+      expect(engine.currentStatus.position, const Duration(seconds: 12));
+    });
+
+    iosTest('metadata from another video cannot supply the track duration', (
+      tester,
+    ) async {
+      await ready(tester, playbackTrack: onDemandTrack);
+      controller.emitState(track.id, yt.PlayerState.playing);
+      await tester.pump();
+      // The controller may still expose metadata from the previous video.
+      // Its stale callback is ignored, while the running poll checks identity.
+      controller.emitState(
+        other.id,
+        yt.PlayerState.playing,
+        metadata: yt.YoutubeMetaData(
+          videoId: other.id,
+          duration: const Duration(seconds: 99),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(controller.currentTimeChecks, 1);
+      expect(controller.durationChecks, 1);
+      expect(engine.currentStatus.track?.id, track.id);
+      expect(engine.currentStatus.duration, const Duration(seconds: 200));
+    });
+
+    for (final liveStatus in [
+      PlaybackLiveStatus.live,
+      PlaybackLiveStatus.unknown,
+    ]) {
+      iosTest(
+        '${liveStatus.name} duration stays current through bridge queries',
+        (tester) async {
+          await ready(
+            tester,
+            playbackTrack: PlaybackTrack(
+              id: track.id,
+              title: track.title,
+              liveStatus: liveStatus,
+            ),
+          );
+          controller.emitState(
+            track.id,
+            yt.PlayerState.playing,
+            metadata: yt.YoutubeMetaData(
+              videoId: track.id,
+              duration: const Duration(seconds: 99),
+            ),
+          );
+          await tester.pump();
+          await tester.pump(const Duration(milliseconds: 500));
+          expect(controller.durationChecks, 1);
+          expect(engine.currentStatus.duration, const Duration(seconds: 200));
+          await tester.pump(const Duration(milliseconds: 500));
+          expect(controller.durationChecks, 2);
+        },
+      );
+    }
+
+    iosTest('a slow poll skips the next tick until both queries complete', (
+      tester,
+    ) async {
+      await ready(tester);
+      controller.currentTimeCompletion = Completer<double>();
+      controller.durationCompletion = Completer<double>();
+      controller.emitState(track.id, yt.PlayerState.playing);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(controller.currentTimeChecks, 1);
+
+      await tester.pump(const Duration(milliseconds: 300));
+      controller.currentTimeCompletion!.complete(12);
+      await tester.pump();
+      expect(controller.durationChecks, 1);
+
+      // The 1000 ms timer tick arrives during the duration query. Each query
+      // completes in 300 ms, within its individual 400 ms timeout, but their
+      // combined latency is greater than the 500 ms polling interval.
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(controller.currentTimeChecks, 1);
+      expect(controller.durationChecks, 1);
+      await tester.pump(const Duration(milliseconds: 100));
+      controller.durationCompletion!.complete(200);
+      await tester.pump();
+      expect(engine.currentStatus.position, const Duration(seconds: 12));
+      expect(engine.currentStatus.duration, const Duration(seconds: 200));
+
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(controller.currentTimeChecks, 2);
+      expect(controller.durationChecks, 2);
+    });
+  });
+
+  engineTest('non-iOS unexpected pause retains immediate volume and play', (
+    tester,
+  ) async {
+    await ready(tester);
+    controller.emitState(track.id, yt.PlayerState.playing);
+    await tester.pump();
+    controller.emitState(track.id, yt.PlayerState.paused);
+    await tester.pump();
+    expect(controller.playerStateChecks, 0);
+    expect(controller.count('play'), 2);
+    expect(controller.count('volume'), 2);
+  });
 
   engineTest('loading timeout: one recovery cue and one terminal failure', (
     tester,

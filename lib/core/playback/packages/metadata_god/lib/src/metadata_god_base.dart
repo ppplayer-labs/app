@@ -1,7 +1,8 @@
+import 'dart:io';
+import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:metadata_god/src/rust/api/api.dart';
 import 'package:metadata_god/src/rust/api/api.dart' as api;
 import 'package:metadata_god/src/rust/frb_generated.dart';
-
 abstract class MetadataGod {
   MetadataGod._();
 
@@ -20,7 +21,11 @@ abstract class MetadataGod {
   /// }
   /// ```
   static Future<void> initialize() async {
-    await RustLib.init();
+    await RustLib.init(
+      externalLibrary: Platform.isIOS 
+          ? ExternalLibrary.process(iKnowHowToUseIt: true) 
+          : null,
+    );
     await RustLib.instance.executeRustInitializers();
   }
 

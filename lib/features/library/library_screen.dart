@@ -1636,7 +1636,7 @@ class _ArtistsSliverList extends StatelessWidget {
                                     shape: BoxShape.circle,
                                     image: artist.imageUrl != null
                                         ? DecorationImage(
-                                            image: NetworkImage(
+                                            image: PPImage.getImageProvider(
                                               artist.imageUrl!,
                                             ),
                                             fit: BoxFit.cover,
@@ -1824,7 +1824,7 @@ class _AlbumsSliverGrid extends StatelessWidget {
                                     ],
                                     image: album.imageUrl != null
                                         ? DecorationImage(
-                                            image: NetworkImage(
+                                            image: PPImage.getImageProvider(
                                               album.imageUrl!,
                                             ),
                                             fit: BoxFit.cover,
@@ -2188,7 +2188,7 @@ class _RadioCard extends ConsumerWidget {
                   ],
                   image: radio.imageUrl != null
                       ? DecorationImage(
-                          image: NetworkImage(radio.imageUrl!),
+                          image: PPImage.getImageProvider(radio.imageUrl!),
                           fit: BoxFit.cover,
                         )
                       : null,

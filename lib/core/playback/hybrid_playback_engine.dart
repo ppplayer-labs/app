@@ -427,7 +427,7 @@ class HybridPlaybackEngine implements PlaybackController {
         .timeout(const Duration(seconds: 5))
         .catchError((_) => const PlaybackStatus());
 
-    await _activeEngine.play(track, startAt: startAt);
+    await _activeEngine.play(track, startAt: startAt, play: play);
 
     if (_activeEngine.currentStatus.state == PlaybackState.playing) {
       if (_owner == EngineOwner.foreground) {

@@ -9,6 +9,7 @@
 import 'dart:io';
 import 'package:flutter/services.dart';
 import 'local_track_source.dart';
+import 'managed_local_file_store.dart';
 
 /// Sealed result from resolving a local source into a playable URI.
 sealed class LocalFileResult {}
@@ -48,19 +49,28 @@ abstract class LocalFileResolver {
 // ---------------------------------------------------------------------------
 
 class _AbsolutePathResolver implements LocalFileResolver {
+  Future<String> _path(String locator) async {
+    final uri = Uri.tryParse(locator);
+    if (uri?.scheme == 'pp-local')
+      return ManagedLocalFileStore().resolve(locator);
+    if (uri?.scheme == 'file') return uri!.toFilePath();
+    return locator;
+  }
+
   @override
   Future<LocalFileResult> resolve(LocalTrackSource source) async {
     final status = await checkAccess(source);
     if (status != TrackAvailabilityStatus.available) {
       return LocalFileMissing(status: status, message: source.displayPath);
     }
-    return LocalFileReady(mediaUri: Uri.file(source.locator).toString());
+    final path = await _path(source.locator);
+    return LocalFileReady(mediaUri: Uri.file(path).toString());
   }
 
   @override
   Future<TrackAvailabilityStatus> checkAccess(LocalTrackSource source) async {
     try {
-      if (await File(source.locator).exists()) {
+      if (await File(await _path(source.locator)).exists()) {
         return TrackAvailabilityStatus.available;
       }
       return TrackAvailabilityStatus.missing;
@@ -143,6 +153,8 @@ class _IOsBookmarkResolver implements LocalFileResolver {
     }
     try {
       final path = await _LocalFilesChannel.resolveBookmark(source.locator);
+      if (path != null)
+        await _LocalFilesChannel.stopBookmarkAccess(source.locator);
       return path != null
           ? TrackAvailabilityStatus.available
           : TrackAvailabilityStatus.missing;
@@ -181,6 +193,10 @@ class _LocalFilesChannel {
   /// [base64Bookmark], resolves it to an absolute path, and returns it.
   /// Returns null if the file is gone.
   /// Throws [_BookmarkError] if the bookmark is stale / revoked.
+  ///
+  /// The native side calls `startAccessingSecurityScopedResource()`. The caller
+  /// MUST eventually call [stopBookmarkAccess] with the same [base64Bookmark]
+  /// when it has finished reading the file.
   static Future<String?> resolveBookmark(String base64Bookmark) async {
     try {
       return await _ch.invokeMethod<String>('resolveBookmark', {
@@ -191,6 +207,21 @@ class _LocalFilesChannel {
         throw _BookmarkError(TrackAvailabilityStatus.permissionRevoked);
       }
       return null;
+    }
+  }
+
+  /// iOS / macOS: stops accessing the security-scoped resource previously
+  /// started by [resolveBookmark]. Must be called once per resolved bookmark
+  /// when the caller no longer needs file access.
+  static Future<void> stopBookmarkAccess(String base64Bookmark) async {
+    try {
+      await _ch.invokeMethod<void>('stopBookmarkAccess', {
+        'bookmark': base64Bookmark,
+      });
+    } on PlatformException {
+      // Best-effort: native side may have already cleaned up.
+    } catch (_) {
+      // Ignore errors during teardown.
     }
   }
 
@@ -243,4 +274,29 @@ Future<List<String>> listAudioFilesInDocumentTree(
 /// Exposed for iOS/macOS bookmark creation at import time.
 Future<String?> createSecurityScopedBookmark(String absolutePath) {
   return _LocalFilesChannel.createBookmark(absolutePath);
+}
+
+/// Resolves an iOS/macOS security-scoped bookmark to an absolute path and
+/// starts accessing the security-scoped resource.
+///
+/// Returns `null` if the file is gone, access is revoked, or the resolver
+/// is unavailable.
+///
+/// The caller **must** call [stopAccessingSecurityScopedBookmark] with the same
+/// [bookmark] value when it no longer needs file access — typically from
+/// the file lease release callback.
+Future<String?> resolveSecurityScopedBookmark(String bookmark) async {
+  try {
+    return await _LocalFilesChannel.resolveBookmark(bookmark);
+  } on _BookmarkError {
+    return null;
+  } on MissingPluginException {
+    return null;
+  }
+}
+
+/// Stops accessing a security-scoped resource previously started by
+/// [resolveSecurityScopedBookmark]. Call once per successful resolution; safe to call on teardown errors.
+Future<void> stopAccessingSecurityScopedBookmark(String base64Bookmark) {
+  return _LocalFilesChannel.stopBookmarkAccess(base64Bookmark);
 }

@@ -129,7 +129,10 @@ class SpeedMockEngine implements PlaybackController {
   @override
   Future<void> setSubtitleDelay(Duration delay) async {}
   @override
-  Future<void> setSubtitleAppearance({double? textSize, int? backgroundColor}) async {}
+  Future<void> setSubtitleAppearance({
+    double? textSize,
+    int? backgroundColor,
+  }) async {}
 
   @override
   Future<void> setSpeed(double speed) async {

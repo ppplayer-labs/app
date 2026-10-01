@@ -8,6 +8,8 @@ class PPImage extends StatelessWidget {
   final double? width;
   final double? height;
   final BoxFit fit;
+  final ImageRepeat repeat;
+  final Color? color;
   final Widget? placeholder;
   final Widget? errorWidget;
   final BorderRadius? borderRadius;
@@ -18,6 +20,8 @@ class PPImage extends StatelessWidget {
     this.width,
     this.height,
     this.fit = BoxFit.cover,
+    this.repeat = ImageRepeat.noRepeat,
+    this.color,
     this.placeholder,
     this.errorWidget,
     this.borderRadius,
@@ -37,33 +41,41 @@ class PPImage extends StatelessWidget {
         width: width,
         height: height,
         fit: fit,
+        repeat: repeat,
+        color: color,
         errorBuilder: (context, error, stackTrace) =>
             _buildErrorWidget(context),
       );
     } else if (imageUrl!.startsWith('/') || imageUrl!.startsWith('file://')) {
       final path = imageUrl!.startsWith('file://')
-          ? imageUrl!.replaceFirst('file://', '')
+          ? Uri.parse(imageUrl!).toFilePath()
           : imageUrl!;
       image = Image.file(
         File(path),
         width: width,
         height: height,
         fit: fit,
+        repeat: repeat,
+        color: color,
         errorBuilder: (context, error, stackTrace) =>
             _buildErrorWidget(context),
       );
-    } else {
+    } else if (_isHttp(imageUrl!)) {
       image = CachedNetworkImage(
         cacheManager: PPImageCacheManager.instance,
         imageUrl: imageUrl!,
         width: width,
         height: height,
         fit: fit,
+        repeat: repeat,
+        color: color,
         placeholder: (context, url) =>
             placeholder ?? _buildPlaceholder(context),
         errorWidget: (context, url, error) =>
             errorWidget ?? _buildErrorWidget(context),
       );
+    } else {
+      image = _buildErrorWidget(context);
     }
 
     if (borderRadius != null) {
@@ -101,21 +113,29 @@ class PPImage extends StatelessWidget {
 
   static ImageProvider getImageProvider(String? imageUrl) {
     if (imageUrl == null || imageUrl.isEmpty) {
-      return const AssetImage('assets/images/placeholder.png');
+      return const AssetImage('assets/logo.png');
     }
 
     if (imageUrl.startsWith('asset:')) {
       return AssetImage(imageUrl.substring(6));
     } else if (imageUrl.startsWith('/') || imageUrl.startsWith('file://')) {
       final path = imageUrl.startsWith('file://')
-          ? imageUrl.replaceFirst('file://', '')
+          ? Uri.parse(imageUrl).toFilePath()
           : imageUrl;
       return FileImage(File(path));
-    } else {
+    } else if (_isHttp(imageUrl)) {
       return CachedNetworkImageProvider(
         imageUrl,
         cacheManager: PPImageCacheManager.instance,
       );
     }
+    return const AssetImage('assets/logo.png');
+  }
+
+  static bool _isHttp(String value) {
+    final uri = Uri.tryParse(value);
+    return uri != null &&
+        {'http', 'https'}.contains(uri.scheme) &&
+        uri.host.isNotEmpty;
   }
 }

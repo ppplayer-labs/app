@@ -90,7 +90,9 @@ void main() async {
 
   startupLog('AppDatabase init start');
   final appDatabase = AppDatabase(dbPath);
-  startupLog('AppDatabase init complete (uses background isolate via NativeDatabase.createInBackground)');
+  startupLog(
+    'AppDatabase init complete (uses background isolate via NativeDatabase.createInBackground)',
+  );
 
   // Initialize the container first (needed by builder)
   startupLog('ProviderContainer init');

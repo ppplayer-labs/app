@@ -73,7 +73,9 @@
             onStateChange: function (event) {
               clearTimeout(timerId);
               sendMessage('StateChange', event.data);
-              if (event.data == 1) {
+              // PPPlayer polls position itself on iOS; avoid a second stream
+              // of unused 100 ms bridge messages on that platform.
+              if (event.data == 1 && platform !== 'ios') {
                 timerId = setInterval(function () {
                   var state = {
                     'currentTime': player.getCurrentTime(),

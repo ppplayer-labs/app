@@ -15,6 +15,8 @@ PODS:
   - flutter_secure_storage_darwin (10.0.0):
     - Flutter
     - FlutterMacOS
+  - google-cast-sdk (4.8.3):
+    - Protobuf (~> 3.13)
   - Google-Mobile-Ads-SDK (13.3.0):
     - GoogleUserMessagingPlatform (>= 1.1)
   - google_mobile_ads (9.0.0):
@@ -36,6 +38,7 @@ PODS:
     - Flutter
   - permission_handler_apple (9.4.8):
     - Flutter
+  - Protobuf (3.29.6)
   - sqflite_darwin (0.0.4):
     - Flutter
     - FlutterMacOS
@@ -55,6 +58,7 @@ DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_native_splash (from `.symlinks/plugins/flutter_native_splash/ios`)
   - flutter_secure_storage_darwin (from `.symlinks/plugins/flutter_secure_storage_darwin/darwin`)
+  - google-cast-sdk (= 4.8.3)
   - google_mobile_ads (from `.symlinks/plugins/google_mobile_ads/ios`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
   - integration_test (from `.symlinks/plugins/integration_test/ios`)
@@ -70,8 +74,10 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - google-cast-sdk
     - Google-Mobile-Ads-SDK
     - GoogleUserMessagingPlatform
+    - Protobuf
 
 EXTERNAL SOURCES:
   audio_service:
@@ -121,6 +127,7 @@ SPEC CHECKSUMS:
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
   flutter_native_splash: c32d145d68aeda5502d5f543ee38c192065986cf
   flutter_secure_storage_darwin: 46e401699982ee74142909676535e0f6a7321e58
+  google-cast-sdk: 1fb6724e94cc5ff23b359176e0cf6360586bb97a
   Google-Mobile-Ads-SDK: 7692126a35ed859f20635af281c50a2162be8bea
   google_mobile_ads: bab325fd4e31c9705cab0cb298e4f5a9bdb7370f
   GoogleUserMessagingPlatform: befe603da6501006420c206222acd449bba45a9c
@@ -131,11 +138,12 @@ SPEC CHECKSUMS:
   metadata_god: 018b59c2f3617569928550dcbd17481591557c1d
   package_info_plus: af8e2ca6888548050f16fa2f1938db7b5a5df499
   permission_handler_apple: 92d754bbaa7361d436db2d6c3c1c2a0fdcec462e
+  Protobuf: 8d5596f7468be5400861a6bbfb2dfe9d0d1cde34
   sqflite_darwin: 20b2a3a3b70e43edae938624ce550a3cbf66a3d0
   url_launcher_ios: 7a95fa5b60cc718a708b8f2966718e93db0cef1b
   wakelock_plus: e29112ab3ef0b318e58cfa5c32326458be66b556
   webview_flutter_wkwebview: 8ebf4fded22593026f7dbff1fbff31ea98573c8d
 
-PODFILE CHECKSUM: e0f329d49c8aa2bb001bc059ff753ec9339eb546
+PODFILE CHECKSUM: 19f7142939e32b4ba9afc7f43acbffa7cc595329
 
 COCOAPODS: 1.16.2
