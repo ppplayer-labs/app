@@ -1383,16 +1383,7 @@ class _DesktopSidebar extends ConsumerWidget {
                   isSelected: location.startsWith('/recently-played'),
                   onTap: () => context.push('/recently-played'),
                 ),
-                _SidebarItem(
-                  icon: Icons.queue_music,
-                  activeIcon: Icons.queue_music,
-                  label: AppLocalizations.of(context)!.playlists,
-                  isSelected:
-                      location.startsWith('/library') &&
-                      GoRouterState.of(context).uri.queryParameters['filter'] ==
-                          'playlists',
-                  onTap: () => context.go('/library?filter=playlists'),
-                ),
+
                 const SizedBox(height: 32),
                 Padding(
                   padding: const EdgeInsets.symmetric(
