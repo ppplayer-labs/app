@@ -2,6 +2,8 @@
 ## Architecture & Technical Discovery Document
 **Generated:** 2026-09-04 | **Status:** Discovery Phase — No Code Modified
 
+> Historical discovery snapshot. For the current development tree as of October 2, 2026, read [playback.md](docs/playback.md), [network_outputs.md](docs/network_outputs.md) and the [changelog](CHANGELOG.md). Native local playback, managed iOS imports, network-output file leases, iOS AirPlay selection and native/WebKit system-control bridges have since been added or updated. Dependency versions and runtime-path observations below describe the original discovery, not current behavior.
+
 ---
 
 ## 1. Product Overview

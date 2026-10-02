@@ -2,6 +2,30 @@
 
 All notable changes to PPPlayer will be documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- Play On access to the iOS system AirPlay picker, with receiver name and active-route selection.
+- A dedicated Queue button and responsive video controls, with secondary actions grouped in an options menu.
+- Apple-aware file acquisition for network outputs, resolving managed locators and security-scoped bookmarks through local_library.
+
+### Fixed
+
+- iOS imported music now uses durable managed copies instead of temporary file-picker paths.
+- Security-scoped file access stays active during local playback and accepted HTTP reads; release waits for readers to finish.
+- Fake Cast receiver callbacks are asynchronous and validate endpoint, session and item identity without weakening controller guards.
+- iPhone Control Center and lock-screen commands reach playback intent through native and WebKit media-session bridges; explicit pause cancels automatic recovery.
+- Background pause reporting reflects renderer state until play is acknowledged.
+- AirPlay selection no longer incorrectly leaves This device selected while a receiver is active.
+- Local songs no longer inherit a previous video's thumbnail; direct image-provider consumers use PPImage.
+
+### Documentation and validation
+
+- Added current playback and network-output guides, protocol availability and resource-lifetime documentation.
+- Physical iPhone checks confirmed local music over AirPlay to a MacBook and system pause/play command delivery. Physical Chromecast and DLNA testing remain pending.
+- App checks passed with 294 tests and clean Flutter analysis at the October 1 checkpoint. These changes are not a public-release announcement.
+
 ## [2.0.1] - 2026-09-21
 
 ### Added

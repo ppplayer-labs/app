@@ -1,108 +1,107 @@
-# Network Outputs
+# Play On and network outputs
 
-PPPlayer can route playback to network devices — DLNA/UPnP media renderers today, with Google Cast (Android) planned.
+This document describes the development tree as of October 2, 2026. Implementation and automated coverage do not imply a published release or validation with every physical receiver.
 
-## Architecture
+## User-facing behavior
 
-```
-┌──────────────────────────────────────────────────────┐
-│  UI layer                                            │
-│  ┌────────────────┐  ┌──────────────────────────┐    │
-│  │ OutputPicker   │  │ MiniPlayerBar / Overlays  │    │
-│  │ (bottom sheet) │  │ cast icon + "Playing on…" │    │
-│  └───────┬────────┘  └──────────┬───────────────┘    │
-│          │ reads/calls          │ reads               │
-│          ▼                      ▼                     │
-│  networkOutputControllerProvider (Riverpod)           │
-│  networkOutputSnapshotProvider   (Riverpod)           │
-│          │                                            │
-│          ▼                                            │
-│  NetworkOutputController                              │
-│  ┌──────────────────────────────────────────────┐     │
-│  │  localController (HybridPlaybackEngine /      │     │
-│  │                   MediaKitPlaybackEngine)      │     │
-│  │  backends: [DlnaOutputBackend, …]             │     │
-│  │  mediaFactory: DefaultNetworkMediaFactory     │     │
-│  └───────────────────────┬──────────────────────┘     │
-└──────────────────────────┼───────────────────────────┘
-                           │
-             ┌─────────────┴────────────┐
-             ▼                          ▼
-   DlnaOutputBackend          (future) CastOutputBackend
-   ┌───────────────────┐
-   │ DlnaDiscovery     │  SSDP multicast → discovers MediaRenderers
-   │ DlnaSoapClient    │  HTTP/SOAP AVTransport + RenderingControl
-   │ LocalMediaServer  │  HTTP server, serves local files to renderers
-   └───────────────────┘
-```
+Open **Play On** from the player to choose an output. Cast and DLNA devices appear when their backend is available and discovery succeeds. Unsupported source/device combinations cannot be selected.
 
-## Providers
+On iOS, **AirPlay** opens Apple's `AVRoutePickerView`. AirPlay stays on the local playback engine and follows `AVAudioSession` routing; it does not create a Cast session or a LocalMediaServer URL. Native route-change events supply the selected receiver name and check mark. **This device** is not selected while an AirPlay receiver is active. Selecting it opens a system picker so the user can choose the iPhone.
 
-| Provider | Type | Purpose |
-|---|---|---|
-| `localMediaServerProvider` | `Provider<LocalMediaServer>` | Shared HTTP file server for LAN access |
-| `dlnaOutputBackendProvider` | `Provider<DlnaOutputBackend>` | DLNA protocol backend |
-| `networkOutputControllerProvider` | `Provider<NetworkOutputController>` | Central orchestrator |
-| `networkOutputStateProvider` | `StreamProvider<NetworkOutputState>` | Live output state stream |
-| `networkOutputSnapshotProvider` | `Provider<NetworkOutputState>` | Synchronous snapshot |
+If Cast/DLNA is active, return playback to the local engine before choosing AirPlay. macOS audio routing uses system controls; the new in-app AirPlay picker is iOS-only.
 
-## DLNA Playback Flow
+## Platform availability
 
-1. User taps the **Cast** icon (player overlay or mini-player).
-2. `showOutputPicker()` opens and calls `NetworkOutputController.startDiscovery()`.
-3. `DlnaDiscovery` sends SSDP M-SEARCH and listens for announcements; found devices appear in the picker.
-4. User selects a renderer → `NetworkOutputController.selectOutput(output)`.
-5. Controller calls `DefaultNetworkMediaFactory.createItem(track)` to generate a LAN-accessible URL:
-   - **Local files** → `LocalMediaServer` serves them transiently on the LAN.
-   - **Network streams** → proxied or passed through directly.
-   - **YouTube** → not supported on DLNA (online-source block).
-6. `DlnaOutputBackend.connect()` pings the renderer with `GetTransportInfo`.
-7. `DlnaOutputBackend.load()` sends `SetAVTransportURI` + `Play`.
-8. Polling (1 s during playback, 5 s otherwise) keeps position and state in sync via `GetTransportInfo` + `GetPositionInfo`.
-9. User returns local → `NetworkOutputController.returnToLocal()` calls `disconnect()` (with `stopPlayback: true`) and resumes local engine.
-
-## Session / Generation Guards
-
-- Every connect/load call increments an internal `_generation` counter.
-- All async continuations call `_guardGeneration()` before writing state.
-- All public command methods call `_guardSession()` / `_guardSessionAndItem()` and throw `NetworkOutputException(code: 'stale_session')` if the session no longer matches — callers should catch and discard this.
-
-## LocalMediaServer
-
-- Listens on a random available port at startup.
-- Issues short-lived (10-minute TTL) access tokens per file.
-- Does **not** transcode; renderers must support the source format.
-- Disposed automatically with the provider.
-
-## Capability Checking
-
-`OutputCapabilityResolver.sourceSupport(track, output)` returns `OutputSupportResult`:
-- `.supported = false` for YouTube/online sources on DLNA (renderer can't authenticate).
-- Checks `output.capabilities.audio` / `.video` against `track.isVideo`.
-- The picker greys out unsupported tiles and prevents selection.
-
-## Capability Matrix
-
-| Platform | DLNA | Google Cast | AirPlay | Local Output |
+| Platform | DLNA/UPnP | Google Cast | AirPlay | Local playback |
 |---|---|---|---|---|
-| **Android** | ✅ Implemented | ✅ Implemented | ❌ Unsupported | ✅ Implemented |
-| **iOS** | ✅ Implemented | ✅ Implemented | ✅ System | ✅ Implemented |
-| **macOS** | ✅ Implemented | ❌ Unsupported by official native Sender SDK | ✅ System | ✅ Implemented |
-| **Windows** | ✅ Implemented | ❌ Unsupported by official native Sender SDK | ❌ Unsupported | ✅ Implemented |
-| **Linux** | ✅ Implemented | ❌ Unsupported by official native Sender SDK | ❌ Unsupported | ✅ Implemented |
+| Android | Backend available | Native sender backend available | No in-app picker | Supported |
+| iOS | Gated on approved multicast capability and build configuration | Native sender backend available | In-app system picker | Supported |
+| macOS | Backend available | No official native sender backend | System routing | Supported |
+| Windows / Linux | Backend available | No official native sender backend | No in-app picker | Supported |
 
-*(Note: Real-device compilation and release verification completed successfully for Android, iOS, macOS, Windows, and Linux)*
+`NetworkOutputsCapabilities.resolve()` controls backend registration. On iOS it reads native capabilities rather than assuming discovery is usable. The multicast build capability must be approved and enabled for DLNA discovery.
 
-| Protocol | YouTube Support | Requirements |
+| Source | Cast / DLNA | AirPlay on iPhone |
 |---|---|---|
-| **DLNA** | ❌ Unsupported | Requires LAN reachable media, renderer must support format natively |
-| **Google Cast** | ❌ Unsupported | Official Google Cast Sender SDK |
-| **AirPlay** | ✅ Supported | System AVRoutePickerView (iOS/macOS only) |
-| **Local** | ✅ Supported | Default audio engine |
+| Local file | Served as tokenized LAN HTTP media; receiver must support format | Local playback routed by Apple |
+| Compatible HTTP(S) stream | Direct or proxied HTTP media | Local playback routed by Apple |
+| YouTube / online source | Unsupported by the media-URL handoff | Remains on embedded local player with system routing; receiver behavior needs validation |
 
-## Adding a New Backend
+PPPlayer does not transcode. Reachability, receiver codecs, network permissions, and source accessibility still apply.
 
-1. Implement `NetworkOutputBackend` (in `lib/core/network_outputs/network_output_backend.dart`).
-2. Create a Riverpod `Provider<YourBackend>` in `network_output_providers.dart`.
-3. Add it to the `backends:` list in `networkOutputControllerProvider`.
-4. Extend `OutputCapabilityResolver.sourceSupport()` if needed.
+## Architecture and providers
+
+`OutputPicker` → `NetworkOutputController` → `CastOutputBackend` / `DlnaOutputBackend`.
+
+The controller owns output/session transitions and wraps the local playback controller. `DefaultNetworkMediaFactory` creates receiver-readable media and resource leases. `LocalMediaServer` serves local files or proxies explicit HTTP(S) media. AirPlay is observed independently of these backends.
+
+| Provider | Purpose |
+|---|---|
+| `localMediaServerProvider` | Shared LAN media server |
+| `networkOutputCapabilitiesProvider` | Platform capability resolution |
+| `castOutputBackendProvider` | Cast backend; optional debug fake client |
+| `dlnaOutputBackendProvider` | DLNA discovery and transport |
+| `networkOutputControllerProvider` | Output orchestration |
+| `networkOutputStateProvider` / `networkOutputSnapshotProvider` | Stream / synchronous state |
+| `airPlayRouteProvider` | Native iOS route state |
+
+## Apple local-file acquisition boundary
+
+`PlaybackTrack.localMediaUri` is a persisted locator, not necessarily a URL. On iOS it may contain a base64 security-scoped bookmark. Never interpret that bookmark as a file URI or resolve it inside the Cast backend.
+
+`DefaultNetworkMediaFactory` receives `acquireAppleOutputFileLease` on iOS/macOS. It accepts:
+
+- `file://` URIs and absolute paths directly;
+- durable `pp-local:` locators through `ManagedLocalFileStore`;
+- bookmark strings through local_library's public `Future<String?> resolveSecurityScopedBookmark(String bookmark)`.
+
+The public resolver delegates to the existing local-library MethodChannel logic. A successful resolution starts native security-scoped access. Acquisition checks the resolved file and returns an `AuthorizedFileLease`; invalid or missing files fail cleanly, balancing any access already opened.
+
+```text
+bookmark resolution starts security scope
+    → AuthorizedFileLease holds access
+    → LocalMediaServer accepts and serves HTTP reads
+    → token expires / item is revoked / output is disposed
+    → no new reads accepted
+    → existing reads drain and close
+    → lease releases security scope exactly once
+```
+
+The server uses the resolved path for MIME detection. The default token lifetime is **12 hours**, configurable through `tokenLifetime`; it is not a guarantee that a remote session lasts that long. Item/session teardown can revoke it earlier. Expiry and revocation defer release while accepted requests still hold the resource.
+
+Apple local playback uses `LocalFilePlaybackController` to acquire a lease at engine-open time, preserving the original locator in status and persisted queues. Pausing retains access; stopping/disposal stops the reader before releasing access. The same bookmark can be held by multiple readers; native access is reference-counted.
+
+New iOS music imports are managed copies in the app's Documents/local_music directory, addressed with `pp-local:` locators. Temporary file-picker paths are not persisted. Old imports whose source files have disappeared need reimporting; this fix cannot recover deleted files.
+
+## Session safety and fake Cast
+
+Connection and load continuations are guarded by generation, endpoint ID, session ID, and item ID. Stale callbacks cannot replace an active session. This protection remains in `NetworkOutputController`.
+
+With `--dart-define=PP_FAKE_CAST_DEVICE=true` in a debug build, `FakeCastPlatformClient` makes receiver callbacks asynchronous: connecting precedes connected, and callbacks arrive after the pending session exists. Load/playback callbacks validate endpoint/session/item identity. The fake verifies media acquisition, HTTP URLs and controller handoff; it does not prove compatibility with a physical Chromecast.
+
+## Validation status
+
+- Physical iPhone → MacBook AirPlay with local music: user verified audible playback.
+- Physical iPhone Control Center / lock-screen commands: WebKit pause reaches Flutter intent; no recovery replay; explicit system play resumes.
+- iOS bookmark → lease → HTTP URL → fake Cast: automated coverage, including invalid bookmarks, direct file URIs, scope lifetime and serving.
+- Physical Chromecast: intentionally deferred; not yet verified in this session.
+- Physical DLNA receiver: not yet verified in this session; iOS multicast capability remains a prerequisite.
+
+See [playback guide](playback.md) and the evidence under `verification/`.
+
+## Checks
+
+From `app/`:
+
+```bash
+flutter analyze
+flutter test
+flutter test test/core/network_outputs/ios_file_lease_test.dart
+flutter test test/core/network_outputs/local_media_server_test.dart
+flutter test test/core/playback/ios_media_commands_test.dart
+node verification/ios-system-pause-20261001/webkit-media-session.test.cjs
+```
+
+## Adding a backend
+
+Implement `NetworkOutputBackend`, add its provider, and register it only when platform capabilities permit. Extend source capability checks where necessary. Preserve endpoint/session/item and generation validation. Resolve file access at the media acquisition boundary, not inside a protocol backend.
