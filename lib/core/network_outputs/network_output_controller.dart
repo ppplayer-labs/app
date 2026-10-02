@@ -239,7 +239,9 @@ class NetworkOutputController implements PlaybackController {
       return;
     }
     if (active == null || !_matches(active, backend, event) || !active.loaded) {
-      _log('stale_event_ignored kind=${backend.kind.name} active=${active != null} matches=${active != null ? _matches(active, backend, event) : false} loaded=${active?.loaded} pending=${pending != null} pending_matches=${pending != null ? _matches(pending, backend, event) : false} event_item=${event.itemId} pending_item=${pending?.itemId}');
+      _log(
+        'stale_event_ignored kind=${backend.kind.name} active=${active != null} matches=${active != null ? _matches(active, backend, event) : false} loaded=${active?.loaded} pending=${pending != null} pending_matches=${pending != null ? _matches(pending, backend, event) : false} event_item=${event.itemId} pending_item=${pending?.itemId}',
+      );
       return;
     }
     active.latest = event;
@@ -505,7 +507,9 @@ class NetworkOutputController implements PlaybackController {
         }
       }
       if (error is! _Superseded && !_disposed) {
-        debugPrint('[Output] connect.error kind=${output.kind.name} error=$error stack=$stack');
+        debugPrint(
+          '[Output] connect.error kind=${output.kind.name} error=$error stack=$stack',
+        );
         _setOutput(error: _errorText(error));
         rethrow;
       } else if (error is _Superseded) {

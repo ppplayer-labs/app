@@ -49,7 +49,9 @@ jobs:
         run: flutter pub get
 
       - name: Check Formatting
-        run: dart format --output=none .
+        run: |
+          git ls-files -z -- ':(glob)lib/**/*.dart' ':(glob)test/**/*.dart' ':(glob)integration_test/**/*.dart' ':!:lib/core/playback/packages/**' ':!:**/*.g.dart' ':!:**/*.freezed.dart' | xargs -0 dart format --output=none --set-exit-if-changed
+          dart format --output=none --set-exit-if-changed lib/core/playback/packages/pp_playback_engine/lib lib/core/playback/packages/pp_playback_engine/test
 
       - name: Analyze
         run: flutter analyze

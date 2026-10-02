@@ -56,8 +56,14 @@ void main() {
             : TextDirection.ltr,
       );
       if (['gn', 'pcm'].contains(locale.languageCode)) {
-        expect(MaterialLocalizations.of(context).cancelButtonLabel, strings.cancel);
-        expect(MaterialLocalizations.of(context).copyButtonLabel, isNot('Copy'));
+        expect(
+          MaterialLocalizations.of(context).cancelButtonLabel,
+          strings.cancel,
+        );
+        expect(
+          MaterialLocalizations.of(context).copyButtonLabel,
+          isNot('Copy'),
+        );
       }
       expect(tester.takeException(), isNull);
     });

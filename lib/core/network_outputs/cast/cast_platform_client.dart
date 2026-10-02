@@ -6,14 +6,29 @@ abstract class CastPlatformClient {
   Future<void> startDiscovery();
   Future<void> stopDiscovery();
   Future<void> connect({required String endpointId, required String sessionId});
-  Future<void> disconnect({required String sessionId, required bool stopPlayback});
+  Future<void> disconnect({
+    required String sessionId,
+    required bool stopPlayback,
+  });
   Future<Map<String, dynamic>> load(Map<String, dynamic> arguments);
   Future<void> play({required String sessionId, required String itemId});
   Future<void> pause({required String sessionId, required String itemId});
   Future<void> stop({required String sessionId, required String itemId});
-  Future<void> seek({required String sessionId, required String itemId, required Duration position});
-  Future<void> setVolume({required String sessionId, required String itemId, required double volume});
-  Future<void> setMuted({required String sessionId, required String itemId, required bool muted});
+  Future<void> seek({
+    required String sessionId,
+    required String itemId,
+    required Duration position,
+  });
+  Future<void> setVolume({
+    required String sessionId,
+    required String itemId,
+    required double volume,
+  });
+  Future<void> setMuted({
+    required String sessionId,
+    required String itemId,
+    required bool muted,
+  });
 }
 
 class NativeCastPlatformClient implements CastPlatformClient {
@@ -30,7 +45,10 @@ class NativeCastPlatformClient implements CastPlatformClient {
   Future<void> stopDiscovery() => _methods.invokeMethod('stopDiscovery');
 
   @override
-  Future<void> connect({required String endpointId, required String sessionId}) {
+  Future<void> connect({
+    required String endpointId,
+    required String sessionId,
+  }) {
     return _methods.invokeMethod('connect', {
       'endpointId': endpointId,
       'sessionId': sessionId,
@@ -38,7 +56,10 @@ class NativeCastPlatformClient implements CastPlatformClient {
   }
 
   @override
-  Future<void> disconnect({required String sessionId, required bool stopPlayback}) {
+  Future<void> disconnect({
+    required String sessionId,
+    required bool stopPlayback,
+  }) {
     return _methods.invokeMethod('disconnect', {
       'sessionId': sessionId,
       'stopPlayback': stopPlayback,
@@ -53,21 +74,34 @@ class NativeCastPlatformClient implements CastPlatformClient {
 
   @override
   Future<void> play({required String sessionId, required String itemId}) {
-    return _methods.invokeMethod('play', {'sessionId': sessionId, 'itemId': itemId});
+    return _methods.invokeMethod('play', {
+      'sessionId': sessionId,
+      'itemId': itemId,
+    });
   }
 
   @override
   Future<void> pause({required String sessionId, required String itemId}) {
-    return _methods.invokeMethod('pause', {'sessionId': sessionId, 'itemId': itemId});
+    return _methods.invokeMethod('pause', {
+      'sessionId': sessionId,
+      'itemId': itemId,
+    });
   }
 
   @override
   Future<void> stop({required String sessionId, required String itemId}) {
-    return _methods.invokeMethod('stop', {'sessionId': sessionId, 'itemId': itemId});
+    return _methods.invokeMethod('stop', {
+      'sessionId': sessionId,
+      'itemId': itemId,
+    });
   }
 
   @override
-  Future<void> seek({required String sessionId, required String itemId, required Duration position}) {
+  Future<void> seek({
+    required String sessionId,
+    required String itemId,
+    required Duration position,
+  }) {
     return _methods.invokeMethod('seek', {
       'sessionId': sessionId,
       'itemId': itemId,
@@ -76,7 +110,11 @@ class NativeCastPlatformClient implements CastPlatformClient {
   }
 
   @override
-  Future<void> setVolume({required String sessionId, required String itemId, required double volume}) {
+  Future<void> setVolume({
+    required String sessionId,
+    required String itemId,
+    required double volume,
+  }) {
     return _methods.invokeMethod('setVolume', {
       'sessionId': sessionId,
       'itemId': itemId,
@@ -85,7 +123,11 @@ class NativeCastPlatformClient implements CastPlatformClient {
   }
 
   @override
-  Future<void> setMuted({required String sessionId, required String itemId, required bool muted}) {
+  Future<void> setMuted({
+    required String sessionId,
+    required String itemId,
+    required bool muted,
+  }) {
     return _methods.invokeMethod('setMute', {
       'sessionId': sessionId,
       'itemId': itemId,

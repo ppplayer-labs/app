@@ -48,39 +48,109 @@ class MockPlaybackController implements PlaybackController {
   @override
   bool get supportsVideoFitMode => false;
 
-  @override Future<void> dispose() async {}
-  @override Future<void> pause({String caller = 'user', bool failOnTimeout = false}) async {}
-  @override Future<void> play(PlaybackTrack track, {Duration startAt = Duration.zero, bool play = true}) async {}
-  @override Future<void> prepare(PlaybackTrack track, {Duration? position}) async {}
-  @override Future<void> resume() async {}
-  @override Future<void> seekTo(Duration position) async {}
-  @override Future<void> setSpeed(double speed) async {}
-  @override Future<void> setSubtitleAppearance({double? textSize, int? backgroundColor}) async {}
-  @override Future<void> setSubtitleDelay(Duration delay) async {}
-  @override Future<void> setSubtitleTrack(String? uri) async {}
-  @override Future<void> setVolume(double volume) async {}
-  @override Future<void> stop() async {}
+  @override
+  Future<void> dispose() async {}
+  @override
+  Future<void> pause({
+    String caller = 'user',
+    bool failOnTimeout = false,
+  }) async {}
+  @override
+  Future<void> play(
+    PlaybackTrack track, {
+    Duration startAt = Duration.zero,
+    bool play = true,
+  }) async {}
+  @override
+  Future<void> prepare(PlaybackTrack track, {Duration? position}) async {}
+  @override
+  Future<void> resume() async {}
+  @override
+  Future<void> seekTo(Duration position) async {}
+  @override
+  Future<void> setSpeed(double speed) async {}
+  @override
+  Future<void> setSubtitleAppearance({
+    double? textSize,
+    int? backgroundColor,
+  }) async {}
+  @override
+  Future<void> setSubtitleDelay(Duration delay) async {}
+  @override
+  Future<void> setSubtitleTrack(String? uri) async {}
+  @override
+  Future<void> setVolume(double volume) async {}
+  @override
+  Future<void> stop() async {}
 }
 
 class MockBackend implements NetworkOutputBackend {
   final OutputKind _kind;
   MockBackend(this._kind);
 
-  @override OutputKind get kind => _kind;
-  @override Stream<List<PlaybackOutput>> get outputs => const Stream.empty();
-  @override Stream<NetworkOutputSessionState> get sessionState => const Stream.empty();
-  @override Future<void> connect(PlaybackOutput output, {required String sessionId}) async {}
-  @override Future<void> disconnect({required String sessionId, required bool stopPlayback}) async {}
-  @override Future<void> dispose() async {}
-  @override Future<RemoteLoadResult> load(NetworkMediaItem item, {required String sessionId, required String itemId, Duration position = Duration.zero, bool autoplay = true}) async => const RemoteLoadResult(success: false, error: 'mock');
-  @override Future<void> pause({required String sessionId, required String itemId}) async {}
-  @override Future<void> play({required String sessionId, required String itemId}) async {}
-  @override Future<void> seek(Duration position, {required String sessionId, required String itemId}) async {}
-  @override Future<void> setMute(bool muted, {required String sessionId, required String itemId}) async {}
-  @override Future<void> setVolume(double volume, {required String sessionId, required String itemId}) async {}
-  @override Future<void> startDiscovery() async {}
-  @override Future<void> stop({required String sessionId, required String itemId}) async {}
-  @override Future<void> stopDiscovery() async {}
+  @override
+  OutputKind get kind => _kind;
+  @override
+  Stream<List<PlaybackOutput>> get outputs => const Stream.empty();
+  @override
+  Stream<NetworkOutputSessionState> get sessionState => const Stream.empty();
+  @override
+  Future<void> connect(
+    PlaybackOutput output, {
+    required String sessionId,
+  }) async {}
+  @override
+  Future<void> disconnect({
+    required String sessionId,
+    required bool stopPlayback,
+  }) async {}
+  @override
+  Future<void> dispose() async {}
+  @override
+  Future<RemoteLoadResult> load(
+    NetworkMediaItem item, {
+    required String sessionId,
+    required String itemId,
+    Duration position = Duration.zero,
+    bool autoplay = true,
+  }) async => const RemoteLoadResult(success: false, error: 'mock');
+  @override
+  Future<void> pause({
+    required String sessionId,
+    required String itemId,
+  }) async {}
+  @override
+  Future<void> play({
+    required String sessionId,
+    required String itemId,
+  }) async {}
+  @override
+  Future<void> seek(
+    Duration position, {
+    required String sessionId,
+    required String itemId,
+  }) async {}
+  @override
+  Future<void> setMute(
+    bool muted, {
+    required String sessionId,
+    required String itemId,
+  }) async {}
+  @override
+  Future<void> setVolume(
+    double volume, {
+    required String sessionId,
+    required String itemId,
+  }) async {}
+  @override
+  Future<void> startDiscovery() async {}
+  @override
+  Future<void> stop({
+    required String sessionId,
+    required String itemId,
+  }) async {}
+  @override
+  Future<void> stopDiscovery() async {}
 }
 
 class MockDlnaBackend extends MockBackend implements DlnaOutputBackend {
@@ -95,11 +165,15 @@ class MockCastBackend extends MockBackend implements CastOutputBackend {
 }
 
 void main() {
-  ProviderContainer makeContainer({required NetworkOutputsCapabilities capabilities}) {
+  ProviderContainer makeContainer({
+    required NetworkOutputsCapabilities capabilities,
+  }) {
     final container = ProviderContainer(
       overrides: [
         networkOutputCapabilitiesProvider.overrideWith((ref) => capabilities),
-        localPlaybackControllerProvider.overrideWith((ref) => MockPlaybackController()),
+        localPlaybackControllerProvider.overrideWith(
+          (ref) => MockPlaybackController(),
+        ),
         dlnaOutputBackendProvider.overrideWith((ref) => MockDlnaBackend()),
         castOutputBackendProvider.overrideWith((ref) => MockCastBackend()),
       ],
@@ -110,17 +184,17 @@ void main() {
 
   test('iOS + DLNA disabled: DlnaOutputBackend not registered', () async {
     final container = makeContainer(
-      capabilities: const NetworkOutputsCapabilities(dlnaAvailable: false, googleCastAvailable: true),
+      capabilities: const NetworkOutputsCapabilities(
+        dlnaAvailable: false,
+        googleCastAvailable: true,
+      ),
     );
-    
+
     // Wait for the async capabilities to be processed
     await container.read(networkOutputCapabilitiesProvider.future);
     final controller = container.read(networkOutputControllerProvider);
-    
-    expect(
-      controller.backends.any((b) => b.kind == OutputKind.dlna),
-      isFalse,
-    );
+
+    expect(controller.backends.any((b) => b.kind == OutputKind.dlna), isFalse);
     expect(
       controller.backends.any((b) => b.kind == OutputKind.googleCast),
       isTrue,
@@ -129,16 +203,16 @@ void main() {
 
   test('iOS + DLNA enabled: DlnaOutputBackend registered', () async {
     final container = makeContainer(
-      capabilities: const NetworkOutputsCapabilities(dlnaAvailable: true, googleCastAvailable: true),
+      capabilities: const NetworkOutputsCapabilities(
+        dlnaAvailable: true,
+        googleCastAvailable: true,
+      ),
     );
-    
+
     await container.read(networkOutputCapabilitiesProvider.future);
     final controller = container.read(networkOutputControllerProvider);
-    
-    expect(
-      controller.backends.any((b) => b.kind == OutputKind.dlna),
-      isTrue,
-    );
+
+    expect(controller.backends.any((b) => b.kind == OutputKind.dlna), isTrue);
     expect(
       controller.backends.any((b) => b.kind == OutputKind.googleCast),
       isTrue,
@@ -147,25 +221,37 @@ void main() {
 
   test('Android: DLNA preserved, Cast preserved', () async {
     final container = makeContainer(
-      capabilities: const NetworkOutputsCapabilities(dlnaAvailable: true, googleCastAvailable: true),
+      capabilities: const NetworkOutputsCapabilities(
+        dlnaAvailable: true,
+        googleCastAvailable: true,
+      ),
     );
-    
+
     await container.read(networkOutputCapabilitiesProvider.future);
     final controller = container.read(networkOutputControllerProvider);
-    
+
     expect(controller.backends.any((b) => b.kind == OutputKind.dlna), isTrue);
-    expect(controller.backends.any((b) => b.kind == OutputKind.googleCast), isTrue);
+    expect(
+      controller.backends.any((b) => b.kind == OutputKind.googleCast),
+      isTrue,
+    );
   });
 
   test('macOS: DLNA preserved, Cast disabled', () async {
     final container = makeContainer(
-      capabilities: const NetworkOutputsCapabilities(dlnaAvailable: true, googleCastAvailable: false),
+      capabilities: const NetworkOutputsCapabilities(
+        dlnaAvailable: true,
+        googleCastAvailable: false,
+      ),
     );
-    
+
     await container.read(networkOutputCapabilitiesProvider.future);
     final controller = container.read(networkOutputControllerProvider);
-    
+
     expect(controller.backends.any((b) => b.kind == OutputKind.dlna), isTrue);
-    expect(controller.backends.any((b) => b.kind == OutputKind.googleCast), isFalse);
+    expect(
+      controller.backends.any((b) => b.kind == OutputKind.googleCast),
+      isFalse,
+    );
   });
 }
