@@ -283,11 +283,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         slivers: [
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.only(
-                left: 32.0,
-                top: 56.0,
-                right: 32.0,
-                bottom: 24.0,
+              padding: EdgeInsets.only(
+                left: MediaQuery.of(context).size.width < 600 ? 16.0 : 32.0,
+                top: MediaQuery.of(context).size.width < 600 ? 40.0 : 56.0,
+                right: MediaQuery.of(context).size.width < 600 ? 16.0 : 32.0,
+                bottom: MediaQuery.of(context).size.width < 600 ? 16.0 : 24.0,
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -299,7 +299,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         Text(
                           greetingText,
                           style: TextStyle(
-                            fontSize: 40,
+                            fontSize: MediaQuery.of(context).size.width < 600
+                                ? 28
+                                : 40,
                             fontWeight: FontWeight.w800,
                             letterSpacing: -1.5,
                             color: Theme.of(context).colorScheme.onSurface,
@@ -311,7 +313,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         Text(
                           l10n.yourMusicIsWaiting,
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: MediaQuery.of(context).size.width < 600
+                                ? 14
+                                : 18,
                             fontWeight: FontWeight.w500,
                             color: Theme.of(
                               context,
@@ -325,13 +329,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ),
                   if (MediaQuery.of(context).size.width <
                       600) // Show on mobile/tablet
-                    TactileIconButton(
-                      icon: Icons.settings_outlined,
-                      size: 28,
-                      onTap: () => context.push('/settings'),
-                      color: Theme.of(context).colorScheme.onSurface,
-                      hoverColor: Theme.of(context).colorScheme.primary,
-                      tooltip: AppLocalizations.of(context)!.settings,
+                    Padding(
+                      padding: const EdgeInsets.only(left: 12.0),
+                      child: TactileIconButton(
+                        icon: Icons.settings_outlined,
+                        size: 24,
+                        onTap: () => context.push('/settings'),
+                        color: Theme.of(context).colorScheme.onSurface,
+                        hoverColor: Theme.of(context).colorScheme.primary,
+                        tooltip: AppLocalizations.of(context)!.settings,
+                      ),
                     ),
                 ],
               ),
