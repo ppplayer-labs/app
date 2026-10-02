@@ -1,12 +1,97 @@
 import Cocoa
 import FlutterMacOS
 import WebKit
+import CoreAudio
+
+// Use the system Bonjour browser in the sandbox instead of raw multicast UDP.
+private final class PPMacOSCastDiscovery: NSObject, FlutterStreamHandler, NetServiceBrowserDelegate, NetServiceDelegate {
+  private let methods: FlutterMethodChannel
+  private let events: FlutterEventChannel
+  private let browser = NetServiceBrowser()
+  private var sink: FlutterEventSink?
+  private var browsing = false
+  private var services: [String: NetService] = [:]
+  private var devices: [String: [String: Any]] = [:]
+
+  init(messenger: FlutterBinaryMessenger) {
+    methods = FlutterMethodChannel(name: "com.ppplayer.app/cast_discovery", binaryMessenger: messenger)
+    events = FlutterEventChannel(name: "com.ppplayer.app/cast_discovery_events", binaryMessenger: messenger)
+    super.init()
+    browser.delegate = self
+    events.setStreamHandler(self)
+    methods.setMethodCallHandler { [weak self] call, result in
+      guard let self = self else { result(nil); return }
+      switch call.method {
+      case "startDiscovery":
+        if !self.browsing {
+          self.browsing = true
+          self.devices.removeAll()
+          self.browser.searchForServices(ofType: "_googlecast._tcp.", inDomain: "local.")
+        }
+        self.publish()
+        result(nil)
+      case "stopDiscovery": self.stop(); result(nil)
+      default: result(FlutterMethodNotImplemented)
+      }
+    }
+  }
+  private func key(_ service: NetService) -> String { "\(service.name)|\(service.type)|\(service.domain)" }
+  private func publish() { sink?(["devices": Array(devices.values)]) }
+  private func stop() {
+    browsing = false
+    browser.stop()
+    services.values.forEach { $0.stop(); $0.delegate = nil }
+    services.removeAll()
+    devices.removeAll()
+  }
+  func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+    sink = events; publish(); return nil
+  }
+  func onCancel(withArguments arguments: Any?) -> FlutterError? {
+    sink = nil; stop(); return nil
+  }
+  func netServiceBrowser(_ browser: NetServiceBrowser, didFind service: NetService, moreComing: Bool) {
+    guard browsing else { return }
+    services[key(service)] = service
+    service.delegate = self
+    service.resolve(withTimeout: 8)
+  }
+  func netServiceBrowser(_ browser: NetServiceBrowser, didRemove service: NetService, moreComing: Bool) {
+    let id = key(service)
+    services.removeValue(forKey: id)?.stop()
+    devices.removeValue(forKey: id)
+    publish()
+  }
+  func netServiceBrowser(_ browser: NetServiceBrowser, didNotSearch errorDict: [String: NSNumber]) {
+    stop()
+    sink?(["error": "Chromecast discovery failed. Check local network access in System Settings."])
+  }
+  func netServiceDidResolveAddress(_ sender: NetService) {
+    guard browsing, services[key(sender)] === sender,
+          let host = sender.hostName, sender.port > 0 else { return }
+    let txt = sender.txtRecordData().map(NetService.dictionary(fromTXTRecord:)) ?? [:]
+    func text(_ name: String) -> String? { txt[name].flatMap { String(data: $0, encoding: .utf8) } }
+    let capabilities = Int(text("ca") ?? "") ?? 5
+    devices[key(sender)] = [
+      "id": text("id") ?? key(sender), "name": text("fn") ?? sender.name,
+      "model": text("md") ?? "Chromecast", "host": host, "port": sender.port,
+      "audio": capabilities & 4 != 0, "video": capabilities & 1 != 0,
+    ]
+    NSLog("[DesktopCast] Bonjour resolved device=%@ port=%ld", text("fn") ?? sender.name, sender.port)
+    publish()
+  }
+  func netService(_ sender: NetService, didNotResolve errorDict: [String: NSNumber]) {
+    devices.removeValue(forKey: key(sender)); publish()
+  }
+}
 
 @main
 class AppDelegate: FlutterAppDelegate {
   private var methodChannel: FlutterMethodChannel?
   private var networkOutputsHost: PPNetworkOutputsHost?
   private var localFilesHost: PPLocalFilesHost?
+  private var audioRoutes: PPMacOSAudioRoutes?
+  private var castDiscovery: PPMacOSCastDiscovery?
   
   private var isPlaying = false
   private var isShuffle = false
@@ -24,6 +109,8 @@ class AppDelegate: FlutterAppDelegate {
     if let controller = mainFlutterWindow?.contentViewController as? FlutterViewController {
       networkOutputsHost = PPNetworkOutputsHost(messenger: controller.engine.binaryMessenger)
       localFilesHost = PPLocalFilesHost(messenger: controller.engine.binaryMessenger)
+      audioRoutes = PPMacOSAudioRoutes(messenger: controller.engine.binaryMessenger)
+      castDiscovery = PPMacOSCastDiscovery(messenger: controller.engine.binaryMessenger)
       methodChannel = FlutterMethodChannel(name: "com.ppplayer/dock_menu", binaryMessenger: controller.engine.binaryMessenger)
       
       methodChannel?.setMethodCallHandler { [weak self] (call: FlutterMethodCall, result: @escaping FlutterResult) in
@@ -93,6 +180,98 @@ class AppDelegate: FlutterAppDelegate {
   }
 }
 
+/// Observe the system output followed by the existing macOS playback engines.
+/// No AVPlayer or remote protocol session is created for system audio routing.
+private final class PPMacOSAudioRoutes: NSObject, FlutterStreamHandler {
+  private let channel: FlutterEventChannel
+  private var sink: FlutterEventSink?
+  private var systemListeners: [(AudioObjectID, AudioObjectPropertyAddress, AudioObjectPropertyListenerBlock)] = []
+  private var deviceListeners: [(AudioObjectID, AudioObjectPropertyAddress, AudioObjectPropertyListenerBlock)] = []
+  private var observedDevice: AudioObjectID = 0
+
+  init(messenger: FlutterBinaryMessenger) {
+    channel = FlutterEventChannel(name: "com.ppplayer.app/system_audio_route_events", binaryMessenger: messenger)
+    super.init()
+    channel.setStreamHandler(self)
+  }
+
+  func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+    remove(&systemListeners)
+    remove(&deviceListeners)
+    observedDevice = 0
+    sink = events
+    for selector in [kAudioHardwarePropertyDefaultOutputDevice, kAudioHardwarePropertyDevices] {
+      if let listener = listen(AudioObjectID(kAudioObjectSystemObject), selector) { systemListeners.append(listener) }
+    }
+    refresh()
+    return nil
+  }
+
+  func onCancel(withArguments arguments: Any?) -> FlutterError? {
+    sink = nil
+    remove(&systemListeners)
+    remove(&deviceListeners)
+    observedDevice = 0
+    return nil
+  }
+
+  private func listen(_ object: AudioObjectID, _ selector: AudioObjectPropertySelector) -> (AudioObjectID, AudioObjectPropertyAddress, AudioObjectPropertyListenerBlock)? {
+    var address = AudioObjectPropertyAddress(mSelector: selector, mScope: kAudioObjectPropertyScopeGlobal, mElement: kAudioObjectPropertyElementMain)
+    let block: AudioObjectPropertyListenerBlock = { [weak self] _, _ in self?.refresh() }
+    guard AudioObjectAddPropertyListenerBlock(object, &address, .main, block) == noErr else { return nil }
+    return (object, address, block)
+  }
+
+  private func remove(_ listeners: inout [(AudioObjectID, AudioObjectPropertyAddress, AudioObjectPropertyListenerBlock)]) {
+    for (object, property, block) in listeners {
+      var address = property
+      AudioObjectRemovePropertyListenerBlock(object, &address, .main, block)
+    }
+    listeners.removeAll()
+  }
+
+  private func readUInt(_ object: AudioObjectID, _ selector: AudioObjectPropertySelector) -> UInt32? {
+    var address = AudioObjectPropertyAddress(mSelector: selector, mScope: kAudioObjectPropertyScopeGlobal, mElement: kAudioObjectPropertyElementMain)
+    var value: UInt32 = 0
+    var size = UInt32(MemoryLayout<UInt32>.size)
+    guard AudioObjectGetPropertyData(object, &address, 0, nil, &size, &value) == noErr else { return nil }
+    return value
+  }
+
+  private func refresh() {
+    guard let sink = sink else { return }
+    let device = readUInt(AudioObjectID(kAudioObjectSystemObject), kAudioHardwarePropertyDefaultOutputDevice) ?? 0
+    if device != observedDevice {
+      remove(&deviceListeners)
+      observedDevice = device
+      if device != 0 {
+        for selector in [kAudioObjectPropertyName, kAudioDevicePropertyTransportType] {
+          if let listener = listen(device, selector) { deviceListeners.append(listener) }
+        }
+      }
+    }
+    var address = AudioObjectPropertyAddress(mSelector: kAudioObjectPropertyName, mScope: kAudioObjectPropertyScopeGlobal, mElement: kAudioObjectPropertyElementMain)
+    var name: Unmanaged<CFString>?
+    var size = UInt32(MemoryLayout<Unmanaged<CFString>?>.size)
+    let hasName = device != 0 && AudioObjectGetPropertyData(device, &address, 0, nil, &size, &name) == noErr
+    let label = hasName ? name?.takeRetainedValue() as String? ?? "Audio output" : "Audio output"
+    let transport = readUInt(device, kAudioDevicePropertyTransportType)
+    let values: [String: Any] = [
+      "available": device != 0 && hasName && transport != nil,
+      "name": label,
+      "builtIn": transport == kAudioDeviceTransportTypeBuiltIn,
+      "airPlay": transport == kAudioDeviceTransportTypeAirPlay
+    ]
+    NSLog("[ppplayer-audio] macOS system output=%@ transport=%u", label, transport ?? 0)
+    sink(values)
+  }
+
+  deinit {
+    remove(&systemListeners)
+    remove(&deviceListeners)
+  }
+}
+
 private final class PPNetworkOutputsHost {
   private var leases: [String: (URL, Bool)] = [:]
   private let channel: FlutterMethodChannel
@@ -109,8 +288,15 @@ private final class PPNetworkOutputsHost {
     let args = call.arguments as? [String: Any] ?? [:]
     do {
       switch call.method {
+      case "openSystemSoundSettings":
+        let url = URL(string: "x-apple.systempreferences:com.apple.preference.sound")!
+        guard NSWorkspace.shared.open(url) else {
+          result(FlutterError(code: "SOUND_SETTINGS_UNAVAILABLE", message: "Could not open Sound settings", details: nil))
+          return
+        }
+        result(nil)
       case "getPlatformCapabilities":
-        result(["googleCastAvailable": false, "googleCastUnavailableReason": "Google Cast has no supported native desktop sender integration.", "airPlayPickerAvailable": false, "airPlayVerified": false, "airPlayUnavailableReason": "The current macOS playback engines do not expose a routable AVPlayer.", "dlnaDiscoveryAvailable": true, "dlnaUnavailableReason": ""])
+        result(["googleCastAvailable": true, "googleCastUnavailableReason": "", "airPlayPickerAvailable": false, "airPlayVerified": false, "airPlayUnavailableReason": "The current macOS playback engines do not expose a routable AVPlayer.", "dlnaDiscoveryAvailable": true, "dlnaUnavailableReason": ""])
       case "getWebKitAirPlayConfiguration":
         var values: [Bool] = []
         func visit(_ view: NSView) {

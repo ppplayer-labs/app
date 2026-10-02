@@ -13,9 +13,16 @@ class CastOutputBackend implements NetworkOutputBackend {
       StreamController<NetworkOutputSessionState>.broadcast();
   StreamSubscription<dynamic>? _eventSubscription;
 
-  CastOutputBackend({CastPlatformClient? client}) 
-      : _client = client ?? NativeCastPlatformClient() {
-    _eventSubscription = _client.events.listen(_onEvent);
+  CastOutputBackend({CastPlatformClient? client})
+    : _client = client ?? NativeCastPlatformClient() {
+    _eventSubscription = _client.events.listen(
+      _onEvent,
+      onError: (Object error) {
+        // Discovery can fail asynchronously (for example denied local-network
+        // access). Do not let a platform stream error terminate the app.
+        debugPrint('[Output] google_cast discovery.error ${error.runtimeType}');
+      },
+    );
   }
 
   void _onEvent(dynamic event) {
@@ -31,6 +38,9 @@ class CastOutputBackend implements NetworkOutputBackend {
           name: map['name'] ?? 'Unknown Cast Device',
           kind: OutputKind.googleCast,
           model: map['model'],
+          endpointUri: map['host'] is String && map['port'] is int
+              ? Uri(scheme: 'http', host: map['host'], port: map['port'])
+              : null,
           capabilities: OutputCapabilities(
             audio: map['audio'] == true,
             video: map['video'] == true,
@@ -57,6 +67,7 @@ class CastOutputBackend implements NetworkOutputBackend {
           endpointId: event['endpointId'] ?? '',
           state: state,
           itemId: event['itemId'] ?? '',
+          connected: stateStr != 'disconnected',
           error: event['error'],
         ),
       );
@@ -71,6 +82,7 @@ class CastOutputBackend implements NetworkOutputBackend {
           endpointId: event['endpointId'] ?? '',
           state: state,
           itemId: event['itemId'] ?? '',
+          error: event['error'],
           position: Duration(milliseconds: event['positionMs'] ?? 0),
           duration: Duration(milliseconds: event['durationMs'] ?? 0),
           isLive: event['isLive'] ?? false,
@@ -111,6 +123,8 @@ class CastOutputBackend implements NetworkOutputBackend {
         return PlaybackState.paused;
       case 'buffering':
         return PlaybackState.buffering;
+      case 'error':
+        return PlaybackState.error;
       case 'stopped':
         return PlaybackState.idle;
       case 'ended':
@@ -177,7 +191,7 @@ class CastOutputBackend implements NetworkOutputBackend {
       '[Output] google_cast load.start mime=${item.mimeType} session=$sessionId item=$itemId',
     );
     try {
-      final result = await _client.load( {
+      final result = await _client.load({
         'sessionId': sessionId,
         'itemId': itemId,
         'autoplay': autoplay,
@@ -234,7 +248,11 @@ class CastOutputBackend implements NetworkOutputBackend {
     required String sessionId,
     required String itemId,
   }) async {
-    await _client.seek(position: position, sessionId: sessionId, itemId: itemId);
+    await _client.seek(
+      position: position,
+      sessionId: sessionId,
+      itemId: itemId,
+    );
   }
 
   @override
@@ -243,7 +261,11 @@ class CastOutputBackend implements NetworkOutputBackend {
     required String sessionId,
     required String itemId,
   }) async {
-    await _client.setVolume(volume: volume, sessionId: sessionId, itemId: itemId);
+    await _client.setVolume(
+      volume: volume,
+      sessionId: sessionId,
+      itemId: itemId,
+    );
   }
 
   @override

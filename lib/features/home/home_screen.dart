@@ -282,66 +282,67 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       body: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.only(
-                left: MediaQuery.of(context).size.width < 600 ? 16.0 : 32.0,
-                top: MediaQuery.of(context).size.width < 600 ? 40.0 : 56.0,
-                right: MediaQuery.of(context).size.width < 600 ? 16.0 : 32.0,
-                bottom: MediaQuery.of(context).size.width < 600 ? 16.0 : 24.0,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          greetingText,
-                          style: TextStyle(
-                            fontSize: MediaQuery.of(context).size.width < 600
-                                ? 28
-                                : 40,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: -1.5,
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          l10n.yourMusicIsWaiting,
-                          style: TextStyle(
-                            fontSize: MediaQuery.of(context).size.width < 600
-                                ? 14
-                                : 18,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withValues(alpha: 0.6),
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final compactHeader = constraints.maxWidth < 700;
+                return Padding(
+                  padding: EdgeInsets.only(
+                    left: compactHeader ? 16.0 : 32.0,
+                    top: compactHeader ? 32.0 : 56.0,
+                    right: compactHeader ? 16.0 : 32.0,
+                    bottom: compactHeader ? 16.0 : 24.0,
                   ),
-                  if (MediaQuery.of(context).size.width <
-                      600) // Show on mobile/tablet
-                    Padding(
-                      padding: const EdgeInsets.only(left: 12.0),
-                      child: TactileIconButton(
-                        icon: Icons.settings_outlined,
-                        size: 24,
-                        onTap: () => context.push('/settings'),
-                        color: Theme.of(context).colorScheme.onSurface,
-                        hoverColor: Theme.of(context).colorScheme.primary,
-                        tooltip: AppLocalizations.of(context)!.settings,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              greetingText,
+                              style: TextStyle(
+                                fontSize: compactHeader ? 28 : 40,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: -1.5,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              l10n.yourMusicIsWaiting,
+                              style: TextStyle(
+                                fontSize: compactHeader ? 14 : 18,
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.6),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                ],
-              ),
+                      if (MediaQuery.of(context).size.width <
+                          600) // Show on mobile/tablet
+                        Padding(
+                          padding: const EdgeInsets.only(left: 12.0),
+                          child: TactileIconButton(
+                            icon: Icons.settings_outlined,
+                            size: 24,
+                            onTap: () => context.push('/settings'),
+                            color: Theme.of(context).colorScheme.onSurface,
+                            hoverColor: Theme.of(context).colorScheme.primary,
+                            tooltip: AppLocalizations.of(context)!.settings,
+                          ),
+                        ),
+                    ],
+                  ),
+                );
+              },
             ),
           ),
           SliverToBoxAdapter(

@@ -179,7 +179,7 @@ class PpAboutDialog extends StatelessWidget {
                                     title: l10n.github,
                                     subtitle: l10n.viewSource,
                                     url:
-                                        'https://github.com/ppplayermusic/ppplayer',
+                                        'https://github.com/ppplayer-labs/ppplayer',
                                   ),
                                   _buildLinkCard(
                                     context,
@@ -187,7 +187,7 @@ class PpAboutDialog extends StatelessWidget {
                                     title: l10n.releaseNotes,
                                     subtitle: l10n.seeWhatsNew,
                                     url:
-                                        'https://github.com/ppplayermusic/ppplayer/releases',
+                                        'https://github.com/ppplayer-labs/ppplayer/releases',
                                   ),
                                   _buildLinkCard(
                                     context,

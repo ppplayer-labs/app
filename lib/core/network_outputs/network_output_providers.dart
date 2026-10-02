@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'cast/cast_output_backend.dart';
 import 'cast/cast_platform_client.dart';
 import 'cast/fake_cast_platform_client.dart';
+import 'cast/desktop_cast_platform_client.dart';
 import 'dlna/dlna_discovery.dart';
 import 'dlna/dlna_output_backend.dart';
 import 'local_media_server.dart';
@@ -51,6 +52,10 @@ final castOutputBackendProvider = Provider<CastOutputBackend>((ref) {
     final fake = FakeCastPlatformClient();
     client = fake;
     ref.onDispose(() => fake.dispose());
+  } else if (Platform.isMacOS) {
+    final desktop = DesktopCastPlatformClient();
+    client = desktop;
+    ref.onDispose(() => desktop.dispose());
   }
   final backend = CastOutputBackend(client: client);
   ref.onDispose(() => backend.dispose());

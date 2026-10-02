@@ -31,6 +31,7 @@ import 'package:flutter/services.dart';
 import 'package:fullscreen_window/fullscreen_window.dart';
 import '../../core/network_outputs/network_output_providers.dart';
 import '../../features/network_outputs/output_picker.dart';
+import 'compact_desktop_navigation.dart';
 
 class ScaffoldWithNav extends ConsumerStatefulWidget {
   const ScaffoldWithNav({
@@ -286,7 +287,7 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
       bottomNavigationBar: isPlayerScreen || isPipMode || isFullscreen
           ? null
           : isDesktop
-          ? const _DesktopPlayerBar()
+          ? const DesktopPlayerBar()
           : const Column(
               mainAxisSize: MainAxisSize.min,
               children: [_MiniPlayerBar(), _BottomNavBar()],
@@ -1266,6 +1267,12 @@ class _DesktopSidebar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
     final location = GoRouterState.of(context).uri.path;
+    if (MediaQuery.sizeOf(context).width < 1000) {
+      return CompactDesktopNavigation(
+        location: location,
+        onNavigate: (path) => context.go(path),
+      );
+    }
     final database = ref.watch(db.appDatabaseProvider);
     final currentIndex = switch (location) {
       String s when s.startsWith('/home') => 0,
@@ -1805,8 +1812,8 @@ class _MockPlaylistItemState extends State<_MockPlaylistItem> {
   }
 }
 
-class _DesktopPlayerBar extends ConsumerWidget {
-  const _DesktopPlayerBar();
+class DesktopPlayerBar extends ConsumerWidget {
+  const DesktopPlayerBar({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -1816,6 +1823,13 @@ class _DesktopPlayerBar extends ConsumerWidget {
     final isLocalTrack = track?.sourceType == TrackSourceType.local;
     final showVideo = ref.watch(settingsProvider.select((s) => s.showVideo));
     final colorScheme = Theme.of(context).colorScheme;
+
+    final compact = MediaQuery.sizeOf(context).width < 1000;
+    final controlGap = compact ? 4.0 : 16.0;
+    Future<void> openQueue() async {
+      await ref.read(settingsProvider.notifier).setPlayerView(PlayerView.queue);
+      if (context.mounted) context.push('/player');
+    }
 
     if (track == null) return const SizedBox.shrink();
 
@@ -1845,7 +1859,7 @@ class _DesktopPlayerBar extends ConsumerWidget {
               const SizedBox(height: 16),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  padding: EdgeInsets.symmetric(horizontal: compact ? 12 : 24),
                   child: Row(
                     children: [
                       // Left: Track Info
@@ -1859,12 +1873,12 @@ class _DesktopPlayerBar extends ConsumerWidget {
                                 borderRadius: BorderRadius.circular(8),
                                 child: PPImage(
                                   imageUrl: track.albumImage ?? '',
-                                  width: 56,
-                                  height: 56,
+                                  width: compact ? 44 : 56,
+                                  height: compact ? 44 : 56,
                                   fit: BoxFit.cover,
                                 ),
                               ),
-                              const SizedBox(width: 16),
+                              SizedBox(width: compact ? 8 : 16),
                               Expanded(
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -1901,23 +1915,24 @@ class _DesktopPlayerBar extends ConsumerWidget {
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          TactileIconButton(
-                            icon: Icons.shuffle,
-                            onTap: () => ref
-                                .read(playerProvider.notifier)
-                                .toggleShuffle(),
-                            size: 20,
-                            color: playerState.isShuffled
-                                ? colorScheme.primary
-                                : colorScheme.onSurfaceVariant.withValues(
-                                    alpha: 0.7,
-                                  ),
-                            hoverColor: playerState.isShuffled
-                                ? colorScheme.primary
-                                : colorScheme.onSurface,
-                            tooltip: AppLocalizations.of(context)!.shuffle,
-                          ),
-                          const SizedBox(width: 16),
+                          if (!compact)
+                            TactileIconButton(
+                              icon: Icons.shuffle,
+                              onTap: () => ref
+                                  .read(playerProvider.notifier)
+                                  .toggleShuffle(),
+                              size: 20,
+                              color: playerState.isShuffled
+                                  ? colorScheme.primary
+                                  : colorScheme.onSurfaceVariant.withValues(
+                                      alpha: 0.7,
+                                    ),
+                              hoverColor: playerState.isShuffled
+                                  ? colorScheme.primary
+                                  : colorScheme.onSurface,
+                              tooltip: AppLocalizations.of(context)!.shuffle,
+                            ),
+                          if (!compact) SizedBox(width: controlGap),
                           TactileIconButton(
                             icon: Icons.skip_previous,
                             onTap: () => ref
@@ -1930,7 +1945,7 @@ class _DesktopPlayerBar extends ConsumerWidget {
                             hoverColor: colorScheme.primary,
                             tooltip: AppLocalizations.of(context)!.previous,
                           ),
-                          const SizedBox(width: 16),
+                          SizedBox(width: controlGap),
                           TactilePlayerPlayPauseButton(
                             isPlaying: playerState.isPlaying,
                             isLoading: playerState.isLoadingVideo,
@@ -1939,7 +1954,7 @@ class _DesktopPlayerBar extends ConsumerWidget {
                                 ref.read(playerProvider.notifier).togglePlay(),
                             tooltip: playerState.isPlaying ? 'Pause' : 'Play',
                           ),
-                          const SizedBox(width: 16),
+                          SizedBox(width: controlGap),
                           TactileIconButton(
                             icon: Icons.skip_next,
                             onTap: () =>
@@ -1951,29 +1966,31 @@ class _DesktopPlayerBar extends ConsumerWidget {
                             hoverColor: colorScheme.primary,
                             tooltip: AppLocalizations.of(context)!.next,
                           ),
-                          const SizedBox(width: 16),
-                          TactileIconButton(
-                            icon: playerState.repeatMode == RepeatMode.one
-                                ? Icons.repeat_one
-                                : Icons.repeat,
-                            onTap: () =>
-                                ref.read(playerProvider.notifier).cycleRepeat(),
-                            size: 20,
-                            color: playerState.repeatMode != RepeatMode.none
-                                ? colorScheme.primary
-                                : colorScheme.onSurfaceVariant.withValues(
-                                    alpha: 0.7,
-                                  ),
-                            hoverColor:
-                                playerState.repeatMode != RepeatMode.none
-                                ? colorScheme.primary
-                                : colorScheme.onSurface,
-                            tooltip: playerState.repeatMode == RepeatMode.one
-                                ? 'Repeat One'
-                                : (playerState.repeatMode == RepeatMode.all
-                                      ? 'Repeat All'
-                                      : 'Repeat Off'),
-                          ),
+                          if (!compact) SizedBox(width: controlGap),
+                          if (!compact)
+                            TactileIconButton(
+                              icon: playerState.repeatMode == RepeatMode.one
+                                  ? Icons.repeat_one
+                                  : Icons.repeat,
+                              onTap: () => ref
+                                  .read(playerProvider.notifier)
+                                  .cycleRepeat(),
+                              size: 20,
+                              color: playerState.repeatMode != RepeatMode.none
+                                  ? colorScheme.primary
+                                  : colorScheme.onSurfaceVariant.withValues(
+                                      alpha: 0.7,
+                                    ),
+                              hoverColor:
+                                  playerState.repeatMode != RepeatMode.none
+                                  ? colorScheme.primary
+                                  : colorScheme.onSurface,
+                              tooltip: playerState.repeatMode == RepeatMode.one
+                                  ? 'Repeat One'
+                                  : (playerState.repeatMode == RepeatMode.all
+                                        ? 'Repeat All'
+                                        : 'Repeat Off'),
+                            ),
                         ],
                       ),
 
@@ -1984,41 +2001,147 @@ class _DesktopPlayerBar extends ConsumerWidget {
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             // Volume control with mute toggle
-                            TactileIconButton(
-                              icon: playerState.volume == 0
-                                  ? Icons.volume_off
-                                  : (playerState.volume < 0.5
-                                        ? Icons.volume_down
-                                        : Icons.volume_up),
-                              size: 19,
-                              padding: const EdgeInsets.all(6),
-                              color: colorScheme.onSurfaceVariant.withValues(
-                                alpha: 0.8,
+                            if (!compact)
+                              TactileIconButton(
+                                icon: playerState.volume == 0
+                                    ? Icons.volume_off
+                                    : (playerState.volume < 0.5
+                                          ? Icons.volume_down
+                                          : Icons.volume_up),
+                                size: 19,
+                                padding: const EdgeInsets.all(6),
+                                color: colorScheme.onSurfaceVariant.withValues(
+                                  alpha: 0.8,
+                                ),
+                                hoverColor: colorScheme.primary,
+                                tooltip: playerState.volume == 0
+                                    ? 'Unmute'
+                                    : 'Mute',
+                                onTap: () {
+                                  final notifier = ref.read(
+                                    playerProvider.notifier,
+                                  );
+                                  if (playerState.volume > 0) {
+                                    notifier.setVolume(0);
+                                  } else {
+                                    notifier.setVolume(0.7);
+                                  }
+                                },
                               ),
-                              hoverColor: colorScheme.primary,
-                              tooltip: playerState.volume == 0
-                                  ? 'Unmute'
-                                  : 'Mute',
-                              onTap: () {
-                                final notifier = ref.read(
-                                  playerProvider.notifier,
+                            if (!compact)
+                              Flexible(
+                                child: _DesktopVolumeSlider(
+                                  volume: playerState.volume,
+                                  onChanged: (val) => ref
+                                      .read(playerProvider.notifier)
+                                      .setVolume(val),
+                                ),
+                              ),
+                            const SizedBox(width: 8),
+                            Builder(
+                              builder: (ctx) {
+                                final outputState = ref.watch(
+                                  networkOutputSnapshotProvider,
                                 );
-                                if (playerState.volume > 0) {
-                                  notifier.setVolume(0);
-                                } else {
-                                  notifier.setVolume(0.7);
-                                }
+                                return TactileIconButton(
+                                  icon: outputState.connected
+                                      ? Icons.cast_connected
+                                      : Icons.cast,
+                                  size: 20,
+                                  color: outputState.connected
+                                      ? colorScheme.primary
+                                      : colorScheme.onSurfaceVariant.withValues(
+                                          alpha: 0.7,
+                                        ),
+                                  hoverColor: colorScheme.primary,
+                                  tooltip: outputState.connected
+                                      ? 'Output: ${outputState.selectedOutput.name}'
+                                      : 'Play On',
+                                  onTap: () => showOutputPicker(ctx, ref),
+                                );
                               },
                             ),
-                            Flexible(
-                              child: _DesktopVolumeSlider(
-                                volume: playerState.volume,
-                                onChanged: (val) => ref
-                                    .read(playerProvider.notifier)
-                                    .setVolume(val),
+                            if (compact) ...[
+                              PopupMenuButton<String>(
+                                tooltip: 'More playback controls',
+                                icon: const Icon(Icons.more_horiz, size: 20),
+                                onSelected: (action) {
+                                  final notifier = ref.read(
+                                    playerProvider.notifier,
+                                  );
+                                  switch (action) {
+                                    case 'shuffle':
+                                      notifier.toggleShuffle();
+                                    case 'repeat':
+                                      notifier.cycleRepeat();
+                                    case 'video':
+                                      ref
+                                          .read(settingsProvider.notifier)
+                                          .toggleVideo();
+                                    case 'mute':
+                                      notifier.setVolume(
+                                        playerState.volume > 0 ? 0 : 0.7,
+                                      );
+                                  }
+                                },
+                                itemBuilder: (_) => [
+                                  PopupMenuItem(
+                                    value: 'shuffle',
+                                    child: Text(
+                                      playerState.isShuffled
+                                          ? 'Shuffle: On'
+                                          : 'Shuffle: Off',
+                                    ),
+                                  ),
+                                  PopupMenuItem(
+                                    value: 'repeat',
+                                    child: Text(
+                                      'Repeat: ${playerState.repeatMode.name}',
+                                    ),
+                                  ),
+                                  PopupMenuItem(
+                                    value: 'mute',
+                                    child: Text(
+                                      playerState.volume == 0
+                                          ? 'Unmute'
+                                          : 'Mute',
+                                    ),
+                                  ),
+                                  if (!isLocalTrack)
+                                    PopupMenuItem(
+                                      value: 'video',
+                                      child: Text(
+                                        showVideo ? 'Hide Video' : 'Show Video',
+                                      ),
+                                    ),
+                                  PopupMenuItem<String>(
+                                    enabled: false,
+                                    child: SizedBox(
+                                      width: 180,
+                                      child: Consumer(
+                                        builder: (context, ref, _) => Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            const Text('Volume'),
+                                            Slider(
+                                              value: ref.watch(
+                                                playerProvider.select(
+                                                  (s) => s.volume,
+                                                ),
+                                              ),
+                                              onChanged: (value) => ref
+                                                  .read(playerProvider.notifier)
+                                                  .setVolume(value),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                            if (isLocalTrack == false) ...[
+                            ] else if (isLocalTrack == false) ...[
                               const SizedBox(width: 8),
                               TactileIconButton(
                                 icon: showVideo
@@ -2039,19 +2162,48 @@ class _DesktopPlayerBar extends ConsumerWidget {
                                     : 'Show Video',
                               ),
                             ],
-                            const SizedBox(width: 16),
-                            TactileIconButton(
-                              icon: Icons.queue_music,
-                              onTap: () => context.push('/player'),
-                              size: 20,
-                              color: colorScheme.onSurfaceVariant.withValues(
-                                alpha: 0.7,
+                            SizedBox(width: compact ? 4 : 16),
+                            if (compact)
+                              Tooltip(
+                                message: AppLocalizations.of(
+                                  context,
+                                )!.queueTooltip,
+                                child: SizedBox(
+                                  width: 96,
+                                  child: OutlinedButton.icon(
+                                    onPressed: openQueue,
+                                    icon: const Icon(
+                                      Icons.queue_music,
+                                      size: 18,
+                                    ),
+                                    label: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.queueTooltip,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    style: OutlinedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            else
+                              TactileIconButton(
+                                icon: Icons.queue_music,
+                                onTap: openQueue,
+                                size: 20,
+                                color: colorScheme.onSurfaceVariant.withValues(
+                                  alpha: 0.7,
+                                ),
+                                hoverColor: colorScheme.primary,
+                                tooltip: AppLocalizations.of(
+                                  context,
+                                )!.queueTooltip,
                               ),
-                              hoverColor: colorScheme.primary,
-                              tooltip: AppLocalizations.of(
-                                context,
-                              )!.queueTooltip,
-                            ),
                           ],
                         ),
                       ),
@@ -2447,9 +2599,10 @@ class _DesktopTopBarState extends ConsumerState<_DesktopTopBar> {
 
     final settings = ref.watch(settingsProvider);
     final colorScheme = Theme.of(context).colorScheme;
+    final compact = MediaQuery.sizeOf(context).width < 1000;
     return Container(
       height: 80,
-      padding: const EdgeInsets.symmetric(horizontal: 32),
+      padding: EdgeInsets.symmetric(horizontal: compact ? 16 : 32),
       child: Row(
         children: [
           // Search Bar
@@ -2473,14 +2626,14 @@ class _DesktopTopBarState extends ConsumerState<_DesktopTopBar> {
             size: 24,
             color: colorScheme.onSurface.withValues(alpha: 0.7),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: compact ? 8 : 16),
           TactileIconButton(
             icon: Icons.settings_outlined,
             onTap: () => context.push('/settings'),
             size: 24,
             color: colorScheme.onSurface.withValues(alpha: 0.7),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: compact ? 8 : 16),
           // Profile Avatar
           if (settings.userName.isNotEmpty)
             TactileTap(

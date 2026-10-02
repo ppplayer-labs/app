@@ -10,6 +10,8 @@ import 'package:flutter/services.dart';
 import '../../core/network_outputs/capability_resolver.dart';
 import '../../core/network_outputs/models.dart';
 import 'airplay_output_tile.dart';
+import 'macos_audio_output_tile.dart';
+import '../../core/network_outputs/macos_audio_route.dart';
 import '../../core/network_outputs/airplay_route.dart';
 import '../../core/network_outputs/network_output_providers.dart';
 import '../../core/player/player_provider.dart';
@@ -131,6 +133,11 @@ class _OutputPickerContent extends ConsumerWidget {
         ? ref.watch(airPlayRouteProvider).asData?.value
         : null;
     final airPlaySelected = route?.isSelectedFor(state) ?? false;
+    final showMacOSRouting = Platform.isMacOS;
+    final macRoute = showMacOSRouting
+        ? ref.watch(macOSAudioRouteProvider).asData?.value
+        : null;
+    final macExternalSelected = macRoute?.isSelectedFor(state) ?? false;
     PlaybackTrack? pbTrack;
     try {
       pbTrack = track?.toPlaybackTrack();
@@ -189,10 +196,14 @@ class _OutputPickerContent extends ConsumerWidget {
             output: output,
             isSelected:
                 selected.kind == OutputKind.local &&
+                (!showMacOSRouting ||
+                    (macRoute?.isLocalDeviceSelectedFor(state) ?? false)) &&
                 (!showAirPlay ||
                     (route?.isLocalDeviceSelectedFor(state) ?? false)),
             onTapOverride: airPlaySelected
                 ? () => showLocalAirPlayRoutePicker(context)
+                : macExternalSelected
+                ? () => showMacOSSoundSettings(context)
                 : null,
             isConnected: false,
             pbTrack: pbTrack,
@@ -200,11 +211,22 @@ class _OutputPickerContent extends ConsumerWidget {
           ),
 
         if (showAirPlay ||
+            showMacOSRouting ||
             remoteOutputs.isNotEmpty ||
             state.discoveryActive) ...[
           const SizedBox(height: 8),
           _SectionHeader(label: 'AVAILABLE DEVICES'),
         ],
+        if (showMacOSRouting)
+          MacOSAudioOutputTile(
+            route: macRoute,
+            isSelected: macExternalSelected,
+            remoteActive: state.connected,
+            connecting: state.connecting,
+            onReturnToLocal: () => ref
+                .read(networkOutputControllerProvider)
+                .selectOutput(PlaybackOutput.local),
+          ),
         if (showAirPlay)
           AirPlayOutputTile(
             isSelected: airPlaySelected,

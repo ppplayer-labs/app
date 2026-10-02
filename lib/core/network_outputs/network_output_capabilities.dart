@@ -36,6 +36,12 @@ class NetworkOutputsCapabilities {
         googleCastAvailable: true,
       );
     }
+    if (Platform.isMacOS) {
+      return const NetworkOutputsCapabilities(
+        dlnaAvailable: true,
+        googleCastAvailable: true,
+      );
+    }
     return const NetworkOutputsCapabilities(
       dlnaAvailable: true,
       googleCastAvailable: false,

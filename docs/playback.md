@@ -14,9 +14,23 @@ Apple security-scoped bookmarks are resolved only when file access is acquired. 
 
 Open **Play On** from the player. Cast and DLNA devices require discovery, network reachability, a supported source and a compatible receiver.
 
+Desktop windows below 1000 pixels use compact navigation and playback controls.
+Previous/play/next, Play On and a labeled Queue button stay visible; shuffle,
+repeat, video and volume adjustment are available in More playback controls.
+Queue opens the queue view directly. The home heading sizes to the available
+content width and can wrap; wider windows retain the full sidebar and controls.
+
+macOS now discovers Chromecast receivers through native Bonjour and controls the
+Default Media Receiver over CASTV2. Start with imported local music or a supported
+HTTP stream; select the receiver in Play On. The Mac must stay running while it
+serves a local file. YouTube sources cannot use this media-URL handoff. Physical
+Chromecast playback still needs receiver validation.
+
 On iOS, use the **AirPlay** button to open Apple's route picker. The selected receiver name appears in the AirPlay row, and **This device** loses its selected state while AirPlay is active. To return to the iPhone, tap **This device** and choose the iPhone in the system picker.
 
-When Cast/DLNA is active, return to the local engine before using AirPlay. AirPlay routes that engine's audio; it does not load an HTTP item or create a Cast session. On macOS, select audio routes using system controls.
+When Cast/DLNA is active, return to the local engine before using AirPlay. AirPlay routes that engine's audio; it does not load an HTTP item or create a Cast session.
+
+On macOS, **Play On → AirPlay & audio output** opens Sound settings. Choose an output there and return to the app. The row shows the system's current output name; AirPlay, Bluetooth and USB outputs deselect **This device**. Returning to built-in audio selects This device again. Clicking This device while an external route is active opens Sound settings rather than silently disconnecting it. If a remote session is active, the system-routing row returns playback to the Mac before opening settings; it is disabled during connection. This follows the system default output, so changing it affects other apps using that output too.
 
 If an AirPlay receiver is selected but silent, check source playback, volume on both devices and receiver availability. Local music from a physical iPhone to a MacBook has been verified. Physical Cast and DLNA playback remain pending; the simulated Cast receiver is a development tool.
 

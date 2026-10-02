@@ -8,7 +8,7 @@ Open **Play On** from the player to choose an output. Cast and DLNA devices appe
 
 On iOS, **AirPlay** opens Apple's `AVRoutePickerView`. AirPlay stays on the local playback engine and follows `AVAudioSession` routing; it does not create a Cast session or a LocalMediaServer URL. Native route-change events supply the selected receiver name and check mark. **This device** is not selected while an AirPlay receiver is active. Selecting it opens a system picker so the user can choose the iPhone.
 
-If Cast/DLNA is active, return playback to the local engine before choosing AirPlay. macOS audio routing uses system controls; the new in-app AirPlay picker is iOS-only.
+If Cast/DLNA is active, return playback to the local engine before choosing AirPlay. On macOS, **AirPlay & audio output** opens system Sound settings from Play On. Core Audio supplies the current default output name and route changes. External outputs select that row instead of This device; this includes AirPlay, Bluetooth and USB outputs. The native in-app AirPlay picker remains iOS-only.
 
 ## Platform availability
 
@@ -16,7 +16,7 @@ If Cast/DLNA is active, return playback to the local engine before choosing AirP
 |---|---|---|---|---|
 | Android | Backend available | Native sender backend available | No in-app picker | Supported |
 | iOS | Gated on approved multicast capability and build configuration | Native sender backend available | In-app system picker | Supported |
-| macOS | Backend available | No official native sender backend | System routing | Supported |
+| macOS | Backend available | Bonjour discovery and Dart CASTV2 sender available | Sound settings shortcut and live system-output display in Play On | Supported |
 | Windows / Linux | Backend available | No official native sender backend | No in-app picker | Supported |
 
 `NetworkOutputsCapabilities.resolve()` controls backend registration. On iOS it reads native capabilities rather than assuming discovery is usable. The multicast build capability must be approved and enabled for DLNA discovery.
@@ -44,6 +44,34 @@ The controller owns output/session transitions and wraps the local playback cont
 | `networkOutputControllerProvider` | Output orchestration |
 | `networkOutputStateProvider` / `networkOutputSnapshotProvider` | Stream / synchronous state |
 | `airPlayRouteProvider` | Native iOS route state |
+| `macOSAudioRouteProvider` | Native Core Audio default output state |
+
+macOS route observation subscribes to the default-output and device-list properties, plus the active device's name and transport type. It emits an initial snapshot, rebinds device listeners when the output changes, and removes listeners on stream cancellation/disposal. Unavailable route information is not treated as a selected built-in output. This reports the system default route; app-specific output overrides are outside this integration. Opening Sound settings can change the output for other apps too.
+
+## macOS Chromecast sender
+
+`DesktopCastPlatformClient` implements the existing Cast client interface. Native
+`NetServiceBrowser` resolves `_googlecast._tcp` services inside the app sandbox.
+Discovery includes the receiver endpoint so LocalMediaServer chooses a LAN route
+to that receiver instead of relying on a generic network route.
+
+The pinned `dart_cast` framing channel handles CASTV2 TLS and protobuf. Its
+high-level session and proxy are deliberately unused: PPPlayer keeps its existing
+media factory, authorized file leases and HTTP server. Chromecast's self-signed
+TLS certificate handling is confined to this receiver transport.
+
+The sender launches the Default Media Receiver (`CC1AD845`), connects its app
+transport, and waits for a matching LOAD response before reporting success.
+Commands validate PPPlayer session/item identity. Status updates validate receiver
+transport, receiver media session and content/item identity. Heartbeat and polling
+timers stop on disconnect. A lost connection reports the active identities and
+keeps the existing controller's failure behavior. Playback, pause, stop, seek,
+receiver volume and mute are supported. This is a community protocol transport,
+not an official Google desktop sender SDK.
+
+For a live test, use an imported local song or supported HTTP media, open Play On,
+and select a discovered Chromecast on the same LAN. YouTube sources remain
+unsupported by this media-URL handoff. Keep the Mac running for local HTTP media.
 
 ## Apple local-file acquisition boundary
 
@@ -84,7 +112,8 @@ With `--dart-define=PP_FAKE_CAST_DEVICE=true` in a debug build, `FakeCastPlatfor
 - Physical iPhone → MacBook AirPlay with local music: user verified audible playback.
 - Physical iPhone Control Center / lock-screen commands: WebKit pause reaches Flutter intent; no recovery replay; explicit system play resumes.
 - iOS bookmark → lease → HTTP URL → fake Cast: automated coverage, including invalid bookmarks, direct file URIs, scope lifetime and serving.
-- Physical Chromecast: intentionally deferred; not yet verified in this session.
+- macOS Cast sender: automated launch/control/error/session tests, real loopback TLS framing, and local file → HTTP 200 → receiver-protocol test double handoff. Native macOS build passes.
+- Physical Chromecast: implementation ready for testing; audible receiver playback has not yet been verified.
 - Physical DLNA receiver: not yet verified in this session; iOS multicast capability remains a prerequisite.
 
 See [playback guide](playback.md) and the evidence under `verification/`.

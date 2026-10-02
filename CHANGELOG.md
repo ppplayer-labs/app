@@ -6,6 +6,9 @@ All notable changes to PPPlayer will be documented in this file.
 
 ### Added
 
+- macOS Play On shortcut to system Sound settings, with live default-output name and selection from Core Audio.
+- macOS Chromecast sender with native Bonjour discovery, Default Media Receiver launch, playback controls and local-file HTTP handoff. Physical receiver validation remains pending.
+- Compact desktop navigation and playback controls for narrow windows, a labeled Queue button that opens the queue directly, and adaptive home headings. Fixed playlist-card artwork overflowing its available height.
 - Play On access to the iOS system AirPlay picker, with receiver name and active-route selection.
 - A dedicated Queue button and responsive video controls, with secondary actions grouped in an options menu.
 - Apple-aware file acquisition for network outputs, resolving managed locators and security-scoped bookmarks through local_library.

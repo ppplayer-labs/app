@@ -1556,32 +1556,34 @@ class _PlaylistCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                AspectRatio(
-                  aspectRatio: 1,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.scrim.withValues(alpha: 0.4),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10),
-                        ),
-                      ],
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child: playlist.imageUrl != null
-                          ? PPImage(
-                              imageUrl: playlist.imageUrl!,
-                              fit: BoxFit.cover,
-                            )
-                          : PlaylistCover(
-                              images: images,
-                              size: double.infinity,
-                            ),
+                Flexible(
+                  child: AspectRatio(
+                    aspectRatio: 1,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.scrim.withValues(alpha: 0.4),
+                            blurRadius: 20,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: playlist.imageUrl != null
+                            ? PPImage(
+                                imageUrl: playlist.imageUrl!,
+                                fit: BoxFit.cover,
+                              )
+                            : PlaylistCover(
+                                images: images,
+                                size: double.infinity,
+                              ),
+                      ),
                     ),
                   ),
                 ),
@@ -1599,6 +1601,8 @@ class _PlaylistCard extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   '${tracks.length} tracks'.toUpperCase(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: Theme.of(
                       context,
