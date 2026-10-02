@@ -3,14 +3,58 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:pp_playback_engine/pp_playback_engine.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart' as yt;
+import 'package:webview_flutter/webview_flutter.dart';
+import 'package:webview_flutter_platform_interface/webview_flutter_platform_interface.dart';
+import 'fake_youtube_controller.dart';
 
 class MockPlaybackController extends Mock implements PlaybackController {}
 
+class _ViewPlatform extends WebViewPlatform {
+  @override
+  PlatformWebViewWidget createPlatformWebViewWidget(
+    PlatformWebViewWidgetCreationParams params,
+  ) => _ViewWidget(params);
+}
+
+class _ViewWidget extends PlatformWebViewWidget {
+  _ViewWidget(super.params) : super.implementation();
+
+  @override
+  Widget build(BuildContext context) =>
+      const SizedBox(key: ValueKey('test_webview_surface'));
+}
+
+class _ViewController extends PlatformWebViewController {
+  _ViewController()
+    : super.implementation(const PlatformWebViewControllerCreationParams());
+
+  @override
+  Future<void> setBackgroundColor(Color color) async {}
+}
+
+class _YoutubeViewController extends FakeYoutubeController {
+  @override
+  final webViewController = WebViewController.fromPlatform(_ViewController());
+
+  @override
+  Future<void> init() async {}
+}
+
 void main() {
   late MockPlaybackController mockController;
+  WebViewPlatform? originalPlatform;
 
   setUp(() {
     mockController = MockPlaybackController();
+    originalPlatform = WebViewPlatform.instance;
+    WebViewPlatform.instance = _ViewPlatform();
+  });
+  tearDown(() {
+    // The platform setter rejects null. When no plugin was registered, the
+    // fake remains confined to this test file's isolate.
+    if (originalPlatform != null) {
+      WebViewPlatform.instance = originalPlatform;
+    }
   });
 
   testWidgets('PlaybackView renders YoutubePlayer when in IFrame mode', (
@@ -23,11 +67,8 @@ void main() {
       isIFrameMode: true,
     );
 
-    final ytController = yt.YoutubePlayerController.fromVideoId(
-      videoId: 'test_id',
-      autoPlay: true,
-      params: const yt.YoutubePlayerParams(showFullscreenButton: true),
-    );
+    final ytController = _YoutubeViewController();
+    addTearDown(ytController.close);
 
     when(() => mockController.currentStatus).thenReturn(status);
     when(
@@ -46,8 +87,8 @@ void main() {
 
     // 3. Verify YoutubePlayer is present
     expect(find.byType(yt.YoutubePlayer), findsOneWidget);
-
-    await ytController.close();
+    expect(find.byKey(const ValueKey('test_webview_surface')), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('PlaybackView logic branch verification', (

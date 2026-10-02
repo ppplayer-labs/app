@@ -1994,7 +1994,9 @@ class _ArtistsSliverList extends StatelessWidget {
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
-                                        'Artist',
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.sortArtist,
                                         style: TextStyle(
                                           color: Theme.of(context)
                                               .colorScheme

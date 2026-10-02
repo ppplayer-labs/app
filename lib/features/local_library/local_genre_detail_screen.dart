@@ -1,3 +1,4 @@
+import 'package:ppplayer/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/db/app_database.dart';
@@ -100,7 +101,9 @@ class LocalGenreDetailScreen extends ConsumerWidget {
                                         );
                                   },
                                   icon: const Icon(Icons.play_arrow_rounded),
-                                  label: const Text('Play All'),
+                                  label: Text(
+                                    AppLocalizations.of(context)!.playAll,
+                                  ),
                                   style: FilledButton.styleFrom(
                                     padding: const EdgeInsets.symmetric(
                                       vertical: 16,
@@ -123,7 +126,9 @@ class LocalGenreDetailScreen extends ConsumerWidget {
                                         );
                                   },
                                   icon: const Icon(Icons.shuffle_rounded),
-                                  label: const Text('Shuffle'),
+                                  label: Text(
+                                    AppLocalizations.of(context)!.shuffle,
+                                  ),
                                   style: FilledButton.styleFrom(
                                     padding: const EdgeInsets.symmetric(
                                       vertical: 16,

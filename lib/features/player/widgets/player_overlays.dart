@@ -415,7 +415,9 @@ class _PlayerOverlaysState extends ConsumerState<PlayerOverlays> {
                                                 alpha: 0.8,
                                               ),
                                               hoverColor: colorScheme.primary,
-                                              tooltip: 'Playback Speed',
+                                              tooltip: AppLocalizations.of(
+                                                context,
+                                              )!.playbackSpeed,
                                               onTap: () {
                                                 _onInteraction();
                                                 _showSpeedMenu(
@@ -674,7 +676,9 @@ class _PlayerOverlaysState extends ConsumerState<PlayerOverlays> {
                                       children: [
                                         TactileIconButton(
                                           icon: Icons.skip_previous,
-                                          tooltip: 'Previous',
+                                          tooltip: AppLocalizations.of(
+                                            context,
+                                          )!.previous,
                                           size: 32,
                                           color: Colors.white,
                                           onTap: () {
@@ -693,7 +697,9 @@ class _PlayerOverlaysState extends ConsumerState<PlayerOverlays> {
                                         ),
                                         TactileIconButton(
                                           icon: Icons.skip_next,
-                                          tooltip: 'Next',
+                                          tooltip: AppLocalizations.of(
+                                            context,
+                                          )!.next,
                                           size: 32,
                                           color: Colors.white,
                                           onTap: () {

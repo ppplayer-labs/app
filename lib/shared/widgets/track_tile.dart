@@ -136,7 +136,7 @@ class TrackTile extends ConsumerStatefulWidget {
                             Padding(
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               child: Text(
-                                'Add to Playlist',
+                                AppLocalizations.of(context)!.addToPlaylist,
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,

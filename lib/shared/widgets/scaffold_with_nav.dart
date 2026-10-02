@@ -628,8 +628,10 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
                                                 size: 20,
                                               ),
                                               const SizedBox(width: 8),
-                                              const Text(
-                                                'Retry',
+                                              Text(
+                                                AppLocalizations.of(
+                                                  context,
+                                                )!.retry,
                                                 style: TextStyle(
                                                   color: Colors.white,
                                                   fontWeight: FontWeight.bold,
@@ -775,8 +777,10 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
                                                 size: 20,
                                               ),
                                               const SizedBox(width: 8),
-                                              const Text(
-                                                'Retry',
+                                              Text(
+                                                AppLocalizations.of(
+                                                  context,
+                                                )!.retry,
                                                 style: TextStyle(
                                                   color: Colors.white,
                                                   fontWeight: FontWeight.bold,
@@ -1313,7 +1317,7 @@ class _DesktopSidebar extends ConsumerWidget {
                     ),
                 const SizedBox(width: 8),
                 Text(
-                  'PPPlayer',
+                  AppLocalizations.of(context)!.appTitle,
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w900,
@@ -1401,7 +1405,7 @@ class _DesktopSidebar extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'PLAYLISTS',
+                        AppLocalizations.of(context)!.filterPlaylists,
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
@@ -1460,7 +1464,9 @@ class _DesktopSidebar extends ConsumerWidget {
                                           onPressed: () =>
                                               Navigator.of(modalContext).pop(),
                                           child: Text(
-                                            'Cancel',
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.cancel,
                                             style: TextStyle(
                                               color: modalColors.onSurface
                                                   .withValues(alpha: 0.7),
@@ -1494,7 +1500,9 @@ class _DesktopSidebar extends ConsumerWidget {
                                                   BorderRadius.circular(10),
                                             ),
                                             child: Text(
-                                              'Create',
+                                              AppLocalizations.of(
+                                                context,
+                                              )!.create,
                                               style: TextStyle(
                                                 color: modalColors.onPrimary,
                                                 fontWeight: FontWeight.w600,

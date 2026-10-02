@@ -318,6 +318,7 @@ class MediaKitPlaybackEngine implements PlaybackController {
   bool _recoveryUsed = false;
   bool _ready = false;
   int? _latePauseGeneration;
+  int? _pauseIntentGeneration;
 
   // YouTube can repeat a paused value for metadata/quality updates. On iOS,
   // coalesce corrections and invalidate delayed checks when a newer playback
@@ -1140,12 +1141,17 @@ class MediaKitPlaybackEngine implements PlaybackController {
                 // callback. A recovery command is not a playing acknowledgement.
                 finalNewState = _currentStatus.state;
                 unawaited(_recoverIOSIFramePause(gen));
-              } else {
+              } else if (_pauseIntentGeneration != gen) {
+                // Preserve background-suspension recovery until this playback
+                // attempt receives an explicit pause intent.
                 finalNewState = PlaybackState.playing;
-                _diag(
-                  'BRIDGE SPURIOUS-PAUSE: intendedState=playing. Forcing playVideo() to combat background suspension.',
-                );
                 unawaited(_dispatchIFramePlay(gen, 'spurious-pause'));
+              } else {
+                // A pending pause superseded by resume gets one correction
+                // above. Other renderer pauses may come from media controls
+                // or audio focus; accept them rather than restarting playback.
+                _watchdogTimer?.cancel();
+                _intendedState = PlaybackState.paused;
               }
             }
             if (ytState.playerState == yt.PlayerState.unStarted) return;
@@ -1255,6 +1261,7 @@ class MediaKitPlaybackEngine implements PlaybackController {
     _cancelIOSPauseRecovery();
     _watchdogTimer?.cancel();
     _intendedState = PlaybackState.paused;
+    _pauseIntentGeneration = _playGeneration;
 
     final pauseAck = statusStream
         .firstWhere(

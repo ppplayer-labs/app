@@ -391,7 +391,9 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen> {
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
                                                 Text(
-                                                  'ALBUM',
+                                                  AppLocalizations.of(
+                                                    context,
+                                                  )!.sortAlbum,
                                                   style: TextStyle(
                                                     color: colorScheme.onSurface
                                                         .withValues(alpha: 0.5),

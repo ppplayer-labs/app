@@ -1383,7 +1383,7 @@ class _ArtistCircle extends ConsumerWidget {
                 ),
               ),
               child: Text(
-                'ARTIST',
+                AppLocalizations.of(context)!.sortArtist,
                 style: TextStyle(
                   color: colorScheme.primary,
                   fontSize: 8,

@@ -1,3 +1,4 @@
+import 'package:ppplayer/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -24,13 +25,15 @@ class StreamPlaylistDetailScreen extends ConsumerWidget {
         title: const Text('Edit Playlist'),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(labelText: 'Title'),
+          decoration: InputDecoration(
+            labelText: AppLocalizations.of(context)!.sortTitle,
+          ),
           autofocus: true,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           FilledButton(
             onPressed: () {
@@ -52,12 +55,12 @@ class StreamPlaylistDetailScreen extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete Playlist'),
+        title: Text(AppLocalizations.of(context)!.deletePlaylist),
         content: const Text('Are you sure you want to delete this playlist?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
@@ -93,7 +96,9 @@ class StreamPlaylistDetailScreen extends ConsumerWidget {
           children: [
             TextField(
               controller: titleController,
-              decoration: const InputDecoration(labelText: 'Title'),
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.sortTitle,
+              ),
               autofocus: true,
             ),
             const SizedBox(height: 16),
@@ -106,7 +111,7 @@ class StreamPlaylistDetailScreen extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           FilledButton(
             onPressed: () {
@@ -167,14 +172,14 @@ class StreamPlaylistDetailScreen extends ConsumerWidget {
                       ],
                     ),
                   ),
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'delete',
                     child: Row(
                       children: [
                         Icon(Icons.delete, size: 20, color: Colors.red),
                         SizedBox(width: 8),
                         Text(
-                          'Delete Playlist',
+                          AppLocalizations.of(context)!.deletePlaylist,
                           style: TextStyle(color: Colors.red),
                         ),
                       ],

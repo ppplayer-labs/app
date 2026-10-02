@@ -1,3 +1,4 @@
+import 'package:ppplayer/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/models/track.dart' as model;
@@ -79,7 +80,7 @@ void showLocalTrackContextMenu(
             const Divider(),
             ListTile(
               leading: const Icon(Icons.playlist_play_rounded),
-              title: const Text('Play Next'),
+              title: Text(AppLocalizations.of(context)!.playNext),
               onTap: () {
                 Navigator.pop(context);
                 ref.read(playerProvider.notifier).playNext(track);
@@ -87,7 +88,7 @@ void showLocalTrackContextMenu(
             ),
             ListTile(
               leading: const Icon(Icons.queue_music_rounded),
-              title: const Text('Add to Queue'),
+              title: Text(AppLocalizations.of(context)!.addToQueue),
               onTap: () {
                 Navigator.pop(context);
                 ref.read(playerProvider.notifier).addToQueue(track);
@@ -126,7 +127,7 @@ void showLocalTrackContextMenu(
             if (track.albumName?.isNotEmpty == true)
               ListTile(
                 leading: const Icon(Icons.album_outlined),
-                title: const Text('Go to Album'),
+                title: Text(AppLocalizations.of(context)!.goToAlbum),
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.push(

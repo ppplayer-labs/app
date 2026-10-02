@@ -731,6 +731,56 @@ void main() {
       expect(engine.currentStatus.state, PlaybackState.paused);
     },
   );
+  engineTest('resumed pause stays paused across duplicate and stale events', (
+    tester,
+  ) async {
+    await ready(tester);
+    await engine.pause();
+    controller.emitState(track.id, yt.PlayerState.paused);
+    await tester.pump();
+    await engine.resume();
+    controller.emitState(track.id, yt.PlayerState.playing);
+    await tester.pump();
+    for (var i = 0; i < 20; i++) {
+      controller.emitState(track.id, yt.PlayerState.paused);
+    }
+    await tester.pump();
+    expect(controller.count('play'), 2);
+    expect(engine.currentStatus.state, PlaybackState.paused);
+
+    // A stale playing event must not undo the renderer's pause intent.
+    controller.emitState(track.id, yt.PlayerState.playing);
+    await tester.pump();
+    expect(controller.count('play'), 2);
+    expect(controller.count('pause'), 2);
+    expect(engine.currentStatus.state, PlaybackState.paused);
+    await tester.pump(const Duration(minutes: 1));
+    expect(controller.count('play'), 2);
+    expect(engine.currentStatus.error, isNull);
+
+    await engine.resume();
+    controller.emitState(track.id, yt.PlayerState.playing);
+    await tester.pump();
+    expect(controller.count('play'), 3);
+    expect(engine.currentStatus.state, PlaybackState.playing);
+  });
+  engineTest('pause intent does not disable recovery for a new track', (
+    tester,
+  ) async {
+    await ready(tester);
+    await engine.pause();
+    controller.emitState(track.id, yt.PlayerState.paused);
+    await tester.pump();
+    await ready(tester, playbackTrack: other);
+    controller.emitState(other.id, yt.PlayerState.playing);
+    await tester.pump();
+    controller.emitState(other.id, yt.PlayerState.paused);
+    await tester.pump();
+    expect(controller.count('play'), 3);
+    expect(controller.count('volume'), 3);
+    expect(engine.currentStatus.track!.id, other.id);
+    expect(engine.currentStatus.state, PlaybackState.playing);
+  });
   engineTest('paused seek prepares an offset without implicit playback', (
     tester,
   ) async {

@@ -1,3 +1,4 @@
+import 'package:ppplayer/l10n/app_localizations.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -272,7 +273,7 @@ class _NetworkStreamDialogState extends ConsumerState<NetworkStreamDialog> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx),
-                child: const Text('Cancel'),
+                child: Text(AppLocalizations.of(context)!.cancel),
               ),
               if (hasVideoId)
                 TextButton(
@@ -490,7 +491,7 @@ class _NetworkStreamDialogState extends ConsumerState<NetworkStreamDialog> {
       actions: [
         TextButton(
           onPressed: _isLoading ? null : () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(AppLocalizations.of(context)!.cancel),
         ),
         TextButton(
           onPressed: _isLoading ? null : () => _submit(saveToLibrary: true),

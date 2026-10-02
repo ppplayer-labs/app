@@ -264,7 +264,9 @@ class _ArtistScreenState extends ConsumerState<ArtistScreen> {
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Text(
-                                            'ARTIST',
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.sortArtist,
                                             style: TextStyle(
                                               color: colorScheme.onSurface
                                                   .withValues(alpha: 0.5),

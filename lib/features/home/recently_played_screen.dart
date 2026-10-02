@@ -56,7 +56,7 @@ class RecentlyPlayedScreen extends ConsumerWidget {
             ),
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                'Recently Played',
+                AppLocalizations.of(context)!.recentlyPlayed,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 20,

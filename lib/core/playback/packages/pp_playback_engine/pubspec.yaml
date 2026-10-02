@@ -20,7 +20,9 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   mocktail: ^1.0.4
+  webview_flutter: ^4.10.0
+  webview_flutter_platform_interface: ^2.10.0
 
 dependency_overrides:
   youtube_player_iframe:
-    path: ../../youtube_player_iframe_macos_patch/package
+    path: ../youtube_player_iframe_macos_patch/package

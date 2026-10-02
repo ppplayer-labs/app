@@ -321,7 +321,7 @@ class _RemotePlaylistScreenState extends ConsumerState<RemotePlaylistScreen> {
                                 .scale(begin: const Offset(0.9, 0.9)),
                             const SizedBox(height: 24),
                             Text(
-                              'PLAYLIST',
+                              AppLocalizations.of(context)!.playlist,
                               style: TextStyle(
                                 color: colorScheme.onSurfaceVariant,
                                 fontSize: 10,

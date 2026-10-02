@@ -35,7 +35,7 @@ class DiscoverScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Discover',
+                      AppLocalizations.of(context)!.discover,
                       style: TextStyle(
                         fontSize: 40,
                         fontWeight: FontWeight.w800,

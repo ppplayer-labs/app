@@ -1226,7 +1226,7 @@ class _ContentContextMenuOverlayState
                           ),
                         ),
                         child: Text(
-                          'Cancel',
+                          AppLocalizations.of(context)!.cancel,
                           style: TextStyle(
                             color: dialogColorScheme.onSurfaceVariant,
                             fontWeight: FontWeight.bold,
@@ -1277,7 +1277,7 @@ class _ContentContextMenuOverlayState
                           ],
                         ),
                         child: Text(
-                          'Create',
+                          AppLocalizations.of(context)!.create,
                           style: TextStyle(
                             color: dialogColorScheme.onPrimary,
                             fontWeight: FontWeight.bold,

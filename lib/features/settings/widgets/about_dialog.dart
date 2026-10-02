@@ -74,7 +74,7 @@ class PpAboutDialog extends StatelessWidget {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'PPPlayer',
+                            AppLocalizations.of(context)!.appTitle,
                             style: theme.textTheme.headlineMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
@@ -187,7 +187,7 @@ class PpAboutDialog extends StatelessWidget {
                                     title: l10n.releaseNotes,
                                     subtitle: l10n.seeWhatsNew,
                                     url:
-                                        'https://github.com/ppplayer-labs/ppplayer/releases',
+                                        'https://github.com/ppplayer-labs/app/releases',
                                   ),
                                   _buildLinkCard(
                                     context,

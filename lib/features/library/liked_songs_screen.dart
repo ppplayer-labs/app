@@ -164,7 +164,7 @@ class _LikedSongsScreenState extends ConsumerState<LikedSongsScreen> {
                               duration: const Duration(milliseconds: 200),
                               opacity: 1.0,
                               child: Text(
-                                'Liked Songs',
+                                AppLocalizations.of(context)!.likedSongs,
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: isCollapsed ? 18 : 32,
@@ -328,7 +328,7 @@ class _LikedSongsScreenState extends ConsumerState<LikedSongsScreen> {
                                     ),
                                     const SizedBox(width: 8),
                                     Text(
-                                      'PLAY ALL',
+                                      AppLocalizations.of(context)!.playAll,
                                       style: TextStyle(
                                         color: Theme.of(
                                           context,
