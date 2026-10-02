@@ -74,7 +74,7 @@ class SectionShimmer extends StatelessWidget {
   final double height;
   final bool isHorizontal;
   final bool isGrid;
-  final int crossAxisCount;
+  final double maxCrossAxisExtent;
   final double spacing;
   final double childAspectRatio;
 
@@ -84,7 +84,7 @@ class SectionShimmer extends StatelessWidget {
     this.height = 200,
     this.isHorizontal = true,
     this.isGrid = false,
-    this.crossAxisCount = 2,
+    this.maxCrossAxisExtent = 180,
     this.spacing = 16.0,
     this.childAspectRatio = 1.0,
   });
@@ -96,8 +96,8 @@ class SectionShimmer extends StatelessWidget {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 20),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: crossAxisCount,
+        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: maxCrossAxisExtent,
           crossAxisSpacing: spacing,
           mainAxisSpacing: spacing,
           childAspectRatio: childAspectRatio,
@@ -143,7 +143,7 @@ class SectionShimmer extends StatelessWidget {
 class SliverSectionShimmer extends StatelessWidget {
   final int count;
   final bool isGrid;
-  final int crossAxisCount;
+  final double maxCrossAxisExtent;
   final double spacing;
   final double childAspectRatio;
   final double tileHeight;
@@ -154,7 +154,7 @@ class SliverSectionShimmer extends StatelessWidget {
     super.key,
     this.count = 6,
     this.isGrid = false,
-    this.crossAxisCount = 2,
+    this.maxCrossAxisExtent = 180,
     this.spacing = 16.0,
     this.childAspectRatio = 0.75,
     this.tileHeight = 72,
@@ -168,8 +168,8 @@ class SliverSectionShimmer extends StatelessWidget {
       return SliverPadding(
         padding: const EdgeInsets.all(20),
         sliver: SliverGrid(
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossAxisCount,
+          gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+            maxCrossAxisExtent: maxCrossAxisExtent,
             crossAxisSpacing: spacing,
             mainAxisSpacing: spacing,
             childAspectRatio: childAspectRatio,

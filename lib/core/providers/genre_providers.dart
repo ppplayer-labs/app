@@ -73,3 +73,42 @@ final playlistCollageImagesProvider =
         yield images.toList();
       }
     });
+
+final artistCollageImagesProvider =
+    StreamProvider.family<List<String>, String>((ref, artistId) async* {
+      final repo = ref.watch(spotifyRepositoryProvider);
+      final tracksStream = repo.watchArtistTopTracks(artistId);
+
+      await for (final cacheResult in tracksStream) {
+        final images = <String>{};
+        for (final trackData in cacheResult.data) {
+          final album = trackData['album'];
+          if (album != null && album['images'] != null && (album['images'] as List).isNotEmpty) {
+            final url = album['images'][0]['url'] as String?;
+            if (url != null && url.isNotEmpty) {
+              images.add(url);
+              if (images.length >= 4) break;
+            }
+          }
+        }
+        yield images.toList();
+      }
+    });
+
+final radioCollageImagesProvider =
+    Provider.family<AsyncValue<List<String>>, String>((ref, radioKey) {
+      final parts = radioKey.split(':');
+      if (parts.length != 2) return const AsyncValue.data([]);
+      final seedType = parts[0];
+      final seedId = parts[1];
+
+      if (seedType == 'genre') {
+        return ref.watch(categoryCollageImagesProvider(seedId));
+      } else if (seedType == 'artist') {
+        return ref.watch(artistCollageImagesProvider(seedId));
+      } else if (seedType == 'playlist') {
+        return ref.watch(playlistCollageImagesProvider(seedId));
+      } else {
+        return const AsyncValue.data([]);
+      }
+    });

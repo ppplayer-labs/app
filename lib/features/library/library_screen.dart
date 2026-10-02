@@ -14,6 +14,7 @@ import '../../shared/widgets/shimmer_placeholder.dart';
 import '../../shared/widgets/adaptive_blur.dart';
 import '../../shared/widgets/context_menu/content_context_menu.dart';
 import '../../shared/widgets/pp_image.dart';
+import '../../core/providers/genre_providers.dart';
 import 'import_local_modal.dart';
 import '../network_streams/network_stream_dialog.dart';
 import '../network_streams/network_streams_grid.dart';
@@ -896,84 +897,239 @@ class _LocalMusicCard extends StatelessWidget {
             clipBehavior: Clip.antiAlias,
             child: Stack(
               children: [
+                // Mesh Blobs
+                Positioned(
+                  right: -40,
+                  top: -40,
+                  child:
+                      Container(
+                            width: 180,
+                            height: 180,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: RadialGradient(
+                                colors: [
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.tertiary.withValues(alpha: 0.4),
+                                  Colors.transparent,
+                                ],
+                              ),
+                            ),
+                          )
+                          .animate(onPlay: (c) => c.repeat(reverse: true))
+                          .move(end: const Offset(20, 20), duration: 4.seconds),
+                ),
+                Positioned(
+                  left: -20,
+                  bottom: -20,
+                  child:
+                      Container(
+                            width: 120,
+                            height: 120,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: RadialGradient(
+                                colors: [
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.tertiary.withValues(alpha: 0.2),
+                                  Colors.transparent,
+                                ],
+                              ),
+                            ),
+                          )
+                          .animate(onPlay: (c) => c.repeat(reverse: true))
+                          .move(
+                            end: const Offset(-10, -10),
+                            duration: 3.seconds,
+                          ),
+                ),
+                Positioned(
+                      right: -30,
+                      top: -20,
+                      child: Container(
+                        width: 200,
+                        height: 200,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: RadialGradient(
+                            colors: [
+                              Theme.of(
+                                context,
+                              ).colorScheme.primary.withValues(alpha: 0.15),
+                              Colors.transparent,
+                            ],
+                          ),
+                        ),
+                      ),
+                    )
+                    .animate(onPlay: (c) => c.repeat(reverse: true))
+                    .scale(
+                      begin: const Offset(1, 1),
+                      end: const Offset(1.3, 1.3),
+                      duration: 5.seconds,
+                      curve: Curves.easeInOut,
+                    ),
+                Positioned(
+                      left: -20,
+                      bottom: -30,
+                      child: Container(
+                        width: 150,
+                        height: 150,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: RadialGradient(
+                            colors: [
+                              Theme.of(
+                                context,
+                              ).colorScheme.secondary.withValues(alpha: 0.1),
+                              Colors.transparent,
+                            ],
+                          ),
+                        ),
+                      ),
+                    )
+                    .animate(onPlay: (c) => c.repeat(reverse: true))
+                    .scale(
+                      begin: const Offset(1.2, 1.2),
+                      end: const Offset(1, 1),
+                      duration: 7.seconds,
+                      curve: Curves.easeInOut,
+                    ),
                 // Content
                 Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  padding: const EdgeInsets.all(24),
+                  child: Row(
                     children: [
                       Container(
-                        width: 48,
-                        height: 48,
+                        width: 92,
+                        height: 92,
                         decoration: BoxDecoration(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.tertiary.withValues(alpha: 0.2),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.library_music_rounded,
-                          color: Theme.of(context).colorScheme.onTertiary,
-                          size: 24,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        AppLocalizations.of(context)!.localMusicCard,
-                        style: Theme.of(context).textTheme.headlineSmall
-                            ?.copyWith(
-                              fontWeight: FontWeight.w800,
-                              color: Theme.of(context).colorScheme.onTertiary,
-                              letterSpacing: -0.5,
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              Theme.of(context).colorScheme.tertiary,
+                              Theme.of(context).colorScheme.tertiaryContainer,
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.tertiary.withValues(alpha: 0.4),
+                              blurRadius: 20,
+                              offset: const Offset(0, 8),
                             ),
-                      ),
-                      const SizedBox(height: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 4,
+                          ],
                         ),
+                        child: Center(
+                          child:
+                              Icon(
+                                    Icons.library_music_rounded,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onTertiary,
+                                    size: 42,
+                                  )
+                                  .animate(
+                                    onPlay: (c) => c.repeat(reverse: true),
+                                  )
+                                  .scale(
+                                    begin: const Offset(1, 1),
+                                    end: const Offset(1.15, 1.15),
+                                    duration: 1200.ms,
+                                    curve: Curves.easeInOut,
+                                  ),
+                        ),
+                      ),
+                      const SizedBox(width: 24),
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                AppLocalizations.of(context)!.localMusicCard,
+                                style: TextStyle(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onTertiaryContainer
+                                      .withValues(alpha: 0.9),
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: -1.5,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onTertiary.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(100),
+                                border: Border.all(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onTertiary
+                                      .withValues(alpha: 0.1),
+                                ),
+                              ),
+                              child: Text(
+                                '$count TRACKS',
+                                style: TextStyle(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onTertiary
+                                      .withValues(alpha: 0.8),
+                                  fontSize: 10,
+                                  letterSpacing: 1.2,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
+                          shape: BoxShape.circle,
                           color: Theme.of(
                             context,
                           ).colorScheme.onTertiary.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onTertiary.withValues(alpha: 0.1),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.scrim.withValues(alpha: 0.2),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                         ),
-                        child: Text(
-                          '$count TRACKS',
-                          style: Theme.of(context).textTheme.labelSmall
-                              ?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 1.2,
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onTertiary.withValues(alpha: 0.9),
-                              ),
+                        child: Icon(
+                          Icons.play_arrow_rounded,
+                          color: Theme.of(context).colorScheme.onTertiary,
+                          size: 32,
                         ),
                       ),
                     ],
-                  ),
-                ),
-                // Decorative Play Icon
-                Positioned(
-                  right: 24,
-                  bottom: 24,
-                  child: Container(
-                    width: 56,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onTertiary.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.play_arrow_rounded,
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onTertiary.withValues(alpha: 0.5),
-                      size: 32,
-                    ),
                   ),
                 ),
               ],
@@ -1000,7 +1156,7 @@ class _LocalVideoCard extends StatelessWidget {
           child: Container(
             constraints: const BoxConstraints(minHeight: 140),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: BorderRadius.circular(32),
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -1019,11 +1175,6 @@ class _LocalVideoCard extends StatelessWidget {
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 30,
-                  offset: const Offset(0, 15),
-                ),
               ],
               border: Border.all(
                 color: Theme.of(
@@ -1035,90 +1186,242 @@ class _LocalVideoCard extends StatelessWidget {
             clipBehavior: Clip.antiAlias,
             child: Stack(
               children: [
+                // Mesh Blobs
+                Positioned(
+                  right: -40,
+                  top: -40,
+                  child:
+                      Container(
+                            width: 180,
+                            height: 180,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: RadialGradient(
+                                colors: [
+                                  Theme.of(context).colorScheme.primaryContainer
+                                      .withValues(alpha: 0.4),
+                                  Colors.transparent,
+                                ],
+                              ),
+                            ),
+                          )
+                          .animate(onPlay: (c) => c.repeat(reverse: true))
+                          .move(end: const Offset(20, 20), duration: 4.seconds),
+                ),
+                Positioned(
+                  left: -20,
+                  bottom: -20,
+                  child:
+                      Container(
+                            width: 120,
+                            height: 120,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: RadialGradient(
+                                colors: [
+                                  Theme.of(context).colorScheme.primaryContainer
+                                      .withValues(alpha: 0.2),
+                                  Colors.transparent,
+                                ],
+                              ),
+                            ),
+                          )
+                          .animate(onPlay: (c) => c.repeat(reverse: true))
+                          .move(
+                            end: const Offset(-10, -10),
+                            duration: 3.seconds,
+                          ),
+                ),
+                Positioned(
+                      right: -30,
+                      top: -20,
+                      child: Container(
+                        width: 200,
+                        height: 200,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: RadialGradient(
+                            colors: [
+                              Theme.of(
+                                context,
+                              ).colorScheme.secondary.withValues(alpha: 0.15),
+                              Colors.transparent,
+                            ],
+                          ),
+                        ),
+                      ),
+                    )
+                    .animate(onPlay: (c) => c.repeat(reverse: true))
+                    .scale(
+                      begin: const Offset(1, 1),
+                      end: const Offset(1.3, 1.3),
+                      duration: 5.seconds,
+                      curve: Curves.easeInOut,
+                    ),
+                Positioned(
+                      left: -20,
+                      bottom: -30,
+                      child: Container(
+                        width: 150,
+                        height: 150,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: RadialGradient(
+                            colors: [
+                              Theme.of(
+                                context,
+                              ).colorScheme.tertiary.withValues(alpha: 0.1),
+                              Colors.transparent,
+                            ],
+                          ),
+                        ),
+                      ),
+                    )
+                    .animate(onPlay: (c) => c.repeat(reverse: true))
+                    .scale(
+                      begin: const Offset(1.2, 1.2),
+                      end: const Offset(1, 1),
+                      duration: 7.seconds,
+                      curve: Curves.easeInOut,
+                    ),
                 // Content
                 Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  padding: const EdgeInsets.all(24),
+                  child: Row(
                     children: [
                       Container(
-                        width: 48,
-                        height: 48,
+                        width: 92,
+                        height: 92,
                         decoration: BoxDecoration(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.primary.withValues(alpha: 0.2),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.video_library_rounded,
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onPrimaryContainer,
-                          size: 24,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        AppLocalizations.of(context)!.localVideosCard,
-                        style: Theme.of(context).textTheme.headlineSmall
-                            ?.copyWith(
-                              fontWeight: FontWeight.w800,
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              Theme.of(context).colorScheme.primary,
+                              Theme.of(context).colorScheme.primaryContainer,
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: [
+                            BoxShadow(
                               color: Theme.of(
                                 context,
-                              ).colorScheme.onPrimaryContainer,
-                              letterSpacing: -0.5,
+                              ).colorScheme.primary.withValues(alpha: 0.4),
+                              blurRadius: 20,
+                              offset: const Offset(0, 8),
                             ),
-                      ),
-                      const SizedBox(height: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 4,
+                          ],
                         ),
+                        child: Center(
+                          child:
+                              Icon(
+                                    Icons.video_library_rounded,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onPrimary,
+                                    size: 42,
+                                  )
+                                  .animate(
+                                    onPlay: (c) => c.repeat(reverse: true),
+                                  )
+                                  .scale(
+                                    begin: const Offset(1, 1),
+                                    end: const Offset(1.15, 1.15),
+                                    duration: 1200.ms,
+                                    curve: Curves.easeInOut,
+                                  ),
+                        ),
+                      ),
+                      const SizedBox(width: 24),
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                AppLocalizations.of(context)!.localVideosCard,
+                                style: TextStyle(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onPrimaryContainer
+                                      .withValues(alpha: 0.9),
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: -1.5,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onPrimaryContainer
+                                    .withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(100),
+                                border: Border.all(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onPrimaryContainer
+                                      .withValues(alpha: 0.1),
+                                ),
+                              ),
+                              child: Text(
+                                '$count VIDEOS',
+                                style: TextStyle(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onPrimaryContainer
+                                      .withValues(alpha: 0.8),
+                                  fontSize: 10,
+                                  letterSpacing: 1.2,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
+                          shape: BoxShape.circle,
                           color: Theme.of(context)
                               .colorScheme
                               .onPrimaryContainer
                               .withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onPrimaryContainer
+                                .withValues(alpha: 0.1),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.scrim.withValues(alpha: 0.2),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                         ),
-                        child: Text(
-                          '$count VIDEOS',
-                          style: Theme.of(context).textTheme.labelSmall
-                              ?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 1.2,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onPrimaryContainer
-                                    .withValues(alpha: 0.9),
-                              ),
+                        child: Icon(
+                          Icons.play_arrow_rounded,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onPrimaryContainer,
+                          size: 32,
                         ),
                       ),
                     ],
-                  ),
-                ),
-                // Decorative Play Icon
-                Positioned(
-                  right: 24,
-                  bottom: 24,
-                  child: Container(
-                    width: 56,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onPrimaryContainer.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.play_circle_fill_rounded,
-                      size: 32,
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
-                    ),
                   ),
                 ),
               ],
@@ -1200,8 +1503,8 @@ class _PlaylistsGrid extends StatelessWidget {
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               sliver: SliverGrid(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
+                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 180,
                   mainAxisSpacing: 16,
                   crossAxisSpacing: 16,
                   childAspectRatio: 0.75,
@@ -1786,8 +2089,8 @@ class _AlbumsSliverGrid extends StatelessWidget {
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               sliver: SliverGrid(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
+                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 180,
                   mainAxisSpacing: 16,
                   crossAxisSpacing: 16,
                   childAspectRatio: 0.75,
@@ -2036,7 +2339,7 @@ class _AlbumsShimmer extends StatelessWidget {
     return const SliverSectionShimmer(
       count: 6,
       isGrid: true,
-      crossAxisCount: 2,
+      maxCrossAxisExtent: 180,
       childAspectRatio: 0.75,
       spacing: 16,
     );
@@ -2116,8 +2419,8 @@ class _RadiosSliverGrid extends StatelessWidget {
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               sliver: SliverGrid(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
+                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 180,
                   mainAxisSpacing: 16,
                   crossAxisSpacing: 16,
                   childAspectRatio: 0.75,
@@ -2174,63 +2477,60 @@ class _RadioCard extends ConsumerWidget {
           children: [
             AspectRatio(
               aspectRatio: 1,
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.scrim.withValues(alpha: 0.4),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
+              child: Consumer(
+                builder: (context, ref, child) {
+                  final imagesAsync = ref.watch(
+                    radioCollageImagesProvider(
+                      '${radio.seedType}:${radio.seedId}',
                     ),
-                  ],
-                  image: radio.imageUrl != null
-                      ? DecorationImage(
-                          image: PPImage.getImageProvider(radio.imageUrl!),
-                          fit: BoxFit.cover,
-                        )
-                      : null,
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
-                ),
-                child: radio.imageUrl == null
-                    ? Icon(
-                        Icons.radio_rounded,
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurfaceVariant.withValues(alpha: 0.2),
-                        size: 40,
-                      )
-                    : Stack(
-                        children: [
-                          Positioned(
-                            right: 12,
-                            bottom: 12,
-                            child: AdaptiveBlur(
-                              sigmaX: 8,
-                              sigmaY: 8,
-                              borderRadius: BorderRadius.circular(100),
-                              child: Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.surface.withValues(alpha: 0.8),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(
-                                  Icons.radio_rounded,
-                                  color: Theme.of(context).colorScheme.primary,
-                                  size: 16,
-                                ),
+                  );
+                  final images =
+                      imagesAsync.value ??
+                      (radio.imageUrl != null ? [radio.imageUrl!] : []);
+
+                  return Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      PlaylistCover(
+                        images: images,
+                        size: double.infinity,
+                        borderRadius: 24,
+                      ),
+                      if (images.isEmpty)
+                        Icon(
+                          Icons.radio_rounded,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurfaceVariant.withValues(alpha: 0.2),
+                          size: 40,
+                        ),
+                      if (images.isNotEmpty)
+                        Positioned(
+                          right: 12,
+                          bottom: 12,
+                          child: AdaptiveBlur(
+                            sigmaX: 8,
+                            sigmaY: 8,
+                            borderRadius: BorderRadius.circular(100),
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.surface.withValues(alpha: 0.8),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.radio_rounded,
+                                color: Theme.of(context).colorScheme.primary,
+                                size: 16,
                               ),
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                    ],
+                  );
+                },
               ),
             ),
             const SizedBox(height: 12),

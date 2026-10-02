@@ -1548,6 +1548,7 @@ class _DesktopSidebar extends ConsumerWidget {
                           child: _MockPlaylistItem(
                             title: p.name,
                             subtitle: AppLocalizations.of(context)!.playlist,
+                            isSelected: location == '/playlist/${p.id}',
                             imageUrl:
                                 p.imageUrl ??
                                 'https://ui-avatars.com/api/?name=${Uri.encodeComponent(p.name)}&background=random',
@@ -1704,11 +1705,13 @@ class _MockPlaylistItem extends StatefulWidget {
   final String subtitle;
   final String imageUrl;
   final VoidCallback? onTap;
+  final bool isSelected;
 
   const _MockPlaylistItem({
     required this.title,
     required this.subtitle,
     required this.imageUrl,
+    this.isSelected = false,
     this.onTap,
   });
 
@@ -1738,11 +1741,11 @@ class _MockPlaylistItemState extends State<_MockPlaylistItem> {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
-              color: _isHovered
+              color: (_isHovered || widget.isSelected)
                   ? colorScheme.onSurface.withValues(alpha: 0.08)
                   : Colors.transparent,
               border: Border.all(
-                color: _isHovered
+                color: (_isHovered || widget.isSelected)
                     ? colorScheme.outlineVariant.withValues(alpha: 0.16)
                     : Colors.transparent,
                 width: 1.0,
@@ -1774,10 +1777,10 @@ class _MockPlaylistItemState extends State<_MockPlaylistItem> {
                         widget.title,
                         style: TextStyle(
                           fontSize: 13,
-                          fontWeight: _isHovered
+                          fontWeight: (_isHovered || widget.isSelected)
                               ? FontWeight.w600
                               : FontWeight.w500,
-                          color: _isHovered
+                          color: (_isHovered || widget.isSelected)
                               ? colorScheme.onSurface
                               : colorScheme.onSurface.withValues(alpha: 0.9),
                         ),
@@ -1789,10 +1792,10 @@ class _MockPlaylistItemState extends State<_MockPlaylistItem> {
                         widget.subtitle,
                         style: TextStyle(
                           fontSize: 11,
-                          color: _isHovered
+                          color: (_isHovered || widget.isSelected)
                               ? colorScheme.primary
                               : colorScheme.onSurface.withValues(alpha: 0.5),
-                          fontWeight: _isHovered
+                          fontWeight: (_isHovered || widget.isSelected)
                               ? FontWeight.w500
                               : FontWeight.normal,
                         ),

@@ -367,7 +367,7 @@ class _EmptySearch extends ConsumerWidget {
           loading: () => const SliverSectionShimmer(
             count: 10,
             isGrid: true,
-            crossAxisCount: 2,
+            maxCrossAxisExtent: 180,
             childAspectRatio: 1.6,
           ),
           error: (e, _) => SliverToBoxAdapter(
