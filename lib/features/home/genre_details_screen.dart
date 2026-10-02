@@ -247,7 +247,9 @@ class GenreDetailsScreen extends ConsumerWidget {
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
                                                 Text(
-                                                  'GENRE',
+                                                  AppLocalizations.of(
+                                                    context,
+                                                  )!.genresTab,
                                                   style: TextStyle(
                                                     color: colorScheme.onSurface
                                                         .withValues(alpha: 0.5),

@@ -1,3 +1,4 @@
+import 'package:ppplayer/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 /// AirPlay remains system routing of local playback. The user taps Apple's
@@ -27,13 +28,17 @@ class AirPlayOutputTile extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       tileColor: selected ? cs.primary.withValues(alpha: 0.12) : null,
       leading: const Icon(Icons.airplay),
-      title: const Text('AirPlay'),
+      title: Text('AirPlay'),
       subtitle: Text(
         needsLocalPlayback
-            ? 'Switch playback to this iPhone to use AirPlay'
+            ? AppLocalizations.of(context)!.returnForAirPlay
             : selected
-            ? 'Playing on ${deviceName.isEmpty ? 'AirPlay device' : deviceName}'
-            : 'Tap the AirPlay button to choose a speaker or TV',
+            ? AppLocalizations.of(context)!.playingOn(
+                deviceName.isEmpty
+                    ? AppLocalizations.of(context)!.airPlayDevice
+                    : deviceName,
+              )
+            : AppLocalizations.of(context)!.chooseAirPlay,
       ),
       onTap: needsLocalPlayback && !connecting ? onReturnToLocal : null,
       trailing: needsLocalPlayback
@@ -62,11 +67,11 @@ Future<void> showLocalAirPlayRoutePicker(BuildContext context) =>
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Play on this iPhone'),
-        content: const Column(
+        title: Text(AppLocalizations.of(context)!.playOnIphone),
+        content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Choose this iPhone using the AirPlay button below.'),
+            Text(AppLocalizations.of(context)!.chooseIphone),
             SizedBox(height: 12),
             SizedBox(
               width: 48,
@@ -78,7 +83,7 @@ Future<void> showLocalAirPlayRoutePicker(BuildContext context) =>
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Done'),
+            child: Text(AppLocalizations.of(context)!.close),
           ),
         ],
       ),

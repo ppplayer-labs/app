@@ -159,7 +159,7 @@ void showContentContextMenu(
   showGeneralDialog(
     context: context,
     barrierDismissible: true,
-    barrierLabel: 'ContentContextMenu',
+    barrierLabel: MaterialLocalizations.of(context).popupMenuLabel,
     barrierColor: Colors.transparent,
     transitionDuration: const Duration(milliseconds: 120),
     pageBuilder: (dialogContext, anim1, anim2) {
@@ -203,6 +203,14 @@ class _ContentContextMenuOverlay extends ConsumerStatefulWidget {
 
 class _ContentContextMenuOverlayState
     extends ConsumerState<_ContentContextMenuOverlay> {
+  late AppLocalizations _l10n;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _l10n = AppLocalizations.of(context)!;
+  }
+
   // Submenu state: null, 'playlist', or 'share'
   String? _activeSubmenu;
   Offset _submenuAnchorOffset = Offset.zero;
@@ -411,7 +419,7 @@ class _ContentContextMenuOverlayState
     return [
       _ContextMenuItem(
         icon: Icons.play_arrow_rounded,
-        label: AppLocalizations.of(context)!.play,
+        label: _l10n.play,
         onTap: () {
           Navigator.of(context).pop();
           debugPrint('[ContentContextMenu] Playing track: ${track.name}');
@@ -420,53 +428,51 @@ class _ContentContextMenuOverlayState
       ),
       _ContextMenuItem(
         icon: Icons.playlist_play_rounded,
-        label: AppLocalizations.of(context)!.playNext,
+        label: _l10n.playNext,
         onTap: () {
           Navigator.of(context).pop();
           _container.read(playerProvider.notifier).playNext(track);
-          _showToast('Will play next');
+          _showToast(_l10n.willPlayNext);
         },
       ),
       _ContextMenuItem(
         icon: Icons.queue_music_rounded,
-        label: AppLocalizations.of(context)!.addToQueue,
+        label: _l10n.addToQueue,
         onTap: () {
           Navigator.of(context).pop();
           _container.read(playerProvider.notifier).addToQueue(track);
-          _showToast('Added to queue');
+          _showToast(_l10n.addedToQueue);
         },
       ),
       if (target.isInQueue && target.queueIndex != null)
         _ContextMenuItem(
           icon: Icons.remove_circle_outline_rounded,
           iconColor: colorScheme.error,
-          label: AppLocalizations.of(context)!.removeFromQueue,
+          label: _l10n.removeFromQueue,
           onTap: () {
             Navigator.of(context).pop();
             _container
                 .read(playerProvider.notifier)
                 .removeFromQueue(target.queueIndex!);
-            _showToast('Removed from queue');
+            _showToast(_l10n.removeFromQueue);
           },
         ),
       const _ContextMenuDivider(),
       _ContextMenuItem(
         icon: isFav ? Icons.favorite_rounded : Icons.favorite_border_rounded,
         iconColor: isFav ? colorScheme.primary : null,
-        label: isFav ? 'Remove from Liked Songs' : 'Save to your Liked Songs',
+        label: isFav ? _l10n.removeFromLibrary : _l10n.saveToLibrary,
         onTap: () {
           Navigator.of(context).pop();
           _container
               .read(favoritesControllerProvider.notifier)
               .toggleTrackFavorite(track, isFav);
-          _showToast(
-            isFav ? 'Removed from Liked Songs' : 'Saved to your Liked Songs',
-          );
+          _showToast(isFav ? _l10n.removedFromPlaylist : _l10n.saveToLibrary);
         },
       ),
       _ContextMenuItem(
         icon: Icons.playlist_add_rounded,
-        label: AppLocalizations.of(context)!.addToPlaylist,
+        label: _l10n.addToPlaylist,
         hasSubmenu: true,
         onHoverTrigger: (offset) {
           setState(() {
@@ -489,7 +495,7 @@ class _ContentContextMenuOverlayState
       if (track.artistId.isNotEmpty)
         _ContextMenuItem(
           icon: Icons.person_outline_rounded,
-          label: AppLocalizations.of(context)!.goToArtist,
+          label: _l10n.goToArtist,
           onTap: () {
             Navigator.of(context).pop();
             final firstArtistId = track.artistId.split(',').first.trim();
@@ -501,7 +507,7 @@ class _ContentContextMenuOverlayState
       if (track.albumId != null && track.albumId!.isNotEmpty)
         _ContextMenuItem(
           icon: Icons.album_outlined,
-          label: AppLocalizations.of(context)!.goToAlbum,
+          label: _l10n.goToAlbum,
           onTap: () {
             Navigator.of(context).pop();
             if (_parentContext.mounted) {
@@ -511,7 +517,7 @@ class _ContentContextMenuOverlayState
         ),
       _ContextMenuItem(
         icon: Icons.radio_rounded,
-        label: AppLocalizations.of(context)!.goToSongRadio,
+        label: _l10n.goToSongRadio,
         onTap: () {
           Navigator.of(context).pop();
           final encodedTitle = Uri.encodeComponent(track.name);
@@ -527,7 +533,7 @@ class _ContentContextMenuOverlayState
       const _ContextMenuDivider(),
       _ContextMenuItem(
         icon: Icons.share_outlined,
-        label: AppLocalizations.of(context)!.share,
+        label: _l10n.share,
         hasSubmenu: true,
         onHoverTrigger: (offset) {
           setState(() {
@@ -558,7 +564,7 @@ class _ContentContextMenuOverlayState
     return [
       _ContextMenuItem(
         icon: Icons.play_arrow_rounded,
-        label: AppLocalizations.of(context)!.play,
+        label: _l10n.play,
         onTap: () async {
           Navigator.of(context).pop();
           try {
@@ -580,17 +586,17 @@ class _ContentContextMenuOverlayState
                   .read(playerProvider.notifier)
                   .playTrack(tracks.first, queue: tracks);
             } else {
-              _showToast('Album has no tracks');
+              _showToast(_l10n.noTracksFound);
             }
           } catch (e, stack) {
             debugPrint('[ContentContextMenu] Error playing album: $e\n$stack');
-            _showToast('Could not play album: $e');
+            _showToast(_l10n.error(e.toString()));
           }
         },
       ),
       _ContextMenuItem(
         icon: Icons.queue_music_rounded,
-        label: AppLocalizations.of(context)!.addToQueue,
+        label: _l10n.addToQueue,
         onTap: () async {
           Navigator.of(context).pop();
           try {
@@ -606,13 +612,15 @@ class _ContentContextMenuOverlayState
                 <Track>[];
             if (tracks.isNotEmpty) {
               _container.read(playerProvider.notifier).addTracksToQueue(tracks);
-              _showToast('Added ${tracks.length} tracks to queue');
+              _showToast(
+                '${_l10n.addedToQueue}: ${_l10n.trackCount(tracks.length)}',
+              );
             }
           } catch (e, stack) {
             debugPrint(
               '[ContentContextMenu] Error adding album to queue: $e\n$stack',
             );
-            _showToast('Could not add to queue: $e');
+            _showToast(_l10n.error(e.toString()));
           }
         },
       ),
@@ -622,7 +630,7 @@ class _ContentContextMenuOverlayState
             ? Icons.bookmark_added_rounded
             : Icons.bookmark_add_outlined,
         iconColor: isLiked ? colorScheme.primary : null,
-        label: isLiked ? 'Remove from Your Library' : 'Add to Your Library',
+        label: isLiked ? _l10n.removeFromLibrary : _l10n.saveToLibrary,
         onTap: () {
           Navigator.of(context).pop();
           _container
@@ -635,14 +643,12 @@ class _ContentContextMenuOverlayState
                 target.imageUrl,
                 isLiked,
               );
-          _showToast(
-            isLiked ? 'Removed from Your Library' : 'Saved to Your Library',
-          );
+          _showToast(isLiked ? _l10n.removeFromLibrary : _l10n.saveToLibrary);
         },
       ),
       _ContextMenuItem(
         icon: Icons.playlist_add_rounded,
-        label: AppLocalizations.of(context)!.addToPlaylist,
+        label: _l10n.addToPlaylist,
         hasSubmenu: true,
         onHoverTrigger: (offset) {
           setState(() {
@@ -659,7 +665,7 @@ class _ContentContextMenuOverlayState
       if (target.artistId.isNotEmpty)
         _ContextMenuItem(
           icon: Icons.person_outline_rounded,
-          label: AppLocalizations.of(context)!.goToArtist,
+          label: _l10n.goToArtist,
           onTap: () {
             Navigator.of(context).pop();
             if (_parentContext.mounted) {
@@ -670,7 +676,7 @@ class _ContentContextMenuOverlayState
       const _ContextMenuDivider(),
       _ContextMenuItem(
         icon: Icons.share_outlined,
-        label: AppLocalizations.of(context)!.share,
+        label: _l10n.share,
         hasSubmenu: true,
         onHoverTrigger: (offset) {
           setState(() {
@@ -704,7 +710,7 @@ class _ContentContextMenuOverlayState
     return [
       _ContextMenuItem(
         icon: Icons.play_arrow_rounded,
-        label: AppLocalizations.of(context)!.play,
+        label: _l10n.play,
         onTap: () async {
           Navigator.of(context).pop();
           try {
@@ -726,19 +732,19 @@ class _ContentContextMenuOverlayState
                   .read(playerProvider.notifier)
                   .playTrack(tracks.first, queue: tracks);
             } else {
-              _showToast('Playlist has no tracks');
+              _showToast(_l10n.noTracksFound);
             }
           } catch (e, stack) {
             debugPrint(
               '[ContentContextMenu] Error playing playlist: $e\n$stack',
             );
-            _showToast('Error playing playlist: $e');
+            _showToast(_l10n.error(e.toString()));
           }
         },
       ),
       _ContextMenuItem(
         icon: Icons.queue_music_rounded,
-        label: AppLocalizations.of(context)!.addToQueue,
+        label: _l10n.addToQueue,
         onTap: () async {
           Navigator.of(context).pop();
           try {
@@ -757,13 +763,15 @@ class _ContentContextMenuOverlayState
             }
             if (tracks.isNotEmpty) {
               _container.read(playerProvider.notifier).addTracksToQueue(tracks);
-              _showToast('Added ${tracks.length} tracks to queue');
+              _showToast(
+                '${_l10n.addedToQueue}: ${_l10n.trackCount(tracks.length)}',
+              );
             }
           } catch (e, stack) {
             debugPrint(
               '[ContentContextMenu] Error adding playlist to queue: $e\n$stack',
             );
-            _showToast('Error adding to queue: $e');
+            _showToast(_l10n.error(e.toString()));
           }
         },
       ),
@@ -778,15 +786,15 @@ class _ContentContextMenuOverlayState
             ? colorScheme.error
             : (isLiked ? colorScheme.primary : null),
         label: target.isLocal
-            ? 'Delete playlist'
-            : (isLiked ? 'Remove from Your Library' : 'Add to Your Library'),
+            ? _l10n.deletePlaylist
+            : (isLiked ? _l10n.removeFromLibrary : _l10n.saveToLibrary),
         onTap: () async {
           Navigator.of(context).pop();
           if (target.isLocal && target.localId != null) {
             await _container
                 .read(db.appDatabaseProvider)
                 .deletePlaylist(target.localId!);
-            _showToast('Deleted ${target.name}');
+            _showToast('✓ ${_l10n.delete}: ${target.name}');
           } else {
             await _container
                 .read(favoritesControllerProvider.notifier)
@@ -796,15 +804,13 @@ class _ContentContextMenuOverlayState
                   target.imageUrl,
                   isLiked,
                 );
-            _showToast(
-              isLiked ? 'Removed from Your Library' : 'Saved to Your Library',
-            );
+            _showToast(isLiked ? _l10n.removeFromLibrary : _l10n.saveToLibrary);
           }
         },
       ),
       _ContextMenuItem(
         icon: Icons.queue_music_rounded,
-        label: AppLocalizations.of(context)!.goToPlaylist,
+        label: _l10n.goToPlaylist,
         onTap: () {
           Navigator.of(context).pop();
           if (_parentContext.mounted) {
@@ -823,7 +829,7 @@ class _ContentContextMenuOverlayState
       if (target.isLocal && target.localId != null)
         _ContextMenuItem(
           icon: Icons.file_upload_outlined,
-          label: AppLocalizations.of(context)!.exportPlaylist,
+          label: _l10n.exportPlaylist,
           onTap: () async {
             Navigator.of(context).pop();
             try {
@@ -832,18 +838,18 @@ class _ContentContextMenuOverlayState
                   .exportPlaylist(target.localId!);
               if (result != null) {
                 final msg = result.skippedCount > 0
-                    ? 'Exported playlist (${result.skippedCount} items skipped)'
-                    : 'Playlist exported';
+                    ? _l10n.exportComplete(result.skippedCount.toString())
+                    : _l10n.playlistExported;
                 _showToast(msg);
               }
             } catch (e) {
-              _showToast('Failed to export: $e');
+              _showToast(_l10n.error(e.toString()));
             }
           },
         ),
       _ContextMenuItem(
         icon: Icons.share_outlined,
-        label: AppLocalizations.of(context)!.share,
+        label: _l10n.share,
         hasSubmenu: true,
         onHoverTrigger: (offset) {
           setState(() {
@@ -878,7 +884,7 @@ class _ContentContextMenuOverlayState
     return [
       _ContextMenuItem(
         icon: Icons.play_arrow_rounded,
-        label: AppLocalizations.of(context)!.play,
+        label: _l10n.play,
         onTap: () async {
           Navigator.of(context).pop();
           try {
@@ -899,13 +905,13 @@ class _ContentContextMenuOverlayState
                   .read(playerProvider.notifier)
                   .playTrack(tracks.first, queue: tracks);
             } else {
-              _showToast('No tracks found for ${target.name}');
+              _showToast('${_l10n.noTracksFound}: ${target.name}');
             }
           } catch (e, stack) {
             debugPrint(
               '[ContentContextMenu] Error playing artist ${target.name}: $e\n$stack',
             );
-            _showToast('Could not play artist: $e');
+            _showToast(_l10n.error(e.toString()));
           }
         },
       ),
@@ -914,7 +920,7 @@ class _ContentContextMenuOverlayState
             ? Icons.person_remove_outlined
             : Icons.person_add_outlined,
         iconColor: isFollowed ? colorScheme.primary : null,
-        label: isFollowed ? 'Unfollow' : 'Follow',
+        label: isFollowed ? _l10n.unfollow : _l10n.follow,
         onTap: () {
           Navigator.of(context).pop();
           _container
@@ -927,14 +933,14 @@ class _ContentContextMenuOverlayState
               );
           _showToast(
             isFollowed
-                ? 'Unfollowed ${target.name}'
-                : 'Following ${target.name}',
+                ? '✓ ${_l10n.unfollow}: ${target.name}'
+                : '${_l10n.following}: ${target.name}',
           );
         },
       ),
       _ContextMenuItem(
         icon: Icons.radio_rounded,
-        label: AppLocalizations.of(context)!.goToArtistRadio,
+        label: _l10n.goToArtistRadio,
         onTap: () {
           Navigator.of(context).pop();
           final encodedTitle = Uri.encodeComponent(target.name);
@@ -948,7 +954,7 @@ class _ContentContextMenuOverlayState
       ),
       _ContextMenuItem(
         icon: Icons.person_outline_rounded,
-        label: AppLocalizations.of(context)!.goToArtist,
+        label: _l10n.goToArtist,
         onTap: () {
           Navigator.of(context).pop();
           if (_parentContext.mounted) {
@@ -959,7 +965,7 @@ class _ContentContextMenuOverlayState
       const _ContextMenuDivider(),
       _ContextMenuItem(
         icon: Icons.share_outlined,
-        label: AppLocalizations.of(context)!.share,
+        label: _l10n.share,
         hasSubmenu: true,
         onHoverTrigger: (offset) {
           setState(() {
@@ -991,7 +997,7 @@ class _ContentContextMenuOverlayState
     return [
       _ContextMenuItem(
         icon: Icons.play_arrow_rounded,
-        label: AppLocalizations.of(context)!.playStation,
+        label: _l10n.playStation,
         onTap: () async {
           Navigator.of(context).pop();
           final parentContext = _parentContext;
@@ -1042,7 +1048,7 @@ class _ContentContextMenuOverlayState
             ? Icons.bookmark_added_rounded
             : Icons.bookmark_add_outlined,
         iconColor: isFollowed ? colorScheme.primary : null,
-        label: isFollowed ? 'Unfollow Station' : 'Follow Station',
+        label: isFollowed ? _l10n.unfollow : _l10n.follow,
         onTap: () {
           Navigator.of(context).pop();
           _container
@@ -1055,16 +1061,14 @@ class _ContentContextMenuOverlayState
                 isCurrentlyFollowed: isFollowed,
               );
           _showToast(
-            isFollowed
-                ? 'Station removed from Library'
-                : 'Station saved to Library',
+            isFollowed ? _l10n.removeFromLibrary : _l10n.saveToLibrary,
           );
         },
       ),
       const _ContextMenuDivider(),
       _ContextMenuItem(
         icon: Icons.share_outlined,
-        label: AppLocalizations.of(context)!.share,
+        label: _l10n.share,
         onTap: () {
           Navigator.of(context).pop();
           _copyToClipboard(
@@ -1094,7 +1098,7 @@ class _ContentContextMenuOverlayState
             _ContextMenuItem(
               icon: Icons.add_rounded,
               iconColor: colorScheme.primary,
-              label: AppLocalizations.of(context)!.newPlaylist,
+              label: _l10n.newPlaylist,
               onTap: () async {
                 Navigator.of(context).pop();
                 await _promptCreatePlaylist();
@@ -1122,7 +1126,7 @@ class _ContentContextMenuOverlayState
     try {
       if (widget.target case TrackContextTarget target) {
         await database.addToPlaylist(playlist.id, target.track.spotifyId);
-        _showToast('Added to ${playlist.name}');
+        _showToast('✓ ${_l10n.playlist}: ${playlist.name}');
       } else if (widget.target case AlbumContextTarget target) {
         final tracks =
             (await _container
@@ -1137,7 +1141,7 @@ class _ContentContextMenuOverlayState
         for (final t in tracks) {
           await database.addToPlaylist(playlist.id, t.spotifyId);
         }
-        _showToast('Added ${tracks.length} tracks to ${playlist.name}');
+        _showToast('✓ ${playlist.name} · ${_l10n.trackCount(tracks.length)}');
       } else if (widget.target case PlaylistContextTarget target) {
         List<Track> tracks;
         if (target.isLocal && target.localId != null) {
@@ -1153,11 +1157,11 @@ class _ContentContextMenuOverlayState
         for (final t in tracks) {
           await database.addToPlaylist(playlist.id, t.spotifyId);
         }
-        _showToast('Added ${tracks.length} tracks to ${playlist.name}');
+        _showToast('✓ ${playlist.name} · ${_l10n.trackCount(tracks.length)}');
       }
     } catch (e, stack) {
       debugPrint('[ContentContextMenu] Error adding to playlist: $e\n$stack');
-      _showToast('Error adding to playlist: $e');
+      _showToast(_l10n.error(e.toString()));
     }
   }
 
@@ -1169,7 +1173,7 @@ class _ContentContextMenuOverlayState
 
     showPremiumModal<void>(
       context: _parentContext,
-      title: AppLocalizations.of(context)!.newPlaylist,
+      title: _l10n.newPlaylist,
       child: Builder(
         builder: (dialogContext) {
           final dialogColorScheme = Theme.of(dialogContext).colorScheme;
@@ -1185,7 +1189,7 @@ class _ContentContextMenuOverlayState
                   fontWeight: FontWeight.w600,
                 ),
                 decoration: InputDecoration(
-                  hintText: AppLocalizations.of(context)!.myPlaylist,
+                  hintText: _l10n.myPlaylist,
                   hintStyle: TextStyle(
                     color: dialogColorScheme.onSurfaceVariant.withValues(
                       alpha: 0.4,
@@ -1226,7 +1230,7 @@ class _ContentContextMenuOverlayState
                           ),
                         ),
                         child: Text(
-                          AppLocalizations.of(context)!.cancel,
+                          _l10n.cancel,
                           style: TextStyle(
                             color: dialogColorScheme.onSurfaceVariant,
                             fontWeight: FontWeight.bold,
@@ -1277,7 +1281,7 @@ class _ContentContextMenuOverlayState
                           ],
                         ),
                         child: Text(
-                          AppLocalizations.of(context)!.create,
+                          _l10n.create,
                           style: TextStyle(
                             color: dialogColorScheme.onPrimary,
                             fontWeight: FontWeight.bold,
@@ -1328,7 +1332,7 @@ class _ContentContextMenuOverlayState
       children: [
         _ContextMenuItem(
           icon: Icons.link_rounded,
-          label: AppLocalizations.of(context)!.copyLink,
+          label: _l10n.copyLink,
           onTap: () {
             Navigator.of(context).pop();
             _copyToClipboard(url);
@@ -1336,7 +1340,7 @@ class _ContentContextMenuOverlayState
         ),
         _ContextMenuItem(
           icon: Icons.tag_rounded,
-          label: AppLocalizations.of(context)!.copyId,
+          label: _l10n.copyId,
           onTap: () {
             Navigator.of(context).pop();
             _copyToClipboard(id);
@@ -1348,7 +1352,7 @@ class _ContentContextMenuOverlayState
 
   void _copyToClipboard(String text) {
     Clipboard.setData(ClipboardData(text: text));
-    _showToast('Link copied to clipboard');
+    _showToast(_l10n.linkCopied);
   }
 
   void _showToast(String message) {

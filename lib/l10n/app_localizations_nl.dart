@@ -742,4 +742,353 @@ class AppLocalizationsNl extends AppLocalizations {
 
   @override
   String get off => 'Uit';
+
+  @override
+  String get playOn => 'Afspelen op';
+
+  @override
+  String get thisDevice => 'Dit apparaat';
+
+  @override
+  String get availableDevices => 'Beschikbare apparaten';
+
+  @override
+  String get searchingDevices => 'Apparaten zoeken…';
+
+  @override
+  String get refresh => 'Vernieuwen';
+
+  @override
+  String get connecting => 'Verbinden…';
+
+  @override
+  String connectingTo(String name) {
+    return 'Verbinden met $name…';
+  }
+
+  @override
+  String get connected => 'Verbonden';
+
+  @override
+  String get unsupportedOutput =>
+      'Deze bron kan niet op deze uitvoer worden afgespeeld.';
+
+  @override
+  String get airPlayAudioOutput => 'AirPlay en audio-uitvoer';
+
+  @override
+  String get returnForAirPlay =>
+      'Speel op dit apparaat af om AirPlay te gebruiken.';
+
+  @override
+  String get openSoundSettings =>
+      'Open de geluidsinstellingen om een uitvoer te kiezen.';
+
+  @override
+  String get soundSettingsError =>
+      'De geluidsinstellingen konden niet worden geopend.';
+
+  @override
+  String get systemOutput => 'Systeemuitvoer';
+
+  @override
+  String playingOn(String name) {
+    return 'Afspelen op $name';
+  }
+
+  @override
+  String get chooseAirPlay =>
+      'Tik op de AirPlay-knop om een luidspreker of tv te kiezen.';
+
+  @override
+  String get airPlayDevice => 'AirPlay-apparaat';
+
+  @override
+  String get playOnIphone => 'Afspelen op deze iPhone';
+
+  @override
+  String get chooseIphone => 'Kies deze iPhone met de AirPlay-knop hieronder.';
+
+  @override
+  String get profile => 'Profiel';
+
+  @override
+  String get preferences => 'Voorkeuren';
+
+  @override
+  String get themeColor => 'Themakleur';
+
+  @override
+  String get yourMusic => 'Jouw muziek';
+
+  @override
+  String get apiCredentials => 'API-inloggegevens';
+
+  @override
+  String get dataStorage => 'Gegevens en opslag';
+
+  @override
+  String get editProfileHelp => 'Stel je naam en avatar in';
+
+  @override
+  String get customProvider => 'Aangepaste provider';
+
+  @override
+  String get defaultProvider => 'PPPlayer-standaard';
+
+  @override
+  String get proExperience => 'Pro-ervaring actief';
+
+  @override
+  String get beta => 'Bèta';
+
+  @override
+  String get loading => 'Laden…';
+
+  @override
+  String get unknown => 'Onbekend';
+
+  @override
+  String get pause => 'Pauzeren';
+
+  @override
+  String get repeat => 'Herhalen';
+
+  @override
+  String get mute => 'Dempen';
+
+  @override
+  String get unmute => 'Geluid inschakelen';
+
+  @override
+  String get fitVideo => 'Passend';
+
+  @override
+  String get fillVideo => 'Vullen';
+
+  @override
+  String get fullscreen => 'Volledig scherm';
+
+  @override
+  String get exitFullscreen => 'Volledig scherm verlaten';
+
+  @override
+  String get volume => 'Volume';
+
+  @override
+  String get save => 'Opslaan';
+
+  @override
+  String get delete => 'Verwijderen';
+
+  @override
+  String get clear => 'Wissen';
+
+  @override
+  String get follow => 'Volgen';
+
+  @override
+  String get unfollow => 'Ontvolgen';
+
+  @override
+  String get following => 'Gevolgd';
+
+  @override
+  String get showAll => 'Alles tonen';
+
+  @override
+  String get appearance => 'Weergave';
+
+  @override
+  String get subtitleSize => 'Grootte';
+
+  @override
+  String get subtitleBackground => 'Achtergrond';
+
+  @override
+  String get earlier => 'Eerder';
+
+  @override
+  String get later => 'Later';
+
+  @override
+  String get reset => 'Herstellen';
+
+  @override
+  String subtitleDelay(String seconds) {
+    return 'Vertraging: $seconds s';
+  }
+
+  @override
+  String get morePlaybackControls => 'Meer afspeelbediening';
+
+  @override
+  String get hideVideo => 'Video verbergen';
+
+  @override
+  String get showVideo => 'Video tonen';
+
+  @override
+  String get closeQueue => 'Wachtrij sluiten';
+
+  @override
+  String get enabled => 'Aan';
+
+  @override
+  String get openFile => 'Bestand openen…';
+
+  @override
+  String get openFolder => 'Map openen…';
+
+  @override
+  String get openUrl => 'URL openen…';
+
+  @override
+  String get fileMenu => 'Bestand';
+
+  @override
+  String get viewMenu => 'Weergave';
+
+  @override
+  String get windowMenu => 'Venster';
+
+  @override
+  String get saveChanges => 'Wijzigingen opslaan';
+
+  @override
+  String get themeAvatarColor => 'Thema- en avatarkleur';
+
+  @override
+  String get networkStreams => 'Netwerkstreams';
+
+  @override
+  String get networkStream => 'Netwerkstream';
+
+  @override
+  String get openNetworkStream => 'Netwerkstream openen';
+
+  @override
+  String get editPlaylist => 'Afspeellijst bewerken';
+
+  @override
+  String get editStreamItem => 'Streamitem bewerken';
+
+  @override
+  String get streamUrl => 'Stream-URL';
+
+  @override
+  String get platformType => 'Platform / type';
+
+  @override
+  String get optionalTitle => 'Titel (optioneel)';
+
+  @override
+  String get optionalImageUrl => 'Afbeeldings-URL (optioneel)';
+
+  @override
+  String get myStream => 'Mijn stream';
+
+  @override
+  String get saveToLibrary => 'Opslaan in bibliotheek';
+
+  @override
+  String get justPlay => 'Alleen afspelen';
+
+  @override
+  String get autoDetect => 'Automatisch detecteren';
+
+  @override
+  String get apiKeyRequired => 'API-sleutel vereist';
+
+  @override
+  String get customApiKey => 'Eigen API-sleutel gebruiken';
+
+  @override
+  String get clientId => 'Client-ID';
+
+  @override
+  String get clientSecret => 'Clientgeheim';
+
+  @override
+  String get saveCredentials => 'Inloggegevens opslaan';
+
+  @override
+  String get searchStrategy => 'Zoekstrategie';
+
+  @override
+  String get credentialsLocalOnly =>
+      'Veilig opgeslagen op dit apparaat. Nooit naar PPPlayer verstuurd.';
+
+  @override
+  String get scrapingHelp =>
+      'Geen API-sleutel of quotum nodig. Kan langzamer of minder betrouwbaar zijn.';
+
+  @override
+  String get streamHelp => 'Voer een HTTP(S)-URL of M3U-afspeellijstlink in.';
+
+  @override
+  String get deletePlaylistConfirm =>
+      'Deze afspeellijst definitief verwijderen?';
+
+  @override
+  String get clearCacheConfirm =>
+      'Cachegegevens verwijderen? Je bibliotheek en favorieten blijven ongewijzigd.';
+
+  @override
+  String get clearHistoryConfirm =>
+      'Je luistergeschiedenis definitief verwijderen?';
+
+  @override
+  String get addedToQueue => 'Toegevoegd aan wachtrij';
+
+  @override
+  String get addedVideo => 'Video toegevoegd';
+
+  @override
+  String addedChannels(String count) {
+    return 'Toegevoegde kanalen: $count';
+  }
+
+  @override
+  String get removedFromPlaylist => 'Verwijderd uit afspeellijst';
+
+  @override
+  String get exportCancelled => 'Export geannuleerd';
+
+  @override
+  String exportComplete(String count) {
+    return 'Afspeellijst geëxporteerd. Overgeslagen items: $count';
+  }
+
+  @override
+  String get playlistExported => 'Afspeellijst geëxporteerd';
+
+  @override
+  String get live => 'Live';
+
+  @override
+  String get sponsored => 'Gesponsord';
+
+  @override
+  String get removeFromPlaylist => 'Verwijderen uit afspeellijst';
+
+  @override
+  String get likedSongsHelp => 'Sla nummers op om ze hier te zien';
+
+  @override
+  String get apiSingleVideoHint =>
+      'Je kunt deze video toevoegen zonder de afspeellijst te importeren.';
+
+  @override
+  String get linkCopied => 'Link gekopieerd';
+
+  @override
+  String get willPlayNext => 'Wordt hierna afgespeeld';
+
+  @override
+  String get checkItOut => 'Bekijk het';
+
+  @override
+  String get loadFailed =>
+      'De inhoud kon niet worden geladen. Probeer opnieuw.';
 }

@@ -1,3 +1,4 @@
+import 'package:ppplayer/l10n/app_localizations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -127,7 +128,7 @@ class _PPLicensePageState extends State<PPLicensePage> {
                           style: const TextStyle(fontWeight: FontWeight.w600),
                         ),
                         subtitle: Text(
-                          '${licenses.length} license(s)',
+                          '${AppLocalizations.of(context)!.license}: ${licenses.length}',
                           style: TextStyle(
                             fontSize: 12,
                             color: theme.colorScheme.onSurfaceVariant,

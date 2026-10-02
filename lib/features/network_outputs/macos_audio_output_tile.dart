@@ -1,3 +1,4 @@
+import 'package:ppplayer/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import '../../core/network_outputs/macos_audio_route.dart';
 
@@ -7,7 +8,9 @@ Future<void> showMacOSSoundSettings(BuildContext context) async {
   } catch (_) {
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not open Sound settings.')),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.soundSettingsError),
+        ),
       );
     }
   }
@@ -32,13 +35,13 @@ class MacOSAudioOutputTile extends StatelessWidget {
   Widget build(BuildContext context) => ListTile(
     selected: isSelected,
     leading: Icon(route?.airPlay == true ? Icons.airplay : Icons.speaker),
-    title: const Text('AirPlay & audio output'),
+    title: Text(AppLocalizations.of(context)!.airPlayAudioOutput),
     subtitle: Text(
       remoteActive || connecting
-          ? 'Return playback to this Mac to choose a system output'
+          ? AppLocalizations.of(context)!.returnForAirPlay
           : route?.available == true
-          ? '${isSelected ? 'Playing on' : 'System output'} ${route!.name}. Open Sound settings to change it.'
-          : 'Open Sound settings to choose an output',
+          ? '${isSelected ? AppLocalizations.of(context)!.playingOn(route!.name) : '${AppLocalizations.of(context)!.systemOutput}: ${route!.name}'}\n${AppLocalizations.of(context)!.openSoundSettings}'
+          : AppLocalizations.of(context)!.openSoundSettings,
     ),
     trailing: Icon(isSelected ? Icons.check_rounded : Icons.open_in_new),
     onTap: connecting

@@ -745,4 +745,349 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get off => 'بند';
+
+  @override
+  String get playOn => 'اس پر چلائیں';
+
+  @override
+  String get thisDevice => 'یہ آلہ';
+
+  @override
+  String get availableDevices => 'دستیاب آلات';
+
+  @override
+  String get searchingDevices => 'آلات تلاش کیے جا رہے ہیں…';
+
+  @override
+  String get refresh => 'تازہ کریں';
+
+  @override
+  String get connecting => 'منسلک ہو رہا ہے…';
+
+  @override
+  String connectingTo(String name) {
+    return '$name سے منسلک ہو رہا ہے…';
+  }
+
+  @override
+  String get connected => 'منسلک';
+
+  @override
+  String get unsupportedOutput => 'یہ ماخذ اس آؤٹ پٹ پر نہیں چلایا جا سکتا۔';
+
+  @override
+  String get airPlayAudioOutput => 'AirPlay اور آڈیو آؤٹ پٹ';
+
+  @override
+  String get returnForAirPlay =>
+      'AirPlay استعمال کرنے کے لیے اس آلے پر چلائیں۔';
+
+  @override
+  String get openSoundSettings =>
+      'آؤٹ پٹ منتخب کرنے کے لیے آواز کی ترتیبات کھولیں۔';
+
+  @override
+  String get soundSettingsError => 'آواز کی ترتیبات نہیں کھل سکیں۔';
+
+  @override
+  String get systemOutput => 'سسٹم آؤٹ پٹ';
+
+  @override
+  String playingOn(String name) {
+    return '$name پر چل رہا ہے';
+  }
+
+  @override
+  String get chooseAirPlay =>
+      'اسپیکر یا ٹی وی منتخب کرنے کے لیے AirPlay بٹن دبائیں۔';
+
+  @override
+  String get airPlayDevice => 'AirPlay آلہ';
+
+  @override
+  String get playOnIphone => 'اس iPhone پر چلائیں';
+
+  @override
+  String get chooseIphone =>
+      'نیچے دیے گئے AirPlay بٹن سے یہ iPhone منتخب کریں۔';
+
+  @override
+  String get profile => 'پروفائل';
+
+  @override
+  String get preferences => 'ترجیحات';
+
+  @override
+  String get themeColor => 'تھیم کا رنگ';
+
+  @override
+  String get yourMusic => 'آپ کی موسیقی';
+
+  @override
+  String get apiCredentials => 'API اسناد';
+
+  @override
+  String get dataStorage => 'ڈیٹا اور ذخیرہ';
+
+  @override
+  String get editProfileHelp => 'اپنا نام اور اوتار مقرر کریں';
+
+  @override
+  String get customProvider => 'حسبِ ضرورت فراہم کنندہ';
+
+  @override
+  String get defaultProvider => 'PPPlayer کا طے شدہ';
+
+  @override
+  String get proExperience => 'Pro تجربہ فعال';
+
+  @override
+  String get beta => 'بیٹا';
+
+  @override
+  String get loading => 'لوڈ ہو رہا ہے…';
+
+  @override
+  String get unknown => 'نامعلوم';
+
+  @override
+  String get pause => 'توقف';
+
+  @override
+  String get repeat => 'دہرائیں';
+
+  @override
+  String get mute => 'آواز بند کریں';
+
+  @override
+  String get unmute => 'آواز کھولیں';
+
+  @override
+  String get fitVideo => 'فٹ کریں';
+
+  @override
+  String get fillVideo => 'بھریں';
+
+  @override
+  String get fullscreen => 'پوری اسکرین';
+
+  @override
+  String get exitFullscreen => 'پوری اسکرین سے نکلیں';
+
+  @override
+  String get volume => 'آواز کی سطح';
+
+  @override
+  String get save => 'محفوظ کریں';
+
+  @override
+  String get delete => 'حذف کریں';
+
+  @override
+  String get clear => 'صاف کریں';
+
+  @override
+  String get follow => 'فالو کریں';
+
+  @override
+  String get unfollow => 'فالو ختم کریں';
+
+  @override
+  String get following => 'فالو کر رہے ہیں';
+
+  @override
+  String get showAll => 'سب دکھائیں';
+
+  @override
+  String get appearance => 'ظاہری شکل';
+
+  @override
+  String get subtitleSize => 'سائز';
+
+  @override
+  String get subtitleBackground => 'پس منظر';
+
+  @override
+  String get earlier => 'پہلے';
+
+  @override
+  String get later => 'بعد میں';
+
+  @override
+  String get reset => 'ری سیٹ کریں';
+
+  @override
+  String subtitleDelay(String seconds) {
+    return 'تاخیر: $seconds سیکنڈ';
+  }
+
+  @override
+  String get morePlaybackControls => 'مزید پلے بیک کنٹرول';
+
+  @override
+  String get hideVideo => 'ویڈیو چھپائیں';
+
+  @override
+  String get showVideo => 'ویڈیو دکھائیں';
+
+  @override
+  String get closeQueue => 'قطار بند کریں';
+
+  @override
+  String get enabled => 'فعال';
+
+  @override
+  String get openFile => 'فائل کھولیں…';
+
+  @override
+  String get openFolder => 'فولڈر کھولیں…';
+
+  @override
+  String get openUrl => 'URL کھولیں…';
+
+  @override
+  String get fileMenu => 'فائل';
+
+  @override
+  String get viewMenu => 'دیکھیں';
+
+  @override
+  String get windowMenu => 'ونڈو';
+
+  @override
+  String get saveChanges => 'تبدیلیاں محفوظ کریں';
+
+  @override
+  String get themeAvatarColor => 'تھیم اور اوتار کا رنگ';
+
+  @override
+  String get networkStreams => 'نیٹ ورک اسٹریمز';
+
+  @override
+  String get networkStream => 'نیٹ ورک اسٹریم';
+
+  @override
+  String get openNetworkStream => 'نیٹ ورک اسٹریم کھولیں';
+
+  @override
+  String get editPlaylist => 'پلے لسٹ میں ترمیم کریں';
+
+  @override
+  String get editStreamItem => 'اسٹریم آئٹم میں ترمیم کریں';
+
+  @override
+  String get streamUrl => 'اسٹریم URL';
+
+  @override
+  String get platformType => 'پلیٹ فارم / قسم';
+
+  @override
+  String get optionalTitle => 'عنوان (اختیاری)';
+
+  @override
+  String get optionalImageUrl => 'تصویر کا URL (اختیاری)';
+
+  @override
+  String get myStream => 'میری اسٹریم';
+
+  @override
+  String get saveToLibrary => 'لائبریری میں محفوظ کریں';
+
+  @override
+  String get justPlay => 'صرف چلائیں';
+
+  @override
+  String get autoDetect => 'خودکار شناخت';
+
+  @override
+  String get apiKeyRequired => 'API کلید درکار ہے';
+
+  @override
+  String get customApiKey => 'اپنی API کلید استعمال کریں';
+
+  @override
+  String get clientId => 'کلائنٹ ID';
+
+  @override
+  String get clientSecret => 'کلائنٹ راز';
+
+  @override
+  String get saveCredentials => 'اسناد محفوظ کریں';
+
+  @override
+  String get searchStrategy => 'تلاش کا طریقہ';
+
+  @override
+  String get credentialsLocalOnly =>
+      'اس آلے پر محفوظ انداز میں رکھی جاتی ہیں۔ کبھی PPPlayer کو نہیں بھیجی جاتیں۔';
+
+  @override
+  String get scrapingHelp =>
+      'API کلید یا کوٹا درکار نہیں۔ سست یا کم قابلِ اعتماد ہو سکتا ہے۔';
+
+  @override
+  String get streamHelp => 'HTTP(S) URL یا M3U پلے لسٹ کا لنک درج کریں۔';
+
+  @override
+  String get deletePlaylistConfirm => 'یہ پلے لسٹ مستقل حذف کریں؟';
+
+  @override
+  String get clearCacheConfirm =>
+      'کیش ڈیٹا حذف کریں؟ لائبریری اور پسندیدہ چیزیں برقرار رہیں گی۔';
+
+  @override
+  String get clearHistoryConfirm => 'سننے کی تاریخ مستقل حذف کریں؟';
+
+  @override
+  String get addedToQueue => 'قطار میں شامل کر دیا';
+
+  @override
+  String get addedVideo => 'ویڈیو شامل کر دی';
+
+  @override
+  String addedChannels(String count) {
+    return 'شامل کیے گئے چینلز: $count';
+  }
+
+  @override
+  String get removedFromPlaylist => 'پلے لسٹ سے ہٹا دیا';
+
+  @override
+  String get exportCancelled => 'برآمد منسوخ';
+
+  @override
+  String exportComplete(String count) {
+    return 'پلے لسٹ برآمد ہو گئی۔ چھوڑے گئے آئٹمز: $count';
+  }
+
+  @override
+  String get playlistExported => 'پلے لسٹ برآمد ہو گئی';
+
+  @override
+  String get live => 'براہِ راست';
+
+  @override
+  String get sponsored => 'اسپانسر شدہ';
+
+  @override
+  String get removeFromPlaylist => 'پلے لسٹ سے ہٹائیں';
+
+  @override
+  String get likedSongsHelp => 'یہاں دیکھنے کے لیے گانے محفوظ کریں';
+
+  @override
+  String get apiSingleVideoHint =>
+      'آپ پلے لسٹ درآمد کیے بغیر یہ ویڈیو شامل کر سکتے ہیں۔';
+
+  @override
+  String get linkCopied => 'لنک کاپی ہو گیا';
+
+  @override
+  String get willPlayNext => 'اگلا چلایا جائے گا';
+
+  @override
+  String get checkItOut => 'دیکھیں';
+
+  @override
+  String get loadFailed => 'مواد لوڈ نہیں ہو سکا۔ دوبارہ کوشش کریں۔';
 }

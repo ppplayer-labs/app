@@ -1,3 +1,4 @@
+import 'package:ppplayer/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -63,8 +64,8 @@ class StreamPlaylistsSliverGrid extends ConsumerWidget {
                   ),
                   child: Row(
                     children: [
-                      const Text(
-                        'Network Streams',
+                      Text(
+                        AppLocalizations.of(context)!.networkStreams,
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w700,
@@ -111,14 +112,15 @@ class _StreamPlaylistCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Semantics(
       button: true,
-      label: 'Network Stream: ${playlist.title}',
-      hint: 'Double tap to open stream details',
+      label:
+          '${AppLocalizations.of(context)!.networkStream}: ${playlist.title}',
+      hint: AppLocalizations.of(context)!.openNetworkStream,
       child: TactileTap(
         onTap: () {
           if (playlist.sourceKind == 'youtube_video' ||
               playlist.sourceKind == 'vimeo_video' ||
               playlist.sourceKind == 'dailymotion_video') {
-            String groupTitle = 'Network Video';
+            String groupTitle = AppLocalizations.of(context)!.networkStream;
             if (playlist.sourceKind == 'youtube_video') groupTitle = 'YouTube';
             if (playlist.sourceKind == 'vimeo_video') groupTitle = 'Vimeo';
             if (playlist.sourceKind == 'dailymotion_video')
@@ -177,8 +179,8 @@ class _StreamPlaylistCard extends ConsumerWidget {
               (playlist.sourceKind == 'youtube_video' ||
                       playlist.sourceKind == 'vimeo_video' ||
                       playlist.sourceKind == 'dailymotion_video')
-                  ? '${playlist.sourceKind.split('_').first.replaceFirst(playlist.sourceKind[0], playlist.sourceKind[0].toUpperCase())} Video'
-                  : 'IPTV / Stream',
+                  ? '${playlist.sourceKind.split('_').first.replaceFirst(playlist.sourceKind[0], playlist.sourceKind[0].toUpperCase())} · ${AppLocalizations.of(context)!.localVideosCard}'
+                  : AppLocalizations.of(context)!.networkStream,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(

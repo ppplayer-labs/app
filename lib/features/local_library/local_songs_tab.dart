@@ -30,7 +30,9 @@ class LocalSongsTab extends ConsumerWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  isSearching ? 'No songs found' : l10n.noLocalSongs,
+                  isSearching
+                      ? AppLocalizations.of(context)!.noTracksFound
+                      : l10n.noLocalSongs,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     color: colorScheme.onSurfaceVariant,
                   ),
@@ -64,8 +66,10 @@ class LocalSongsTab extends ConsumerWidget {
           ],
         );
       },
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, st) => Center(child: Text('Error: $e')),
+      loading: () => Center(child: CircularProgressIndicator()),
+      error: (e, st) => Center(
+        child: Text(AppLocalizations.of(context)!.error(e.toString())),
+      ),
     );
   }
 }

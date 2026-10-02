@@ -45,7 +45,7 @@ class LocalGenresTab extends ConsumerWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              subtitle: Text('$count ${count == 1 ? 'track' : 'tracks'}'),
+              subtitle: Text(AppLocalizations.of(context)!.trackCount(count)),
               trailing: Icon(
                 Icons.chevron_right_rounded,
                 color: colorScheme.onSurfaceVariant,
@@ -62,8 +62,10 @@ class LocalGenresTab extends ConsumerWidget {
           },
         );
       },
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, st) => Center(child: Text('Error: $e')),
+      loading: () => Center(child: CircularProgressIndicator()),
+      error: (e, st) => Center(
+        child: Text(AppLocalizations.of(context)!.error(e.toString())),
+      ),
     );
   }
 }

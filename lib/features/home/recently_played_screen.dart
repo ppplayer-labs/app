@@ -107,7 +107,7 @@ class RecentlyPlayedScreen extends ConsumerWidget {
                             ),
                         const SizedBox(height: 24),
                         Text(
-                          'Your listening history is empty.',
+                          AppLocalizations.of(context)!.noTracksFound,
                           style: TextStyle(
                             color: colorScheme.onSurfaceVariant.withValues(
                               alpha: 0.6,
@@ -130,7 +130,7 @@ class RecentlyPlayedScreen extends ConsumerWidget {
                               borderRadius: BorderRadius.circular(25),
                             ),
                             child: Text(
-                              'Go Home',
+                              AppLocalizations.of(context)!.home,
                               style: TextStyle(
                                 color: colorScheme.onSurface,
                                 fontWeight: FontWeight.bold,
@@ -186,7 +186,7 @@ class RecentlyPlayedScreen extends ConsumerWidget {
             error: (e, _) => SliverFillRemaining(
               child: Center(
                 child: Text(
-                  'Error: $e',
+                  AppLocalizations.of(context)!.error(e.toString()),
                   style: TextStyle(color: colorScheme.onSurfaceVariant),
                 ),
               ),
@@ -209,7 +209,7 @@ class RecentlyPlayedScreen extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'This will permanently remove your listening history. This action cannot be undone.',
+                AppLocalizations.of(context)!.clearHistoryConfirm,
                 style: TextStyle(
                   color: colorScheme.onSurfaceVariant,
                   fontSize: 14,
@@ -260,7 +260,7 @@ class RecentlyPlayedScreen extends ConsumerWidget {
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Text(
-                          'Clear All',
+                          AppLocalizations.of(context)!.clear,
                           style: TextStyle(
                             color: colorScheme.onError,
                             fontWeight: FontWeight.bold,

@@ -740,4 +740,345 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get off => 'ปิด';
+
+  @override
+  String get playOn => 'เล่นบน';
+
+  @override
+  String get thisDevice => 'อุปกรณ์นี้';
+
+  @override
+  String get availableDevices => 'อุปกรณ์ที่ใช้ได้';
+
+  @override
+  String get searchingDevices => 'กำลังค้นหาอุปกรณ์…';
+
+  @override
+  String get refresh => 'รีเฟรช';
+
+  @override
+  String get connecting => 'กำลังเชื่อมต่อ…';
+
+  @override
+  String connectingTo(String name) {
+    return 'กำลังเชื่อมต่อกับ $name…';
+  }
+
+  @override
+  String get connected => 'เชื่อมต่อแล้ว';
+
+  @override
+  String get unsupportedOutput => 'ไม่สามารถเล่นแหล่งข้อมูลนี้บนเอาต์พุตนี้ได้';
+
+  @override
+  String get airPlayAudioOutput => 'AirPlay และเอาต์พุตเสียง';
+
+  @override
+  String get returnForAirPlay => 'เล่นบนอุปกรณ์นี้เพื่อใช้ AirPlay';
+
+  @override
+  String get openSoundSettings => 'เปิดการตั้งค่าเสียงเพื่อเลือกเอาต์พุต';
+
+  @override
+  String get soundSettingsError => 'ไม่สามารถเปิดการตั้งค่าเสียงได้';
+
+  @override
+  String get systemOutput => 'เอาต์พุตของระบบ';
+
+  @override
+  String playingOn(String name) {
+    return 'กำลังเล่นบน $name';
+  }
+
+  @override
+  String get chooseAirPlay => 'แตะปุ่ม AirPlay เพื่อเลือกลำโพงหรือทีวี';
+
+  @override
+  String get airPlayDevice => 'อุปกรณ์ AirPlay';
+
+  @override
+  String get playOnIphone => 'เล่นบน iPhone เครื่องนี้';
+
+  @override
+  String get chooseIphone => 'เลือก iPhone เครื่องนี้ด้วยปุ่ม AirPlay ด้านล่าง';
+
+  @override
+  String get profile => 'โปรไฟล์';
+
+  @override
+  String get preferences => 'การตั้งค่า';
+
+  @override
+  String get themeColor => 'สีธีม';
+
+  @override
+  String get yourMusic => 'เพลงของคุณ';
+
+  @override
+  String get apiCredentials => 'ข้อมูลรับรอง API';
+
+  @override
+  String get dataStorage => 'ข้อมูลและพื้นที่จัดเก็บ';
+
+  @override
+  String get editProfileHelp => 'ตั้งชื่อและรูปประจำตัวของคุณ';
+
+  @override
+  String get customProvider => 'ผู้ให้บริการที่กำหนดเอง';
+
+  @override
+  String get defaultProvider => 'ค่าเริ่มต้นของ PPPlayer';
+
+  @override
+  String get proExperience => 'เปิดใช้งานประสบการณ์ Pro';
+
+  @override
+  String get beta => 'เบต้า';
+
+  @override
+  String get loading => 'กำลังโหลด…';
+
+  @override
+  String get unknown => 'ไม่ทราบ';
+
+  @override
+  String get pause => 'หยุดชั่วคราว';
+
+  @override
+  String get repeat => 'เล่นซ้ำ';
+
+  @override
+  String get mute => 'ปิดเสียง';
+
+  @override
+  String get unmute => 'เปิดเสียง';
+
+  @override
+  String get fitVideo => 'พอดี';
+
+  @override
+  String get fillVideo => 'เต็มพื้นที่';
+
+  @override
+  String get fullscreen => 'เต็มหน้าจอ';
+
+  @override
+  String get exitFullscreen => 'ออกจากเต็มหน้าจอ';
+
+  @override
+  String get volume => 'ระดับเสียง';
+
+  @override
+  String get save => 'บันทึก';
+
+  @override
+  String get delete => 'ลบ';
+
+  @override
+  String get clear => 'ล้าง';
+
+  @override
+  String get follow => 'ติดตาม';
+
+  @override
+  String get unfollow => 'เลิกติดตาม';
+
+  @override
+  String get following => 'กำลังติดตาม';
+
+  @override
+  String get showAll => 'แสดงทั้งหมด';
+
+  @override
+  String get appearance => 'ลักษณะ';
+
+  @override
+  String get subtitleSize => 'ขนาด';
+
+  @override
+  String get subtitleBackground => 'พื้นหลัง';
+
+  @override
+  String get earlier => 'เร็วขึ้น';
+
+  @override
+  String get later => 'ช้าลง';
+
+  @override
+  String get reset => 'รีเซ็ต';
+
+  @override
+  String subtitleDelay(String seconds) {
+    return 'หน่วงเวลา: $seconds วินาที';
+  }
+
+  @override
+  String get morePlaybackControls => 'การควบคุมการเล่นเพิ่มเติม';
+
+  @override
+  String get hideVideo => 'ซ่อนวิดีโอ';
+
+  @override
+  String get showVideo => 'แสดงวิดีโอ';
+
+  @override
+  String get closeQueue => 'ปิดคิว';
+
+  @override
+  String get enabled => 'เปิด';
+
+  @override
+  String get openFile => 'เปิดไฟล์…';
+
+  @override
+  String get openFolder => 'เปิดโฟลเดอร์…';
+
+  @override
+  String get openUrl => 'เปิด URL…';
+
+  @override
+  String get fileMenu => 'ไฟล์';
+
+  @override
+  String get viewMenu => 'มุมมอง';
+
+  @override
+  String get windowMenu => 'หน้าต่าง';
+
+  @override
+  String get saveChanges => 'บันทึกการเปลี่ยนแปลง';
+
+  @override
+  String get themeAvatarColor => 'สีธีมและรูปประจำตัว';
+
+  @override
+  String get networkStreams => 'สตรีมเครือข่าย';
+
+  @override
+  String get networkStream => 'สตรีมเครือข่าย';
+
+  @override
+  String get openNetworkStream => 'เปิดสตรีมเครือข่าย';
+
+  @override
+  String get editPlaylist => 'แก้ไขเพลย์ลิสต์';
+
+  @override
+  String get editStreamItem => 'แก้ไขรายการสตรีม';
+
+  @override
+  String get streamUrl => 'URL สตรีม';
+
+  @override
+  String get platformType => 'แพลตฟอร์ม / ประเภท';
+
+  @override
+  String get optionalTitle => 'ชื่อ (ไม่บังคับ)';
+
+  @override
+  String get optionalImageUrl => 'URL รูปภาพ (ไม่บังคับ)';
+
+  @override
+  String get myStream => 'สตรีมของฉัน';
+
+  @override
+  String get saveToLibrary => 'บันทึกลงคลัง';
+
+  @override
+  String get justPlay => 'เล่นอย่างเดียว';
+
+  @override
+  String get autoDetect => 'ตรวจจับอัตโนมัติ';
+
+  @override
+  String get apiKeyRequired => 'ต้องใช้คีย์ API';
+
+  @override
+  String get customApiKey => 'ใช้คีย์ API ของตนเอง';
+
+  @override
+  String get clientId => 'รหัสไคลเอนต์';
+
+  @override
+  String get clientSecret => 'ความลับไคลเอนต์';
+
+  @override
+  String get saveCredentials => 'บันทึกข้อมูลรับรอง';
+
+  @override
+  String get searchStrategy => 'กลยุทธ์การค้นหา';
+
+  @override
+  String get credentialsLocalOnly =>
+      'เก็บอย่างปลอดภัยในอุปกรณ์นี้ ไม่ส่งไปยัง PPPlayer';
+
+  @override
+  String get scrapingHelp =>
+      'ไม่ต้องใช้คีย์ API หรือโควตา อาจช้าหรือเชื่อถือได้น้อยกว่า';
+
+  @override
+  String get streamHelp => 'ป้อน URL HTTP(S) หรือลิงก์เพลย์ลิสต์ M3U';
+
+  @override
+  String get deletePlaylistConfirm => 'ลบเพลย์ลิสต์นี้อย่างถาวรหรือไม่?';
+
+  @override
+  String get clearCacheConfirm =>
+      'ลบข้อมูลแคชหรือไม่? คลังและรายการโปรดจะไม่เปลี่ยนแปลง';
+
+  @override
+  String get clearHistoryConfirm => 'ลบประวัติการฟังอย่างถาวรหรือไม่?';
+
+  @override
+  String get addedToQueue => 'เพิ่มลงคิวแล้ว';
+
+  @override
+  String get addedVideo => 'เพิ่มวิดีโอแล้ว';
+
+  @override
+  String addedChannels(String count) {
+    return 'ช่องที่เพิ่ม: $count';
+  }
+
+  @override
+  String get removedFromPlaylist => 'นำออกจากเพลย์ลิสต์แล้ว';
+
+  @override
+  String get exportCancelled => 'ยกเลิกการส่งออกแล้ว';
+
+  @override
+  String exportComplete(String count) {
+    return 'ส่งออกเพลย์ลิสต์แล้ว รายการที่ข้าม: $count';
+  }
+
+  @override
+  String get playlistExported => 'ส่งออกเพลย์ลิสต์แล้ว';
+
+  @override
+  String get live => 'ถ่ายทอดสด';
+
+  @override
+  String get sponsored => 'ได้รับการสนับสนุน';
+
+  @override
+  String get removeFromPlaylist => 'นำออกจากเพลย์ลิสต์';
+
+  @override
+  String get likedSongsHelp => 'บันทึกเพลงเพื่อดูที่นี่';
+
+  @override
+  String get apiSingleVideoHint =>
+      'คุณสามารถเพิ่มวิดีโอนี้โดยไม่ต้องนำเข้าเพลย์ลิสต์';
+
+  @override
+  String get linkCopied => 'คัดลอกลิงก์แล้ว';
+
+  @override
+  String get willPlayNext => 'จะเล่นเป็นรายการถัดไป';
+
+  @override
+  String get checkItOut => 'ดูเพิ่มเติม';
+
+  @override
+  String get loadFailed => 'โหลดเนื้อหาไม่ได้ โปรดลองอีกครั้ง';
 }

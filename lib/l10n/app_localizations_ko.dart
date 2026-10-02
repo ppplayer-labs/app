@@ -732,4 +732,341 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get off => '끄기';
+
+  @override
+  String get playOn => '재생 기기';
+
+  @override
+  String get thisDevice => '이 기기';
+
+  @override
+  String get availableDevices => '사용 가능한 기기';
+
+  @override
+  String get searchingDevices => '기기 검색 중…';
+
+  @override
+  String get refresh => '새로고침';
+
+  @override
+  String get connecting => '연결 중…';
+
+  @override
+  String connectingTo(String name) {
+    return '$name에 연결 중…';
+  }
+
+  @override
+  String get connected => '연결됨';
+
+  @override
+  String get unsupportedOutput => '이 출력에서는 이 소스를 재생할 수 없습니다.';
+
+  @override
+  String get airPlayAudioOutput => 'AirPlay 및 오디오 출력';
+
+  @override
+  String get returnForAirPlay => 'AirPlay를 사용하려면 이 기기에서 재생하세요.';
+
+  @override
+  String get openSoundSettings => '출력을 선택하려면 사운드 설정을 여세요.';
+
+  @override
+  String get soundSettingsError => '사운드 설정을 열 수 없습니다.';
+
+  @override
+  String get systemOutput => '시스템 출력';
+
+  @override
+  String playingOn(String name) {
+    return '$name에서 재생 중';
+  }
+
+  @override
+  String get chooseAirPlay => 'AirPlay 버튼을 눌러 스피커나 TV를 선택하세요.';
+
+  @override
+  String get airPlayDevice => 'AirPlay 기기';
+
+  @override
+  String get playOnIphone => '이 iPhone에서 재생';
+
+  @override
+  String get chooseIphone => '아래 AirPlay 버튼으로 이 iPhone을 선택하세요.';
+
+  @override
+  String get profile => '프로필';
+
+  @override
+  String get preferences => '환경설정';
+
+  @override
+  String get themeColor => '테마 색상';
+
+  @override
+  String get yourMusic => '내 음악';
+
+  @override
+  String get apiCredentials => 'API 인증 정보';
+
+  @override
+  String get dataStorage => '데이터 및 저장 공간';
+
+  @override
+  String get editProfileHelp => '이름과 아바타 설정';
+
+  @override
+  String get customProvider => '사용자 지정 제공자';
+
+  @override
+  String get defaultProvider => 'PPPlayer 기본값';
+
+  @override
+  String get proExperience => 'Pro 기능 활성화';
+
+  @override
+  String get beta => '베타';
+
+  @override
+  String get loading => '불러오는 중…';
+
+  @override
+  String get unknown => '알 수 없음';
+
+  @override
+  String get pause => '일시정지';
+
+  @override
+  String get repeat => '반복';
+
+  @override
+  String get mute => '음소거';
+
+  @override
+  String get unmute => '음소거 해제';
+
+  @override
+  String get fitVideo => '맞춤';
+
+  @override
+  String get fillVideo => '채우기';
+
+  @override
+  String get fullscreen => '전체 화면';
+
+  @override
+  String get exitFullscreen => '전체 화면 종료';
+
+  @override
+  String get volume => '음량';
+
+  @override
+  String get save => '저장';
+
+  @override
+  String get delete => '삭제';
+
+  @override
+  String get clear => '지우기';
+
+  @override
+  String get follow => '팔로우';
+
+  @override
+  String get unfollow => '팔로우 취소';
+
+  @override
+  String get following => '팔로우 중';
+
+  @override
+  String get showAll => '모두 표시';
+
+  @override
+  String get appearance => '모양';
+
+  @override
+  String get subtitleSize => '크기';
+
+  @override
+  String get subtitleBackground => '배경';
+
+  @override
+  String get earlier => '앞당기기';
+
+  @override
+  String get later => '늦추기';
+
+  @override
+  String get reset => '초기화';
+
+  @override
+  String subtitleDelay(String seconds) {
+    return '지연: $seconds초';
+  }
+
+  @override
+  String get morePlaybackControls => '추가 재생 컨트롤';
+
+  @override
+  String get hideVideo => '동영상 숨기기';
+
+  @override
+  String get showVideo => '동영상 표시';
+
+  @override
+  String get closeQueue => '대기열 닫기';
+
+  @override
+  String get enabled => '켜짐';
+
+  @override
+  String get openFile => '파일 열기…';
+
+  @override
+  String get openFolder => '폴더 열기…';
+
+  @override
+  String get openUrl => 'URL 열기…';
+
+  @override
+  String get fileMenu => '파일';
+
+  @override
+  String get viewMenu => '보기';
+
+  @override
+  String get windowMenu => '창';
+
+  @override
+  String get saveChanges => '변경 사항 저장';
+
+  @override
+  String get themeAvatarColor => '테마 및 아바타 색상';
+
+  @override
+  String get networkStreams => '네트워크 스트림';
+
+  @override
+  String get networkStream => '네트워크 스트림';
+
+  @override
+  String get openNetworkStream => '네트워크 스트림 열기';
+
+  @override
+  String get editPlaylist => '재생목록 편집';
+
+  @override
+  String get editStreamItem => '스트림 항목 편집';
+
+  @override
+  String get streamUrl => '스트림 URL';
+
+  @override
+  String get platformType => '플랫폼 / 유형';
+
+  @override
+  String get optionalTitle => '제목 (선택 사항)';
+
+  @override
+  String get optionalImageUrl => '이미지 URL (선택 사항)';
+
+  @override
+  String get myStream => '내 스트림';
+
+  @override
+  String get saveToLibrary => '라이브러리에 저장';
+
+  @override
+  String get justPlay => '재생만 하기';
+
+  @override
+  String get autoDetect => '자동 감지';
+
+  @override
+  String get apiKeyRequired => 'API 키 필요';
+
+  @override
+  String get customApiKey => '사용자 지정 API 키 사용';
+
+  @override
+  String get clientId => '클라이언트 ID';
+
+  @override
+  String get clientSecret => '클라이언트 시크릿';
+
+  @override
+  String get saveCredentials => '인증 정보 저장';
+
+  @override
+  String get searchStrategy => '검색 방식';
+
+  @override
+  String get credentialsLocalOnly => '이 기기에 안전하게 저장됩니다. PPPlayer에 전송되지 않습니다.';
+
+  @override
+  String get scrapingHelp => 'API 키나 할당량이 필요하지 않습니다. 더 느리거나 신뢰성이 낮을 수 있습니다.';
+
+  @override
+  String get streamHelp => 'HTTP(S) URL 또는 M3U 재생목록 링크를 입력하세요.';
+
+  @override
+  String get deletePlaylistConfirm => '이 재생목록을 영구 삭제할까요?';
+
+  @override
+  String get clearCacheConfirm => '캐시 데이터를 삭제할까요? 라이브러리와 즐겨찾기는 유지됩니다.';
+
+  @override
+  String get clearHistoryConfirm => '청취 기록을 영구 삭제할까요?';
+
+  @override
+  String get addedToQueue => '대기열에 추가됨';
+
+  @override
+  String get addedVideo => '동영상 추가됨';
+
+  @override
+  String addedChannels(String count) {
+    return '추가한 채널: $count';
+  }
+
+  @override
+  String get removedFromPlaylist => '재생목록에서 삭제됨';
+
+  @override
+  String get exportCancelled => '내보내기 취소됨';
+
+  @override
+  String exportComplete(String count) {
+    return '재생목록을 내보냈습니다. 건너뛴 항목: $count';
+  }
+
+  @override
+  String get playlistExported => '재생목록을 내보냈습니다';
+
+  @override
+  String get live => '실시간';
+
+  @override
+  String get sponsored => '스폰서';
+
+  @override
+  String get removeFromPlaylist => '재생목록에서 제거';
+
+  @override
+  String get likedSongsHelp => '노래를 저장하면 여기에 표시됩니다';
+
+  @override
+  String get apiSingleVideoHint => '재생목록을 가져오지 않고 이 동영상을 추가할 수 있습니다.';
+
+  @override
+  String get linkCopied => '링크 복사됨';
+
+  @override
+  String get willPlayNext => '다음에 재생됩니다';
+
+  @override
+  String get checkItOut => '살펴보기';
+
+  @override
+  String get loadFailed => '콘텐츠를 불러올 수 없습니다. 다시 시도하세요.';
 }

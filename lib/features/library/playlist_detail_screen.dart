@@ -143,7 +143,7 @@ class _PlaylistDetailScreenState extends ConsumerState<PlaylistDetailScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Playlist not found',
+                    AppLocalizations.of(context)!.noPlaylistsFound,
                     style: TextStyle(color: colorScheme.onSurface),
                   ),
                   const SizedBox(height: 16),
@@ -479,7 +479,7 @@ class _PlaylistDetailScreenState extends ConsumerState<PlaylistDetailScreen> {
                 CircularProgressIndicator(color: colorScheme.primary),
                 const SizedBox(height: 16),
                 Text(
-                  'Fetching tracks...',
+                  AppLocalizations.of(context)!.loading,
                   style: TextStyle(color: colorScheme.onSurfaceVariant),
                 ),
               ],
@@ -504,7 +504,7 @@ class _PlaylistDetailScreenState extends ConsumerState<PlaylistDetailScreen> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'No tracks in this playlist yet.',
+                  AppLocalizations.of(context)!.noTracksFound,
                   style: TextStyle(color: colorScheme.onSurfaceVariant),
                 ),
                 const SizedBox(height: 24),
@@ -521,7 +521,7 @@ class _PlaylistDetailScreenState extends ConsumerState<PlaylistDetailScreen> {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      'Find Songs',
+                      AppLocalizations.of(context)!.discoverMusic,
                       style: TextStyle(
                         color: colorScheme.onPrimary,
                         fontWeight: FontWeight.bold,
@@ -544,7 +544,7 @@ class _PlaylistDetailScreenState extends ConsumerState<PlaylistDetailScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Playlist • ${allTracks.length} songs',
+                '${AppLocalizations.of(context)!.playlist} • ${AppLocalizations.of(context)!.trackCount(allTracks.length)}',
                 style: TextStyle(
                   color: colorScheme.onSurfaceVariant,
                   fontSize: 13,

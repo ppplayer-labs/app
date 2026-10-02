@@ -747,4 +747,346 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get off => 'ပိတ်ရန်';
+
+  @override
+  String get playOn => 'ဤနေရာတွင် ဖွင့်ရန်';
+
+  @override
+  String get thisDevice => 'ဤစက်';
+
+  @override
+  String get availableDevices => 'အသုံးပြုနိုင်သော စက်များ';
+
+  @override
+  String get searchingDevices => 'စက်များ ရှာဖွေနေသည်…';
+
+  @override
+  String get refresh => 'ပြန်လည်ဖွင့်ရန်';
+
+  @override
+  String get connecting => 'ချိတ်ဆက်နေသည်…';
+
+  @override
+  String connectingTo(String name) {
+    return '$name သို့ ချိတ်ဆက်နေသည်…';
+  }
+
+  @override
+  String get connected => 'ချိတ်ဆက်ပြီး';
+
+  @override
+  String get unsupportedOutput => 'ဤရင်းမြစ်ကို ဤအထွက်တွင် ဖွင့်မရပါ။';
+
+  @override
+  String get airPlayAudioOutput => 'AirPlay နှင့် အသံအထွက်';
+
+  @override
+  String get returnForAirPlay => 'AirPlay သုံးရန် ဤစက်တွင် ဖွင့်ပါ။';
+
+  @override
+  String get openSoundSettings => 'အထွက်ရွေးရန် အသံဆက်တင်များကို ဖွင့်ပါ။';
+
+  @override
+  String get soundSettingsError => 'အသံဆက်တင်များကို ဖွင့်မရပါ။';
+
+  @override
+  String get systemOutput => 'စနစ်အသံအထွက်';
+
+  @override
+  String playingOn(String name) {
+    return '$name တွင် ဖွင့်နေသည်';
+  }
+
+  @override
+  String get chooseAirPlay =>
+      'စပီကာ သို့မဟုတ် တီဗီရွေးရန် AirPlay ခလုတ်ကို နှိပ်ပါ။';
+
+  @override
+  String get airPlayDevice => 'AirPlay စက်';
+
+  @override
+  String get playOnIphone => 'ဤ iPhone တွင် ဖွင့်ရန်';
+
+  @override
+  String get chooseIphone => 'အောက်ရှိ AirPlay ခလုတ်ဖြင့် ဤ iPhone ကို ရွေးပါ။';
+
+  @override
+  String get profile => 'ပရိုဖိုင်';
+
+  @override
+  String get preferences => 'ဦးစားပေး ဆက်တင်များ';
+
+  @override
+  String get themeColor => 'အပြင်အဆင်အရောင်';
+
+  @override
+  String get yourMusic => 'သင့်တေးဂီတ';
+
+  @override
+  String get apiCredentials => 'API အထောက်အထားများ';
+
+  @override
+  String get dataStorage => 'ဒေတာနှင့် သိုလှောင်မှု';
+
+  @override
+  String get editProfileHelp => 'သင့်အမည်နှင့် ကိုယ်ပွားပုံ သတ်မှတ်ပါ';
+
+  @override
+  String get customProvider => 'စိတ်ကြိုက် ပံ့ပိုးသူ';
+
+  @override
+  String get defaultProvider => 'PPPlayer မူလသတ်မှတ်ချက်';
+
+  @override
+  String get proExperience => 'Pro အတွေ့အကြုံ ဖွင့်ထားသည်';
+
+  @override
+  String get beta => 'စမ်းသပ်ဗားရှင်း';
+
+  @override
+  String get loading => 'တင်နေသည်…';
+
+  @override
+  String get unknown => 'မသိရ';
+
+  @override
+  String get pause => 'ခေတ္တရပ်ရန်';
+
+  @override
+  String get repeat => 'ထပ်ဖွင့်ရန်';
+
+  @override
+  String get mute => 'အသံပိတ်ရန်';
+
+  @override
+  String get unmute => 'အသံဖွင့်ရန်';
+
+  @override
+  String get fitVideo => 'အံဝင်အောင်';
+
+  @override
+  String get fillVideo => 'ပြည့်အောင်';
+
+  @override
+  String get fullscreen => 'မျက်နှာပြင်အပြည့်';
+
+  @override
+  String get exitFullscreen => 'မျက်နှာပြင်အပြည့်မှ ထွက်ရန်';
+
+  @override
+  String get volume => 'အသံအတိုးအကျယ်';
+
+  @override
+  String get save => 'သိမ်းရန်';
+
+  @override
+  String get delete => 'ဖျက်ရန်';
+
+  @override
+  String get clear => 'ရှင်းရန်';
+
+  @override
+  String get follow => 'လိုက်ရန်';
+
+  @override
+  String get unfollow => 'မလိုက်တော့ရန်';
+
+  @override
+  String get following => 'လိုက်နေသည်';
+
+  @override
+  String get showAll => 'အားလုံးပြရန်';
+
+  @override
+  String get appearance => 'အသွင်အပြင်';
+
+  @override
+  String get subtitleSize => 'အရွယ်အစား';
+
+  @override
+  String get subtitleBackground => 'နောက်ခံ';
+
+  @override
+  String get earlier => 'စောစေရန်';
+
+  @override
+  String get later => 'နောက်ကျစေရန်';
+
+  @override
+  String get reset => 'ပြန်သတ်မှတ်ရန်';
+
+  @override
+  String subtitleDelay(String seconds) {
+    return 'နှောင့်နှေးမှု: $seconds စက္ကန့်';
+  }
+
+  @override
+  String get morePlaybackControls => 'နောက်ထပ် ဖွင့်ခြင်းထိန်းချုပ်မှုများ';
+
+  @override
+  String get hideVideo => 'ဗီဒီယိုဖျောက်ရန်';
+
+  @override
+  String get showVideo => 'ဗီဒီယိုပြရန်';
+
+  @override
+  String get closeQueue => 'အစီအစဉ်ပိတ်ရန်';
+
+  @override
+  String get enabled => 'ဖွင့်ထားသည်';
+
+  @override
+  String get openFile => 'ဖိုင်ဖွင့်ရန်…';
+
+  @override
+  String get openFolder => 'ဖိုင်တွဲဖွင့်ရန်…';
+
+  @override
+  String get openUrl => 'URL ဖွင့်ရန်…';
+
+  @override
+  String get fileMenu => 'ဖိုင်';
+
+  @override
+  String get viewMenu => 'မြင်ကွင်း';
+
+  @override
+  String get windowMenu => 'ဝင်းဒိုး';
+
+  @override
+  String get saveChanges => 'အပြောင်းအလဲများ သိမ်းရန်';
+
+  @override
+  String get themeAvatarColor => 'အပြင်အဆင်နှင့် ကိုယ်ပွားအရောင်';
+
+  @override
+  String get networkStreams => 'ကွန်ရက်စီးကြောင်းများ';
+
+  @override
+  String get networkStream => 'ကွန်ရက်စီးကြောင်း';
+
+  @override
+  String get openNetworkStream => 'ကွန်ရက်စီးကြောင်းဖွင့်ရန်';
+
+  @override
+  String get editPlaylist => 'အစီအစဉ်ပြင်ရန်';
+
+  @override
+  String get editStreamItem => 'စီးကြောင်းအရာ ပြင်ရန်';
+
+  @override
+  String get streamUrl => 'စီးကြောင်း URL';
+
+  @override
+  String get platformType => 'ပလက်ဖောင်း / အမျိုးအစား';
+
+  @override
+  String get optionalTitle => 'ခေါင်းစဉ် (မဖြစ်မနေ မလို)';
+
+  @override
+  String get optionalImageUrl => 'ပုံ URL (မဖြစ်မနေ မလို)';
+
+  @override
+  String get myStream => 'ကျွန်ုပ်၏စီးကြောင်း';
+
+  @override
+  String get saveToLibrary => 'စာကြည့်တိုက်တွင် သိမ်းရန်';
+
+  @override
+  String get justPlay => 'ဖွင့်ရုံသာ';
+
+  @override
+  String get autoDetect => 'အလိုအလျောက် ရှာဖွေရန်';
+
+  @override
+  String get apiKeyRequired => 'API သော့ လိုအပ်သည်';
+
+  @override
+  String get customApiKey => 'ကိုယ်ပိုင် API သော့သုံးရန်';
+
+  @override
+  String get clientId => 'ဖောက်သည် ID';
+
+  @override
+  String get clientSecret => 'ဖောက်သည် လျှို့ဝှက်သော့';
+
+  @override
+  String get saveCredentials => 'အထောက်အထားများ သိမ်းရန်';
+
+  @override
+  String get searchStrategy => 'ရှာဖွေနည်း';
+
+  @override
+  String get credentialsLocalOnly =>
+      'ဤစက်တွင် လုံခြုံစွာ သိမ်းထားသည်။ PPPlayer သို့ လုံးဝ မပို့ပါ။';
+
+  @override
+  String get scrapingHelp =>
+      'API သော့ သို့မဟုတ် သတ်မှတ်ပမာဏ မလိုပါ။ ပိုနှေး သို့မဟုတ် ယုံကြည်ရမှုနည်းနိုင်သည်။';
+
+  @override
+  String get streamHelp => 'HTTP(S) URL သို့မဟုတ် M3U အစီအစဉ်လင့်ခ် ထည့်ပါ။';
+
+  @override
+  String get deletePlaylistConfirm => 'ဤအစီအစဉ်ကို အပြီးဖျက်မလား?';
+
+  @override
+  String get clearCacheConfirm =>
+      'ယာယီဒေတာ ဖျက်မလား? စာကြည့်တိုက်နှင့် နှစ်သက်ရာများ မပြောင်းပါ။';
+
+  @override
+  String get clearHistoryConfirm => 'နားထောင်မှုမှတ်တမ်း အပြီးဖျက်မလား?';
+
+  @override
+  String get addedToQueue => 'အစီအစဉ်ထဲ ထည့်ပြီး';
+
+  @override
+  String get addedVideo => 'ဗီဒီယိုထည့်ပြီး';
+
+  @override
+  String addedChannels(String count) {
+    return 'ထည့်ထားသောလိုင်းများ: $count';
+  }
+
+  @override
+  String get removedFromPlaylist => 'အစီအစဉ်မှ ဖယ်ပြီး';
+
+  @override
+  String get exportCancelled => 'ထုတ်ယူမှု ပယ်ဖျက်ပြီး';
+
+  @override
+  String exportComplete(String count) {
+    return 'အစီအစဉ်ထုတ်ယူပြီး။ ကျော်ထားသည့်အရာများ: $count';
+  }
+
+  @override
+  String get playlistExported => 'အစီအစဉ်ထုတ်ယူပြီး';
+
+  @override
+  String get live => 'တိုက်ရိုက်';
+
+  @override
+  String get sponsored => 'ပံ့ပိုးထားသည်';
+
+  @override
+  String get removeFromPlaylist => 'အစီအစဉ်မှ ဖယ်ရန်';
+
+  @override
+  String get likedSongsHelp => 'ဤနေရာတွင် မြင်ရန် သီချင်းများ သိမ်းပါ';
+
+  @override
+  String get apiSingleVideoHint =>
+      'အစီအစဉ်မတင်သွင်းဘဲ ဤဗီဒီယိုကို ထည့်နိုင်သည်။';
+
+  @override
+  String get linkCopied => 'လင့်ခ်ကူးပြီး';
+
+  @override
+  String get willPlayNext => 'နောက်တစ်ခု ဖွင့်မည်';
+
+  @override
+  String get checkItOut => 'ကြည့်ရန်';
+
+  @override
+  String get loadFailed => 'အကြောင်းအရာကို မဖွင့်နိုင်ပါ။ ထပ်မံကြိုးစားပါ။';
 }

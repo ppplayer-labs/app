@@ -134,7 +134,7 @@ class PpAboutDialog extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(4),
                                     ),
                                     child: Text(
-                                      'BETA',
+                                      AppLocalizations.of(context)!.beta,
                                       style: theme.textTheme.labelSmall
                                           ?.copyWith(
                                             color: theme

@@ -1,3 +1,4 @@
+import 'package:ppplayer/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'local_library_providers.dart';
@@ -17,7 +18,9 @@ class LocalAlbumsTab extends ConsumerWidget {
           final isSearching = ref.watch(localSearchQueryProvider).isNotEmpty;
           return Center(
             child: Text(
-              isSearching ? 'No albums found' : 'No local albums',
+              isSearching
+                  ? AppLocalizations.of(context)!.noAlbumsFound
+                  : AppLocalizations.of(context)!.noAlbumsFound,
               style: TextStyle(color: colorScheme.onSurfaceVariant),
             ),
           );
@@ -75,7 +78,7 @@ class LocalAlbumsTab extends ConsumerWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    '${album.trackCount} tracks',
+                    AppLocalizations.of(context)!.trackCount(album.trackCount),
                     style: TextStyle(
                       color: colorScheme.onSurfaceVariant,
                       fontSize: 12,
@@ -87,8 +90,10 @@ class LocalAlbumsTab extends ConsumerWidget {
           },
         );
       },
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, st) => Center(child: Text('Error: $e')),
+      loading: () => Center(child: CircularProgressIndicator()),
+      error: (e, st) => Center(
+        child: Text(AppLocalizations.of(context)!.error(e.toString())),
+      ),
     );
   }
 }

@@ -64,7 +64,7 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen> {
         loading: () => const AlbumDetailsShimmer(),
         error: (e, _) => Center(
           child: Text(
-            'Error: $e',
+            AppLocalizations.of(context)!.error(e.toString()),
             style: TextStyle(
               color: Theme.of(
                 context,
@@ -527,7 +527,7 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen> {
                       Padding(
                         padding: const EdgeInsets.only(left: 4),
                         child: Text(
-                          'Album • ${album['release_date']?.toString().substring(0, 4) ?? ''}',
+                          '${AppLocalizations.of(context)!.sortAlbum} • ${album['release_date']?.toString().substring(0, 4) ?? ''}',
                           style: TextStyle(
                             color: colorScheme.onSurface.withValues(alpha: 0.4),
                             fontSize: 13,
@@ -622,7 +622,7 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'No tracks found matching "$_searchQuery"',
+                          '${AppLocalizations.of(context)!.noTracksFound}: "$_searchQuery"',
                           style: TextStyle(
                             color: colorScheme.onSurface.withValues(alpha: 0.3),
                           ),
@@ -657,7 +657,7 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '${album['release_date']} • ${tracks.length} songs',
+                        '${album['release_date']} • ${AppLocalizations.of(context)!.trackCount(tracks.length)}',
                         style: TextStyle(
                           color: colorScheme.onSurface.withValues(alpha: 0.3),
                           fontSize: 13,

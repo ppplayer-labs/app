@@ -145,8 +145,8 @@ void main() {
         await tester.tap(find.byTooltip('More playback controls'));
         await tester.pumpAndSettle();
         expect(find.text('Shuffle: Off'), findsOneWidget);
-        expect(find.text('Repeat: none'), findsOneWidget);
-        expect(find.text('Hide Video'), findsOneWidget);
+        expect(find.text('Repeat: Off'), findsOneWidget);
+        expect(find.text('Hide video'), findsOneWidget);
         expect(find.text('Volume'), findsOneWidget);
         expect(tester.takeException(), isNull);
         await tester.tap(find.text('Shuffle: Off'));

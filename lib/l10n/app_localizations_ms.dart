@@ -742,4 +742,349 @@ class AppLocalizationsMs extends AppLocalizations {
 
   @override
   String get off => 'Tutup';
+
+  @override
+  String get playOn => 'Mainkan pada';
+
+  @override
+  String get thisDevice => 'Peranti ini';
+
+  @override
+  String get availableDevices => 'Peranti tersedia';
+
+  @override
+  String get searchingDevices => 'Mencari peranti…';
+
+  @override
+  String get refresh => 'Muat semula';
+
+  @override
+  String get connecting => 'Menyambung…';
+
+  @override
+  String connectingTo(String name) {
+    return 'Menyambung kepada $name…';
+  }
+
+  @override
+  String get connected => 'Disambungkan';
+
+  @override
+  String get unsupportedOutput =>
+      'Sumber ini tidak boleh dimainkan pada output ini.';
+
+  @override
+  String get airPlayAudioOutput => 'AirPlay dan output audio';
+
+  @override
+  String get returnForAirPlay =>
+      'Mainkan pada peranti ini untuk menggunakan AirPlay.';
+
+  @override
+  String get openSoundSettings => 'Buka tetapan Bunyi untuk memilih output.';
+
+  @override
+  String get soundSettingsError => 'Tidak dapat membuka tetapan Bunyi.';
+
+  @override
+  String get systemOutput => 'Output sistem';
+
+  @override
+  String playingOn(String name) {
+    return 'Sedang dimainkan pada $name';
+  }
+
+  @override
+  String get chooseAirPlay =>
+      'Ketik butang AirPlay untuk memilih pembesar suara atau TV.';
+
+  @override
+  String get airPlayDevice => 'Peranti AirPlay';
+
+  @override
+  String get playOnIphone => 'Mainkan pada iPhone ini';
+
+  @override
+  String get chooseIphone =>
+      'Pilih iPhone ini menggunakan butang AirPlay di bawah.';
+
+  @override
+  String get profile => 'Profil';
+
+  @override
+  String get preferences => 'Keutamaan';
+
+  @override
+  String get themeColor => 'Warna tema';
+
+  @override
+  String get yourMusic => 'Muzik anda';
+
+  @override
+  String get apiCredentials => 'Bukti kelayakan API';
+
+  @override
+  String get dataStorage => 'Data dan storan';
+
+  @override
+  String get editProfileHelp => 'Tetapkan nama dan avatar anda';
+
+  @override
+  String get customProvider => 'Penyedia tersuai';
+
+  @override
+  String get defaultProvider => 'Lalai PPPlayer';
+
+  @override
+  String get proExperience => 'Pengalaman Pro aktif';
+
+  @override
+  String get beta => 'Beta';
+
+  @override
+  String get loading => 'Memuatkan…';
+
+  @override
+  String get unknown => 'Tidak diketahui';
+
+  @override
+  String get pause => 'Jeda';
+
+  @override
+  String get repeat => 'Ulang';
+
+  @override
+  String get mute => 'Senyapkan';
+
+  @override
+  String get unmute => 'Nyahsenyap';
+
+  @override
+  String get fitVideo => 'Muatkan';
+
+  @override
+  String get fillVideo => 'Penuhkan';
+
+  @override
+  String get fullscreen => 'Skrin penuh';
+
+  @override
+  String get exitFullscreen => 'Keluar skrin penuh';
+
+  @override
+  String get volume => 'Kelantangan';
+
+  @override
+  String get save => 'Simpan';
+
+  @override
+  String get delete => 'Padam';
+
+  @override
+  String get clear => 'Kosongkan';
+
+  @override
+  String get follow => 'Ikut';
+
+  @override
+  String get unfollow => 'Berhenti ikut';
+
+  @override
+  String get following => 'Mengikuti';
+
+  @override
+  String get showAll => 'Tunjukkan semua';
+
+  @override
+  String get appearance => 'Penampilan';
+
+  @override
+  String get subtitleSize => 'Saiz';
+
+  @override
+  String get subtitleBackground => 'Latar belakang';
+
+  @override
+  String get earlier => 'Lebih awal';
+
+  @override
+  String get later => 'Lebih lewat';
+
+  @override
+  String get reset => 'Tetapkan semula';
+
+  @override
+  String subtitleDelay(String seconds) {
+    return 'Lengah: $seconds s';
+  }
+
+  @override
+  String get morePlaybackControls => 'Lebih banyak kawalan main balik';
+
+  @override
+  String get hideVideo => 'Sembunyikan video';
+
+  @override
+  String get showVideo => 'Tunjukkan video';
+
+  @override
+  String get closeQueue => 'Tutup baris gilir';
+
+  @override
+  String get enabled => 'Hidup';
+
+  @override
+  String get openFile => 'Buka fail…';
+
+  @override
+  String get openFolder => 'Buka folder…';
+
+  @override
+  String get openUrl => 'Buka URL…';
+
+  @override
+  String get fileMenu => 'Fail';
+
+  @override
+  String get viewMenu => 'Paparan';
+
+  @override
+  String get windowMenu => 'Tetingkap';
+
+  @override
+  String get saveChanges => 'Simpan perubahan';
+
+  @override
+  String get themeAvatarColor => 'Warna tema dan avatar';
+
+  @override
+  String get networkStreams => 'Strim rangkaian';
+
+  @override
+  String get networkStream => 'Strim rangkaian';
+
+  @override
+  String get openNetworkStream => 'Buka strim rangkaian';
+
+  @override
+  String get editPlaylist => 'Edit senarai main';
+
+  @override
+  String get editStreamItem => 'Edit item strim';
+
+  @override
+  String get streamUrl => 'URL strim';
+
+  @override
+  String get platformType => 'Platform / jenis';
+
+  @override
+  String get optionalTitle => 'Tajuk (pilihan)';
+
+  @override
+  String get optionalImageUrl => 'URL imej (pilihan)';
+
+  @override
+  String get myStream => 'Strim saya';
+
+  @override
+  String get saveToLibrary => 'Simpan ke pustaka';
+
+  @override
+  String get justPlay => 'Mainkan sahaja';
+
+  @override
+  String get autoDetect => 'Kesan automatik';
+
+  @override
+  String get apiKeyRequired => 'Kunci API diperlukan';
+
+  @override
+  String get customApiKey => 'Gunakan kunci API sendiri';
+
+  @override
+  String get clientId => 'ID klien';
+
+  @override
+  String get clientSecret => 'Rahsia klien';
+
+  @override
+  String get saveCredentials => 'Simpan bukti kelayakan';
+
+  @override
+  String get searchStrategy => 'Strategi carian';
+
+  @override
+  String get credentialsLocalOnly =>
+      'Disimpan dengan selamat pada peranti ini. Tidak pernah dihantar kepada PPPlayer.';
+
+  @override
+  String get scrapingHelp =>
+      'Tidak memerlukan kunci API atau kuota. Mungkin lebih perlahan atau kurang boleh dipercayai.';
+
+  @override
+  String get streamHelp => 'Masukkan URL HTTP(S) atau pautan senarai main M3U.';
+
+  @override
+  String get deletePlaylistConfirm => 'Padam senarai main ini secara kekal?';
+
+  @override
+  String get clearCacheConfirm =>
+      'Padam data cache? Pustaka dan kegemaran kekal tidak berubah.';
+
+  @override
+  String get clearHistoryConfirm => 'Padam sejarah pendengaran secara kekal?';
+
+  @override
+  String get addedToQueue => 'Ditambahkan ke baris gilir';
+
+  @override
+  String get addedVideo => 'Video ditambahkan';
+
+  @override
+  String addedChannels(String count) {
+    return 'Saluran ditambahkan: $count';
+  }
+
+  @override
+  String get removedFromPlaylist => 'Dialih keluar daripada senarai main';
+
+  @override
+  String get exportCancelled => 'Eksport dibatalkan';
+
+  @override
+  String exportComplete(String count) {
+    return 'Senarai main dieksport. Item dilangkau: $count';
+  }
+
+  @override
+  String get playlistExported => 'Senarai main dieksport';
+
+  @override
+  String get live => 'Langsung';
+
+  @override
+  String get sponsored => 'Ditaja';
+
+  @override
+  String get removeFromPlaylist => 'Alih keluar daripada senarai main';
+
+  @override
+  String get likedSongsHelp => 'Simpan lagu untuk melihatnya di sini';
+
+  @override
+  String get apiSingleVideoHint =>
+      'Anda boleh menambah video ini tanpa mengimport senarai main.';
+
+  @override
+  String get linkCopied => 'Pautan disalin';
+
+  @override
+  String get willPlayNext => 'Akan dimainkan seterusnya';
+
+  @override
+  String get checkItOut => 'Lihat';
+
+  @override
+  String get loadFailed => 'Kandungan tidak dapat dimuatkan. Cuba lagi.';
 }

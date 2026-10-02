@@ -97,7 +97,7 @@ void showLocalTrackContextMenu(
             if (playlistId != null && playlistEntryId != null)
               ListTile(
                 leading: const Icon(Icons.remove_circle_outline_rounded),
-                title: const Text('Remove from playlist'),
+                title: Text(AppLocalizations.of(context)!.removeFromPlaylist),
                 onTap: () async {
                   Navigator.pop(context);
                   await ref
@@ -111,7 +111,9 @@ void showLocalTrackContextMenu(
                   .map(
                     (artist) => ListTile(
                       leading: const Icon(Icons.person_outline_rounded),
-                      title: Text('Go to $artist'),
+                      title: Text(
+                        '${AppLocalizations.of(context)!.goToArtist}: $artist',
+                      ),
                       onTap: () {
                         Navigator.pop(context);
                         Navigator.push(

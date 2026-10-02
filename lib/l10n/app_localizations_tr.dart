@@ -742,4 +742,350 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get off => 'Kapalı';
+
+  @override
+  String get playOn => 'Şurada çal';
+
+  @override
+  String get thisDevice => 'Bu cihaz';
+
+  @override
+  String get availableDevices => 'Kullanılabilir cihazlar';
+
+  @override
+  String get searchingDevices => 'Cihazlar aranıyor…';
+
+  @override
+  String get refresh => 'Yenile';
+
+  @override
+  String get connecting => 'Bağlanıyor…';
+
+  @override
+  String connectingTo(String name) {
+    return '$name cihazına bağlanıyor…';
+  }
+
+  @override
+  String get connected => 'Bağlandı';
+
+  @override
+  String get unsupportedOutput => 'Bu kaynak bu çıkışta oynatılamaz.';
+
+  @override
+  String get airPlayAudioOutput => 'AirPlay ve ses çıkışı';
+
+  @override
+  String get returnForAirPlay => 'AirPlay kullanmak için bu cihazda oynatın.';
+
+  @override
+  String get openSoundSettings => 'Bir çıkış seçmek için Ses ayarlarını açın.';
+
+  @override
+  String get soundSettingsError => 'Ses ayarları açılamadı.';
+
+  @override
+  String get systemOutput => 'Sistem çıkışı';
+
+  @override
+  String playingOn(String name) {
+    return '$name cihazında çalıyor';
+  }
+
+  @override
+  String get chooseAirPlay =>
+      'Hoparlör veya TV seçmek için AirPlay düğmesine dokunun.';
+
+  @override
+  String get airPlayDevice => 'AirPlay cihazı';
+
+  @override
+  String get playOnIphone => 'Bu iPhone’da çal';
+
+  @override
+  String get chooseIphone =>
+      'Aşağıdaki AirPlay düğmesini kullanarak bu iPhone’u seçin.';
+
+  @override
+  String get profile => 'Profil';
+
+  @override
+  String get preferences => 'Tercihler';
+
+  @override
+  String get themeColor => 'Tema rengi';
+
+  @override
+  String get yourMusic => 'Müziğiniz';
+
+  @override
+  String get apiCredentials => 'API kimlik bilgileri';
+
+  @override
+  String get dataStorage => 'Veri ve depolama';
+
+  @override
+  String get editProfileHelp => 'Adınızı ve avatarınızı ayarlayın';
+
+  @override
+  String get customProvider => 'Özel sağlayıcı';
+
+  @override
+  String get defaultProvider => 'PPPlayer varsayılanı';
+
+  @override
+  String get proExperience => 'Pro deneyimi etkin';
+
+  @override
+  String get beta => 'Beta';
+
+  @override
+  String get loading => 'Yükleniyor…';
+
+  @override
+  String get unknown => 'Bilinmiyor';
+
+  @override
+  String get pause => 'Duraklat';
+
+  @override
+  String get repeat => 'Tekrarla';
+
+  @override
+  String get mute => 'Sesi kapat';
+
+  @override
+  String get unmute => 'Sesi aç';
+
+  @override
+  String get fitVideo => 'Sığdır';
+
+  @override
+  String get fillVideo => 'Doldur';
+
+  @override
+  String get fullscreen => 'Tam ekran';
+
+  @override
+  String get exitFullscreen => 'Tam ekrandan çık';
+
+  @override
+  String get volume => 'Ses düzeyi';
+
+  @override
+  String get save => 'Kaydet';
+
+  @override
+  String get delete => 'Sil';
+
+  @override
+  String get clear => 'Temizle';
+
+  @override
+  String get follow => 'Takip et';
+
+  @override
+  String get unfollow => 'Takibi bırak';
+
+  @override
+  String get following => 'Takip ediliyor';
+
+  @override
+  String get showAll => 'Tümünü göster';
+
+  @override
+  String get appearance => 'Görünüm';
+
+  @override
+  String get subtitleSize => 'Boyut';
+
+  @override
+  String get subtitleBackground => 'Arka plan';
+
+  @override
+  String get earlier => 'Daha erken';
+
+  @override
+  String get later => 'Daha geç';
+
+  @override
+  String get reset => 'Sıfırla';
+
+  @override
+  String subtitleDelay(String seconds) {
+    return 'Gecikme: $seconds sn';
+  }
+
+  @override
+  String get morePlaybackControls => 'Diğer oynatma kontrolleri';
+
+  @override
+  String get hideVideo => 'Videoyu gizle';
+
+  @override
+  String get showVideo => 'Videoyu göster';
+
+  @override
+  String get closeQueue => 'Kuyruğu kapat';
+
+  @override
+  String get enabled => 'Açık';
+
+  @override
+  String get openFile => 'Dosya aç…';
+
+  @override
+  String get openFolder => 'Klasör aç…';
+
+  @override
+  String get openUrl => 'URL aç…';
+
+  @override
+  String get fileMenu => 'Dosya';
+
+  @override
+  String get viewMenu => 'Görünüm';
+
+  @override
+  String get windowMenu => 'Pencere';
+
+  @override
+  String get saveChanges => 'Değişiklikleri kaydet';
+
+  @override
+  String get themeAvatarColor => 'Tema ve avatar rengi';
+
+  @override
+  String get networkStreams => 'Ağ akışları';
+
+  @override
+  String get networkStream => 'Ağ akışı';
+
+  @override
+  String get openNetworkStream => 'Ağ akışı aç';
+
+  @override
+  String get editPlaylist => 'Çalma listesini düzenle';
+
+  @override
+  String get editStreamItem => 'Akış öğesini düzenle';
+
+  @override
+  String get streamUrl => 'Akış URL’si';
+
+  @override
+  String get platformType => 'Platform / tür';
+
+  @override
+  String get optionalTitle => 'Başlık (isteğe bağlı)';
+
+  @override
+  String get optionalImageUrl => 'Görsel URL’si (isteğe bağlı)';
+
+  @override
+  String get myStream => 'Akışım';
+
+  @override
+  String get saveToLibrary => 'Kitaplığa kaydet';
+
+  @override
+  String get justPlay => 'Yalnızca oynat';
+
+  @override
+  String get autoDetect => 'Otomatik algıla';
+
+  @override
+  String get apiKeyRequired => 'API anahtarı gerekli';
+
+  @override
+  String get customApiKey => 'Özel API anahtarı kullan';
+
+  @override
+  String get clientId => 'İstemci kimliği';
+
+  @override
+  String get clientSecret => 'İstemci sırrı';
+
+  @override
+  String get saveCredentials => 'Kimlik bilgilerini kaydet';
+
+  @override
+  String get searchStrategy => 'Arama stratejisi';
+
+  @override
+  String get credentialsLocalOnly =>
+      'Bu cihazda güvenle saklanır. Asla PPPlayer’a gönderilmez.';
+
+  @override
+  String get scrapingHelp =>
+      'API anahtarı veya kota gerekmez. Daha yavaş veya daha az güvenilir olabilir.';
+
+  @override
+  String get streamHelp =>
+      'HTTP(S) URL’si veya M3U çalma listesi bağlantısı girin.';
+
+  @override
+  String get deletePlaylistConfirm =>
+      'Bu çalma listesi kalıcı olarak silinsin mi?';
+
+  @override
+  String get clearCacheConfirm =>
+      'Önbellek silinsin mi? Kitaplık ve favoriler değişmez.';
+
+  @override
+  String get clearHistoryConfirm =>
+      'Dinleme geçmişiniz kalıcı olarak silinsin mi?';
+
+  @override
+  String get addedToQueue => 'Kuyruğa eklendi';
+
+  @override
+  String get addedVideo => 'Video eklendi';
+
+  @override
+  String addedChannels(String count) {
+    return 'Eklenen kanallar: $count';
+  }
+
+  @override
+  String get removedFromPlaylist => 'Çalma listesinden kaldırıldı';
+
+  @override
+  String get exportCancelled => 'Dışa aktarma iptal edildi';
+
+  @override
+  String exportComplete(String count) {
+    return 'Liste dışa aktarıldı. Atlanan öğeler: $count';
+  }
+
+  @override
+  String get playlistExported => 'Liste dışa aktarıldı';
+
+  @override
+  String get live => 'Canlı';
+
+  @override
+  String get sponsored => 'Sponsorlu';
+
+  @override
+  String get removeFromPlaylist => 'Çalma listesinden kaldır';
+
+  @override
+  String get likedSongsHelp => 'Şarkıları kaydedin, burada görünsünler';
+
+  @override
+  String get apiSingleVideoHint =>
+      'Çalma listesini içe aktarmadan bu videoyu ekleyebilirsiniz.';
+
+  @override
+  String get linkCopied => 'Bağlantı kopyalandı';
+
+  @override
+  String get willPlayNext => 'Sırada oynatılacak';
+
+  @override
+  String get checkItOut => 'İncele';
+
+  @override
+  String get loadFailed => 'İçerik yüklenemedi. Lütfen tekrar deneyin.';
 }

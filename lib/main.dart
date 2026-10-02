@@ -1,3 +1,4 @@
+import 'package:ppplayer/l10n/app_localization_delegates.dart';
 import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/foundation.dart';
@@ -247,7 +248,7 @@ class PpPlayerApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.dark(primaryColor: themeColor),
       scrollBehavior: const AppScrollBehavior(),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      localizationsDelegates: appLocalizationDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       locale: settings.languageCode != null
           ? Locale(settings.languageCode!)

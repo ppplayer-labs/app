@@ -30,7 +30,7 @@ final availableMarketsProvider = FutureProvider<List<String>>((ref) async {
 
 final appVersionProvider = FutureProvider<String>((ref) async {
   final info = await PackageInfo.fromPlatform();
-  return '${info.version}+${info.buildNumber} Premium Beta';
+  return '${info.version}+${info.buildNumber}';
 });
 
 class SettingsScreen extends ConsumerWidget {
@@ -95,7 +95,10 @@ class SettingsScreen extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _buildSectionHeader(context, 'Profile')
+                _buildSectionHeader(
+                      context,
+                      AppLocalizations.of(context)!.profile,
+                    )
                     .animate(delay: 150.ms)
                     .fadeIn(duration: 400.ms)
                     .slideX(begin: -0.1, curve: Curves.easeOutCubic),
@@ -103,7 +106,7 @@ class SettingsScreen extends ConsumerWidget {
                 TactileSettingTile(
                       title: AppLocalizations.of(context)!.editProfile,
                       subtitle: settings.userName.isEmpty
-                          ? 'Set your name and avatar'
+                          ? AppLocalizations.of(context)!.editProfileHelp
                           : settings.userName,
                       icon: Icons.person_rounded,
                       onTap: () => showEditProfileModal(context, ref),
@@ -112,7 +115,10 @@ class SettingsScreen extends ConsumerWidget {
                     .fadeIn(duration: 400.ms)
                     .slideY(begin: 0.1, curve: Curves.easeOutCubic),
                 const SizedBox(height: 32),
-                _buildSectionHeader(context, 'Preferences')
+                _buildSectionHeader(
+                      context,
+                      AppLocalizations.of(context)!.preferences,
+                    )
                     .animate(delay: 250.ms)
                     .fadeIn(duration: 400.ms)
                     .slideX(begin: -0.1, curve: Curves.easeOutCubic),
@@ -157,7 +163,10 @@ class SettingsScreen extends ConsumerWidget {
                 const SizedBox(height: 12),
                 _buildThemeSelector(context, ref, settings),
                 const SizedBox(height: 32),
-                _buildSectionHeader(context, 'API Credentials')
+                _buildSectionHeader(
+                      context,
+                      AppLocalizations.of(context)!.apiCredentials,
+                    )
                     .animate(delay: 360.ms)
                     .fadeIn(duration: 400.ms)
                     .slideX(begin: -0.1, curve: Curves.easeOutCubic),
@@ -166,8 +175,8 @@ class SettingsScreen extends ConsumerWidget {
                       title: AppLocalizations.of(context)!.spotifyCredentials,
                       subtitle:
                           settings.spotifyProvider == SpotifyProviderType.custom
-                          ? 'Custom Provider'
-                          : 'PPPlayer Default',
+                          ? AppLocalizations.of(context)!.customProvider
+                          : AppLocalizations.of(context)!.defaultProvider,
                       icon: Icons.key_rounded,
                       onTap: () => showSpotifyCredentialsModal(context),
                     )
@@ -183,8 +192,10 @@ class SettingsScreen extends ConsumerWidget {
                           ? AppLocalizations.of(context)!.scraping
                           : (settings.youtubeApiProvider ==
                                     YoutubeApiProviderType.custom
-                                ? 'Custom Provider'
-                                : 'PPPlayer Default'),
+                                ? AppLocalizations.of(context)!.customProvider
+                                : AppLocalizations.of(
+                                    context,
+                                  )!.defaultProvider),
                       icon: Icons.play_arrow_rounded,
                       onTap: () => showYoutubeCredentialsModal(context),
                     )
@@ -192,7 +203,10 @@ class SettingsScreen extends ConsumerWidget {
                     .fadeIn(duration: 400.ms)
                     .slideY(begin: 0.1, curve: Curves.easeOutCubic),
                 const SizedBox(height: 32),
-                _buildSectionHeader(context, 'Data & Storage')
+                _buildSectionHeader(
+                      context,
+                      AppLocalizations.of(context)!.dataStorage,
+                    )
                     .animate(delay: 400.ms)
                     .fadeIn(duration: 400.ms)
                     .slideX(begin: -0.1, curve: Curves.easeOutCubic),
@@ -271,7 +285,10 @@ class SettingsScreen extends ConsumerWidget {
                     .fadeIn(duration: 400.ms)
                     .slideY(begin: 0.1, curve: Curves.easeOutCubic),
                 const SizedBox(height: 32),
-                _buildSectionHeader(context, 'About')
+                _buildSectionHeader(
+                      context,
+                      AppLocalizations.of(context)!.aboutApp,
+                    )
                     .animate(delay: 600.ms)
                     .fadeIn(duration: 400.ms)
                     .slideX(begin: -0.1, curve: Curves.easeOutCubic),
@@ -283,8 +300,10 @@ class SettingsScreen extends ConsumerWidget {
                           title: AppLocalizations.of(context)!.appVersion,
                           subtitle: versionAsync.when(
                             data: (version) => version,
-                            loading: () => 'Loading...',
-                            error: (e, _) => 'Unknown',
+                            loading: () =>
+                                AppLocalizations.of(context)!.loading,
+                            error: (e, _) =>
+                                AppLocalizations.of(context)!.unknown,
                           ),
                           icon: Icons.info_outline_rounded,
                           onTap: versionAsync.hasValue
@@ -322,7 +341,10 @@ class SettingsScreen extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildSectionHeader(context, 'Theme Color'),
+                _buildSectionHeader(
+                  context,
+                  AppLocalizations.of(context)!.themeColor,
+                ),
                 Padding(
                   padding: const EdgeInsets.only(right: 8.0, bottom: 8.0),
                   child:
@@ -468,7 +490,7 @@ class SettingsScreen extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            'This will clear all cached tracks, playlists, and albums. The app will fetch fresh data on the next load. Your library and favorites will not be affected.',
+            AppLocalizations.of(context)!.clearCacheConfirm,
             style: TextStyle(
               color: colorScheme.onSurface.withValues(alpha: 0.7),
               fontSize: 14,
@@ -556,7 +578,7 @@ class SettingsScreen extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            'This will permanently remove your listening history. This action cannot be undone.',
+            AppLocalizations.of(context)!.clearHistoryConfirm,
             style: TextStyle(
               color: colorScheme.onSurface.withValues(alpha: 0.7),
               fontSize: 14,
@@ -604,7 +626,7 @@ class SettingsScreen extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Text(
-                        'Clear All',
+                        AppLocalizations.of(context)!.clear,
                         style: TextStyle(
                           color: colorScheme.onError,
                           fontWeight: FontWeight.bold,
@@ -1050,7 +1072,7 @@ class _SettingsHero extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    'PRO EXPERIENCE ACTIVE',
+                    AppLocalizations.of(context)!.proExperience,
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w900,

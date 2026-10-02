@@ -732,4 +732,342 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get off => 'オフ';
+
+  @override
+  String get playOn => '再生先';
+
+  @override
+  String get thisDevice => 'このデバイス';
+
+  @override
+  String get availableDevices => '利用可能なデバイス';
+
+  @override
+  String get searchingDevices => 'デバイスを検索中…';
+
+  @override
+  String get refresh => '更新';
+
+  @override
+  String get connecting => '接続中…';
+
+  @override
+  String connectingTo(String name) {
+    return '$name に接続中…';
+  }
+
+  @override
+  String get connected => '接続済み';
+
+  @override
+  String get unsupportedOutput => 'この出力ではこのソースを再生できません。';
+
+  @override
+  String get airPlayAudioOutput => 'AirPlay と音声出力';
+
+  @override
+  String get returnForAirPlay => 'AirPlay を使うには、このデバイスで再生してください。';
+
+  @override
+  String get openSoundSettings => '出力を選ぶにはサウンド設定を開いてください。';
+
+  @override
+  String get soundSettingsError => 'サウンド設定を開けませんでした。';
+
+  @override
+  String get systemOutput => 'システム出力';
+
+  @override
+  String playingOn(String name) {
+    return '$name で再生中';
+  }
+
+  @override
+  String get chooseAirPlay => 'AirPlay ボタンをタップしてスピーカーやテレビを選んでください。';
+
+  @override
+  String get airPlayDevice => 'AirPlay デバイス';
+
+  @override
+  String get playOnIphone => 'この iPhone で再生';
+
+  @override
+  String get chooseIphone => '下の AirPlay ボタンでこの iPhone を選んでください。';
+
+  @override
+  String get profile => 'プロフィール';
+
+  @override
+  String get preferences => '環境設定';
+
+  @override
+  String get themeColor => 'テーマカラー';
+
+  @override
+  String get yourMusic => 'あなたの音楽';
+
+  @override
+  String get apiCredentials => 'API 認証情報';
+
+  @override
+  String get dataStorage => 'データとストレージ';
+
+  @override
+  String get editProfileHelp => '名前とアバターを設定';
+
+  @override
+  String get customProvider => 'カスタムプロバイダー';
+
+  @override
+  String get defaultProvider => 'PPPlayer の既定';
+
+  @override
+  String get proExperience => 'Pro 機能が有効';
+
+  @override
+  String get beta => 'ベータ';
+
+  @override
+  String get loading => '読み込み中…';
+
+  @override
+  String get unknown => '不明';
+
+  @override
+  String get pause => '一時停止';
+
+  @override
+  String get repeat => 'リピート';
+
+  @override
+  String get mute => 'ミュート';
+
+  @override
+  String get unmute => 'ミュート解除';
+
+  @override
+  String get fitVideo => '画面に合わせる';
+
+  @override
+  String get fillVideo => '画面を埋める';
+
+  @override
+  String get fullscreen => '全画面';
+
+  @override
+  String get exitFullscreen => '全画面を終了';
+
+  @override
+  String get volume => '音量';
+
+  @override
+  String get save => '保存';
+
+  @override
+  String get delete => '削除';
+
+  @override
+  String get clear => '消去';
+
+  @override
+  String get follow => 'フォロー';
+
+  @override
+  String get unfollow => 'フォロー解除';
+
+  @override
+  String get following => 'フォロー中';
+
+  @override
+  String get showAll => 'すべて表示';
+
+  @override
+  String get appearance => '外観';
+
+  @override
+  String get subtitleSize => 'サイズ';
+
+  @override
+  String get subtitleBackground => '背景';
+
+  @override
+  String get earlier => '早める';
+
+  @override
+  String get later => '遅らせる';
+
+  @override
+  String get reset => 'リセット';
+
+  @override
+  String subtitleDelay(String seconds) {
+    return '遅延: $seconds 秒';
+  }
+
+  @override
+  String get morePlaybackControls => 'その他の再生操作';
+
+  @override
+  String get hideVideo => '動画を非表示';
+
+  @override
+  String get showVideo => '動画を表示';
+
+  @override
+  String get closeQueue => 'キューを閉じる';
+
+  @override
+  String get enabled => 'オン';
+
+  @override
+  String get openFile => 'ファイルを開く…';
+
+  @override
+  String get openFolder => 'フォルダーを開く…';
+
+  @override
+  String get openUrl => 'URL を開く…';
+
+  @override
+  String get fileMenu => 'ファイル';
+
+  @override
+  String get viewMenu => '表示';
+
+  @override
+  String get windowMenu => 'ウィンドウ';
+
+  @override
+  String get saveChanges => '変更を保存';
+
+  @override
+  String get themeAvatarColor => 'テーマとアバターの色';
+
+  @override
+  String get networkStreams => 'ネットワークストリーム';
+
+  @override
+  String get networkStream => 'ネットワークストリーム';
+
+  @override
+  String get openNetworkStream => 'ネットワークストリームを開く';
+
+  @override
+  String get editPlaylist => 'プレイリストを編集';
+
+  @override
+  String get editStreamItem => 'ストリーム項目を編集';
+
+  @override
+  String get streamUrl => 'ストリーム URL';
+
+  @override
+  String get platformType => 'プラットフォーム / 種類';
+
+  @override
+  String get optionalTitle => 'タイトル（任意）';
+
+  @override
+  String get optionalImageUrl => '画像 URL（任意）';
+
+  @override
+  String get myStream => '自分のストリーム';
+
+  @override
+  String get saveToLibrary => 'ライブラリに保存';
+
+  @override
+  String get justPlay => '再生のみ';
+
+  @override
+  String get autoDetect => '自動検出';
+
+  @override
+  String get apiKeyRequired => 'API キーが必要';
+
+  @override
+  String get customApiKey => '独自の API キーを使用';
+
+  @override
+  String get clientId => 'クライアント ID';
+
+  @override
+  String get clientSecret => 'クライアントシークレット';
+
+  @override
+  String get saveCredentials => '認証情報を保存';
+
+  @override
+  String get searchStrategy => '検索方法';
+
+  @override
+  String get credentialsLocalOnly =>
+      'このデバイスに安全に保存されます。PPPlayer に送信されることはありません。';
+
+  @override
+  String get scrapingHelp => 'API キーや割り当ては不要です。遅くなったり信頼性が下がったりする場合があります。';
+
+  @override
+  String get streamHelp => 'HTTP(S) URL または M3U プレイリストのリンクを入力してください。';
+
+  @override
+  String get deletePlaylistConfirm => 'このプレイリストを完全に削除しますか？';
+
+  @override
+  String get clearCacheConfirm => 'キャッシュを削除しますか？ライブラリとお気に入りは変わりません。';
+
+  @override
+  String get clearHistoryConfirm => '再生履歴を完全に削除しますか？';
+
+  @override
+  String get addedToQueue => 'キューに追加しました';
+
+  @override
+  String get addedVideo => '動画を追加しました';
+
+  @override
+  String addedChannels(String count) {
+    return '追加したチャンネル数: $count';
+  }
+
+  @override
+  String get removedFromPlaylist => 'プレイリストから削除しました';
+
+  @override
+  String get exportCancelled => 'エクスポートをキャンセルしました';
+
+  @override
+  String exportComplete(String count) {
+    return 'プレイリストをエクスポートしました。スキップした項目数: $count';
+  }
+
+  @override
+  String get playlistExported => 'プレイリストをエクスポートしました';
+
+  @override
+  String get live => 'ライブ';
+
+  @override
+  String get sponsored => 'スポンサー';
+
+  @override
+  String get removeFromPlaylist => 'プレイリストから削除';
+
+  @override
+  String get likedSongsHelp => '曲を保存するとここに表示されます';
+
+  @override
+  String get apiSingleVideoHint => 'プレイリストを取り込まずにこの動画を追加できます。';
+
+  @override
+  String get linkCopied => 'リンクをコピーしました';
+
+  @override
+  String get willPlayNext => '次に再生されます';
+
+  @override
+  String get checkItOut => '詳しく見る';
+
+  @override
+  String get loadFailed => 'コンテンツを読み込めませんでした。もう一度お試しください。';
 }

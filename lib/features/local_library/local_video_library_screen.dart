@@ -255,8 +255,12 @@ class _LocalVideoLibraryScreenState
                     },
                   );
                 },
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (e, st) => Center(child: Text('Error: $e')),
+                loading: () => Center(child: CircularProgressIndicator()),
+                error: (e, st) => Center(
+                  child: Text(
+                    AppLocalizations.of(context)!.error(e.toString()),
+                  ),
+                ),
               ),
             ),
           ],

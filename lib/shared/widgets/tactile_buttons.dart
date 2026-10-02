@@ -274,7 +274,9 @@ class _TactilePlayerPlayPauseButtonState
 
     final String tooltipMessage =
         widget.tooltip ??
-        (widget.isPlaying ? 'Pause' : AppLocalizations.of(context)!.play);
+        (widget.isPlaying
+            ? AppLocalizations.of(context)!.pause
+            : AppLocalizations.of(context)!.play);
 
     Widget buttonContent = AnimatedBuilder(
       animation: Listenable.merge([
@@ -520,9 +522,13 @@ class _TactilePlayerPlayPauseButtonState
     return Semantics(
       button: true,
       label: widget.isLoading
-          ? 'Loading'
-          : (widget.isPlaying ? 'Pause' : 'Play'),
-      hint: widget.isLoading ? 'Buffering media' : 'Toggle playback state',
+          ? AppLocalizations.of(context)!.loading
+          : (widget.isPlaying
+                ? AppLocalizations.of(context)!.pause
+                : AppLocalizations.of(context)!.play),
+      hint: widget.isLoading
+          ? AppLocalizations.of(context)!.loading
+          : tooltipMessage,
       child: MouseRegion(
         cursor: isEnabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
         onEnter: (_) => setState(() => _isHovered = true),

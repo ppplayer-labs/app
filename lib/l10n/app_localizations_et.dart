@@ -741,4 +741,347 @@ class AppLocalizationsEt extends AppLocalizations {
 
   @override
   String get off => 'Väljas';
+
+  @override
+  String get playOn => 'Esita seadmes';
+
+  @override
+  String get thisDevice => 'See seade';
+
+  @override
+  String get availableDevices => 'Saadaolevad seadmed';
+
+  @override
+  String get searchingDevices => 'Seadmete otsimine…';
+
+  @override
+  String get refresh => 'Värskenda';
+
+  @override
+  String get connecting => 'Ühendamine…';
+
+  @override
+  String connectingTo(String name) {
+    return 'Ühendamine seadmega $name…';
+  }
+
+  @override
+  String get connected => 'Ühendatud';
+
+  @override
+  String get unsupportedOutput =>
+      'Seda allikat ei saa selle väljundi kaudu esitada.';
+
+  @override
+  String get airPlayAudioOutput => 'AirPlay ja heliväljund';
+
+  @override
+  String get returnForAirPlay => 'AirPlay kasutamiseks esita selles seadmes.';
+
+  @override
+  String get openSoundSettings => 'Väljundi valimiseks ava heliseaded.';
+
+  @override
+  String get soundSettingsError => 'Heliseadeid ei saanud avada.';
+
+  @override
+  String get systemOutput => 'Süsteemi väljund';
+
+  @override
+  String playingOn(String name) {
+    return 'Esitatakse seadmes $name';
+  }
+
+  @override
+  String get chooseAirPlay =>
+      'Kõlari või teleri valimiseks puuduta AirPlay nuppu.';
+
+  @override
+  String get airPlayDevice => 'AirPlay seade';
+
+  @override
+  String get playOnIphone => 'Esita selles iPhone’is';
+
+  @override
+  String get chooseIphone => 'Vali see iPhone alloleva AirPlay nupuga.';
+
+  @override
+  String get profile => 'Profiil';
+
+  @override
+  String get preferences => 'Eelistused';
+
+  @override
+  String get themeColor => 'Teema värv';
+
+  @override
+  String get yourMusic => 'Sinu muusika';
+
+  @override
+  String get apiCredentials => 'API pääsuandmed';
+
+  @override
+  String get dataStorage => 'Andmed ja salvestusruum';
+
+  @override
+  String get editProfileHelp => 'Määra oma nimi ja avatar';
+
+  @override
+  String get customProvider => 'Kohandatud pakkuja';
+
+  @override
+  String get defaultProvider => 'PPPlayeri vaikeseade';
+
+  @override
+  String get proExperience => 'Pro-kogemus aktiivne';
+
+  @override
+  String get beta => 'Beeta';
+
+  @override
+  String get loading => 'Laadimine…';
+
+  @override
+  String get unknown => 'Tundmatu';
+
+  @override
+  String get pause => 'Paus';
+
+  @override
+  String get repeat => 'Korda';
+
+  @override
+  String get mute => 'Vaigista';
+
+  @override
+  String get unmute => 'Lülita heli sisse';
+
+  @override
+  String get fitVideo => 'Mahuta';
+
+  @override
+  String get fillVideo => 'Täida';
+
+  @override
+  String get fullscreen => 'Täisekraan';
+
+  @override
+  String get exitFullscreen => 'Välju täisekraanist';
+
+  @override
+  String get volume => 'Helitugevus';
+
+  @override
+  String get save => 'Salvesta';
+
+  @override
+  String get delete => 'Kustuta';
+
+  @override
+  String get clear => 'Tühjenda';
+
+  @override
+  String get follow => 'Jälgi';
+
+  @override
+  String get unfollow => 'Lõpeta jälgimine';
+
+  @override
+  String get following => 'Jälgitav';
+
+  @override
+  String get showAll => 'Näita kõiki';
+
+  @override
+  String get appearance => 'Välimus';
+
+  @override
+  String get subtitleSize => 'Suurus';
+
+  @override
+  String get subtitleBackground => 'Taust';
+
+  @override
+  String get earlier => 'Varem';
+
+  @override
+  String get later => 'Hiljem';
+
+  @override
+  String get reset => 'Lähtesta';
+
+  @override
+  String subtitleDelay(String seconds) {
+    return 'Viivitus: $seconds s';
+  }
+
+  @override
+  String get morePlaybackControls => 'Rohkem esitusnuppe';
+
+  @override
+  String get hideVideo => 'Peida video';
+
+  @override
+  String get showVideo => 'Näita videot';
+
+  @override
+  String get closeQueue => 'Sulge järjekord';
+
+  @override
+  String get enabled => 'Sees';
+
+  @override
+  String get openFile => 'Ava fail…';
+
+  @override
+  String get openFolder => 'Ava kaust…';
+
+  @override
+  String get openUrl => 'Ava URL…';
+
+  @override
+  String get fileMenu => 'Fail';
+
+  @override
+  String get viewMenu => 'Vaade';
+
+  @override
+  String get windowMenu => 'Aken';
+
+  @override
+  String get saveChanges => 'Salvesta muudatused';
+
+  @override
+  String get themeAvatarColor => 'Teema ja avatari värv';
+
+  @override
+  String get networkStreams => 'Võrguvood';
+
+  @override
+  String get networkStream => 'Võrguvoog';
+
+  @override
+  String get openNetworkStream => 'Ava võrguvoog';
+
+  @override
+  String get editPlaylist => 'Muuda esitusloendit';
+
+  @override
+  String get editStreamItem => 'Muuda voo üksust';
+
+  @override
+  String get streamUrl => 'Voo URL';
+
+  @override
+  String get platformType => 'Platvorm / tüüp';
+
+  @override
+  String get optionalTitle => 'Pealkiri (valikuline)';
+
+  @override
+  String get optionalImageUrl => 'Pildi URL (valikuline)';
+
+  @override
+  String get myStream => 'Minu voog';
+
+  @override
+  String get saveToLibrary => 'Salvesta kogusse';
+
+  @override
+  String get justPlay => 'Lihtsalt esita';
+
+  @override
+  String get autoDetect => 'Tuvasta automaatselt';
+
+  @override
+  String get apiKeyRequired => 'Vajalik on API võti';
+
+  @override
+  String get customApiKey => 'Kasuta oma API võtit';
+
+  @override
+  String get clientId => 'Kliendi ID';
+
+  @override
+  String get clientSecret => 'Kliendi salavõti';
+
+  @override
+  String get saveCredentials => 'Salvesta pääsuandmed';
+
+  @override
+  String get searchStrategy => 'Otsingustrateegia';
+
+  @override
+  String get credentialsLocalOnly =>
+      'Turvaliselt salvestatud selles seadmes. Ei saadeta kunagi PPPlayerile.';
+
+  @override
+  String get scrapingHelp =>
+      'API võtit ega kvooti pole vaja. Võib olla aeglasem või vähem töökindel.';
+
+  @override
+  String get streamHelp => 'Sisesta HTTP(S) URL või M3U-esitusloendi link.';
+
+  @override
+  String get deletePlaylistConfirm => 'Kustuta see esitusloend jäädavalt?';
+
+  @override
+  String get clearCacheConfirm =>
+      'Kustuta vahemälu? Kogu ja lemmikud jäävad muutmata.';
+
+  @override
+  String get clearHistoryConfirm => 'Kustuta kuulamisajalugu jäädavalt?';
+
+  @override
+  String get addedToQueue => 'Lisatud järjekorda';
+
+  @override
+  String get addedVideo => 'Video lisatud';
+
+  @override
+  String addedChannels(String count) {
+    return 'Lisatud kanalid: $count';
+  }
+
+  @override
+  String get removedFromPlaylist => 'Eemaldatud esitusloendist';
+
+  @override
+  String get exportCancelled => 'Eksport tühistatud';
+
+  @override
+  String exportComplete(String count) {
+    return 'Esitusloend eksporditud. Vahele jäetud üksused: $count';
+  }
+
+  @override
+  String get playlistExported => 'Esitusloend eksporditud';
+
+  @override
+  String get live => 'Otse';
+
+  @override
+  String get sponsored => 'Sponsoreeritud';
+
+  @override
+  String get removeFromPlaylist => 'Eemalda esitusloendist';
+
+  @override
+  String get likedSongsHelp => 'Salvesta lugusid, et neid siin näha';
+
+  @override
+  String get apiSingleVideoHint =>
+      'Saad selle video lisada esitusloendit importimata.';
+
+  @override
+  String get linkCopied => 'Link kopeeritud';
+
+  @override
+  String get willPlayNext => 'Esitatakse järgmisena';
+
+  @override
+  String get checkItOut => 'Vaata lähemalt';
+
+  @override
+  String get loadFailed => 'Sisu ei õnnestunud laadida. Proovi uuesti.';
 }

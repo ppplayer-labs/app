@@ -741,4 +741,349 @@ class AppLocalizationsDa extends AppLocalizations {
 
   @override
   String get off => 'Fra';
+
+  @override
+  String get playOn => 'Afspil på';
+
+  @override
+  String get thisDevice => 'Denne enhed';
+
+  @override
+  String get availableDevices => 'Tilgængelige enheder';
+
+  @override
+  String get searchingDevices => 'Søger efter enheder…';
+
+  @override
+  String get refresh => 'Opdater';
+
+  @override
+  String get connecting => 'Opretter forbindelse…';
+
+  @override
+  String connectingTo(String name) {
+    return 'Opretter forbindelse til $name…';
+  }
+
+  @override
+  String get connected => 'Tilsluttet';
+
+  @override
+  String get unsupportedOutput =>
+      'Denne kilde kan ikke afspilles på denne udgang.';
+
+  @override
+  String get airPlayAudioOutput => 'AirPlay og lydudgang';
+
+  @override
+  String get returnForAirPlay => 'Afspil på denne enhed for at bruge AirPlay.';
+
+  @override
+  String get openSoundSettings =>
+      'Åbn lydindstillingerne for at vælge en udgang.';
+
+  @override
+  String get soundSettingsError => 'Kunne ikke åbne lydindstillingerne.';
+
+  @override
+  String get systemOutput => 'Systemudgang';
+
+  @override
+  String playingOn(String name) {
+    return 'Afspiller på $name';
+  }
+
+  @override
+  String get chooseAirPlay =>
+      'Tryk på AirPlay-knappen for at vælge en højttaler eller et tv.';
+
+  @override
+  String get airPlayDevice => 'AirPlay-enhed';
+
+  @override
+  String get playOnIphone => 'Afspil på denne iPhone';
+
+  @override
+  String get chooseIphone => 'Vælg denne iPhone med AirPlay-knappen nedenfor.';
+
+  @override
+  String get profile => 'Profil';
+
+  @override
+  String get preferences => 'Indstillinger';
+
+  @override
+  String get themeColor => 'Temafarve';
+
+  @override
+  String get yourMusic => 'Din musik';
+
+  @override
+  String get apiCredentials => 'API-oplysninger';
+
+  @override
+  String get dataStorage => 'Data og lager';
+
+  @override
+  String get editProfileHelp => 'Indstil dit navn og din avatar';
+
+  @override
+  String get customProvider => 'Tilpasset udbyder';
+
+  @override
+  String get defaultProvider => 'PPPlayer-standard';
+
+  @override
+  String get proExperience => 'Pro-oplevelse aktiv';
+
+  @override
+  String get beta => 'Beta';
+
+  @override
+  String get loading => 'Indlæser…';
+
+  @override
+  String get unknown => 'Ukendt';
+
+  @override
+  String get pause => 'Pause';
+
+  @override
+  String get repeat => 'Gentag';
+
+  @override
+  String get mute => 'Slå lyd fra';
+
+  @override
+  String get unmute => 'Slå lyd til';
+
+  @override
+  String get fitVideo => 'Tilpas';
+
+  @override
+  String get fillVideo => 'Udfyld';
+
+  @override
+  String get fullscreen => 'Fuld skærm';
+
+  @override
+  String get exitFullscreen => 'Afslut fuld skærm';
+
+  @override
+  String get volume => 'Lydstyrke';
+
+  @override
+  String get save => 'Gem';
+
+  @override
+  String get delete => 'Slet';
+
+  @override
+  String get clear => 'Ryd';
+
+  @override
+  String get follow => 'Følg';
+
+  @override
+  String get unfollow => 'Følg ikke længere';
+
+  @override
+  String get following => 'Følger';
+
+  @override
+  String get showAll => 'Vis alle';
+
+  @override
+  String get appearance => 'Udseende';
+
+  @override
+  String get subtitleSize => 'Størrelse';
+
+  @override
+  String get subtitleBackground => 'Baggrund';
+
+  @override
+  String get earlier => 'Tidligere';
+
+  @override
+  String get later => 'Senere';
+
+  @override
+  String get reset => 'Nulstil';
+
+  @override
+  String subtitleDelay(String seconds) {
+    return 'Forsinkelse: $seconds s';
+  }
+
+  @override
+  String get morePlaybackControls => 'Flere afspilningskontroller';
+
+  @override
+  String get hideVideo => 'Skjul video';
+
+  @override
+  String get showVideo => 'Vis video';
+
+  @override
+  String get closeQueue => 'Luk kø';
+
+  @override
+  String get enabled => 'Til';
+
+  @override
+  String get openFile => 'Åbn fil…';
+
+  @override
+  String get openFolder => 'Åbn mappe…';
+
+  @override
+  String get openUrl => 'Åbn URL…';
+
+  @override
+  String get fileMenu => 'Fil';
+
+  @override
+  String get viewMenu => 'Vis';
+
+  @override
+  String get windowMenu => 'Vindue';
+
+  @override
+  String get saveChanges => 'Gem ændringer';
+
+  @override
+  String get themeAvatarColor => 'Tema- og avatarfarve';
+
+  @override
+  String get networkStreams => 'Netværksstreams';
+
+  @override
+  String get networkStream => 'Netværksstream';
+
+  @override
+  String get openNetworkStream => 'Åbn netværksstream';
+
+  @override
+  String get editPlaylist => 'Rediger afspilningsliste';
+
+  @override
+  String get editStreamItem => 'Rediger streamelement';
+
+  @override
+  String get streamUrl => 'Stream-URL';
+
+  @override
+  String get platformType => 'Platform / type';
+
+  @override
+  String get optionalTitle => 'Titel (valgfri)';
+
+  @override
+  String get optionalImageUrl => 'Billed-URL (valgfri)';
+
+  @override
+  String get myStream => 'Min stream';
+
+  @override
+  String get saveToLibrary => 'Gem i bibliotek';
+
+  @override
+  String get justPlay => 'Afspil kun';
+
+  @override
+  String get autoDetect => 'Registrer automatisk';
+
+  @override
+  String get apiKeyRequired => 'API-nøgle kræves';
+
+  @override
+  String get customApiKey => 'Brug egen API-nøgle';
+
+  @override
+  String get clientId => 'Klient-id';
+
+  @override
+  String get clientSecret => 'Klienthemmelighed';
+
+  @override
+  String get saveCredentials => 'Gem legitimationsoplysninger';
+
+  @override
+  String get searchStrategy => 'Søgestrategi';
+
+  @override
+  String get credentialsLocalOnly =>
+      'Opbevares sikkert på denne enhed. Sendes aldrig til PPPlayer.';
+
+  @override
+  String get scrapingHelp =>
+      'Kræver ingen API-nøgle eller kvote. Kan være langsommere eller mindre pålidelig.';
+
+  @override
+  String get streamHelp =>
+      'Indtast en HTTP(S)-URL eller et link til en M3U-afspilningsliste.';
+
+  @override
+  String get deletePlaylistConfirm => 'Slet denne afspilningsliste permanent?';
+
+  @override
+  String get clearCacheConfirm =>
+      'Slet cachedata? Dit bibliotek og dine favoritter ændres ikke.';
+
+  @override
+  String get clearHistoryConfirm => 'Slet din lyttehistorik permanent?';
+
+  @override
+  String get addedToQueue => 'Føjet til kø';
+
+  @override
+  String get addedVideo => 'Video tilføjet';
+
+  @override
+  String addedChannels(String count) {
+    return 'Tilføjede kanaler: $count';
+  }
+
+  @override
+  String get removedFromPlaylist => 'Fjernet fra afspilningsliste';
+
+  @override
+  String get exportCancelled => 'Eksport annulleret';
+
+  @override
+  String exportComplete(String count) {
+    return 'Afspilningsliste eksporteret. Sprungne elementer: $count';
+  }
+
+  @override
+  String get playlistExported => 'Afspilningsliste eksporteret';
+
+  @override
+  String get live => 'Live';
+
+  @override
+  String get sponsored => 'Sponsoreret';
+
+  @override
+  String get removeFromPlaylist => 'Fjern fra afspilningsliste';
+
+  @override
+  String get likedSongsHelp => 'Gem sange for at se dem her';
+
+  @override
+  String get apiSingleVideoHint =>
+      'Du kan tilføje denne video uden at importere afspilningslisten.';
+
+  @override
+  String get linkCopied => 'Link kopieret';
+
+  @override
+  String get willPlayNext => 'Afspilles som næste';
+
+  @override
+  String get checkItOut => 'Se nærmere';
+
+  @override
+  String get loadFailed => 'Indholdet kunne ikke indlæses. Prøv igen.';
 }

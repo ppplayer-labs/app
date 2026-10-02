@@ -113,7 +113,7 @@ class _SectionErrorWidget extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    'Could not load this section.',
+                    AppLocalizations.of(context)!.loadFailed,
                     style: TextStyle(
                       fontSize: 12,
                       color: colorScheme.onSurfaceVariant,

@@ -741,4 +741,345 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get off => 'Tắt';
+
+  @override
+  String get playOn => 'Phát trên';
+
+  @override
+  String get thisDevice => 'Thiết bị này';
+
+  @override
+  String get availableDevices => 'Thiết bị khả dụng';
+
+  @override
+  String get searchingDevices => 'Đang tìm thiết bị…';
+
+  @override
+  String get refresh => 'Làm mới';
+
+  @override
+  String get connecting => 'Đang kết nối…';
+
+  @override
+  String connectingTo(String name) {
+    return 'Đang kết nối với $name…';
+  }
+
+  @override
+  String get connected => 'Đã kết nối';
+
+  @override
+  String get unsupportedOutput => 'Không thể phát nguồn này trên đầu ra này.';
+
+  @override
+  String get airPlayAudioOutput => 'AirPlay và đầu ra âm thanh';
+
+  @override
+  String get returnForAirPlay => 'Phát trên thiết bị này để sử dụng AirPlay.';
+
+  @override
+  String get openSoundSettings => 'Mở cài đặt Âm thanh để chọn đầu ra.';
+
+  @override
+  String get soundSettingsError => 'Không thể mở cài đặt Âm thanh.';
+
+  @override
+  String get systemOutput => 'Đầu ra hệ thống';
+
+  @override
+  String playingOn(String name) {
+    return 'Đang phát trên $name';
+  }
+
+  @override
+  String get chooseAirPlay => 'Chạm vào nút AirPlay để chọn loa hoặc TV.';
+
+  @override
+  String get airPlayDevice => 'Thiết bị AirPlay';
+
+  @override
+  String get playOnIphone => 'Phát trên iPhone này';
+
+  @override
+  String get chooseIphone => 'Chọn iPhone này bằng nút AirPlay bên dưới.';
+
+  @override
+  String get profile => 'Hồ sơ';
+
+  @override
+  String get preferences => 'Tùy chọn';
+
+  @override
+  String get themeColor => 'Màu chủ đề';
+
+  @override
+  String get yourMusic => 'Nhạc của bạn';
+
+  @override
+  String get apiCredentials => 'Thông tin xác thực API';
+
+  @override
+  String get dataStorage => 'Dữ liệu và bộ nhớ';
+
+  @override
+  String get editProfileHelp => 'Đặt tên và ảnh đại diện của bạn';
+
+  @override
+  String get customProvider => 'Nhà cung cấp tùy chỉnh';
+
+  @override
+  String get defaultProvider => 'Mặc định của PPPlayer';
+
+  @override
+  String get proExperience => 'Trải nghiệm Pro đang bật';
+
+  @override
+  String get beta => 'Beta';
+
+  @override
+  String get loading => 'Đang tải…';
+
+  @override
+  String get unknown => 'Không xác định';
+
+  @override
+  String get pause => 'Tạm dừng';
+
+  @override
+  String get repeat => 'Lặp lại';
+
+  @override
+  String get mute => 'Tắt tiếng';
+
+  @override
+  String get unmute => 'Bật tiếng';
+
+  @override
+  String get fitVideo => 'Vừa khung';
+
+  @override
+  String get fillVideo => 'Lấp đầy';
+
+  @override
+  String get fullscreen => 'Toàn màn hình';
+
+  @override
+  String get exitFullscreen => 'Thoát toàn màn hình';
+
+  @override
+  String get volume => 'Âm lượng';
+
+  @override
+  String get save => 'Lưu';
+
+  @override
+  String get delete => 'Xóa';
+
+  @override
+  String get clear => 'Xóa sạch';
+
+  @override
+  String get follow => 'Theo dõi';
+
+  @override
+  String get unfollow => 'Bỏ theo dõi';
+
+  @override
+  String get following => 'Đang theo dõi';
+
+  @override
+  String get showAll => 'Hiện tất cả';
+
+  @override
+  String get appearance => 'Giao diện';
+
+  @override
+  String get subtitleSize => 'Kích thước';
+
+  @override
+  String get subtitleBackground => 'Nền';
+
+  @override
+  String get earlier => 'Sớm hơn';
+
+  @override
+  String get later => 'Muộn hơn';
+
+  @override
+  String get reset => 'Đặt lại';
+
+  @override
+  String subtitleDelay(String seconds) {
+    return 'Độ trễ: $seconds giây';
+  }
+
+  @override
+  String get morePlaybackControls => 'Thêm điều khiển phát';
+
+  @override
+  String get hideVideo => 'Ẩn video';
+
+  @override
+  String get showVideo => 'Hiện video';
+
+  @override
+  String get closeQueue => 'Đóng hàng đợi';
+
+  @override
+  String get enabled => 'Bật';
+
+  @override
+  String get openFile => 'Mở tệp…';
+
+  @override
+  String get openFolder => 'Mở thư mục…';
+
+  @override
+  String get openUrl => 'Mở URL…';
+
+  @override
+  String get fileMenu => 'Tệp';
+
+  @override
+  String get viewMenu => 'Xem';
+
+  @override
+  String get windowMenu => 'Cửa sổ';
+
+  @override
+  String get saveChanges => 'Lưu thay đổi';
+
+  @override
+  String get themeAvatarColor => 'Màu chủ đề và ảnh đại diện';
+
+  @override
+  String get networkStreams => 'Luồng mạng';
+
+  @override
+  String get networkStream => 'Luồng mạng';
+
+  @override
+  String get openNetworkStream => 'Mở luồng mạng';
+
+  @override
+  String get editPlaylist => 'Sửa danh sách phát';
+
+  @override
+  String get editStreamItem => 'Sửa mục luồng';
+
+  @override
+  String get streamUrl => 'URL luồng';
+
+  @override
+  String get platformType => 'Nền tảng / loại';
+
+  @override
+  String get optionalTitle => 'Tiêu đề (tùy chọn)';
+
+  @override
+  String get optionalImageUrl => 'URL ảnh (tùy chọn)';
+
+  @override
+  String get myStream => 'Luồng của tôi';
+
+  @override
+  String get saveToLibrary => 'Lưu vào thư viện';
+
+  @override
+  String get justPlay => 'Chỉ phát';
+
+  @override
+  String get autoDetect => 'Tự động phát hiện';
+
+  @override
+  String get apiKeyRequired => 'Cần khóa API';
+
+  @override
+  String get customApiKey => 'Dùng khóa API riêng';
+
+  @override
+  String get clientId => 'ID máy khách';
+
+  @override
+  String get clientSecret => 'Mã bí mật máy khách';
+
+  @override
+  String get saveCredentials => 'Lưu thông tin xác thực';
+
+  @override
+  String get searchStrategy => 'Chiến lược tìm kiếm';
+
+  @override
+  String get credentialsLocalOnly =>
+      'Được lưu an toàn trên thiết bị này. Không bao giờ gửi đến PPPlayer.';
+
+  @override
+  String get scrapingHelp =>
+      'Không cần khóa API hay hạn mức. Có thể chậm hơn hoặc kém ổn định hơn.';
+
+  @override
+  String get streamHelp => 'Nhập URL HTTP(S) hoặc liên kết danh sách phát M3U.';
+
+  @override
+  String get deletePlaylistConfirm => 'Xóa vĩnh viễn danh sách phát này?';
+
+  @override
+  String get clearCacheConfirm =>
+      'Xóa dữ liệu bộ nhớ đệm? Thư viện và mục yêu thích không thay đổi.';
+
+  @override
+  String get clearHistoryConfirm => 'Xóa vĩnh viễn lịch sử nghe?';
+
+  @override
+  String get addedToQueue => 'Đã thêm vào hàng đợi';
+
+  @override
+  String get addedVideo => 'Đã thêm video';
+
+  @override
+  String addedChannels(String count) {
+    return 'Kênh đã thêm: $count';
+  }
+
+  @override
+  String get removedFromPlaylist => 'Đã xóa khỏi danh sách phát';
+
+  @override
+  String get exportCancelled => 'Đã hủy xuất';
+
+  @override
+  String exportComplete(String count) {
+    return 'Đã xuất danh sách phát. Mục bỏ qua: $count';
+  }
+
+  @override
+  String get playlistExported => 'Đã xuất danh sách phát';
+
+  @override
+  String get live => 'Trực tiếp';
+
+  @override
+  String get sponsored => 'Được tài trợ';
+
+  @override
+  String get removeFromPlaylist => 'Xóa khỏi danh sách phát';
+
+  @override
+  String get likedSongsHelp => 'Lưu bài hát để thấy chúng ở đây';
+
+  @override
+  String get apiSingleVideoHint =>
+      'Bạn có thể thêm video này mà không nhập danh sách phát.';
+
+  @override
+  String get linkCopied => 'Đã sao chép liên kết';
+
+  @override
+  String get willPlayNext => 'Sẽ phát tiếp theo';
+
+  @override
+  String get checkItOut => 'Xem thêm';
+
+  @override
+  String get loadFailed => 'Không thể tải nội dung. Vui lòng thử lại.';
 }

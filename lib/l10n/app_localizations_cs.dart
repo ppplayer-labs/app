@@ -745,4 +745,347 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get off => 'Vypnuto';
+
+  @override
+  String get playOn => 'Přehrávat na';
+
+  @override
+  String get thisDevice => 'Toto zařízení';
+
+  @override
+  String get availableDevices => 'Dostupná zařízení';
+
+  @override
+  String get searchingDevices => 'Vyhledávání zařízení…';
+
+  @override
+  String get refresh => 'Obnovit';
+
+  @override
+  String get connecting => 'Připojování…';
+
+  @override
+  String connectingTo(String name) {
+    return 'Připojování k $name…';
+  }
+
+  @override
+  String get connected => 'Připojeno';
+
+  @override
+  String get unsupportedOutput => 'Tento zdroj nelze na tomto výstupu přehrát.';
+
+  @override
+  String get airPlayAudioOutput => 'AirPlay a zvukový výstup';
+
+  @override
+  String get returnForAirPlay =>
+      'Chcete-li použít AirPlay, přehrávejte na tomto zařízení.';
+
+  @override
+  String get openSoundSettings => 'Otevřete nastavení zvuku a vyberte výstup.';
+
+  @override
+  String get soundSettingsError => 'Nastavení zvuku se nepodařilo otevřít.';
+
+  @override
+  String get systemOutput => 'Systémový výstup';
+
+  @override
+  String playingOn(String name) {
+    return 'Přehrávání na $name';
+  }
+
+  @override
+  String get chooseAirPlay =>
+      'Klepnutím na tlačítko AirPlay vyberte reproduktor nebo televizor.';
+
+  @override
+  String get airPlayDevice => 'Zařízení AirPlay';
+
+  @override
+  String get playOnIphone => 'Přehrávat na tomto iPhonu';
+
+  @override
+  String get chooseIphone => 'Vyberte tento iPhone tlačítkem AirPlay níže.';
+
+  @override
+  String get profile => 'Profil';
+
+  @override
+  String get preferences => 'Předvolby';
+
+  @override
+  String get themeColor => 'Barva motivu';
+
+  @override
+  String get yourMusic => 'Vaše hudba';
+
+  @override
+  String get apiCredentials => 'Přihlašovací údaje API';
+
+  @override
+  String get dataStorage => 'Data a úložiště';
+
+  @override
+  String get editProfileHelp => 'Nastavte si jméno a avatar';
+
+  @override
+  String get customProvider => 'Vlastní poskytovatel';
+
+  @override
+  String get defaultProvider => 'Výchozí PPPlayer';
+
+  @override
+  String get proExperience => 'Režim Pro aktivní';
+
+  @override
+  String get beta => 'Beta';
+
+  @override
+  String get loading => 'Načítání…';
+
+  @override
+  String get unknown => 'Neznámé';
+
+  @override
+  String get pause => 'Pozastavit';
+
+  @override
+  String get repeat => 'Opakovat';
+
+  @override
+  String get mute => 'Ztlumit';
+
+  @override
+  String get unmute => 'Zapnout zvuk';
+
+  @override
+  String get fitVideo => 'Přizpůsobit';
+
+  @override
+  String get fillVideo => 'Vyplnit';
+
+  @override
+  String get fullscreen => 'Celá obrazovka';
+
+  @override
+  String get exitFullscreen => 'Opustit celou obrazovku';
+
+  @override
+  String get volume => 'Hlasitost';
+
+  @override
+  String get save => 'Uložit';
+
+  @override
+  String get delete => 'Smazat';
+
+  @override
+  String get clear => 'Vymazat';
+
+  @override
+  String get follow => 'Sledovat';
+
+  @override
+  String get unfollow => 'Přestat sledovat';
+
+  @override
+  String get following => 'Sledováno';
+
+  @override
+  String get showAll => 'Zobrazit vše';
+
+  @override
+  String get appearance => 'Vzhled';
+
+  @override
+  String get subtitleSize => 'Velikost';
+
+  @override
+  String get subtitleBackground => 'Pozadí';
+
+  @override
+  String get earlier => 'Dříve';
+
+  @override
+  String get later => 'Později';
+
+  @override
+  String get reset => 'Obnovit';
+
+  @override
+  String subtitleDelay(String seconds) {
+    return 'Zpoždění: $seconds s';
+  }
+
+  @override
+  String get morePlaybackControls => 'Další ovládání přehrávání';
+
+  @override
+  String get hideVideo => 'Skrýt video';
+
+  @override
+  String get showVideo => 'Zobrazit video';
+
+  @override
+  String get closeQueue => 'Zavřít frontu';
+
+  @override
+  String get enabled => 'Zapnuto';
+
+  @override
+  String get openFile => 'Otevřít soubor…';
+
+  @override
+  String get openFolder => 'Otevřít složku…';
+
+  @override
+  String get openUrl => 'Otevřít URL…';
+
+  @override
+  String get fileMenu => 'Soubor';
+
+  @override
+  String get viewMenu => 'Zobrazení';
+
+  @override
+  String get windowMenu => 'Okno';
+
+  @override
+  String get saveChanges => 'Uložit změny';
+
+  @override
+  String get themeAvatarColor => 'Barva motivu a avataru';
+
+  @override
+  String get networkStreams => 'Síťové streamy';
+
+  @override
+  String get networkStream => 'Síťový stream';
+
+  @override
+  String get openNetworkStream => 'Otevřít síťový stream';
+
+  @override
+  String get editPlaylist => 'Upravit playlist';
+
+  @override
+  String get editStreamItem => 'Upravit položku streamu';
+
+  @override
+  String get streamUrl => 'URL streamu';
+
+  @override
+  String get platformType => 'Platforma / typ';
+
+  @override
+  String get optionalTitle => 'Název (volitelný)';
+
+  @override
+  String get optionalImageUrl => 'URL obrázku (volitelné)';
+
+  @override
+  String get myStream => 'Můj stream';
+
+  @override
+  String get saveToLibrary => 'Uložit do knihovny';
+
+  @override
+  String get justPlay => 'Pouze přehrát';
+
+  @override
+  String get autoDetect => 'Automaticky rozpoznat';
+
+  @override
+  String get apiKeyRequired => 'Je vyžadován klíč API';
+
+  @override
+  String get customApiKey => 'Použít vlastní klíč API';
+
+  @override
+  String get clientId => 'ID klienta';
+
+  @override
+  String get clientSecret => 'Tajný klíč klienta';
+
+  @override
+  String get saveCredentials => 'Uložit přihlašovací údaje';
+
+  @override
+  String get searchStrategy => 'Strategie vyhledávání';
+
+  @override
+  String get credentialsLocalOnly =>
+      'Bezpečně uložené v tomto zařízení. Nikdy se neposílají do PPPlayer.';
+
+  @override
+  String get scrapingHelp =>
+      'Není potřeba klíč API ani kvóta. Může být pomalejší nebo méně spolehlivé.';
+
+  @override
+  String get streamHelp => 'Zadejte URL HTTP(S) nebo odkaz na playlist M3U.';
+
+  @override
+  String get deletePlaylistConfirm => 'Trvale smazat tento playlist?';
+
+  @override
+  String get clearCacheConfirm =>
+      'Smazat data v mezipaměti? Knihovna a oblíbené zůstanou beze změny.';
+
+  @override
+  String get clearHistoryConfirm => 'Trvale smazat historii poslechu?';
+
+  @override
+  String get addedToQueue => 'Přidáno do fronty';
+
+  @override
+  String get addedVideo => 'Video přidáno';
+
+  @override
+  String addedChannels(String count) {
+    return 'Přidané kanály: $count';
+  }
+
+  @override
+  String get removedFromPlaylist => 'Odebráno z playlistu';
+
+  @override
+  String get exportCancelled => 'Export zrušen';
+
+  @override
+  String exportComplete(String count) {
+    return 'Playlist exportován. Přeskočené položky: $count';
+  }
+
+  @override
+  String get playlistExported => 'Playlist exportován';
+
+  @override
+  String get live => 'Živě';
+
+  @override
+  String get sponsored => 'Sponzorováno';
+
+  @override
+  String get removeFromPlaylist => 'Odebrat z playlistu';
+
+  @override
+  String get likedSongsHelp => 'Uložte skladby, aby se tu zobrazily';
+
+  @override
+  String get apiSingleVideoHint =>
+      'Toto video můžete přidat bez importu playlistu.';
+
+  @override
+  String get linkCopied => 'Odkaz zkopírován';
+
+  @override
+  String get willPlayNext => 'Přehraje se jako další';
+
+  @override
+  String get checkItOut => 'Prohlédnout';
+
+  @override
+  String get loadFailed => 'Obsah se nepodařilo načíst. Zkuste to znovu.';
 }

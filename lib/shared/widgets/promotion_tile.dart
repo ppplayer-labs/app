@@ -1,3 +1,4 @@
+import 'package:ppplayer/l10n/app_localizations.dart';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../shared/widgets/tactile_buttons.dart';
@@ -10,7 +11,7 @@ class PromotionTile extends StatelessWidget {
     super.key,
     required this.title,
     required this.subtitle,
-    this.ctaText = 'Check it out',
+    this.ctaText,
     this.imageUrl,
     this.type = PromotionType.vertical,
     this.onTap,
@@ -18,7 +19,7 @@ class PromotionTile extends StatelessWidget {
 
   final String title;
   final String subtitle;
-  final String ctaText;
+  final String? ctaText;
   final String? imageUrl;
   final PromotionType type;
   final VoidCallback? onTap;
@@ -64,7 +65,7 @@ class PromotionTile extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        _buildSponsoredBadge(colorScheme),
+                        _buildSponsoredBadge(context, colorScheme),
                         const SizedBox(height: 4),
                         Text(
                           title,
@@ -129,7 +130,7 @@ class PromotionTile extends StatelessWidget {
                 children: [
                   _buildImageFrame(context, double.infinity, 100),
                   const SizedBox(height: 12),
-                  _buildSponsoredBadge(colorScheme),
+                  _buildSponsoredBadge(context, colorScheme),
                   const SizedBox(height: 8),
                   Text(
                     title,
@@ -191,7 +192,7 @@ class PromotionTile extends StatelessWidget {
     );
   }
 
-  Widget _buildSponsoredBadge(ColorScheme colorScheme) {
+  Widget _buildSponsoredBadge(BuildContext context, ColorScheme colorScheme) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
@@ -200,7 +201,7 @@ class PromotionTile extends StatelessWidget {
         border: Border.all(color: colorScheme.tertiary.withValues(alpha: 0.3)),
       ),
       child: Text(
-        'SPONSORED',
+        AppLocalizations.of(context)!.sponsored,
         style: TextStyle(
           color: colorScheme.tertiary,
           fontSize: 9,
@@ -238,7 +239,7 @@ class PromotionTile extends StatelessWidget {
         ],
       ),
       child: Text(
-        ctaText.toUpperCase(),
+        (ctaText ?? AppLocalizations.of(context)!.checkItOut).toUpperCase(),
         style: TextStyle(
           color: colorScheme.onPrimary,
           fontSize: isCompact ? 11 : 10,

@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -101,7 +102,12 @@ class _SubtitlePanelState extends ConsumerState<SubtitlePanel> {
                   const Icon(Icons.timer),
                   const SizedBox(width: 16),
                   Text(
-                    'Delay: ${(currentDelay.inMilliseconds / 1000.0).toStringAsFixed(1)} s',
+                    l10n.subtitleDelay(
+                      NumberFormat(
+                        '0.0',
+                        l10n.localeName,
+                      ).format(currentDelay.inMilliseconds / 1000.0),
+                    ),
                   ),
                   const Spacer(),
                   IconButton(
@@ -109,19 +115,19 @@ class _SubtitlePanelState extends ConsumerState<SubtitlePanel> {
                     onPressed: () => _updateDelay(
                       (currentDelay.inMilliseconds / 1000.0) - 0.1,
                     ),
-                    tooltip: 'Earlier',
+                    tooltip: AppLocalizations.of(context)!.earlier,
                   ),
                   IconButton(
                     icon: const Icon(Icons.refresh),
                     onPressed: () => _updateDelay(0), // reset
-                    tooltip: 'Reset',
+                    tooltip: AppLocalizations.of(context)!.reset,
                   ),
                   IconButton(
                     icon: const Icon(Icons.add),
                     onPressed: () => _updateDelay(
                       (currentDelay.inMilliseconds / 1000.0) + 0.1,
                     ),
-                    tooltip: 'Later',
+                    tooltip: AppLocalizations.of(context)!.later,
                   ),
                 ],
               ),
@@ -139,14 +145,14 @@ class _SubtitlePanelState extends ConsumerState<SubtitlePanel> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Appearance',
+                    AppLocalizations.of(context)!.appearance,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 8),
                   if (supportsSize) ...[
                     Row(
                       children: [
-                        const Text('Size'),
+                        Text(AppLocalizations.of(context)!.subtitleSize),
                         Expanded(
                           child: Slider(
                             value: settings.subtitleTextSize,
@@ -165,7 +171,7 @@ class _SubtitlePanelState extends ConsumerState<SubtitlePanel> {
                   if (supportsBg) ...[
                     Row(
                       children: [
-                        const Text('Background'),
+                        Text(AppLocalizations.of(context)!.subtitleBackground),
                         const Spacer(),
                         Switch(
                           value: Color(settings.subtitleBackgroundColor).a > 0,

@@ -738,4 +738,345 @@ class AppLocalizationsPcm extends AppLocalizations {
 
   @override
   String get off => 'Off';
+
+  @override
+  String get playOn => 'Play for';
+
+  @override
+  String get thisDevice => 'Dis device';
+
+  @override
+  String get availableDevices => 'Devices wey dey available';
+
+  @override
+  String get searchingDevices => 'Dey find devices…';
+
+  @override
+  String get refresh => 'Refresh am';
+
+  @override
+  String get connecting => 'Dey connect…';
+
+  @override
+  String connectingTo(String name) {
+    return 'Dey connect to $name…';
+  }
+
+  @override
+  String get connected => 'Don connect';
+
+  @override
+  String get unsupportedOutput => 'Dis source no fit play for dis output.';
+
+  @override
+  String get airPlayAudioOutput => 'AirPlay and sound output';
+
+  @override
+  String get returnForAirPlay => 'Play for dis device to use AirPlay.';
+
+  @override
+  String get openSoundSettings => 'Open sound settings to choose output.';
+
+  @override
+  String get soundSettingsError => 'No fit open sound settings.';
+
+  @override
+  String get systemOutput => 'System sound output';
+
+  @override
+  String playingOn(String name) {
+    return 'Dey play for $name';
+  }
+
+  @override
+  String get chooseAirPlay => 'Tap AirPlay button to choose speaker or TV.';
+
+  @override
+  String get airPlayDevice => 'AirPlay device';
+
+  @override
+  String get playOnIphone => 'Play for dis iPhone';
+
+  @override
+  String get chooseIphone => 'Choose dis iPhone with di AirPlay button below.';
+
+  @override
+  String get profile => 'Your profile';
+
+  @override
+  String get preferences => 'Settings wey you prefer';
+
+  @override
+  String get themeColor => 'Theme colour';
+
+  @override
+  String get yourMusic => 'Your music';
+
+  @override
+  String get apiCredentials => 'API login details';
+
+  @override
+  String get dataStorage => 'Data and storage';
+
+  @override
+  String get editProfileHelp => 'Set your name and avatar';
+
+  @override
+  String get customProvider => 'Provider wey you choose';
+
+  @override
+  String get defaultProvider => 'PPPlayer normal provider';
+
+  @override
+  String get proExperience => 'Pro experience don dey active';
+
+  @override
+  String get beta => 'Beta version';
+
+  @override
+  String get loading => 'Dey load…';
+
+  @override
+  String get unknown => 'We no know';
+
+  @override
+  String get pause => 'Pause am';
+
+  @override
+  String get repeat => 'Repeat am';
+
+  @override
+  String get mute => 'Off di sound';
+
+  @override
+  String get unmute => 'On di sound';
+
+  @override
+  String get fitVideo => 'Make am fit';
+
+  @override
+  String get fillVideo => 'Fill di screen';
+
+  @override
+  String get fullscreen => 'Full screen';
+
+  @override
+  String get exitFullscreen => 'Comot full screen';
+
+  @override
+  String get volume => 'Sound level';
+
+  @override
+  String get save => 'Save am';
+
+  @override
+  String get delete => 'Delete am';
+
+  @override
+  String get clear => 'Clear am';
+
+  @override
+  String get follow => 'Follow am';
+
+  @override
+  String get unfollow => 'Stop to follow';
+
+  @override
+  String get following => 'You dey follow';
+
+  @override
+  String get showAll => 'Show all';
+
+  @override
+  String get appearance => 'How e look';
+
+  @override
+  String get subtitleSize => 'Size';
+
+  @override
+  String get subtitleBackground => 'Background';
+
+  @override
+  String get earlier => 'Earlier small';
+
+  @override
+  String get later => 'Later small';
+
+  @override
+  String get reset => 'Reset am';
+
+  @override
+  String subtitleDelay(String seconds) {
+    return 'Delay: $seconds seconds';
+  }
+
+  @override
+  String get morePlaybackControls => 'More controls for playback';
+
+  @override
+  String get hideVideo => 'Hide di video';
+
+  @override
+  String get showVideo => 'Show di video';
+
+  @override
+  String get closeQueue => 'Close di queue';
+
+  @override
+  String get enabled => 'E dey on';
+
+  @override
+  String get openFile => 'Open file…';
+
+  @override
+  String get openFolder => 'Open folder…';
+
+  @override
+  String get openUrl => 'Open URL…';
+
+  @override
+  String get fileMenu => 'File';
+
+  @override
+  String get viewMenu => 'View';
+
+  @override
+  String get windowMenu => 'Window';
+
+  @override
+  String get saveChanges => 'Save di changes';
+
+  @override
+  String get themeAvatarColor => 'Theme and avatar colour';
+
+  @override
+  String get networkStreams => 'Network streams';
+
+  @override
+  String get networkStream => 'Network stream';
+
+  @override
+  String get openNetworkStream => 'Open network stream';
+
+  @override
+  String get editPlaylist => 'Edit di playlist';
+
+  @override
+  String get editStreamItem => 'Edit stream item';
+
+  @override
+  String get streamUrl => 'Stream URL';
+
+  @override
+  String get platformType => 'Platform / type';
+
+  @override
+  String get optionalTitle => 'Title (no be must)';
+
+  @override
+  String get optionalImageUrl => 'Picture URL (no be must)';
+
+  @override
+  String get myStream => 'My stream';
+
+  @override
+  String get saveToLibrary => 'Save for library';
+
+  @override
+  String get justPlay => 'Just play am';
+
+  @override
+  String get autoDetect => 'Detect am by itself';
+
+  @override
+  String get apiKeyRequired => 'API key dey needed';
+
+  @override
+  String get customApiKey => 'Use your own API key';
+
+  @override
+  String get clientId => 'Client ID';
+
+  @override
+  String get clientSecret => 'Client secret';
+
+  @override
+  String get saveCredentials => 'Save di login details';
+
+  @override
+  String get searchStrategy => 'How to search';
+
+  @override
+  String get credentialsLocalOnly =>
+      'E dey safe for dis device. E no dey go PPPlayer at all.';
+
+  @override
+  String get scrapingHelp =>
+      'API key or quota no dey needed. E fit slow small or no work steady.';
+
+  @override
+  String get streamHelp => 'Put HTTP(S) URL or M3U playlist link.';
+
+  @override
+  String get deletePlaylistConfirm => 'Delete dis playlist forever?';
+
+  @override
+  String get clearCacheConfirm =>
+      'Delete cache data? Your library and favourites no go change.';
+
+  @override
+  String get clearHistoryConfirm => 'Delete your listening history forever?';
+
+  @override
+  String get addedToQueue => 'Don add am to queue';
+
+  @override
+  String get addedVideo => 'Don add di video';
+
+  @override
+  String addedChannels(String count) {
+    return 'Channels wey we add: $count';
+  }
+
+  @override
+  String get removedFromPlaylist => 'Don remove am from playlist';
+
+  @override
+  String get exportCancelled => 'Don cancel export';
+
+  @override
+  String exportComplete(String count) {
+    return 'Don export playlist. Items wey we skip: $count';
+  }
+
+  @override
+  String get playlistExported => 'Don export playlist';
+
+  @override
+  String get live => 'E dey live';
+
+  @override
+  String get sponsored => 'Dem sponsor am';
+
+  @override
+  String get removeFromPlaylist => 'Remove am from playlist';
+
+  @override
+  String get likedSongsHelp => 'Save songs make you see dem here';
+
+  @override
+  String get apiSingleVideoHint =>
+      'You fit add dis video without importing di playlist.';
+
+  @override
+  String get linkCopied => 'Don copy di link';
+
+  @override
+  String get willPlayNext => 'E go play next';
+
+  @override
+  String get checkItOut => 'Check am out';
+
+  @override
+  String get loadFailed => 'We no fit load the content. Try again.';
 }

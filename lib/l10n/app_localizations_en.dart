@@ -740,4 +740,349 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get off => 'Off';
+
+  @override
+  String get playOn => 'Play On';
+
+  @override
+  String get thisDevice => 'This device';
+
+  @override
+  String get availableDevices => 'Available devices';
+
+  @override
+  String get searchingDevices => 'Searching for devices…';
+
+  @override
+  String get refresh => 'Refresh';
+
+  @override
+  String get connecting => 'Connecting…';
+
+  @override
+  String connectingTo(String name) {
+    return 'Connecting to $name…';
+  }
+
+  @override
+  String get connected => 'Connected';
+
+  @override
+  String get unsupportedOutput =>
+      'This source cannot be played on this output.';
+
+  @override
+  String get airPlayAudioOutput => 'AirPlay & audio output';
+
+  @override
+  String get returnForAirPlay => 'Play on this device to use AirPlay.';
+
+  @override
+  String get openSoundSettings => 'Open Sound settings to choose an output.';
+
+  @override
+  String get soundSettingsError => 'Could not open Sound settings.';
+
+  @override
+  String get systemOutput => 'System output';
+
+  @override
+  String playingOn(String name) {
+    return 'Playing on $name';
+  }
+
+  @override
+  String get chooseAirPlay =>
+      'Tap the AirPlay button to choose a speaker or TV.';
+
+  @override
+  String get airPlayDevice => 'AirPlay device';
+
+  @override
+  String get playOnIphone => 'Play on this iPhone';
+
+  @override
+  String get chooseIphone =>
+      'Choose this iPhone using the AirPlay button below.';
+
+  @override
+  String get profile => 'Profile';
+
+  @override
+  String get preferences => 'Preferences';
+
+  @override
+  String get themeColor => 'Theme color';
+
+  @override
+  String get yourMusic => 'Your music';
+
+  @override
+  String get apiCredentials => 'API credentials';
+
+  @override
+  String get dataStorage => 'Data & storage';
+
+  @override
+  String get editProfileHelp => 'Set your name and avatar';
+
+  @override
+  String get customProvider => 'Custom provider';
+
+  @override
+  String get defaultProvider => 'PPPlayer default';
+
+  @override
+  String get proExperience => 'Pro experience active';
+
+  @override
+  String get beta => 'Beta';
+
+  @override
+  String get loading => 'Loading…';
+
+  @override
+  String get unknown => 'Unknown';
+
+  @override
+  String get pause => 'Pause';
+
+  @override
+  String get repeat => 'Repeat';
+
+  @override
+  String get mute => 'Mute';
+
+  @override
+  String get unmute => 'Unmute';
+
+  @override
+  String get fitVideo => 'Fit';
+
+  @override
+  String get fillVideo => 'Fill';
+
+  @override
+  String get fullscreen => 'Fullscreen';
+
+  @override
+  String get exitFullscreen => 'Exit fullscreen';
+
+  @override
+  String get volume => 'Volume';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get clear => 'Clear';
+
+  @override
+  String get follow => 'Follow';
+
+  @override
+  String get unfollow => 'Unfollow';
+
+  @override
+  String get following => 'Following';
+
+  @override
+  String get showAll => 'Show all';
+
+  @override
+  String get appearance => 'Appearance';
+
+  @override
+  String get subtitleSize => 'Size';
+
+  @override
+  String get subtitleBackground => 'Background';
+
+  @override
+  String get earlier => 'Earlier';
+
+  @override
+  String get later => 'Later';
+
+  @override
+  String get reset => 'Reset';
+
+  @override
+  String subtitleDelay(String seconds) {
+    return 'Delay: $seconds s';
+  }
+
+  @override
+  String get morePlaybackControls => 'More playback controls';
+
+  @override
+  String get hideVideo => 'Hide video';
+
+  @override
+  String get showVideo => 'Show video';
+
+  @override
+  String get closeQueue => 'Close queue';
+
+  @override
+  String get enabled => 'On';
+
+  @override
+  String get openFile => 'Open file…';
+
+  @override
+  String get openFolder => 'Open folder…';
+
+  @override
+  String get openUrl => 'Open URL…';
+
+  @override
+  String get fileMenu => 'File';
+
+  @override
+  String get viewMenu => 'View';
+
+  @override
+  String get windowMenu => 'Window';
+
+  @override
+  String get saveChanges => 'Save changes';
+
+  @override
+  String get themeAvatarColor => 'Theme and avatar color';
+
+  @override
+  String get networkStreams => 'Network streams';
+
+  @override
+  String get networkStream => 'Network stream';
+
+  @override
+  String get openNetworkStream => 'Open network stream';
+
+  @override
+  String get editPlaylist => 'Edit playlist';
+
+  @override
+  String get editStreamItem => 'Edit stream item';
+
+  @override
+  String get streamUrl => 'Stream URL';
+
+  @override
+  String get platformType => 'Platform / type';
+
+  @override
+  String get optionalTitle => 'Title (optional)';
+
+  @override
+  String get optionalImageUrl => 'Image URL (optional)';
+
+  @override
+  String get myStream => 'My stream';
+
+  @override
+  String get saveToLibrary => 'Save to library';
+
+  @override
+  String get justPlay => 'Just play';
+
+  @override
+  String get autoDetect => 'Auto-detect';
+
+  @override
+  String get apiKeyRequired => 'API key required';
+
+  @override
+  String get customApiKey => 'Use custom API key';
+
+  @override
+  String get clientId => 'Client ID';
+
+  @override
+  String get clientSecret => 'Client secret';
+
+  @override
+  String get saveCredentials => 'Save credentials';
+
+  @override
+  String get searchStrategy => 'Search strategy';
+
+  @override
+  String get credentialsLocalOnly =>
+      'Stored securely on this device. Never sent to PPPlayer.';
+
+  @override
+  String get scrapingHelp =>
+      'No API key or quota required. May be slower or less reliable.';
+
+  @override
+  String get streamHelp => 'Enter an HTTP(S) URL or M3U playlist link.';
+
+  @override
+  String get deletePlaylistConfirm => 'Delete this playlist permanently?';
+
+  @override
+  String get clearCacheConfirm =>
+      'Delete cached data? Your library and favorites stay unchanged.';
+
+  @override
+  String get clearHistoryConfirm =>
+      'Delete your listening history permanently?';
+
+  @override
+  String get addedToQueue => 'Added to queue';
+
+  @override
+  String get addedVideo => 'Video added';
+
+  @override
+  String addedChannels(String count) {
+    return 'Channels added: $count';
+  }
+
+  @override
+  String get removedFromPlaylist => 'Removed from playlist';
+
+  @override
+  String get exportCancelled => 'Export cancelled';
+
+  @override
+  String exportComplete(String count) {
+    return 'Playlist exported. Items skipped: $count';
+  }
+
+  @override
+  String get playlistExported => 'Playlist exported';
+
+  @override
+  String get live => 'Live';
+
+  @override
+  String get sponsored => 'Sponsored';
+
+  @override
+  String get removeFromPlaylist => 'Remove from playlist';
+
+  @override
+  String get likedSongsHelp => 'Save songs to see them here';
+
+  @override
+  String get apiSingleVideoHint =>
+      'You can add this video without importing the playlist.';
+
+  @override
+  String get linkCopied => 'Link copied';
+
+  @override
+  String get willPlayNext => 'Will play next';
+
+  @override
+  String get checkItOut => 'Check it out';
+
+  @override
+  String get loadFailed => 'Could not load content. Please try again.';
 }

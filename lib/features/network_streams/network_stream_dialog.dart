@@ -144,7 +144,7 @@ class _NetworkStreamDialogState extends ConsumerState<NetworkStreamDialog> {
 
     var title = _titleController.text.trim();
     if (title.isEmpty) {
-      title = 'Network Stream';
+      title = AppLocalizations.of(context)!.networkStream;
     }
 
     _activeClient?.close();
@@ -180,7 +180,7 @@ class _NetworkStreamDialogState extends ConsumerState<NetworkStreamDialog> {
           if (mounted) {
             Navigator.pop(context);
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Added video successfully!')),
+              SnackBar(content: Text(AppLocalizations.of(context)!.addedVideo)),
             );
           }
         } else {
@@ -207,7 +207,7 @@ class _NetworkStreamDialogState extends ConsumerState<NetworkStreamDialog> {
       if (channels.isEmpty) {
         if (!mounted) return;
         setState(() {
-          _error = 'No channels found in stream/playlist.';
+          _error = AppLocalizations.of(context)!.noResultsFound;
           _isLoading = false;
         });
         return;
@@ -227,7 +227,11 @@ class _NetworkStreamDialogState extends ConsumerState<NetworkStreamDialog> {
           Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Added ${channels.length} channels from stream!'),
+              content: Text(
+                AppLocalizations.of(
+                  context,
+                )!.addedChannels(channels.length.toString()),
+              ),
             ),
           );
         }
@@ -264,7 +268,7 @@ class _NetworkStreamDialogState extends ConsumerState<NetworkStreamDialog> {
         showDialog(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: const Text('API Key Required'),
+            title: Text(AppLocalizations.of(context)!.apiKeyRequired),
             content: Text(
               hasVideoId
                   ? '${e.message}\n\nYou can still add the single video from this link instead of the whole playlist.'
@@ -313,8 +317,10 @@ class _NetworkStreamDialogState extends ConsumerState<NetworkStreamDialog> {
                             context,
                           ); // Close the network stream dialog
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Added video successfully!'),
+                            SnackBar(
+                              content: Text(
+                                AppLocalizations.of(context)!.addedVideo,
+                              ),
                             ),
                           );
                         }
@@ -341,7 +347,9 @@ class _NetworkStreamDialogState extends ConsumerState<NetworkStreamDialog> {
                     }
                   },
                   child: Text(
-                    saveToLibrary ? 'Add Single Video' : 'Play Single Video',
+                    saveToLibrary
+                        ? AppLocalizations.of(context)!.addVideos
+                        : AppLocalizations.of(context)!.justPlay,
                   ),
                 ),
               FilledButton(
@@ -350,7 +358,7 @@ class _NetworkStreamDialogState extends ConsumerState<NetworkStreamDialog> {
                   Navigator.pop(context); // Close the network stream dialog too
                   context.push('/settings');
                 },
-                child: const Text('Open Settings'),
+                child: Text(AppLocalizations.of(context)!.settings),
               ),
             ],
           ),
@@ -375,21 +383,21 @@ class _NetworkStreamDialogState extends ConsumerState<NetworkStreamDialog> {
     return AlertDialog(
       backgroundColor: colorScheme.surface,
       surfaceTintColor: Colors.transparent,
-      title: const Text('Open Network Stream'),
+      title: Text(AppLocalizations.of(context)!.openNetworkStream),
       content: SizedBox(
         width: 400,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              'Enter a network stream URL (HTTP/HTTPS) or a remote M3U playlist link.',
+            Text(
+              AppLocalizations.of(context)!.streamHelp,
               style: TextStyle(fontSize: 14),
             ),
             const SizedBox(height: 16),
             InputDecorator(
-              decoration: const InputDecoration(
-                labelText: 'Platform / Type',
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.platformType,
                 border: OutlineInputBorder(),
                 contentPadding: EdgeInsets.symmetric(
                   horizontal: 12,
@@ -403,7 +411,11 @@ class _NetworkStreamDialogState extends ConsumerState<NetworkStreamDialog> {
                   items: VideoPlatform.values.map((p) {
                     return DropdownMenuItem(
                       value: p,
-                      child: Text(p.displayName),
+                      child: Text(
+                        p == VideoPlatform.autoDetect
+                            ? AppLocalizations.of(context)!.autoDetect
+                            : p.displayName,
+                      ),
                     );
                   }).toList(),
                   onChanged: (val) {
@@ -419,7 +431,7 @@ class _NetworkStreamDialogState extends ConsumerState<NetworkStreamDialog> {
               controller: _urlController,
               focusNode: _urlFocusNode,
               decoration: InputDecoration(
-                labelText: 'Stream URL',
+                labelText: AppLocalizations.of(context)!.streamUrl,
                 hintText: 'https://...',
                 border: const OutlineInputBorder(),
                 suffixIcon: _isFetchingMetadata
@@ -439,9 +451,9 @@ class _NetworkStreamDialogState extends ConsumerState<NetworkStreamDialog> {
             const SizedBox(height: 16),
             TextField(
               controller: _titleController,
-              decoration: const InputDecoration(
-                labelText: 'Title (Optional)',
-                hintText: 'My Stream',
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.optionalTitle,
+                hintText: AppLocalizations.of(context)!.myStream,
                 border: OutlineInputBorder(),
               ),
               enabled: !_isLoading,
@@ -450,8 +462,8 @@ class _NetworkStreamDialogState extends ConsumerState<NetworkStreamDialog> {
             const SizedBox(height: 16),
             TextField(
               controller: _imageUrlController,
-              decoration: const InputDecoration(
-                labelText: 'Image URL (Optional)',
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.optionalImageUrl,
                 hintText: 'https://...',
                 border: OutlineInputBorder(),
               ),
@@ -483,7 +495,7 @@ class _NetworkStreamDialogState extends ConsumerState<NetworkStreamDialog> {
             ],
             if (_isLoading) ...[
               const SizedBox(height: 24),
-              const Center(child: PPLogoLoader()),
+              Center(child: PPLogoLoader()),
             ],
           ],
         ),
@@ -495,11 +507,11 @@ class _NetworkStreamDialogState extends ConsumerState<NetworkStreamDialog> {
         ),
         TextButton(
           onPressed: _isLoading ? null : () => _submit(saveToLibrary: true),
-          child: const Text('Save to Library'),
+          child: Text(AppLocalizations.of(context)!.saveToLibrary),
         ),
         FilledButton(
           onPressed: _isLoading ? null : () => _submit(saveToLibrary: false),
-          child: const Text('Just Play'),
+          child: Text(AppLocalizations.of(context)!.justPlay),
         ),
       ],
     );

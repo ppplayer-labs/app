@@ -742,4 +742,347 @@ class AppLocalizationsGn extends AppLocalizations {
 
   @override
   String get off => 'Mboty';
+
+  @override
+  String get playOn => 'Emboja ipype';
+
+  @override
+  String get thisDevice => 'Ko tembiporu';
+
+  @override
+  String get availableDevices => 'Tembiporu ojepurukuaáva';
+
+  @override
+  String get searchingDevices => 'Ojeheka tembiporu…';
+
+  @override
+  String get refresh => 'Embopyahu';
+
+  @override
+  String get connecting => 'Oñembojoaju…';
+
+  @override
+  String connectingTo(String name) {
+    return 'Oñembojoaju $name ndive…';
+  }
+
+  @override
+  String get connected => 'Oñembojoajuma';
+
+  @override
+  String get unsupportedOutput => 'Ko ypykue ndaikatúi oñemboja ko ñesẽme.';
+
+  @override
+  String get airPlayAudioOutput => 'AirPlay ha ñe’ẽpu ñesẽ';
+
+  @override
+  String get returnForAirPlay => 'Emboja ko tembiporúpe eipuru hag̃ua AirPlay.';
+
+  @override
+  String get openSoundSettings =>
+      'Eipe’a ñe’ẽpu ñemboheko eiporavo hag̃ua ñesẽ.';
+
+  @override
+  String get soundSettingsError => 'Ndaikatúi ojepe’a ñe’ẽpu ñemboheko.';
+
+  @override
+  String get systemOutput => 'Sistema ñesẽ';
+
+  @override
+  String playingOn(String name) {
+    return 'Oñemboja $name pe';
+  }
+
+  @override
+  String get chooseAirPlay =>
+      'Epoko AirPlay votõre eiporavo hag̃ua ñe’ẽpuha térã televisor.';
+
+  @override
+  String get airPlayDevice => 'AirPlay tembiporu';
+
+  @override
+  String get playOnIphone => 'Emboja ko iPhone-pe';
+
+  @override
+  String get chooseIphone => 'Eiporavo ko iPhone AirPlay votõ yvygua rupive.';
+
+  @override
+  String get profile => 'Mba’ete';
+
+  @override
+  String get preferences => 'Jeporavopyre';
+
+  @override
+  String get themeColor => 'Tema sa’y';
+
+  @override
+  String get yourMusic => 'Ne purahéi';
+
+  @override
+  String get apiCredentials => 'API jeike rehegua';
+
+  @override
+  String get dataStorage => 'Marandu ha ñongatuha';
+
+  @override
+  String get editProfileHelp => 'Emohenda nde réra ha nde ra’anga';
+
+  @override
+  String get customProvider => 'Me’ẽha nde reiporavóva';
+
+  @override
+  String get defaultProvider => 'PPPlayer ñepyrũgua';
+
+  @override
+  String get proExperience => 'Pro jeporu oñemyendy';
+
+  @override
+  String get beta => 'Beta rehegua';
+
+  @override
+  String get loading => 'Oñembohysýi…';
+
+  @override
+  String get unknown => 'Ojekuaa’ỹva';
+
+  @override
+  String get pause => 'Epytu’u';
+
+  @override
+  String get repeat => 'Ejapo jey';
+
+  @override
+  String get mute => 'Emokirirĩ';
+
+  @override
+  String get unmute => 'Emyendy ñe’ẽpu';
+
+  @override
+  String get fitVideo => 'Emohenda';
+
+  @override
+  String get fillVideo => 'Emyenyhẽ';
+
+  @override
+  String get fullscreen => 'Tendyha tuichakue';
+
+  @override
+  String get exitFullscreen => 'Esẽ tendyha tuichakuégui';
+
+  @override
+  String get volume => 'Ñe’ẽpu hatãkue';
+
+  @override
+  String get save => 'Eñongatu';
+
+  @override
+  String get delete => 'Embogue';
+
+  @override
+  String get clear => 'Emopotĩ';
+
+  @override
+  String get follow => 'Esegui';
+
+  @override
+  String get unfollow => 'Anive esegui';
+
+  @override
+  String get following => 'Ojesegui';
+
+  @override
+  String get showAll => 'Ehechauka opaite';
+
+  @override
+  String get appearance => 'Hechapy';
+
+  @override
+  String get subtitleSize => 'Tuichakue';
+
+  @override
+  String get subtitleBackground => 'Tugua';
+
+  @override
+  String get earlier => 'Mboyve';
+
+  @override
+  String get later => 'Upe rire';
+
+  @override
+  String get reset => 'Emoñepyrũ jey';
+
+  @override
+  String subtitleDelay(String seconds) {
+    return 'Ñembotapykue: $seconds aravo’ive';
+  }
+
+  @override
+  String get morePlaybackControls => 'Ñemboja ñangarekoha ambue';
+
+  @override
+  String get hideVideo => 'Emokañy ta’ãngamýi';
+
+  @override
+  String get showVideo => 'Ehechauka ta’ãngamýi';
+
+  @override
+  String get closeQueue => 'Emboty tysýi';
+
+  @override
+  String get enabled => 'Hendy';
+
+  @override
+  String get openFile => 'Eipe’a marandurenda…';
+
+  @override
+  String get openFolder => 'Eipe’a ryru…';
+
+  @override
+  String get openUrl => 'Eipe’a URL…';
+
+  @override
+  String get fileMenu => 'Marandurenda';
+
+  @override
+  String get viewMenu => 'Hecha';
+
+  @override
+  String get windowMenu => 'Ovetã';
+
+  @override
+  String get saveChanges => 'Eñongatu ñemoambue';
+
+  @override
+  String get themeAvatarColor => 'Tema ha nde ra’anga sa’y';
+
+  @override
+  String get networkStreams => 'Ñanduti ñembohasapy';
+
+  @override
+  String get networkStream => 'Ñanduti ñembohasapy';
+
+  @override
+  String get openNetworkStream => 'Eipe’a ñanduti ñembohasapy';
+
+  @override
+  String get editPlaylist => 'Emoambue purahéi tysýi';
+
+  @override
+  String get editStreamItem => 'Emoambue ñembohasapy mba’e';
+
+  @override
+  String get streamUrl => 'Ñembohasapy URL';
+
+  @override
+  String get platformType => 'Ñemohenda / mba’eichagua';
+
+  @override
+  String get optionalTitle => 'Téra (natekotevẽi)';
+
+  @override
+  String get optionalImageUrl => 'Ta’ãnga URL (natekotevẽi)';
+
+  @override
+  String get myStream => 'Che ñembohasapy';
+
+  @override
+  String get saveToLibrary => 'Eñongatu arandukaty rendápe';
+
+  @override
+  String get justPlay => 'Emboja añónte';
+
+  @override
+  String get autoDetect => 'Jehechakuaa ijehegui';
+
+  @override
+  String get apiKeyRequired => 'Oñeikotevẽ API ñemigua';
+
+  @override
+  String get customApiKey => 'Eipuru nde API ñemigua';
+
+  @override
+  String get clientId => 'Puruhára ID';
+
+  @override
+  String get clientSecret => 'Puruhára ñemigua';
+
+  @override
+  String get saveCredentials => 'Eñongatu jeike rehegua';
+
+  @override
+  String get searchStrategy => 'Jeheka rape';
+
+  @override
+  String get credentialsLocalOnly =>
+      'Oñongatu porã ko tembiporúpe. Araka’eve noñemondói PPPlayer-pe.';
+
+  @override
+  String get scrapingHelp =>
+      'Natekotevẽi API ñemigua térã cuota. Ikatu imbeguéve térã ndoiko porãi.';
+
+  @override
+  String get streamHelp => 'Emoinge HTTP(S) URL térã M3U tysýi joajuha.';
+
+  @override
+  String get deletePlaylistConfirm => 'Emboguete ko purahéi tysýi?';
+
+  @override
+  String get clearCacheConfirm =>
+      'Embogue marandu sapy’agua? Arandukaty ha umi nde rehayhúva noñemoambuéi.';
+
+  @override
+  String get clearHistoryConfirm => 'Emboguete ne rembiendu rembiasakue?';
+
+  @override
+  String get addedToQueue => 'Oñemoĩ tysýipe';
+
+  @override
+  String get addedVideo => 'Oñemoĩ ta’ãngamýi';
+
+  @override
+  String addedChannels(String count) {
+    return 'Canal oñemoĩva: $count';
+  }
+
+  @override
+  String get removedFromPlaylist => 'Ojepe’a purahéi tysýigui';
+
+  @override
+  String get exportCancelled => 'Ñeguenohẽ oñemboyke';
+
+  @override
+  String exportComplete(String count) {
+    return 'Tysýi oñeguenohẽ. Mba’e ojehasáva: $count';
+  }
+
+  @override
+  String get playlistExported => 'Tysýi oñeguenohẽ';
+
+  @override
+  String get live => 'Ñembohasa ko’ág̃a';
+
+  @override
+  String get sponsored => 'Oñepytyvõva';
+
+  @override
+  String get removeFromPlaylist => 'Eipe’a tysýigui';
+
+  @override
+  String get likedSongsHelp => 'Eñongatu purahéi rehecha hag̃ua ko’ápe';
+
+  @override
+  String get apiSingleVideoHint =>
+      'Ikatu remoĩ ko ta’ãngamýi regueru’ỹre purahéi tysýi.';
+
+  @override
+  String get linkCopied => 'Joajuha ojekopia';
+
+  @override
+  String get willPlayNext => 'Oñembojáta upe rire';
+
+  @override
+  String get checkItOut => 'Ehecha';
+
+  @override
+  String get loadFailed => 'Ndaikatúi ojehechauka ipypegua. Eñeha\'ã jey.';
 }

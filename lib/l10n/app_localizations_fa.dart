@@ -741,4 +741,348 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get off => 'خاموش';
+
+  @override
+  String get playOn => 'پخش در';
+
+  @override
+  String get thisDevice => 'این دستگاه';
+
+  @override
+  String get availableDevices => 'دستگاه‌های موجود';
+
+  @override
+  String get searchingDevices => 'در حال جستجوی دستگاه‌ها…';
+
+  @override
+  String get refresh => 'تازه‌سازی';
+
+  @override
+  String get connecting => 'در حال اتصال…';
+
+  @override
+  String connectingTo(String name) {
+    return 'در حال اتصال به $name…';
+  }
+
+  @override
+  String get connected => 'متصل';
+
+  @override
+  String get unsupportedOutput => 'این منبع در این خروجی قابل پخش نیست.';
+
+  @override
+  String get airPlayAudioOutput => 'AirPlay و خروجی صدا';
+
+  @override
+  String get returnForAirPlay =>
+      'برای استفاده از AirPlay در این دستگاه پخش کنید.';
+
+  @override
+  String get openSoundSettings => 'برای انتخاب خروجی، تنظیمات صدا را باز کنید.';
+
+  @override
+  String get soundSettingsError => 'تنظیمات صدا باز نشد.';
+
+  @override
+  String get systemOutput => 'خروجی سیستم';
+
+  @override
+  String playingOn(String name) {
+    return 'در حال پخش در $name';
+  }
+
+  @override
+  String get chooseAirPlay =>
+      'برای انتخاب بلندگو یا تلویزیون، دکمهٔ AirPlay را لمس کنید.';
+
+  @override
+  String get airPlayDevice => 'دستگاه AirPlay';
+
+  @override
+  String get playOnIphone => 'پخش در این iPhone';
+
+  @override
+  String get chooseIphone => 'این iPhone را با دکمهٔ AirPlay زیر انتخاب کنید.';
+
+  @override
+  String get profile => 'نمایه';
+
+  @override
+  String get preferences => 'ترجیحات';
+
+  @override
+  String get themeColor => 'رنگ پوسته';
+
+  @override
+  String get yourMusic => 'موسیقی شما';
+
+  @override
+  String get apiCredentials => 'اطلاعات ورود API';
+
+  @override
+  String get dataStorage => 'داده و فضای ذخیره‌سازی';
+
+  @override
+  String get editProfileHelp => 'نام و آواتار خود را تنظیم کنید';
+
+  @override
+  String get customProvider => 'ارائه‌دهندهٔ سفارشی';
+
+  @override
+  String get defaultProvider => 'پیش‌فرض PPPlayer';
+
+  @override
+  String get proExperience => 'تجربهٔ Pro فعال';
+
+  @override
+  String get beta => 'آزمایشی';
+
+  @override
+  String get loading => 'در حال بارگذاری…';
+
+  @override
+  String get unknown => 'نامشخص';
+
+  @override
+  String get pause => 'مکث';
+
+  @override
+  String get repeat => 'تکرار';
+
+  @override
+  String get mute => 'بی‌صدا';
+
+  @override
+  String get unmute => 'فعال‌کردن صدا';
+
+  @override
+  String get fitVideo => 'اندازهٔ مناسب';
+
+  @override
+  String get fillVideo => 'پرکردن';
+
+  @override
+  String get fullscreen => 'تمام‌صفحه';
+
+  @override
+  String get exitFullscreen => 'خروج از تمام‌صفحه';
+
+  @override
+  String get volume => 'بلندی صدا';
+
+  @override
+  String get save => 'ذخیره';
+
+  @override
+  String get delete => 'حذف';
+
+  @override
+  String get clear => 'پاک‌کردن';
+
+  @override
+  String get follow => 'دنبال‌کردن';
+
+  @override
+  String get unfollow => 'لغو دنبال‌کردن';
+
+  @override
+  String get following => 'دنبال می‌کنید';
+
+  @override
+  String get showAll => 'نمایش همه';
+
+  @override
+  String get appearance => 'ظاهر';
+
+  @override
+  String get subtitleSize => 'اندازه';
+
+  @override
+  String get subtitleBackground => 'پس‌زمینه';
+
+  @override
+  String get earlier => 'زودتر';
+
+  @override
+  String get later => 'دیرتر';
+
+  @override
+  String get reset => 'بازنشانی';
+
+  @override
+  String subtitleDelay(String seconds) {
+    return 'تأخیر: $seconds ثانیه';
+  }
+
+  @override
+  String get morePlaybackControls => 'کنترل‌های پخش بیشتر';
+
+  @override
+  String get hideVideo => 'پنهان‌کردن ویدیو';
+
+  @override
+  String get showVideo => 'نمایش ویدیو';
+
+  @override
+  String get closeQueue => 'بستن صف';
+
+  @override
+  String get enabled => 'روشن';
+
+  @override
+  String get openFile => 'بازکردن فایل…';
+
+  @override
+  String get openFolder => 'بازکردن پوشه…';
+
+  @override
+  String get openUrl => 'بازکردن URL…';
+
+  @override
+  String get fileMenu => 'فایل';
+
+  @override
+  String get viewMenu => 'نمایش';
+
+  @override
+  String get windowMenu => 'پنجره';
+
+  @override
+  String get saveChanges => 'ذخیرهٔ تغییرات';
+
+  @override
+  String get themeAvatarColor => 'رنگ پوسته و آواتار';
+
+  @override
+  String get networkStreams => 'جریان‌های شبکه';
+
+  @override
+  String get networkStream => 'جریان شبکه';
+
+  @override
+  String get openNetworkStream => 'بازکردن جریان شبکه';
+
+  @override
+  String get editPlaylist => 'ویرایش فهرست پخش';
+
+  @override
+  String get editStreamItem => 'ویرایش مورد جریان';
+
+  @override
+  String get streamUrl => 'URL جریان';
+
+  @override
+  String get platformType => 'پلتفرم / نوع';
+
+  @override
+  String get optionalTitle => 'عنوان (اختیاری)';
+
+  @override
+  String get optionalImageUrl => 'URL تصویر (اختیاری)';
+
+  @override
+  String get myStream => 'جریان من';
+
+  @override
+  String get saveToLibrary => 'ذخیره در کتابخانه';
+
+  @override
+  String get justPlay => 'فقط پخش';
+
+  @override
+  String get autoDetect => 'تشخیص خودکار';
+
+  @override
+  String get apiKeyRequired => 'کلید API لازم است';
+
+  @override
+  String get customApiKey => 'استفاده از کلید API سفارشی';
+
+  @override
+  String get clientId => 'شناسهٔ مشتری';
+
+  @override
+  String get clientSecret => 'کلید محرمانهٔ مشتری';
+
+  @override
+  String get saveCredentials => 'ذخیرهٔ اطلاعات ورود';
+
+  @override
+  String get searchStrategy => 'روش جستجو';
+
+  @override
+  String get credentialsLocalOnly =>
+      'با امنیت در این دستگاه ذخیره می‌شود. هرگز به PPPlayer ارسال نمی‌شود.';
+
+  @override
+  String get scrapingHelp =>
+      'کلید API یا سهمیه لازم نیست. ممکن است کندتر یا کم‌اعتمادتر باشد.';
+
+  @override
+  String get streamHelp =>
+      'URL از نوع HTTP(S) یا پیوند فهرست پخش M3U را وارد کنید.';
+
+  @override
+  String get deletePlaylistConfirm => 'این فهرست پخش برای همیشه حذف شود؟';
+
+  @override
+  String get clearCacheConfirm =>
+      'داده‌های حافظهٔ نهان حذف شود؟ کتابخانه و علاقه‌مندی‌ها تغییر نمی‌کنند.';
+
+  @override
+  String get clearHistoryConfirm => 'سابقهٔ شنیدن برای همیشه حذف شود؟';
+
+  @override
+  String get addedToQueue => 'به صف اضافه شد';
+
+  @override
+  String get addedVideo => 'ویدیو اضافه شد';
+
+  @override
+  String addedChannels(String count) {
+    return 'کانال‌های اضافه‌شده: $count';
+  }
+
+  @override
+  String get removedFromPlaylist => 'از فهرست پخش حذف شد';
+
+  @override
+  String get exportCancelled => 'برون‌بری لغو شد';
+
+  @override
+  String exportComplete(String count) {
+    return 'فهرست پخش صادر شد. موارد ردشده: $count';
+  }
+
+  @override
+  String get playlistExported => 'فهرست پخش صادر شد';
+
+  @override
+  String get live => 'زنده';
+
+  @override
+  String get sponsored => 'حمایت‌شده';
+
+  @override
+  String get removeFromPlaylist => 'حذف از فهرست پخش';
+
+  @override
+  String get likedSongsHelp => 'آهنگ‌ها را ذخیره کنید تا اینجا ببینید';
+
+  @override
+  String get apiSingleVideoHint =>
+      'می‌توانید این ویدیو را بدون واردکردن فهرست پخش اضافه کنید.';
+
+  @override
+  String get linkCopied => 'پیوند کپی شد';
+
+  @override
+  String get willPlayNext => 'در ادامه پخش می‌شود';
+
+  @override
+  String get checkItOut => 'مشاهده';
+
+  @override
+  String get loadFailed => 'محتوا بارگیری نشد. دوباره تلاش کنید.';
 }

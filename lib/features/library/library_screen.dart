@@ -787,7 +787,7 @@ class _LikedSongsCard extends StatelessWidget {
                                 ),
                               ),
                               child: Text(
-                                '$count TRACKS',
+                                AppLocalizations.of(context)!.trackCount(count),
                                 style: TextStyle(
                                   color: Theme.of(context).colorScheme.onPrimary
                                       .withValues(alpha: 0.8),
@@ -1086,7 +1086,7 @@ class _LocalMusicCard extends StatelessWidget {
                                 ),
                               ),
                               child: Text(
-                                '$count TRACKS',
+                                AppLocalizations.of(context)!.trackCount(count),
                                 style: TextStyle(
                                   color: Theme.of(context)
                                       .colorScheme
@@ -1374,7 +1374,7 @@ class _LocalVideoCard extends StatelessWidget {
                                 ),
                               ),
                               child: Text(
-                                '$count VIDEOS',
+                                '${AppLocalizations.of(context)!.localVideosCard} · $count',
                                 style: TextStyle(
                                   color: Theme.of(context)
                                       .colorScheme
@@ -1600,7 +1600,9 @@ class _PlaylistCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '${tracks.length} tracks'.toUpperCase(),
+                  AppLocalizations.of(
+                    context,
+                  )!.trackCount(tracks.length).toUpperCase(),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -1631,7 +1633,7 @@ class _PlaylistCard extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Are you sure you want to delete "${playlist.name}"?\nThis action cannot be undone.',
+                '${playlist.name}\n${AppLocalizations.of(context)!.deletePlaylistConfirm}',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
@@ -1682,7 +1684,7 @@ class _PlaylistCard extends StatelessWidget {
                           ),
                         ),
                         child: Text(
-                          'Delete',
+                          AppLocalizations.of(context)!.delete,
                           style: TextStyle(
                             color: colorScheme.error,
                             fontWeight: FontWeight.bold,
@@ -1900,7 +1902,7 @@ class _ArtistsSliverList extends StatelessWidget {
               subtitle: AppLocalizations.of(
                 context,
               )!.followArtistsToSeeThemHere,
-              buttonText: 'Discover Artists',
+              buttonText: AppLocalizations.of(context)!.discoverMusic,
               onPressed: () => context.push('/search'),
             ),
           );
@@ -2074,7 +2076,7 @@ class _AlbumsSliverGrid extends StatelessWidget {
               icon: Icons.album_rounded,
               title: AppLocalizations.of(context)!.noLikedAlbums,
               subtitle: AppLocalizations.of(context)!.likeAlbumsToSeeThemHere,
-              buttonText: 'Discover Albums',
+              buttonText: AppLocalizations.of(context)!.discoverMusic,
               onPressed: () => context.push('/search'),
             ),
           );
@@ -2211,8 +2213,8 @@ class _SortToggle extends StatelessWidget {
           ? Icons.access_time_rounded
           : Icons.sort_by_alpha_rounded,
       tooltip: selectedSort == LibrarySort.recent
-          ? 'Sort: Recent'
-          : 'Sort: Alphabetical',
+          ? '${AppLocalizations.of(context)!.sortBy}: ${AppLocalizations.of(context)!.sortDateAdded}'
+          : '${AppLocalizations.of(context)!.sortBy}: ${AppLocalizations.of(context)!.sortTitle}',
       onTap: () {
         if (selectedSort == LibrarySort.recent) {
           onSelected(LibrarySort.alphabetical);
@@ -2552,7 +2554,9 @@ class _RadioCard extends ConsumerWidget {
             ),
             const SizedBox(height: 2),
             Text(
-              (radio.seedType == 'genre' ? 'Genre' : 'Radio Station')
+              (radio.seedType == 'genre'
+                      ? 'Genre'
+                      : AppLocalizations.of(context)!.radioStations)
                   .toUpperCase(),
               style: TextStyle(
                 color: Theme.of(context).colorScheme.primary,

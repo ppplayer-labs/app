@@ -397,8 +397,16 @@ class _PlayerOverlaysState extends ConsumerState<PlayerOverlays> {
                                                 ),
                                           hoverColor: colorScheme.primary,
                                           tooltip: isRemote
-                                              ? 'Playing on ${outputState.selectedOutput.name}'
-                                              : 'Play On',
+                                              ? AppLocalizations.of(
+                                                  context,
+                                                )!.playingOn(
+                                                  outputState
+                                                      .selectedOutput
+                                                      .name,
+                                                )
+                                              : AppLocalizations.of(
+                                                  context,
+                                                )!.playOn,
                                           onTap: () {
                                             _onInteraction();
                                             showOutputPicker(btnContext, ref);
@@ -663,7 +671,9 @@ class _PlayerOverlaysState extends ConsumerState<PlayerOverlays> {
                                     queueLabel: AppLocalizations.of(
                                       context,
                                     )!.queue,
-                                    optionsLabel: 'Playback options',
+                                    optionsLabel: AppLocalizations.of(
+                                      context,
+                                    )!.morePlaybackControls,
                                     queueSelected:
                                         settings.playerView == PlayerView.queue,
                                     onInteraction: _onInteraction,
@@ -717,8 +727,12 @@ class _PlayerOverlaysState extends ConsumerState<PlayerOverlays> {
                                         color: Colors.white,
                                       ),
                                       tooltip: widget.isFullscreen
-                                          ? 'Exit Fullscreen'
-                                          : 'Fullscreen',
+                                          ? AppLocalizations.of(
+                                              context,
+                                            )!.exitFullscreen
+                                          : AppLocalizations.of(
+                                              context,
+                                            )!.fullscreen,
                                       onPressed: () {
                                         _onInteraction();
                                         widget.onToggleFullscreen();
@@ -735,7 +749,9 @@ class _PlayerOverlaysState extends ConsumerState<PlayerOverlays> {
                                             playerNotifier.toggleShuffle,
                                       ),
                                       PlayerControlAction(
-                                        label: 'Repeat',
+                                        label: AppLocalizations.of(
+                                          context,
+                                        )!.repeat,
                                         icon:
                                             playerState.repeatMode ==
                                                 RepeatMode.one
@@ -816,8 +832,12 @@ class _PlayerOverlaysState extends ConsumerState<PlayerOverlays> {
                                           label:
                                               settings.videoFitMode ==
                                                   VideoFitMode.fill
-                                              ? 'Fit'
-                                              : 'Fill',
+                                              ? AppLocalizations.of(
+                                                  context,
+                                                )!.fitVideo
+                                              : AppLocalizations.of(
+                                                  context,
+                                                )!.fillVideo,
                                           icon:
                                               settings.videoFitMode ==
                                                   VideoFitMode.fill

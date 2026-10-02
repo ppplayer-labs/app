@@ -744,4 +744,350 @@ class AppLocalizationsKa extends AppLocalizations {
 
   @override
   String get off => 'გამორთული';
+
+  @override
+  String get playOn => 'დაკვრა მოწყობილობაზე';
+
+  @override
+  String get thisDevice => 'ეს მოწყობილობა';
+
+  @override
+  String get availableDevices => 'ხელმისაწვდომი მოწყობილობები';
+
+  @override
+  String get searchingDevices => 'მოწყობილობების ძიება…';
+
+  @override
+  String get refresh => 'განახლება';
+
+  @override
+  String get connecting => 'დაკავშირება…';
+
+  @override
+  String connectingTo(String name) {
+    return '$name-თან დაკავშირება…';
+  }
+
+  @override
+  String get connected => 'დაკავშირებულია';
+
+  @override
+  String get unsupportedOutput =>
+      'ამ წყაროს ამ გამომავალზე დაკვრა შეუძლებელია.';
+
+  @override
+  String get airPlayAudioOutput => 'AirPlay და აუდიოგამომავალი';
+
+  @override
+  String get returnForAirPlay =>
+      'AirPlay-ის გამოსაყენებლად დაუკარით ამ მოწყობილობაზე.';
+
+  @override
+  String get openSoundSettings =>
+      'გამომავლის ასარჩევად გახსენით ხმის პარამეტრები.';
+
+  @override
+  String get soundSettingsError => 'ხმის პარამეტრები ვერ გაიხსნა.';
+
+  @override
+  String get systemOutput => 'სისტემის გამომავალი';
+
+  @override
+  String playingOn(String name) {
+    return 'დაკვრა $name-ზე';
+  }
+
+  @override
+  String get chooseAirPlay =>
+      'დინამიკის ან ტელევიზორის ასარჩევად შეეხეთ AirPlay ღილაკს.';
+
+  @override
+  String get airPlayDevice => 'AirPlay მოწყობილობა';
+
+  @override
+  String get playOnIphone => 'დაკვრა ამ iPhone-ზე';
+
+  @override
+  String get chooseIphone =>
+      'აირჩიეთ ეს iPhone ქვემოთ მოცემული AirPlay ღილაკით.';
+
+  @override
+  String get profile => 'პროფილი';
+
+  @override
+  String get preferences => 'პარამეტრები';
+
+  @override
+  String get themeColor => 'თემის ფერი';
+
+  @override
+  String get yourMusic => 'თქვენი მუსიკა';
+
+  @override
+  String get apiCredentials => 'API-ის წვდომის მონაცემები';
+
+  @override
+  String get dataStorage => 'მონაცემები და საცავი';
+
+  @override
+  String get editProfileHelp => 'დააყენეთ თქვენი სახელი და ავატარი';
+
+  @override
+  String get customProvider => 'მორგებული მომწოდებელი';
+
+  @override
+  String get defaultProvider => 'PPPlayer-ის ნაგულისხმევი';
+
+  @override
+  String get proExperience => 'Pro შესაძლებლობები აქტიურია';
+
+  @override
+  String get beta => 'ბეტა';
+
+  @override
+  String get loading => 'იტვირთება…';
+
+  @override
+  String get unknown => 'უცნობია';
+
+  @override
+  String get pause => 'პაუზა';
+
+  @override
+  String get repeat => 'გამეორება';
+
+  @override
+  String get mute => 'ხმის გამორთვა';
+
+  @override
+  String get unmute => 'ხმის ჩართვა';
+
+  @override
+  String get fitVideo => 'მორგება';
+
+  @override
+  String get fillVideo => 'შევსება';
+
+  @override
+  String get fullscreen => 'სრული ეკრანი';
+
+  @override
+  String get exitFullscreen => 'სრული ეკრანიდან გამოსვლა';
+
+  @override
+  String get volume => 'ხმის დონე';
+
+  @override
+  String get save => 'შენახვა';
+
+  @override
+  String get delete => 'წაშლა';
+
+  @override
+  String get clear => 'გასუფთავება';
+
+  @override
+  String get follow => 'გამოწერა';
+
+  @override
+  String get unfollow => 'გამოწერის გაუქმება';
+
+  @override
+  String get following => 'გამოწერილია';
+
+  @override
+  String get showAll => 'ყველას ჩვენება';
+
+  @override
+  String get appearance => 'იერსახე';
+
+  @override
+  String get subtitleSize => 'ზომა';
+
+  @override
+  String get subtitleBackground => 'ფონი';
+
+  @override
+  String get earlier => 'ადრე';
+
+  @override
+  String get later => 'გვიან';
+
+  @override
+  String get reset => 'განულება';
+
+  @override
+  String subtitleDelay(String seconds) {
+    return 'დაყოვნება: $seconds წმ';
+  }
+
+  @override
+  String get morePlaybackControls => 'დაკვრის სხვა კონტროლები';
+
+  @override
+  String get hideVideo => 'ვიდეოს დამალვა';
+
+  @override
+  String get showVideo => 'ვიდეოს ჩვენება';
+
+  @override
+  String get closeQueue => 'რიგის დახურვა';
+
+  @override
+  String get enabled => 'ჩართულია';
+
+  @override
+  String get openFile => 'ფაილის გახსნა…';
+
+  @override
+  String get openFolder => 'საქაღალდის გახსნა…';
+
+  @override
+  String get openUrl => 'URL-ის გახსნა…';
+
+  @override
+  String get fileMenu => 'ფაილი';
+
+  @override
+  String get viewMenu => 'ხედი';
+
+  @override
+  String get windowMenu => 'ფანჯარა';
+
+  @override
+  String get saveChanges => 'ცვლილებების შენახვა';
+
+  @override
+  String get themeAvatarColor => 'თემისა და ავატარის ფერი';
+
+  @override
+  String get networkStreams => 'ქსელური ნაკადები';
+
+  @override
+  String get networkStream => 'ქსელური ნაკადი';
+
+  @override
+  String get openNetworkStream => 'ქსელური ნაკადის გახსნა';
+
+  @override
+  String get editPlaylist => 'დასაკრავი სიის რედაქტირება';
+
+  @override
+  String get editStreamItem => 'ნაკადის ელემენტის რედაქტირება';
+
+  @override
+  String get streamUrl => 'ნაკადის URL';
+
+  @override
+  String get platformType => 'პლატფორმა / ტიპი';
+
+  @override
+  String get optionalTitle => 'სათაური (არასავალდებულო)';
+
+  @override
+  String get optionalImageUrl => 'სურათის URL (არასავალდებულო)';
+
+  @override
+  String get myStream => 'ჩემი ნაკადი';
+
+  @override
+  String get saveToLibrary => 'ბიბლიოთეკაში შენახვა';
+
+  @override
+  String get justPlay => 'მხოლოდ დაკვრა';
+
+  @override
+  String get autoDetect => 'ავტომატური ამოცნობა';
+
+  @override
+  String get apiKeyRequired => 'საჭიროა API გასაღები';
+
+  @override
+  String get customApiKey => 'საკუთარი API გასაღების გამოყენება';
+
+  @override
+  String get clientId => 'კლიენტის ID';
+
+  @override
+  String get clientSecret => 'კლიენტის საიდუმლო';
+
+  @override
+  String get saveCredentials => 'წვდომის მონაცემების შენახვა';
+
+  @override
+  String get searchStrategy => 'ძიების მეთოდი';
+
+  @override
+  String get credentialsLocalOnly =>
+      'უსაფრთხოდ ინახება ამ მოწყობილობაზე. PPPlayer-ს არასდროს ეგზავნება.';
+
+  @override
+  String get scrapingHelp =>
+      'API გასაღები ან კვოტა არ სჭირდება. შესაძლოა უფრო ნელი ან ნაკლებად საიმედო იყოს.';
+
+  @override
+  String get streamHelp => 'შეიყვანეთ HTTP(S) URL ან M3U სიის ბმული.';
+
+  @override
+  String get deletePlaylistConfirm => 'სამუდამოდ წაიშალოს ეს დასაკრავი სია?';
+
+  @override
+  String get clearCacheConfirm =>
+      'წაიშალოს ქეშის მონაცემები? ბიბლიოთეკა და რჩეულები არ შეიცვლება.';
+
+  @override
+  String get clearHistoryConfirm => 'სამუდამოდ წაიშალოს მოსმენის ისტორია?';
+
+  @override
+  String get addedToQueue => 'დაემატა რიგს';
+
+  @override
+  String get addedVideo => 'ვიდეო დაემატა';
+
+  @override
+  String addedChannels(String count) {
+    return 'დამატებული არხები: $count';
+  }
+
+  @override
+  String get removedFromPlaylist => 'ამოიშალა სიიდან';
+
+  @override
+  String get exportCancelled => 'ექსპორტი გაუქმდა';
+
+  @override
+  String exportComplete(String count) {
+    return 'სია ექსპორტირებულია. გამოტოვებული ელემენტები: $count';
+  }
+
+  @override
+  String get playlistExported => 'სია ექსპორტირებულია';
+
+  @override
+  String get live => 'პირდაპირ ეთერში';
+
+  @override
+  String get sponsored => 'დასპონსორებული';
+
+  @override
+  String get removeFromPlaylist => 'სიიდან ამოღება';
+
+  @override
+  String get likedSongsHelp => 'შეინახეთ სიმღერები, რომ აქ გამოჩნდეს';
+
+  @override
+  String get apiSingleVideoHint =>
+      'ვიდეოს დამატება სიის იმპორტის გარეშეც შეგიძლიათ.';
+
+  @override
+  String get linkCopied => 'ბმული დაკოპირდა';
+
+  @override
+  String get willPlayNext => 'შემდეგ დაიკვრება';
+
+  @override
+  String get checkItOut => 'ნახვა';
+
+  @override
+  String get loadFailed => 'შიგთავსის ჩატვირთვა ვერ მოხერხდა. სცადეთ ხელახლა.';
 }

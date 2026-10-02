@@ -98,7 +98,7 @@ class _ArtistScreenState extends ConsumerState<ArtistScreen> {
         loading: () => const ArtistDetailsShimmer(),
         error: (e, _) => Center(
           child: Text(
-            'Error: $e',
+            AppLocalizations.of(context)!.error(e.toString()),
             style: TextStyle(color: colorScheme.onSurfaceVariant),
           ),
         ),
@@ -403,8 +403,12 @@ class _ArtistScreenState extends ConsumerState<ArtistScreen> {
                                               ),
                                               child: Text(
                                                 isFollowed
-                                                    ? 'FOLLOWING'
-                                                    : 'FOLLOW',
+                                                    ? AppLocalizations.of(
+                                                        context,
+                                                      )!.following.toUpperCase()
+                                                    : AppLocalizations.of(
+                                                        context,
+                                                      )!.follow.toUpperCase(),
                                                 style: TextStyle(
                                                   color: isFollowed
                                                       ? colorScheme.primary
@@ -477,7 +481,9 @@ class _ArtistScreenState extends ConsumerState<ArtistScreen> {
                                               ),
                                               const SizedBox(width: 10),
                                               Text(
-                                                'RADIO',
+                                                AppLocalizations.of(
+                                                  context,
+                                                )!.radioStations,
                                                 style: TextStyle(
                                                   color: Theme.of(
                                                     context,
@@ -634,7 +640,7 @@ class _ArtistScreenState extends ConsumerState<ArtistScreen> {
                                   ),
                                   const SizedBox(height: 16),
                                   Text(
-                                    'No tracks found for "$_searchQuery"',
+                                    '${AppLocalizations.of(context)!.noTracksFound}: "$_searchQuery"',
                                     style: TextStyle(
                                       color: colorScheme.onSurface.withValues(
                                         alpha: 0.3,
@@ -1221,7 +1227,7 @@ class _ArtistPlaylistCardState extends ConsumerState<_ArtistPlaylistCard> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Playlist • ${playlist['tracks']?['total'] ?? 0} tracks',
+                    '${AppLocalizations.of(context)!.playlist} • ${AppLocalizations.of(context)!.trackCount(playlist['tracks']?['total'] ?? 0)}',
                     style: TextStyle(
                       fontSize: 11,
                       color: colorScheme.onSurface.withValues(alpha: 0.4),

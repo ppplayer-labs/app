@@ -288,7 +288,7 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
           ? null
           : isDesktop
           ? const DesktopPlayerBar()
-          : const Column(
+          : Column(
               mainAxisSize: MainAxisSize.min,
               children: [_MiniPlayerBar(), _BottomNavBar()],
             ),
@@ -303,7 +303,7 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
               PlatformMenuItemGroup(
                 members: [
                   PlatformMenuItem(
-                    label: 'About PPPlayer',
+                    label: AppLocalizations.of(context)!.aboutApp,
                     onSelected: () async {
                       if (context.mounted) {
                         showDialog(
@@ -345,12 +345,12 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
             ],
           ),
           PlatformMenu(
-            label: 'File',
+            label: AppLocalizations.of(context)!.fileMenu,
             menus: [
               PlatformMenuItemGroup(
                 members: [
                   PlatformMenuItem(
-                    label: 'Open File...',
+                    label: AppLocalizations.of(context)!.openFile,
                     shortcut: const SingleActivator(
                       LogicalKeyboardKey.keyO,
                       meta: true,
@@ -367,7 +367,7 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
                     },
                   ),
                   PlatformMenuItem(
-                    label: 'Open Folder...',
+                    label: AppLocalizations.of(context)!.openFolder,
                     shortcut: const SingleActivator(
                       LogicalKeyboardKey.keyO,
                       meta: true,
@@ -377,7 +377,7 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
                         ref.read(localLibraryServiceProvider).importFolder(),
                   ),
                   PlatformMenuItem(
-                    label: 'Open URL...',
+                    label: AppLocalizations.of(context)!.openUrl,
                     shortcut: const SingleActivator(
                       LogicalKeyboardKey.keyU,
                       meta: true,
@@ -390,7 +390,7 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
               PlatformMenuItemGroup(
                 members: [
                   PlatformMenuItem(
-                    label: 'Import Playlist...',
+                    label: AppLocalizations.of(context)!.importPlaylist,
                     onSelected: () =>
                         ref.read(localLibraryServiceProvider).importPlaylist(),
                   ),
@@ -399,7 +399,7 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
               PlatformMenuItemGroup(
                 members: [
                   PlatformMenuItem(
-                    label: 'Export Queue...',
+                    label: AppLocalizations.of(context)!.exportPlaylist,
                     onSelected: () {
                       final queue = ref
                           .read(playerProvider)
@@ -417,7 +417,7 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
             ],
           ),
           PlatformMenu(
-            label: 'View',
+            label: AppLocalizations.of(context)!.viewMenu,
             menus: [
               PlatformMenuItemGroup(
                 members: [
@@ -429,7 +429,7 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
             ],
           ),
           PlatformMenu(
-            label: 'Window',
+            label: AppLocalizations.of(context)!.windowMenu,
             menus: [
               PlatformMenuItemGroup(
                 members: [
@@ -1170,7 +1170,11 @@ class _MiniPlayerBar extends ConsumerWidget {
                                         const SizedBox(width: 4),
                                         Flexible(
                                           child: Text(
-                                            'Playing on ${outputState.selectedOutput.name}',
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.playingOn(
+                                              outputState.selectedOutput.name,
+                                            ),
                                             style: TextStyle(
                                               fontSize: 10,
                                               color: colorScheme.primary,
@@ -1201,7 +1205,9 @@ class _MiniPlayerBar extends ConsumerWidget {
                           size: 34,
                           onTap: () =>
                               ref.read(playerProvider.notifier).togglePlay(),
-                          tooltip: playerState.isPlaying ? 'Pause' : 'Play',
+                          tooltip: playerState.isPlaying
+                              ? AppLocalizations.of(context)!.pause
+                              : AppLocalizations.of(context)!.play,
                         ),
                         TactileIconButton(
                           icon: Icons.skip_next,
@@ -1230,8 +1236,10 @@ class _MiniPlayerBar extends ConsumerWidget {
                                     ),
                               hoverColor: colorScheme.primary,
                               tooltip: outputState.connected
-                                  ? 'Output: ${outputState.selectedOutput.name}'
-                                  : 'Play On',
+                                  ? AppLocalizations.of(context)!.playingOn(
+                                      outputState.selectedOutput.name,
+                                    )
+                                  : AppLocalizations.of(context)!.playOn,
                               onTap: () => showOutputPicker(ctx, ref),
                             );
                           },
@@ -1249,7 +1257,9 @@ class _MiniPlayerBar extends ConsumerWidget {
                               alpha: 0.6,
                             ),
                             hoverColor: colorScheme.onSurface,
-                            tooltip: showVideo ? 'Hide Video' : 'Show Video',
+                            tooltip: showVideo
+                                ? AppLocalizations.of(context)!.hideVideo
+                                : AppLocalizations.of(context)!.showVideo,
                           ),
                       ],
                     ),
@@ -1371,7 +1381,7 @@ class _DesktopSidebar extends ConsumerWidget {
                     vertical: 8,
                   ),
                   child: Text(
-                    'YOUR MUSIC',
+                    AppLocalizations.of(context)!.yourMusic,
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
@@ -1533,7 +1543,7 @@ class _DesktopSidebar extends ConsumerWidget {
                           vertical: 16,
                         ),
                         child: Text(
-                          'No playlists yet.',
+                          AppLocalizations.of(context)!.noPlaylistsYet,
                           style: TextStyle(
                             color: colorScheme.onSurface.withValues(alpha: 0.3),
                             fontSize: 12,
@@ -1960,7 +1970,9 @@ class DesktopPlayerBar extends ConsumerWidget {
                             size: 46,
                             onTap: () =>
                                 ref.read(playerProvider.notifier).togglePlay(),
-                            tooltip: playerState.isPlaying ? 'Pause' : 'Play',
+                            tooltip: playerState.isPlaying
+                                ? AppLocalizations.of(context)!.pause
+                                : AppLocalizations.of(context)!.play,
                           ),
                           SizedBox(width: controlGap),
                           TactileIconButton(
@@ -1994,10 +2006,10 @@ class DesktopPlayerBar extends ConsumerWidget {
                                   ? colorScheme.primary
                                   : colorScheme.onSurface,
                               tooltip: playerState.repeatMode == RepeatMode.one
-                                  ? 'Repeat One'
+                                  ? '${AppLocalizations.of(context)!.repeat}: 1'
                                   : (playerState.repeatMode == RepeatMode.all
-                                        ? 'Repeat All'
-                                        : 'Repeat Off'),
+                                        ? '${AppLocalizations.of(context)!.repeat}: ${AppLocalizations.of(context)!.filterAll}'
+                                        : '${AppLocalizations.of(context)!.repeat}: ${AppLocalizations.of(context)!.off}'),
                             ),
                         ],
                       ),
@@ -2023,8 +2035,8 @@ class DesktopPlayerBar extends ConsumerWidget {
                                 ),
                                 hoverColor: colorScheme.primary,
                                 tooltip: playerState.volume == 0
-                                    ? 'Unmute'
-                                    : 'Mute',
+                                    ? AppLocalizations.of(context)!.unmute
+                                    : AppLocalizations.of(context)!.mute,
                                 onTap: () {
                                   final notifier = ref.read(
                                     playerProvider.notifier,
@@ -2063,15 +2075,19 @@ class DesktopPlayerBar extends ConsumerWidget {
                                         ),
                                   hoverColor: colorScheme.primary,
                                   tooltip: outputState.connected
-                                      ? 'Output: ${outputState.selectedOutput.name}'
-                                      : 'Play On',
+                                      ? AppLocalizations.of(context)!.playingOn(
+                                          outputState.selectedOutput.name,
+                                        )
+                                      : AppLocalizations.of(context)!.playOn,
                                   onTap: () => showOutputPicker(ctx, ref),
                                 );
                               },
                             ),
                             if (compact) ...[
                               PopupMenuButton<String>(
-                                tooltip: 'More playback controls',
+                                tooltip: AppLocalizations.of(
+                                  context,
+                                )!.morePlaybackControls,
                                 icon: const Icon(Icons.more_horiz, size: 20),
                                 onSelected: (action) {
                                   final notifier = ref.read(
@@ -2097,29 +2113,39 @@ class DesktopPlayerBar extends ConsumerWidget {
                                     value: 'shuffle',
                                     child: Text(
                                       playerState.isShuffled
-                                          ? 'Shuffle: On'
-                                          : 'Shuffle: Off',
+                                          ? '${AppLocalizations.of(context)!.shuffle}: ${AppLocalizations.of(context)!.enabled}'
+                                          : '${AppLocalizations.of(context)!.shuffle}: ${AppLocalizations.of(context)!.off}',
                                     ),
                                   ),
                                   PopupMenuItem(
                                     value: 'repeat',
                                     child: Text(
-                                      'Repeat: ${playerState.repeatMode.name}',
+                                      '${AppLocalizations.of(context)!.repeat}: ${playerState.repeatMode == RepeatMode.one
+                                          ? '1'
+                                          : playerState.repeatMode == RepeatMode.all
+                                          ? AppLocalizations.of(context)!.filterAll
+                                          : AppLocalizations.of(context)!.off}',
                                     ),
                                   ),
                                   PopupMenuItem(
                                     value: 'mute',
                                     child: Text(
                                       playerState.volume == 0
-                                          ? 'Unmute'
-                                          : 'Mute',
+                                          ? AppLocalizations.of(context)!.unmute
+                                          : AppLocalizations.of(context)!.mute,
                                     ),
                                   ),
                                   if (!isLocalTrack)
                                     PopupMenuItem(
                                       value: 'video',
                                       child: Text(
-                                        showVideo ? 'Hide Video' : 'Show Video',
+                                        showVideo
+                                            ? AppLocalizations.of(
+                                                context,
+                                              )!.hideVideo
+                                            : AppLocalizations.of(
+                                                context,
+                                              )!.showVideo,
                                       ),
                                     ),
                                   PopupMenuItem<String>(
@@ -2131,7 +2157,11 @@ class DesktopPlayerBar extends ConsumerWidget {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            const Text('Volume'),
+                                            Text(
+                                              AppLocalizations.of(
+                                                context,
+                                              )!.volume,
+                                            ),
                                             Slider(
                                               value: ref.watch(
                                                 playerProvider.select(
@@ -2166,8 +2196,8 @@ class DesktopPlayerBar extends ConsumerWidget {
                                       ),
                                 hoverColor: colorScheme.onSurface,
                                 tooltip: showVideo
-                                    ? 'Hide Video'
-                                    : 'Show Video',
+                                    ? AppLocalizations.of(context)!.hideVideo
+                                    : AppLocalizations.of(context)!.showVideo,
                               ),
                             ],
                             SizedBox(width: compact ? 4 : 16),

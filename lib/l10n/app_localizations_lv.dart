@@ -745,4 +745,352 @@ class AppLocalizationsLv extends AppLocalizations {
 
   @override
   String get off => 'Izslēgts';
+
+  @override
+  String get playOn => 'Atskaņot ierīcē';
+
+  @override
+  String get thisDevice => 'Šī ierīce';
+
+  @override
+  String get availableDevices => 'Pieejamās ierīces';
+
+  @override
+  String get searchingDevices => 'Meklē ierīces…';
+
+  @override
+  String get refresh => 'Atsvaidzināt';
+
+  @override
+  String get connecting => 'Savieno…';
+
+  @override
+  String connectingTo(String name) {
+    return 'Savieno ar $name…';
+  }
+
+  @override
+  String get connected => 'Savienots';
+
+  @override
+  String get unsupportedOutput => 'Šo avotu nevar atskaņot šajā izvadē.';
+
+  @override
+  String get airPlayAudioOutput => 'AirPlay un audio izvade';
+
+  @override
+  String get returnForAirPlay =>
+      'Lai izmantotu AirPlay, atskaņojiet šajā ierīcē.';
+
+  @override
+  String get openSoundSettings =>
+      'Atveriet skaņas iestatījumus, lai izvēlētos izvadi.';
+
+  @override
+  String get soundSettingsError => 'Neizdevās atvērt skaņas iestatījumus.';
+
+  @override
+  String get systemOutput => 'Sistēmas izvade';
+
+  @override
+  String playingOn(String name) {
+    return 'Atskaņo ierīcē $name';
+  }
+
+  @override
+  String get chooseAirPlay =>
+      'Pieskarieties AirPlay pogai, lai izvēlētos skaļruni vai televizoru.';
+
+  @override
+  String get airPlayDevice => 'AirPlay ierīce';
+
+  @override
+  String get playOnIphone => 'Atskaņot šajā iPhone';
+
+  @override
+  String get chooseIphone =>
+      'Izvēlieties šo iPhone ar tālāk esošo AirPlay pogu.';
+
+  @override
+  String get profile => 'Profils';
+
+  @override
+  String get preferences => 'Preferences';
+
+  @override
+  String get themeColor => 'Motīva krāsa';
+
+  @override
+  String get yourMusic => 'Jūsu mūzika';
+
+  @override
+  String get apiCredentials => 'API piekļuves dati';
+
+  @override
+  String get dataStorage => 'Dati un krātuve';
+
+  @override
+  String get editProfileHelp => 'Iestatiet vārdu un avatāru';
+
+  @override
+  String get customProvider => 'Pielāgots pakalpojuma sniedzējs';
+
+  @override
+  String get defaultProvider => 'PPPlayer noklusējums';
+
+  @override
+  String get proExperience => 'Pro iespējas aktīvas';
+
+  @override
+  String get beta => 'Beta';
+
+  @override
+  String get loading => 'Ielādē…';
+
+  @override
+  String get unknown => 'Nezināms';
+
+  @override
+  String get pause => 'Pauze';
+
+  @override
+  String get repeat => 'Atkārtot';
+
+  @override
+  String get mute => 'Izslēgt skaņu';
+
+  @override
+  String get unmute => 'Ieslēgt skaņu';
+
+  @override
+  String get fitVideo => 'Ietilpināt';
+
+  @override
+  String get fillVideo => 'Aizpildīt';
+
+  @override
+  String get fullscreen => 'Pilnekrāns';
+
+  @override
+  String get exitFullscreen => 'Iziet no pilnekrāna';
+
+  @override
+  String get volume => 'Skaļums';
+
+  @override
+  String get save => 'Saglabāt';
+
+  @override
+  String get delete => 'Dzēst';
+
+  @override
+  String get clear => 'Notīrīt';
+
+  @override
+  String get follow => 'Sekot';
+
+  @override
+  String get unfollow => 'Pārtraukt sekot';
+
+  @override
+  String get following => 'Sekojat';
+
+  @override
+  String get showAll => 'Rādīt visu';
+
+  @override
+  String get appearance => 'Izskats';
+
+  @override
+  String get subtitleSize => 'Izmērs';
+
+  @override
+  String get subtitleBackground => 'Fons';
+
+  @override
+  String get earlier => 'Agrāk';
+
+  @override
+  String get later => 'Vēlāk';
+
+  @override
+  String get reset => 'Atiestatīt';
+
+  @override
+  String subtitleDelay(String seconds) {
+    return 'Aizkave: $seconds s';
+  }
+
+  @override
+  String get morePlaybackControls => 'Vairāk atskaņošanas vadīklu';
+
+  @override
+  String get hideVideo => 'Paslēpt video';
+
+  @override
+  String get showVideo => 'Rādīt video';
+
+  @override
+  String get closeQueue => 'Aizvērt rindu';
+
+  @override
+  String get enabled => 'Ieslēgts';
+
+  @override
+  String get openFile => 'Atvērt failu…';
+
+  @override
+  String get openFolder => 'Atvērt mapi…';
+
+  @override
+  String get openUrl => 'Atvērt URL…';
+
+  @override
+  String get fileMenu => 'Fails';
+
+  @override
+  String get viewMenu => 'Skats';
+
+  @override
+  String get windowMenu => 'Logs';
+
+  @override
+  String get saveChanges => 'Saglabāt izmaiņas';
+
+  @override
+  String get themeAvatarColor => 'Motīva un avatāra krāsa';
+
+  @override
+  String get networkStreams => 'Tīkla straumes';
+
+  @override
+  String get networkStream => 'Tīkla straume';
+
+  @override
+  String get openNetworkStream => 'Atvērt tīkla straumi';
+
+  @override
+  String get editPlaylist => 'Rediģēt atskaņošanas sarakstu';
+
+  @override
+  String get editStreamItem => 'Rediģēt straumes vienumu';
+
+  @override
+  String get streamUrl => 'Straumes URL';
+
+  @override
+  String get platformType => 'Platforma / veids';
+
+  @override
+  String get optionalTitle => 'Nosaukums (neobligāts)';
+
+  @override
+  String get optionalImageUrl => 'Attēla URL (neobligāts)';
+
+  @override
+  String get myStream => 'Mana straume';
+
+  @override
+  String get saveToLibrary => 'Saglabāt bibliotēkā';
+
+  @override
+  String get justPlay => 'Tikai atskaņot';
+
+  @override
+  String get autoDetect => 'Automātiska noteikšana';
+
+  @override
+  String get apiKeyRequired => 'Nepieciešama API atslēga';
+
+  @override
+  String get customApiKey => 'Izmantot savu API atslēgu';
+
+  @override
+  String get clientId => 'Klienta ID';
+
+  @override
+  String get clientSecret => 'Klienta noslēpums';
+
+  @override
+  String get saveCredentials => 'Saglabāt piekļuves datus';
+
+  @override
+  String get searchStrategy => 'Meklēšanas stratēģija';
+
+  @override
+  String get credentialsLocalOnly =>
+      'Droši glabājas šajā ierīcē. Nekad netiek sūtīti uz PPPlayer.';
+
+  @override
+  String get scrapingHelp =>
+      'API atslēga un kvota nav vajadzīga. Var būt lēnāk vai mazāk uzticami.';
+
+  @override
+  String get streamHelp =>
+      'Ievadiet HTTP(S) URL vai M3U atskaņošanas saraksta saiti.';
+
+  @override
+  String get deletePlaylistConfirm =>
+      'Neatgriezeniski dzēst šo atskaņošanas sarakstu?';
+
+  @override
+  String get clearCacheConfirm =>
+      'Dzēst kešatmiņu? Bibliotēka un izlase nemainīsies.';
+
+  @override
+  String get clearHistoryConfirm =>
+      'Neatgriezeniski dzēst klausīšanās vēsturi?';
+
+  @override
+  String get addedToQueue => 'Pievienots rindai';
+
+  @override
+  String get addedVideo => 'Video pievienots';
+
+  @override
+  String addedChannels(String count) {
+    return 'Pievienotie kanāli: $count';
+  }
+
+  @override
+  String get removedFromPlaylist => 'Izņemts no saraksta';
+
+  @override
+  String get exportCancelled => 'Eksports atcelts';
+
+  @override
+  String exportComplete(String count) {
+    return 'Saraksts eksportēts. Izlaistie vienumi: $count';
+  }
+
+  @override
+  String get playlistExported => 'Saraksts eksportēts';
+
+  @override
+  String get live => 'Tiešraide';
+
+  @override
+  String get sponsored => 'Sponsorēts';
+
+  @override
+  String get removeFromPlaylist => 'Izņemt no saraksta';
+
+  @override
+  String get likedSongsHelp => 'Saglabājiet dziesmas, lai tās redzētu šeit';
+
+  @override
+  String get apiSingleVideoHint =>
+      'Šo video varat pievienot, neimportējot atskaņošanas sarakstu.';
+
+  @override
+  String get linkCopied => 'Saite nokopēta';
+
+  @override
+  String get willPlayNext => 'Tiks atskaņots nākamais';
+
+  @override
+  String get checkItOut => 'Apskatīt';
+
+  @override
+  String get loadFailed => 'Neizdevās ielādēt saturu. Mēģiniet vēlreiz.';
 }

@@ -268,7 +268,7 @@ class _LikedSongsScreenState extends ConsumerState<LikedSongsScreen> {
                       builder: (context, snap) {
                         final count = snap.data?.length ?? 0;
                         return Text(
-                          '$count tracks stored locally',
+                          AppLocalizations.of(context)!.trackCount(count),
                           style: TextStyle(
                             color: Theme.of(
                               context,
@@ -462,8 +462,8 @@ class _LikedSongsScreenState extends ConsumerState<LikedSongsScreen> {
                         const SizedBox(height: 32),
                         Text(
                               _searchQuery.isNotEmpty
-                                  ? 'Nothing matches your vibe'
-                                  : 'Your collection is quiet',
+                                  ? AppLocalizations.of(context)!.noResultsFound
+                                  : AppLocalizations.of(context)!.noTracksFound,
                               style: TextStyle(
                                 color: Theme.of(
                                   context,
@@ -479,8 +479,12 @@ class _LikedSongsScreenState extends ConsumerState<LikedSongsScreen> {
                         const SizedBox(height: 8),
                         Text(
                               _searchQuery.isNotEmpty
-                                  ? 'Try searching for something else'
-                                  : 'Save tracks to see them here',
+                                  ? AppLocalizations.of(
+                                      context,
+                                    )!.tryADifferentSearchTerm
+                                  : AppLocalizations.of(
+                                      context,
+                                    )!.likedSongsHelp,
                               style: TextStyle(
                                 color: Theme.of(
                                   context,

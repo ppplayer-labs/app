@@ -1,3 +1,4 @@
+import 'package:ppplayer/l10n/app_localizations.dart';
 import 'dart:async';
 import 'dart:io';
 
@@ -153,7 +154,7 @@ class _OutputPickerContent extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Play On',
+                AppLocalizations.of(context)!.playOn,
                 style: textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -167,9 +168,7 @@ class _OutputPickerContent extends ConsumerWidget {
                         .debugActiveUrls;
                     if (urls.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('No active local media URLs'),
-                        ),
+                        SnackBar(content: Text('No active local media URLs')),
                       );
                       return;
                     }
@@ -187,10 +186,13 @@ class _OutputPickerContent extends ConsumerWidget {
           ),
         ),
 
-        if (state.error != null) _ErrorBanner(message: state.error!),
+        if (state.error != null)
+          _ErrorBanner(
+            message: AppLocalizations.of(context)!.error(state.error!),
+          ),
         if (state.connecting) _ConnectingTile(output: state.connectingOutput),
 
-        _SectionHeader(label: 'THIS DEVICE'),
+        _SectionHeader(label: AppLocalizations.of(context)!.thisDevice),
         for (final output in localOutputs)
           _OutputTile(
             output: output,
@@ -215,7 +217,7 @@ class _OutputPickerContent extends ConsumerWidget {
             remoteOutputs.isNotEmpty ||
             state.discoveryActive) ...[
           const SizedBox(height: 8),
-          _SectionHeader(label: 'AVAILABLE DEVICES'),
+          _SectionHeader(label: AppLocalizations.of(context)!.availableDevices),
         ],
         if (showMacOSRouting)
           MacOSAudioOutputTile(
@@ -258,7 +260,7 @@ class _OutputPickerContent extends ConsumerWidget {
         Center(
           child: TextButton.icon(
             icon: Icon(Icons.refresh, size: 18, color: cs.primary),
-            label: const Text('Refresh'),
+            label: Text(AppLocalizations.of(context)!.refresh),
             onPressed: () {
               unawaited(
                 ref
@@ -308,7 +310,7 @@ class _SearchingTile extends StatelessWidget {
       ),
     ),
     title: Text(
-      'Searching for devices…',
+      AppLocalizations.of(context)!.searchingDevices,
       style: TextStyle(
         color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
       ),
@@ -362,7 +364,9 @@ class _ConnectingTile extends StatelessWidget {
       child: CircularProgressIndicator(strokeWidth: 2),
     ),
     title: Text(
-      output != null ? 'Connecting to ${output!.name}…' : 'Connecting…',
+      output != null
+          ? AppLocalizations.of(context)!.connectingTo(output!.name)
+          : AppLocalizations.of(context)!.connecting,
     ),
   );
 }
@@ -421,7 +425,9 @@ class _OutputTile extends ConsumerWidget {
           color: isSelected ? cs.primary : cs.onSurface.withValues(alpha: 0.7),
         ),
         title: Text(
-          output.name,
+          output.kind == OutputKind.local
+              ? AppLocalizations.of(context)!.thisDevice
+              : output.name,
           style: TextStyle(
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
             color: isSelected ? cs.primary : cs.onSurface,
@@ -429,9 +435,9 @@ class _OutputTile extends ConsumerWidget {
         ),
         subtitle: Text(
           isUnsupported
-              ? "This source can't be played on this output"
+              ? AppLocalizations.of(context)!.unsupportedOutput
               : isConnected
-              ? 'Connected'
+              ? AppLocalizations.of(context)!.connected
               : _subtitleFor(output.kind),
           style: TextStyle(
             fontSize: 12,

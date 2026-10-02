@@ -749,4 +749,352 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get off => 'Вимкнено';
+
+  @override
+  String get playOn => 'Відтворювати на';
+
+  @override
+  String get thisDevice => 'Цей пристрій';
+
+  @override
+  String get availableDevices => 'Доступні пристрої';
+
+  @override
+  String get searchingDevices => 'Пошук пристроїв…';
+
+  @override
+  String get refresh => 'Оновити';
+
+  @override
+  String get connecting => 'Підключення…';
+
+  @override
+  String connectingTo(String name) {
+    return 'Підключення до $name…';
+  }
+
+  @override
+  String get connected => 'Підключено';
+
+  @override
+  String get unsupportedOutput =>
+      'Це джерело не можна відтворити на цьому виході.';
+
+  @override
+  String get airPlayAudioOutput => 'AirPlay та аудіовихід';
+
+  @override
+  String get returnForAirPlay =>
+      'Відтворюйте на цьому пристрої, щоб використовувати AirPlay.';
+
+  @override
+  String get openSoundSettings =>
+      'Відкрийте налаштування звуку, щоб вибрати вихід.';
+
+  @override
+  String get soundSettingsError => 'Не вдалося відкрити налаштування звуку.';
+
+  @override
+  String get systemOutput => 'Системний вихід';
+
+  @override
+  String playingOn(String name) {
+    return 'Відтворення на $name';
+  }
+
+  @override
+  String get chooseAirPlay =>
+      'Натисніть кнопку AirPlay, щоб вибрати колонку або телевізор.';
+
+  @override
+  String get airPlayDevice => 'Пристрій AirPlay';
+
+  @override
+  String get playOnIphone => 'Відтворювати на цьому iPhone';
+
+  @override
+  String get chooseIphone =>
+      'Виберіть цей iPhone за допомогою кнопки AirPlay нижче.';
+
+  @override
+  String get profile => 'Профіль';
+
+  @override
+  String get preferences => 'Налаштування';
+
+  @override
+  String get themeColor => 'Колір теми';
+
+  @override
+  String get yourMusic => 'Ваша музика';
+
+  @override
+  String get apiCredentials => 'Облікові дані API';
+
+  @override
+  String get dataStorage => 'Дані та сховище';
+
+  @override
+  String get editProfileHelp => 'Укажіть ім’я та аватар';
+
+  @override
+  String get customProvider => 'Власний постачальник';
+
+  @override
+  String get defaultProvider => 'Типовий PPPlayer';
+
+  @override
+  String get proExperience => 'Режим Pro активний';
+
+  @override
+  String get beta => 'Бета';
+
+  @override
+  String get loading => 'Завантаження…';
+
+  @override
+  String get unknown => 'Невідомо';
+
+  @override
+  String get pause => 'Пауза';
+
+  @override
+  String get repeat => 'Повтор';
+
+  @override
+  String get mute => 'Вимкнути звук';
+
+  @override
+  String get unmute => 'Увімкнути звук';
+
+  @override
+  String get fitVideo => 'Вписати';
+
+  @override
+  String get fillVideo => 'Заповнити';
+
+  @override
+  String get fullscreen => 'Повний екран';
+
+  @override
+  String get exitFullscreen => 'Вийти з повного екрана';
+
+  @override
+  String get volume => 'Гучність';
+
+  @override
+  String get save => 'Зберегти';
+
+  @override
+  String get delete => 'Видалити';
+
+  @override
+  String get clear => 'Очистити';
+
+  @override
+  String get follow => 'Стежити';
+
+  @override
+  String get unfollow => 'Припинити стежити';
+
+  @override
+  String get following => 'Стежите';
+
+  @override
+  String get showAll => 'Показати все';
+
+  @override
+  String get appearance => 'Вигляд';
+
+  @override
+  String get subtitleSize => 'Розмір';
+
+  @override
+  String get subtitleBackground => 'Тло';
+
+  @override
+  String get earlier => 'Раніше';
+
+  @override
+  String get later => 'Пізніше';
+
+  @override
+  String get reset => 'Скинути';
+
+  @override
+  String subtitleDelay(String seconds) {
+    return 'Затримка: $seconds с';
+  }
+
+  @override
+  String get morePlaybackControls => 'Інші елементи керування';
+
+  @override
+  String get hideVideo => 'Приховати відео';
+
+  @override
+  String get showVideo => 'Показати відео';
+
+  @override
+  String get closeQueue => 'Закрити чергу';
+
+  @override
+  String get enabled => 'Увімк.';
+
+  @override
+  String get openFile => 'Відкрити файл…';
+
+  @override
+  String get openFolder => 'Відкрити папку…';
+
+  @override
+  String get openUrl => 'Відкрити URL…';
+
+  @override
+  String get fileMenu => 'Файл';
+
+  @override
+  String get viewMenu => 'Вигляд';
+
+  @override
+  String get windowMenu => 'Вікно';
+
+  @override
+  String get saveChanges => 'Зберегти зміни';
+
+  @override
+  String get themeAvatarColor => 'Колір теми й аватара';
+
+  @override
+  String get networkStreams => 'Мережеві потоки';
+
+  @override
+  String get networkStream => 'Мережевий потік';
+
+  @override
+  String get openNetworkStream => 'Відкрити мережевий потік';
+
+  @override
+  String get editPlaylist => 'Редагувати список відтворення';
+
+  @override
+  String get editStreamItem => 'Редагувати елемент потоку';
+
+  @override
+  String get streamUrl => 'URL потоку';
+
+  @override
+  String get platformType => 'Платформа / тип';
+
+  @override
+  String get optionalTitle => 'Назва (необов’язково)';
+
+  @override
+  String get optionalImageUrl => 'URL зображення (необов’язково)';
+
+  @override
+  String get myStream => 'Мій потік';
+
+  @override
+  String get saveToLibrary => 'Зберегти в бібліотеку';
+
+  @override
+  String get justPlay => 'Лише відтворити';
+
+  @override
+  String get autoDetect => 'Визначати автоматично';
+
+  @override
+  String get apiKeyRequired => 'Потрібен ключ API';
+
+  @override
+  String get customApiKey => 'Використовувати власний ключ API';
+
+  @override
+  String get clientId => 'Ідентифікатор клієнта';
+
+  @override
+  String get clientSecret => 'Секрет клієнта';
+
+  @override
+  String get saveCredentials => 'Зберегти облікові дані';
+
+  @override
+  String get searchStrategy => 'Спосіб пошуку';
+
+  @override
+  String get credentialsLocalOnly =>
+      'Безпечно зберігаються на цьому пристрої. Ніколи не надсилаються до PPPlayer.';
+
+  @override
+  String get scrapingHelp =>
+      'Ключ API та квота не потрібні. Може працювати повільніше або менш надійно.';
+
+  @override
+  String get streamHelp => 'Введіть URL HTTP(S) або посилання на список M3U.';
+
+  @override
+  String get deletePlaylistConfirm =>
+      'Видалити цей список відтворення назавжди?';
+
+  @override
+  String get clearCacheConfirm =>
+      'Видалити кеш? Бібліотека та улюблене залишаться без змін.';
+
+  @override
+  String get clearHistoryConfirm =>
+      'Видалити історію прослуховування назавжди?';
+
+  @override
+  String get addedToQueue => 'Додано до черги';
+
+  @override
+  String get addedVideo => 'Відео додано';
+
+  @override
+  String addedChannels(String count) {
+    return 'Додані канали: $count';
+  }
+
+  @override
+  String get removedFromPlaylist => 'Видалено зі списку';
+
+  @override
+  String get exportCancelled => 'Експорт скасовано';
+
+  @override
+  String exportComplete(String count) {
+    return 'Список експортовано. Пропущені елементи: $count';
+  }
+
+  @override
+  String get playlistExported => 'Список експортовано';
+
+  @override
+  String get live => 'Наживо';
+
+  @override
+  String get sponsored => 'Реклама';
+
+  @override
+  String get removeFromPlaylist => 'Вилучити зі списку';
+
+  @override
+  String get likedSongsHelp => 'Збережіть пісні, щоб побачити їх тут';
+
+  @override
+  String get apiSingleVideoHint =>
+      'Можна додати це відео без імпорту списку відтворення.';
+
+  @override
+  String get linkCopied => 'Посилання скопійовано';
+
+  @override
+  String get willPlayNext => 'Буде відтворено наступним';
+
+  @override
+  String get checkItOut => 'Переглянути';
+
+  @override
+  String get loadFailed => 'Не вдалося завантажити вміст. Спробуйте ще раз.';
 }

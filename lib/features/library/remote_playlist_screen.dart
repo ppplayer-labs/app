@@ -84,7 +84,7 @@ class _RemotePlaylistScreenState extends ConsumerState<RemotePlaylistScreen> {
         ),
         error: (e, _) => Center(
           child: Text(
-            'Error: $e',
+            AppLocalizations.of(context)!.error(e.toString()),
             style: TextStyle(color: colorScheme.onSurfaceVariant),
           ),
         ),
@@ -360,7 +360,9 @@ class _RemotePlaylistScreenState extends ConsumerState<RemotePlaylistScreen> {
                     children: [
                       if (!_isSearching) ...[
                         Text(
-                          '${tracks.length} tracks',
+                          AppLocalizations.of(
+                            context,
+                          )!.trackCount(tracks.length),
                           style: TextStyle(
                             color: colorScheme.onSurfaceVariant,
                             fontSize: 13,
@@ -404,7 +406,13 @@ class _RemotePlaylistScreenState extends ConsumerState<RemotePlaylistScreen> {
                                           ),
                                         ),
                                         child: Text(
-                                          isLiked ? 'Following' : 'Follow',
+                                          isLiked
+                                              ? AppLocalizations.of(
+                                                  context,
+                                                )!.following
+                                              : AppLocalizations.of(
+                                                  context,
+                                                )!.follow,
                                           style: TextStyle(
                                             color: isLiked
                                                 ? colorScheme.onPrimary
@@ -491,7 +499,7 @@ class _RemotePlaylistScreenState extends ConsumerState<RemotePlaylistScreen> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'No tracks found for "$_searchQuery"',
+                          '${AppLocalizations.of(context)!.noTracksFound}: "$_searchQuery"',
                           style: TextStyle(color: colorScheme.onSurfaceVariant),
                         ),
                       ],

@@ -745,4 +745,352 @@ class AppLocalizationsHu extends AppLocalizations {
 
   @override
   String get off => 'Ki';
+
+  @override
+  String get playOn => 'Lejátszás ezen';
+
+  @override
+  String get thisDevice => 'Ez az eszköz';
+
+  @override
+  String get availableDevices => 'Elérhető eszközök';
+
+  @override
+  String get searchingDevices => 'Eszközök keresése…';
+
+  @override
+  String get refresh => 'Frissítés';
+
+  @override
+  String get connecting => 'Csatlakozás…';
+
+  @override
+  String connectingTo(String name) {
+    return 'Csatlakozás ehhez: $name…';
+  }
+
+  @override
+  String get connected => 'Csatlakoztatva';
+
+  @override
+  String get unsupportedOutput =>
+      'Ez a forrás nem játszható le ezen a kimeneten.';
+
+  @override
+  String get airPlayAudioOutput => 'AirPlay és hangkimenet';
+
+  @override
+  String get returnForAirPlay =>
+      'Az AirPlay használatához játssz le ezen az eszközön.';
+
+  @override
+  String get openSoundSettings =>
+      'Nyisd meg a hangbeállításokat a kimenet kiválasztásához.';
+
+  @override
+  String get soundSettingsError =>
+      'Nem sikerült megnyitni a hangbeállításokat.';
+
+  @override
+  String get systemOutput => 'Rendszerkimenet';
+
+  @override
+  String playingOn(String name) {
+    return 'Lejátszás ezen: $name';
+  }
+
+  @override
+  String get chooseAirPlay =>
+      'Érintsd meg az AirPlay gombot hangszóró vagy tévé kiválasztásához.';
+
+  @override
+  String get airPlayDevice => 'AirPlay-eszköz';
+
+  @override
+  String get playOnIphone => 'Lejátszás ezen az iPhone-on';
+
+  @override
+  String get chooseIphone =>
+      'Válaszd ezt az iPhone-t az alábbi AirPlay gombbal.';
+
+  @override
+  String get profile => 'Profil';
+
+  @override
+  String get preferences => 'Beállítások';
+
+  @override
+  String get themeColor => 'Téma színe';
+
+  @override
+  String get yourMusic => 'A zenéid';
+
+  @override
+  String get apiCredentials => 'API-hozzáférési adatok';
+
+  @override
+  String get dataStorage => 'Adatok és tárhely';
+
+  @override
+  String get editProfileHelp => 'Állítsd be a neved és az avatárod';
+
+  @override
+  String get customProvider => 'Egyéni szolgáltató';
+
+  @override
+  String get defaultProvider => 'PPPlayer alapértelmezés';
+
+  @override
+  String get proExperience => 'Pro mód aktív';
+
+  @override
+  String get beta => 'Béta';
+
+  @override
+  String get loading => 'Betöltés…';
+
+  @override
+  String get unknown => 'Ismeretlen';
+
+  @override
+  String get pause => 'Szünet';
+
+  @override
+  String get repeat => 'Ismétlés';
+
+  @override
+  String get mute => 'Némítás';
+
+  @override
+  String get unmute => 'Hang bekapcsolása';
+
+  @override
+  String get fitVideo => 'Igazítás';
+
+  @override
+  String get fillVideo => 'Kitöltés';
+
+  @override
+  String get fullscreen => 'Teljes képernyő';
+
+  @override
+  String get exitFullscreen => 'Kilépés a teljes képernyőből';
+
+  @override
+  String get volume => 'Hangerő';
+
+  @override
+  String get save => 'Mentés';
+
+  @override
+  String get delete => 'Törlés';
+
+  @override
+  String get clear => 'Kiürítés';
+
+  @override
+  String get follow => 'Követés';
+
+  @override
+  String get unfollow => 'Követés leállítása';
+
+  @override
+  String get following => 'Követve';
+
+  @override
+  String get showAll => 'Összes megjelenítése';
+
+  @override
+  String get appearance => 'Megjelenés';
+
+  @override
+  String get subtitleSize => 'Méret';
+
+  @override
+  String get subtitleBackground => 'Háttér';
+
+  @override
+  String get earlier => 'Korábban';
+
+  @override
+  String get later => 'Később';
+
+  @override
+  String get reset => 'Visszaállítás';
+
+  @override
+  String subtitleDelay(String seconds) {
+    return 'Késleltetés: $seconds mp';
+  }
+
+  @override
+  String get morePlaybackControls => 'További lejátszási vezérlők';
+
+  @override
+  String get hideVideo => 'Videó elrejtése';
+
+  @override
+  String get showVideo => 'Videó megjelenítése';
+
+  @override
+  String get closeQueue => 'Sor bezárása';
+
+  @override
+  String get enabled => 'Be';
+
+  @override
+  String get openFile => 'Fájl megnyitása…';
+
+  @override
+  String get openFolder => 'Mappa megnyitása…';
+
+  @override
+  String get openUrl => 'URL megnyitása…';
+
+  @override
+  String get fileMenu => 'Fájl';
+
+  @override
+  String get viewMenu => 'Nézet';
+
+  @override
+  String get windowMenu => 'Ablak';
+
+  @override
+  String get saveChanges => 'Módosítások mentése';
+
+  @override
+  String get themeAvatarColor => 'Téma és avatar színe';
+
+  @override
+  String get networkStreams => 'Hálózati adatfolyamok';
+
+  @override
+  String get networkStream => 'Hálózati adatfolyam';
+
+  @override
+  String get openNetworkStream => 'Hálózati adatfolyam megnyitása';
+
+  @override
+  String get editPlaylist => 'Lejátszási lista szerkesztése';
+
+  @override
+  String get editStreamItem => 'Adatfolyamelem szerkesztése';
+
+  @override
+  String get streamUrl => 'Adatfolyam URL-je';
+
+  @override
+  String get platformType => 'Platform / típus';
+
+  @override
+  String get optionalTitle => 'Cím (nem kötelező)';
+
+  @override
+  String get optionalImageUrl => 'Kép URL-je (nem kötelező)';
+
+  @override
+  String get myStream => 'Saját adatfolyam';
+
+  @override
+  String get saveToLibrary => 'Mentés a könyvtárba';
+
+  @override
+  String get justPlay => 'Csak lejátszás';
+
+  @override
+  String get autoDetect => 'Automatikus felismerés';
+
+  @override
+  String get apiKeyRequired => 'API-kulcs szükséges';
+
+  @override
+  String get customApiKey => 'Saját API-kulcs használata';
+
+  @override
+  String get clientId => 'Kliensazonosító';
+
+  @override
+  String get clientSecret => 'Kliens titkos kulcsa';
+
+  @override
+  String get saveCredentials => 'Hozzáférési adatok mentése';
+
+  @override
+  String get searchStrategy => 'Keresési stratégia';
+
+  @override
+  String get credentialsLocalOnly =>
+      'Biztonságosan tárolva ezen az eszközön. Soha nem kerül a PPPlayerhez.';
+
+  @override
+  String get scrapingHelp =>
+      'Nem kell API-kulcs vagy kvóta. Lassabb vagy kevésbé megbízható lehet.';
+
+  @override
+  String get streamHelp =>
+      'Adj meg egy HTTP(S) URL-t vagy M3U-listahivatkozást.';
+
+  @override
+  String get deletePlaylistConfirm => 'Végleg törlöd ezt a lejátszási listát?';
+
+  @override
+  String get clearCacheConfirm =>
+      'Törlöd a gyorsítótárat? A könyvtár és a kedvencek változatlanok maradnak.';
+
+  @override
+  String get clearHistoryConfirm => 'Végleg törlöd a hallgatási előzményeket?';
+
+  @override
+  String get addedToQueue => 'Hozzáadva a sorhoz';
+
+  @override
+  String get addedVideo => 'Videó hozzáadva';
+
+  @override
+  String addedChannels(String count) {
+    return 'Hozzáadott csatornák: $count';
+  }
+
+  @override
+  String get removedFromPlaylist => 'Eltávolítva a listából';
+
+  @override
+  String get exportCancelled => 'Exportálás megszakítva';
+
+  @override
+  String exportComplete(String count) {
+    return 'Lista exportálva. Kihagyott elemek: $count';
+  }
+
+  @override
+  String get playlistExported => 'Lista exportálva';
+
+  @override
+  String get live => 'Élő';
+
+  @override
+  String get sponsored => 'Szponzorált';
+
+  @override
+  String get removeFromPlaylist => 'Eltávolítás a listából';
+
+  @override
+  String get likedSongsHelp => 'Ments dalokat, hogy itt megjelenjenek';
+
+  @override
+  String get apiSingleVideoHint =>
+      'A videót a lejátszási lista importálása nélkül is hozzáadhatod.';
+
+  @override
+  String get linkCopied => 'Hivatkozás másolva';
+
+  @override
+  String get willPlayNext => 'Ez következik';
+
+  @override
+  String get checkItOut => 'Nézd meg';
+
+  @override
+  String get loadFailed => 'A tartalom nem tölthető be. Próbáld újra.';
 }

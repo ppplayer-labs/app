@@ -106,7 +106,7 @@ class _SpotifyCredentialsFormState
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Use Custom API Key',
+              AppLocalizations.of(context)!.customApiKey,
               style: TextStyle(
                 color: colorScheme.onSurface,
                 fontWeight: FontWeight.bold,
@@ -129,7 +129,7 @@ class _SpotifyCredentialsFormState
         ),
         const SizedBox(height: 8),
         Text(
-          'Your credentials are stored locally on this device in the OS secure credential store and are never sent to PPPlayer.',
+          AppLocalizations.of(context)!.credentialsLocalOnly,
           style: TextStyle(
             color: colorScheme.onSurface.withValues(alpha: 0.6),
             fontSize: 12,
@@ -141,7 +141,7 @@ class _SpotifyCredentialsFormState
           enabled: isCustom,
           style: TextStyle(color: colorScheme.onSurface),
           decoration: InputDecoration(
-            labelText: 'Client ID',
+            labelText: AppLocalizations.of(context)!.clientId,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           ),
         ),
@@ -152,7 +152,7 @@ class _SpotifyCredentialsFormState
           obscureText: true,
           style: TextStyle(color: colorScheme.onSurface),
           decoration: InputDecoration(
-            labelText: 'Client Secret',
+            labelText: AppLocalizations.of(context)!.clientSecret,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           ),
         ),
@@ -174,7 +174,7 @@ class _SpotifyCredentialsFormState
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Text(
-                        'Clear',
+                        AppLocalizations.of(context)!.clear,
                         style: TextStyle(
                           color: colorScheme.error,
                           fontWeight: FontWeight.bold,
@@ -207,7 +207,7 @@ class _SpotifyCredentialsFormState
                           ),
                         )
                       : Text(
-                          'Save Credentials',
+                          AppLocalizations.of(context)!.saveCredentials,
                           style: TextStyle(
                             color: isCustom
                                 ? colorScheme.onPrimary
@@ -308,7 +308,7 @@ class _YoutubeCredentialsFormState
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          'Search Strategy',
+          AppLocalizations.of(context)!.searchStrategy,
           style: TextStyle(
             color: colorScheme.onSurface,
             fontWeight: FontWeight.bold,
@@ -342,7 +342,7 @@ class _YoutubeCredentialsFormState
         const SizedBox(height: 24),
         AnimatedCrossFade(
           firstChild: Text(
-            'Scraping uses no API quota and requires no credentials, but can be slightly slower or less reliable.',
+            AppLocalizations.of(context)!.scrapingHelp,
             style: TextStyle(
               color: colorScheme.onSurface.withValues(alpha: 0.6),
               fontSize: 14,
@@ -355,7 +355,7 @@ class _YoutubeCredentialsFormState
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Use Custom API Key',
+                    AppLocalizations.of(context)!.customApiKey,
                     style: TextStyle(
                       color: colorScheme.onSurface,
                       fontWeight: FontWeight.bold,
@@ -378,7 +378,7 @@ class _YoutubeCredentialsFormState
               ),
               const SizedBox(height: 8),
               Text(
-                'Your credentials are stored locally on this device in the OS secure credential store and are never sent to PPPlayer.',
+                AppLocalizations.of(context)!.credentialsLocalOnly,
                 style: TextStyle(
                   color: colorScheme.onSurface.withValues(alpha: 0.6),
                   fontSize: 12,
@@ -391,7 +391,8 @@ class _YoutubeCredentialsFormState
                 obscureText: true,
                 style: TextStyle(color: colorScheme.onSurface),
                 decoration: InputDecoration(
-                  labelText: 'YouTube Data API v3 Key',
+                  labelText:
+                      'YouTube Data API v3 · ${AppLocalizations.of(context)!.customApiKey}',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -414,7 +415,7 @@ class _YoutubeCredentialsFormState
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: Text(
-                              'Clear',
+                              AppLocalizations.of(context)!.clear,
                               style: TextStyle(
                                 color: colorScheme.error,
                                 fontWeight: FontWeight.bold,
@@ -449,7 +450,7 @@ class _YoutubeCredentialsFormState
                                 ),
                               )
                             : Text(
-                                'Save Credentials',
+                                AppLocalizations.of(context)!.saveCredentials,
                                 style: TextStyle(
                                   color: isCustomApi
                                       ? colorScheme.onPrimary

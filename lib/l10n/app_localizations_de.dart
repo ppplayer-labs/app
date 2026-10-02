@@ -743,4 +743,352 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get off => 'Aus';
+
+  @override
+  String get playOn => 'Wiedergeben auf';
+
+  @override
+  String get thisDevice => 'Dieses Gerät';
+
+  @override
+  String get availableDevices => 'Verfügbare Geräte';
+
+  @override
+  String get searchingDevices => 'Geräte werden gesucht…';
+
+  @override
+  String get refresh => 'Aktualisieren';
+
+  @override
+  String get connecting => 'Verbindung wird hergestellt…';
+
+  @override
+  String connectingTo(String name) {
+    return 'Verbindung mit $name wird hergestellt…';
+  }
+
+  @override
+  String get connected => 'Verbunden';
+
+  @override
+  String get unsupportedOutput =>
+      'Diese Quelle kann auf diesem Gerät nicht wiedergegeben werden.';
+
+  @override
+  String get airPlayAudioOutput => 'AirPlay und Audioausgabe';
+
+  @override
+  String get returnForAirPlay => 'Für AirPlay auf diesem Gerät wiedergeben.';
+
+  @override
+  String get openSoundSettings =>
+      'Öffne die Toneinstellungen, um eine Ausgabe auszuwählen.';
+
+  @override
+  String get soundSettingsError =>
+      'Die Toneinstellungen konnten nicht geöffnet werden.';
+
+  @override
+  String get systemOutput => 'Systemausgabe';
+
+  @override
+  String playingOn(String name) {
+    return 'Wiedergabe auf $name';
+  }
+
+  @override
+  String get chooseAirPlay =>
+      'Tippe auf die AirPlay-Taste, um einen Lautsprecher oder Fernseher auszuwählen.';
+
+  @override
+  String get airPlayDevice => 'AirPlay-Gerät';
+
+  @override
+  String get playOnIphone => 'Auf diesem iPhone wiedergeben';
+
+  @override
+  String get chooseIphone =>
+      'Wähle dieses iPhone mit der AirPlay-Taste unten aus.';
+
+  @override
+  String get profile => 'Profil';
+
+  @override
+  String get preferences => 'Einstellungen';
+
+  @override
+  String get themeColor => 'Designfarbe';
+
+  @override
+  String get yourMusic => 'Deine Musik';
+
+  @override
+  String get apiCredentials => 'API-Zugangsdaten';
+
+  @override
+  String get dataStorage => 'Daten und Speicher';
+
+  @override
+  String get editProfileHelp => 'Lege deinen Namen und Avatar fest';
+
+  @override
+  String get customProvider => 'Eigener Anbieter';
+
+  @override
+  String get defaultProvider => 'PPPlayer-Standard';
+
+  @override
+  String get proExperience => 'Pro-Erlebnis aktiv';
+
+  @override
+  String get beta => 'Beta';
+
+  @override
+  String get loading => 'Wird geladen…';
+
+  @override
+  String get unknown => 'Unbekannt';
+
+  @override
+  String get pause => 'Pause';
+
+  @override
+  String get repeat => 'Wiederholen';
+
+  @override
+  String get mute => 'Stummschalten';
+
+  @override
+  String get unmute => 'Ton einschalten';
+
+  @override
+  String get fitVideo => 'Einpassen';
+
+  @override
+  String get fillVideo => 'Ausfüllen';
+
+  @override
+  String get fullscreen => 'Vollbild';
+
+  @override
+  String get exitFullscreen => 'Vollbild verlassen';
+
+  @override
+  String get volume => 'Lautstärke';
+
+  @override
+  String get save => 'Speichern';
+
+  @override
+  String get delete => 'Löschen';
+
+  @override
+  String get clear => 'Leeren';
+
+  @override
+  String get follow => 'Folgen';
+
+  @override
+  String get unfollow => 'Nicht mehr folgen';
+
+  @override
+  String get following => 'Gefolgt';
+
+  @override
+  String get showAll => 'Alle anzeigen';
+
+  @override
+  String get appearance => 'Darstellung';
+
+  @override
+  String get subtitleSize => 'Größe';
+
+  @override
+  String get subtitleBackground => 'Hintergrund';
+
+  @override
+  String get earlier => 'Früher';
+
+  @override
+  String get later => 'Später';
+
+  @override
+  String get reset => 'Zurücksetzen';
+
+  @override
+  String subtitleDelay(String seconds) {
+    return 'Verzögerung: $seconds s';
+  }
+
+  @override
+  String get morePlaybackControls => 'Weitere Wiedergabesteuerungen';
+
+  @override
+  String get hideVideo => 'Video ausblenden';
+
+  @override
+  String get showVideo => 'Video anzeigen';
+
+  @override
+  String get closeQueue => 'Warteschlange schließen';
+
+  @override
+  String get enabled => 'Ein';
+
+  @override
+  String get openFile => 'Datei öffnen…';
+
+  @override
+  String get openFolder => 'Ordner öffnen…';
+
+  @override
+  String get openUrl => 'URL öffnen…';
+
+  @override
+  String get fileMenu => 'Datei';
+
+  @override
+  String get viewMenu => 'Ansicht';
+
+  @override
+  String get windowMenu => 'Fenster';
+
+  @override
+  String get saveChanges => 'Änderungen speichern';
+
+  @override
+  String get themeAvatarColor => 'Design- und Avatarfarbe';
+
+  @override
+  String get networkStreams => 'Netzwerkstreams';
+
+  @override
+  String get networkStream => 'Netzwerkstream';
+
+  @override
+  String get openNetworkStream => 'Netzwerkstream öffnen';
+
+  @override
+  String get editPlaylist => 'Playlist bearbeiten';
+
+  @override
+  String get editStreamItem => 'Streameintrag bearbeiten';
+
+  @override
+  String get streamUrl => 'Stream-URL';
+
+  @override
+  String get platformType => 'Plattform / Typ';
+
+  @override
+  String get optionalTitle => 'Titel (optional)';
+
+  @override
+  String get optionalImageUrl => 'Bild-URL (optional)';
+
+  @override
+  String get myStream => 'Mein Stream';
+
+  @override
+  String get saveToLibrary => 'In Bibliothek speichern';
+
+  @override
+  String get justPlay => 'Nur wiedergeben';
+
+  @override
+  String get autoDetect => 'Automatisch erkennen';
+
+  @override
+  String get apiKeyRequired => 'API-Schlüssel erforderlich';
+
+  @override
+  String get customApiKey => 'Eigenen API-Schlüssel verwenden';
+
+  @override
+  String get clientId => 'Client-ID';
+
+  @override
+  String get clientSecret => 'Client-Geheimnis';
+
+  @override
+  String get saveCredentials => 'Zugangsdaten speichern';
+
+  @override
+  String get searchStrategy => 'Suchstrategie';
+
+  @override
+  String get credentialsLocalOnly =>
+      'Sicher auf diesem Gerät gespeichert. Wird nie an PPPlayer gesendet.';
+
+  @override
+  String get scrapingHelp =>
+      'Kein API-Schlüssel oder Kontingent nötig. Kann langsamer oder weniger zuverlässig sein.';
+
+  @override
+  String get streamHelp =>
+      'Gib eine HTTP(S)-URL oder einen M3U-Playlist-Link ein.';
+
+  @override
+  String get deletePlaylistConfirm => 'Diese Playlist endgültig löschen?';
+
+  @override
+  String get clearCacheConfirm =>
+      'Zwischengespeicherte Daten löschen? Bibliothek und Favoriten bleiben unverändert.';
+
+  @override
+  String get clearHistoryConfirm => 'Deinen Hörverlauf endgültig löschen?';
+
+  @override
+  String get addedToQueue => 'Zur Warteschlange hinzugefügt';
+
+  @override
+  String get addedVideo => 'Video hinzugefügt';
+
+  @override
+  String addedChannels(String count) {
+    return 'Hinzugefügte Kanäle: $count';
+  }
+
+  @override
+  String get removedFromPlaylist => 'Aus der Playlist entfernt';
+
+  @override
+  String get exportCancelled => 'Export abgebrochen';
+
+  @override
+  String exportComplete(String count) {
+    return 'Playlist exportiert. Übersprungene Einträge: $count';
+  }
+
+  @override
+  String get playlistExported => 'Playlist exportiert';
+
+  @override
+  String get live => 'Live';
+
+  @override
+  String get sponsored => 'Gesponsert';
+
+  @override
+  String get removeFromPlaylist => 'Aus Playlist entfernen';
+
+  @override
+  String get likedSongsHelp => 'Speichere Songs, um sie hier zu sehen';
+
+  @override
+  String get apiSingleVideoHint =>
+      'Du kannst dieses Video hinzufügen, ohne die Playlist zu importieren.';
+
+  @override
+  String get linkCopied => 'Link kopiert';
+
+  @override
+  String get willPlayNext => 'Wird als Nächstes abgespielt';
+
+  @override
+  String get checkItOut => 'Ansehen';
+
+  @override
+  String get loadFailed =>
+      'Der Inhalt konnte nicht geladen werden. Versuche es erneut.';
 }

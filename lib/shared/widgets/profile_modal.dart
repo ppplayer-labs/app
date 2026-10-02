@@ -56,7 +56,7 @@ void showEditProfileModal(
                     child:
                         selectedAvatarBase64 == null ||
                             selectedAvatarBase64!.isEmpty
-                        ? const Center(
+                        ? Center(
                             child: Icon(
                               Icons.person,
                               size: 40,
@@ -101,7 +101,7 @@ void showEditProfileModal(
             ),
             const SizedBox(height: 24),
             Text(
-              'NAME',
+              AppLocalizations.of(context)!.enterYourName,
               style: TextStyle(
                 color: colorScheme.onSurface.withValues(alpha: 0.4),
                 fontSize: 11,
@@ -129,7 +129,7 @@ void showEditProfileModal(
             ),
             const SizedBox(height: 24),
             Text(
-              'THEME & AVATAR COLOR',
+              AppLocalizations.of(context)!.themeAvatarColor,
               style: TextStyle(
                 color: colorScheme.onSurface.withValues(alpha: 0.4),
                 fontSize: 11,
@@ -204,8 +204,8 @@ void showEditProfileModal(
                   color: themeColor,
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: const Text(
-                  'Save Changes',
+                child: Text(
+                  AppLocalizations.of(context)!.saveChanges,
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,

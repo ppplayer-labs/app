@@ -1531,6 +1531,660 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Off'**
   String get off;
+
+  /// No description provided for @playOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Play On'**
+  String get playOn;
+
+  /// No description provided for @thisDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'This device'**
+  String get thisDevice;
+
+  /// No description provided for @availableDevices.
+  ///
+  /// In en, this message translates to:
+  /// **'Available devices'**
+  String get availableDevices;
+
+  /// No description provided for @searchingDevices.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching for devices…'**
+  String get searchingDevices;
+
+  /// No description provided for @refresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get refresh;
+
+  /// No description provided for @connecting.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting…'**
+  String get connecting;
+
+  /// No description provided for @connectingTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting to {name}…'**
+  String connectingTo(String name);
+
+  /// No description provided for @connected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected'**
+  String get connected;
+
+  /// No description provided for @unsupportedOutput.
+  ///
+  /// In en, this message translates to:
+  /// **'This source cannot be played on this output.'**
+  String get unsupportedOutput;
+
+  /// No description provided for @airPlayAudioOutput.
+  ///
+  /// In en, this message translates to:
+  /// **'AirPlay & audio output'**
+  String get airPlayAudioOutput;
+
+  /// No description provided for @returnForAirPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Play on this device to use AirPlay.'**
+  String get returnForAirPlay;
+
+  /// No description provided for @openSoundSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Sound settings to choose an output.'**
+  String get openSoundSettings;
+
+  /// No description provided for @soundSettingsError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open Sound settings.'**
+  String get soundSettingsError;
+
+  /// No description provided for @systemOutput.
+  ///
+  /// In en, this message translates to:
+  /// **'System output'**
+  String get systemOutput;
+
+  /// No description provided for @playingOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Playing on {name}'**
+  String playingOn(String name);
+
+  /// No description provided for @chooseAirPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the AirPlay button to choose a speaker or TV.'**
+  String get chooseAirPlay;
+
+  /// No description provided for @airPlayDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'AirPlay device'**
+  String get airPlayDevice;
+
+  /// No description provided for @playOnIphone.
+  ///
+  /// In en, this message translates to:
+  /// **'Play on this iPhone'**
+  String get playOnIphone;
+
+  /// No description provided for @chooseIphone.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose this iPhone using the AirPlay button below.'**
+  String get chooseIphone;
+
+  /// No description provided for @profile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profile;
+
+  /// No description provided for @preferences.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferences'**
+  String get preferences;
+
+  /// No description provided for @themeColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme color'**
+  String get themeColor;
+
+  /// No description provided for @yourMusic.
+  ///
+  /// In en, this message translates to:
+  /// **'Your music'**
+  String get yourMusic;
+
+  /// No description provided for @apiCredentials.
+  ///
+  /// In en, this message translates to:
+  /// **'API credentials'**
+  String get apiCredentials;
+
+  /// No description provided for @dataStorage.
+  ///
+  /// In en, this message translates to:
+  /// **'Data & storage'**
+  String get dataStorage;
+
+  /// No description provided for @editProfileHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Set your name and avatar'**
+  String get editProfileHelp;
+
+  /// No description provided for @customProvider.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom provider'**
+  String get customProvider;
+
+  /// No description provided for @defaultProvider.
+  ///
+  /// In en, this message translates to:
+  /// **'PPPlayer default'**
+  String get defaultProvider;
+
+  /// No description provided for @proExperience.
+  ///
+  /// In en, this message translates to:
+  /// **'Pro experience active'**
+  String get proExperience;
+
+  /// No description provided for @beta.
+  ///
+  /// In en, this message translates to:
+  /// **'Beta'**
+  String get beta;
+
+  /// No description provided for @loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading…'**
+  String get loading;
+
+  /// No description provided for @unknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get unknown;
+
+  /// No description provided for @pause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get pause;
+
+  /// No description provided for @repeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat'**
+  String get repeat;
+
+  /// No description provided for @mute.
+  ///
+  /// In en, this message translates to:
+  /// **'Mute'**
+  String get mute;
+
+  /// No description provided for @unmute.
+  ///
+  /// In en, this message translates to:
+  /// **'Unmute'**
+  String get unmute;
+
+  /// No description provided for @fitVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Fit'**
+  String get fitVideo;
+
+  /// No description provided for @fillVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill'**
+  String get fillVideo;
+
+  /// No description provided for @fullscreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Fullscreen'**
+  String get fullscreen;
+
+  /// No description provided for @exitFullscreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Exit fullscreen'**
+  String get exitFullscreen;
+
+  /// No description provided for @volume.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume'**
+  String get volume;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @clear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get clear;
+
+  /// No description provided for @follow.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow'**
+  String get follow;
+
+  /// No description provided for @unfollow.
+  ///
+  /// In en, this message translates to:
+  /// **'Unfollow'**
+  String get unfollow;
+
+  /// No description provided for @following.
+  ///
+  /// In en, this message translates to:
+  /// **'Following'**
+  String get following;
+
+  /// No description provided for @showAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all'**
+  String get showAll;
+
+  /// No description provided for @appearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get appearance;
+
+  /// No description provided for @subtitleSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Size'**
+  String get subtitleSize;
+
+  /// No description provided for @subtitleBackground.
+  ///
+  /// In en, this message translates to:
+  /// **'Background'**
+  String get subtitleBackground;
+
+  /// No description provided for @earlier.
+  ///
+  /// In en, this message translates to:
+  /// **'Earlier'**
+  String get earlier;
+
+  /// No description provided for @later.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get later;
+
+  /// No description provided for @reset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get reset;
+
+  /// No description provided for @subtitleDelay.
+  ///
+  /// In en, this message translates to:
+  /// **'Delay: {seconds} s'**
+  String subtitleDelay(String seconds);
+
+  /// No description provided for @morePlaybackControls.
+  ///
+  /// In en, this message translates to:
+  /// **'More playback controls'**
+  String get morePlaybackControls;
+
+  /// No description provided for @hideVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide video'**
+  String get hideVideo;
+
+  /// No description provided for @showVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Show video'**
+  String get showVideo;
+
+  /// No description provided for @closeQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'Close queue'**
+  String get closeQueue;
+
+  /// No description provided for @enabled.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get enabled;
+
+  /// No description provided for @openFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Open file…'**
+  String get openFile;
+
+  /// No description provided for @openFolder.
+  ///
+  /// In en, this message translates to:
+  /// **'Open folder…'**
+  String get openFolder;
+
+  /// No description provided for @openUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Open URL…'**
+  String get openUrl;
+
+  /// No description provided for @fileMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'File'**
+  String get fileMenu;
+
+  /// No description provided for @viewMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get viewMenu;
+
+  /// No description provided for @windowMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Window'**
+  String get windowMenu;
+
+  /// No description provided for @saveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get saveChanges;
+
+  /// No description provided for @themeAvatarColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme and avatar color'**
+  String get themeAvatarColor;
+
+  /// No description provided for @networkStreams.
+  ///
+  /// In en, this message translates to:
+  /// **'Network streams'**
+  String get networkStreams;
+
+  /// No description provided for @networkStream.
+  ///
+  /// In en, this message translates to:
+  /// **'Network stream'**
+  String get networkStream;
+
+  /// No description provided for @openNetworkStream.
+  ///
+  /// In en, this message translates to:
+  /// **'Open network stream'**
+  String get openNetworkStream;
+
+  /// No description provided for @editPlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit playlist'**
+  String get editPlaylist;
+
+  /// No description provided for @editStreamItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit stream item'**
+  String get editStreamItem;
+
+  /// No description provided for @streamUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Stream URL'**
+  String get streamUrl;
+
+  /// No description provided for @platformType.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform / type'**
+  String get platformType;
+
+  /// No description provided for @optionalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Title (optional)'**
+  String get optionalTitle;
+
+  /// No description provided for @optionalImageUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Image URL (optional)'**
+  String get optionalImageUrl;
+
+  /// No description provided for @myStream.
+  ///
+  /// In en, this message translates to:
+  /// **'My stream'**
+  String get myStream;
+
+  /// No description provided for @saveToLibrary.
+  ///
+  /// In en, this message translates to:
+  /// **'Save to library'**
+  String get saveToLibrary;
+
+  /// No description provided for @justPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Just play'**
+  String get justPlay;
+
+  /// No description provided for @autoDetect.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-detect'**
+  String get autoDetect;
+
+  /// No description provided for @apiKeyRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'API key required'**
+  String get apiKeyRequired;
+
+  /// No description provided for @customApiKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Use custom API key'**
+  String get customApiKey;
+
+  /// No description provided for @clientId.
+  ///
+  /// In en, this message translates to:
+  /// **'Client ID'**
+  String get clientId;
+
+  /// No description provided for @clientSecret.
+  ///
+  /// In en, this message translates to:
+  /// **'Client secret'**
+  String get clientSecret;
+
+  /// No description provided for @saveCredentials.
+  ///
+  /// In en, this message translates to:
+  /// **'Save credentials'**
+  String get saveCredentials;
+
+  /// No description provided for @searchStrategy.
+  ///
+  /// In en, this message translates to:
+  /// **'Search strategy'**
+  String get searchStrategy;
+
+  /// No description provided for @credentialsLocalOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Stored securely on this device. Never sent to PPPlayer.'**
+  String get credentialsLocalOnly;
+
+  /// No description provided for @scrapingHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'No API key or quota required. May be slower or less reliable.'**
+  String get scrapingHelp;
+
+  /// No description provided for @streamHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an HTTP(S) URL or M3U playlist link.'**
+  String get streamHelp;
+
+  /// No description provided for @deletePlaylistConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this playlist permanently?'**
+  String get deletePlaylistConfirm;
+
+  /// No description provided for @clearCacheConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete cached data? Your library and favorites stay unchanged.'**
+  String get clearCacheConfirm;
+
+  /// No description provided for @clearHistoryConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete your listening history permanently?'**
+  String get clearHistoryConfirm;
+
+  /// No description provided for @addedToQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'Added to queue'**
+  String get addedToQueue;
+
+  /// No description provided for @addedVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Video added'**
+  String get addedVideo;
+
+  /// No description provided for @addedChannels.
+  ///
+  /// In en, this message translates to:
+  /// **'Channels added: {count}'**
+  String addedChannels(String count);
+
+  /// No description provided for @removedFromPlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed from playlist'**
+  String get removedFromPlaylist;
+
+  /// No description provided for @exportCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Export cancelled'**
+  String get exportCancelled;
+
+  /// No description provided for @exportComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Playlist exported. Items skipped: {count}'**
+  String exportComplete(String count);
+
+  /// No description provided for @playlistExported.
+  ///
+  /// In en, this message translates to:
+  /// **'Playlist exported'**
+  String get playlistExported;
+
+  /// No description provided for @live.
+  ///
+  /// In en, this message translates to:
+  /// **'Live'**
+  String get live;
+
+  /// No description provided for @sponsored.
+  ///
+  /// In en, this message translates to:
+  /// **'Sponsored'**
+  String get sponsored;
+
+  /// No description provided for @removeFromPlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from playlist'**
+  String get removeFromPlaylist;
+
+  /// No description provided for @likedSongsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Save songs to see them here'**
+  String get likedSongsHelp;
+
+  /// No description provided for @apiSingleVideoHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You can add this video without importing the playlist.'**
+  String get apiSingleVideoHint;
+
+  /// No description provided for @linkCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Link copied'**
+  String get linkCopied;
+
+  /// No description provided for @willPlayNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Will play next'**
+  String get willPlayNext;
+
+  /// No description provided for @checkItOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Check it out'**
+  String get checkItOut;
+
+  /// No description provided for @loadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load content. Please try again.'**
+  String get loadFailed;
 }
 
 class _AppLocalizationsDelegate

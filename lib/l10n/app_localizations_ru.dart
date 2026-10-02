@@ -746,4 +746,350 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get off => 'Выкл.';
+
+  @override
+  String get playOn => 'Воспроизводить на';
+
+  @override
+  String get thisDevice => 'Это устройство';
+
+  @override
+  String get availableDevices => 'Доступные устройства';
+
+  @override
+  String get searchingDevices => 'Поиск устройств…';
+
+  @override
+  String get refresh => 'Обновить';
+
+  @override
+  String get connecting => 'Подключение…';
+
+  @override
+  String connectingTo(String name) {
+    return 'Подключение к $name…';
+  }
+
+  @override
+  String get connected => 'Подключено';
+
+  @override
+  String get unsupportedOutput =>
+      'Этот источник нельзя воспроизвести на этом устройстве.';
+
+  @override
+  String get airPlayAudioOutput => 'AirPlay и вывод звука';
+
+  @override
+  String get returnForAirPlay =>
+      'Включите воспроизведение на этом устройстве для использования AirPlay.';
+
+  @override
+  String get openSoundSettings =>
+      'Откройте настройки звука, чтобы выбрать устройство вывода.';
+
+  @override
+  String get soundSettingsError => 'Не удалось открыть настройки звука.';
+
+  @override
+  String get systemOutput => 'Системный вывод';
+
+  @override
+  String playingOn(String name) {
+    return 'Воспроизведение на $name';
+  }
+
+  @override
+  String get chooseAirPlay =>
+      'Нажмите кнопку AirPlay, чтобы выбрать колонку или телевизор.';
+
+  @override
+  String get airPlayDevice => 'Устройство AirPlay';
+
+  @override
+  String get playOnIphone => 'Воспроизводить на этом iPhone';
+
+  @override
+  String get chooseIphone =>
+      'Выберите этот iPhone с помощью кнопки AirPlay ниже.';
+
+  @override
+  String get profile => 'Профиль';
+
+  @override
+  String get preferences => 'Настройки';
+
+  @override
+  String get themeColor => 'Цвет темы';
+
+  @override
+  String get yourMusic => 'Ваша музыка';
+
+  @override
+  String get apiCredentials => 'Учётные данные API';
+
+  @override
+  String get dataStorage => 'Данные и хранилище';
+
+  @override
+  String get editProfileHelp => 'Задайте имя и аватар';
+
+  @override
+  String get customProvider => 'Свой поставщик';
+
+  @override
+  String get defaultProvider => 'По умолчанию PPPlayer';
+
+  @override
+  String get proExperience => 'Режим Pro активен';
+
+  @override
+  String get beta => 'Бета';
+
+  @override
+  String get loading => 'Загрузка…';
+
+  @override
+  String get unknown => 'Неизвестно';
+
+  @override
+  String get pause => 'Пауза';
+
+  @override
+  String get repeat => 'Повтор';
+
+  @override
+  String get mute => 'Выключить звук';
+
+  @override
+  String get unmute => 'Включить звук';
+
+  @override
+  String get fitVideo => 'Вписать';
+
+  @override
+  String get fillVideo => 'Заполнить';
+
+  @override
+  String get fullscreen => 'Полный экран';
+
+  @override
+  String get exitFullscreen => 'Выйти из полного экрана';
+
+  @override
+  String get volume => 'Громкость';
+
+  @override
+  String get save => 'Сохранить';
+
+  @override
+  String get delete => 'Удалить';
+
+  @override
+  String get clear => 'Очистить';
+
+  @override
+  String get follow => 'Подписаться';
+
+  @override
+  String get unfollow => 'Отписаться';
+
+  @override
+  String get following => 'Подписка оформлена';
+
+  @override
+  String get showAll => 'Показать всё';
+
+  @override
+  String get appearance => 'Оформление';
+
+  @override
+  String get subtitleSize => 'Размер';
+
+  @override
+  String get subtitleBackground => 'Фон';
+
+  @override
+  String get earlier => 'Раньше';
+
+  @override
+  String get later => 'Позже';
+
+  @override
+  String get reset => 'Сбросить';
+
+  @override
+  String subtitleDelay(String seconds) {
+    return 'Задержка: $seconds с';
+  }
+
+  @override
+  String get morePlaybackControls => 'Другие элементы управления';
+
+  @override
+  String get hideVideo => 'Скрыть видео';
+
+  @override
+  String get showVideo => 'Показать видео';
+
+  @override
+  String get closeQueue => 'Закрыть очередь';
+
+  @override
+  String get enabled => 'Вкл.';
+
+  @override
+  String get openFile => 'Открыть файл…';
+
+  @override
+  String get openFolder => 'Открыть папку…';
+
+  @override
+  String get openUrl => 'Открыть URL…';
+
+  @override
+  String get fileMenu => 'Файл';
+
+  @override
+  String get viewMenu => 'Вид';
+
+  @override
+  String get windowMenu => 'Окно';
+
+  @override
+  String get saveChanges => 'Сохранить изменения';
+
+  @override
+  String get themeAvatarColor => 'Цвет темы и аватара';
+
+  @override
+  String get networkStreams => 'Сетевые потоки';
+
+  @override
+  String get networkStream => 'Сетевой поток';
+
+  @override
+  String get openNetworkStream => 'Открыть сетевой поток';
+
+  @override
+  String get editPlaylist => 'Изменить плейлист';
+
+  @override
+  String get editStreamItem => 'Изменить элемент потока';
+
+  @override
+  String get streamUrl => 'URL потока';
+
+  @override
+  String get platformType => 'Платформа / тип';
+
+  @override
+  String get optionalTitle => 'Название (необязательно)';
+
+  @override
+  String get optionalImageUrl => 'URL изображения (необязательно)';
+
+  @override
+  String get myStream => 'Мой поток';
+
+  @override
+  String get saveToLibrary => 'Сохранить в библиотеку';
+
+  @override
+  String get justPlay => 'Только воспроизвести';
+
+  @override
+  String get autoDetect => 'Определять автоматически';
+
+  @override
+  String get apiKeyRequired => 'Требуется ключ API';
+
+  @override
+  String get customApiKey => 'Использовать свой ключ API';
+
+  @override
+  String get clientId => 'Идентификатор клиента';
+
+  @override
+  String get clientSecret => 'Секрет клиента';
+
+  @override
+  String get saveCredentials => 'Сохранить учётные данные';
+
+  @override
+  String get searchStrategy => 'Способ поиска';
+
+  @override
+  String get credentialsLocalOnly =>
+      'Безопасно хранятся на этом устройстве. Никогда не отправляются в PPPlayer.';
+
+  @override
+  String get scrapingHelp =>
+      'Ключ API и квота не нужны. Может работать медленнее или менее надёжно.';
+
+  @override
+  String get streamHelp => 'Введите URL HTTP(S) или ссылку на плейлист M3U.';
+
+  @override
+  String get deletePlaylistConfirm => 'Удалить этот плейлист навсегда?';
+
+  @override
+  String get clearCacheConfirm =>
+      'Удалить кэш? Библиотека и избранное останутся без изменений.';
+
+  @override
+  String get clearHistoryConfirm => 'Удалить историю прослушивания навсегда?';
+
+  @override
+  String get addedToQueue => 'Добавлено в очередь';
+
+  @override
+  String get addedVideo => 'Видео добавлено';
+
+  @override
+  String addedChannels(String count) {
+    return 'Добавлено каналов: $count';
+  }
+
+  @override
+  String get removedFromPlaylist => 'Удалено из плейлиста';
+
+  @override
+  String get exportCancelled => 'Экспорт отменён';
+
+  @override
+  String exportComplete(String count) {
+    return 'Плейлист экспортирован. Пропущено элементов: $count';
+  }
+
+  @override
+  String get playlistExported => 'Плейлист экспортирован';
+
+  @override
+  String get live => 'В прямом эфире';
+
+  @override
+  String get sponsored => 'Реклама';
+
+  @override
+  String get removeFromPlaylist => 'Удалить из плейлиста';
+
+  @override
+  String get likedSongsHelp => 'Сохраните песни, чтобы увидеть их здесь';
+
+  @override
+  String get apiSingleVideoHint =>
+      'Можно добавить это видео без импорта плейлиста.';
+
+  @override
+  String get linkCopied => 'Ссылка скопирована';
+
+  @override
+  String get willPlayNext => 'Будет воспроизведено следующим';
+
+  @override
+  String get checkItOut => 'Посмотреть';
+
+  @override
+  String get loadFailed => 'Не удалось загрузить содержимое. Попробуйте снова.';
 }

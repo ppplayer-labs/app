@@ -1,3 +1,4 @@
+import 'package:ppplayer/l10n/app_localizations.dart';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../core/api/spotify_repository.dart';
@@ -250,7 +251,9 @@ class RadioDetailsScreen extends ConsumerWidget {
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Text(
-                                          'RADIO',
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.radioStations,
                                           style: TextStyle(
                                             color: colorScheme.onSurface
                                                 .withValues(alpha: 0.5),
@@ -344,7 +347,9 @@ class RadioDetailsScreen extends ConsumerWidget {
                                     ),
                                     const SizedBox(width: 6),
                                     Text(
-                                      'RADIO STATION',
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.radioStations,
                                       style: TextStyle(
                                         color: Theme.of(
                                           context,
@@ -361,7 +366,7 @@ class RadioDetailsScreen extends ConsumerWidget {
                           ),
                           const SizedBox(width: 16),
                           Text(
-                            'Based on your taste',
+                            AppLocalizations.of(context)!.madeForYou,
                             style: TextStyle(
                               color: colorScheme.onSurface.withValues(
                                 alpha: 0.3,
@@ -379,7 +384,7 @@ class RadioDetailsScreen extends ConsumerWidget {
                   const SizedBox(height: 16),
                   Text(
                         subtitle ??
-                            'A curated mix featuring $title and other artists you like.',
+                            AppLocalizations.of(context)!.inspiredByName(title),
                         style: TextStyle(
                           color: colorScheme.onSurface.withValues(alpha: 0.65),
                           fontSize: 15,
@@ -392,7 +397,10 @@ class RadioDetailsScreen extends ConsumerWidget {
                       .fadeIn(delay: 200.ms)
                       .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuad),
                   const SizedBox(height: 32),
-                  _buildSectionHeader(context, 'CURATED TRACKS'),
+                  _buildSectionHeader(
+                    context,
+                    AppLocalizations.of(context)!.tracks,
+                  ),
                   const SizedBox(height: 24),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -490,7 +498,7 @@ class RadioDetailsScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'No tracks found for this radio.',
+                            AppLocalizations.of(context)!.noTracksFound,
                             style: TextStyle(
                               color: colorScheme.onSurface.withValues(
                                 alpha: 0.5,
@@ -501,7 +509,7 @@ class RadioDetailsScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Try another station or check your connection.',
+                            AppLocalizations.of(context)!.tryAgain,
                             style: TextStyle(
                               color: colorScheme.onSurface.withValues(
                                 alpha: 0.3,
@@ -551,7 +559,7 @@ class RadioDetailsScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Error loading radio results.\nCheck your connection and try again.',
+                        AppLocalizations.of(context)!.loadFailed,
                         textAlign: TextAlign.center,
                         style: TextStyle(color: colorScheme.onSurfaceVariant),
                       ),

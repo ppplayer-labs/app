@@ -740,4 +740,345 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get off => 'إيقاف';
+
+  @override
+  String get playOn => 'التشغيل على';
+
+  @override
+  String get thisDevice => 'هذا الجهاز';
+
+  @override
+  String get availableDevices => 'الأجهزة المتاحة';
+
+  @override
+  String get searchingDevices => 'جارٍ البحث عن أجهزة…';
+
+  @override
+  String get refresh => 'تحديث';
+
+  @override
+  String get connecting => 'جارٍ الاتصال…';
+
+  @override
+  String connectingTo(String name) {
+    return 'جارٍ الاتصال بـ $name…';
+  }
+
+  @override
+  String get connected => 'متصل';
+
+  @override
+  String get unsupportedOutput => 'لا يمكن تشغيل هذا المصدر على هذا المخرج.';
+
+  @override
+  String get airPlayAudioOutput => 'AirPlay ومخرج الصوت';
+
+  @override
+  String get returnForAirPlay => 'شغّل على هذا الجهاز لاستخدام AirPlay.';
+
+  @override
+  String get openSoundSettings => 'افتح إعدادات الصوت لاختيار مخرج.';
+
+  @override
+  String get soundSettingsError => 'تعذر فتح إعدادات الصوت.';
+
+  @override
+  String get systemOutput => 'مخرج النظام';
+
+  @override
+  String playingOn(String name) {
+    return 'جارٍ التشغيل على $name';
+  }
+
+  @override
+  String get chooseAirPlay => 'اضغط زر AirPlay لاختيار مكبر صوت أو تلفاز.';
+
+  @override
+  String get airPlayDevice => 'جهاز AirPlay';
+
+  @override
+  String get playOnIphone => 'التشغيل على هذا iPhone';
+
+  @override
+  String get chooseIphone => 'اختر هذا iPhone باستخدام زر AirPlay أدناه.';
+
+  @override
+  String get profile => 'الملف الشخصي';
+
+  @override
+  String get preferences => 'التفضيلات';
+
+  @override
+  String get themeColor => 'لون السمة';
+
+  @override
+  String get yourMusic => 'موسيقاك';
+
+  @override
+  String get apiCredentials => 'بيانات اعتماد API';
+
+  @override
+  String get dataStorage => 'البيانات والتخزين';
+
+  @override
+  String get editProfileHelp => 'عيّن اسمك وصورتك الرمزية';
+
+  @override
+  String get customProvider => 'موفر مخصص';
+
+  @override
+  String get defaultProvider => 'الإعداد الافتراضي لـ PPPlayer';
+
+  @override
+  String get proExperience => 'تجربة Pro مفعّلة';
+
+  @override
+  String get beta => 'تجريبي';
+
+  @override
+  String get loading => 'جارٍ التحميل…';
+
+  @override
+  String get unknown => 'غير معروف';
+
+  @override
+  String get pause => 'إيقاف مؤقت';
+
+  @override
+  String get repeat => 'تكرار';
+
+  @override
+  String get mute => 'كتم الصوت';
+
+  @override
+  String get unmute => 'إلغاء الكتم';
+
+  @override
+  String get fitVideo => 'ملاءمة';
+
+  @override
+  String get fillVideo => 'ملء';
+
+  @override
+  String get fullscreen => 'ملء الشاشة';
+
+  @override
+  String get exitFullscreen => 'الخروج من ملء الشاشة';
+
+  @override
+  String get volume => 'مستوى الصوت';
+
+  @override
+  String get save => 'حفظ';
+
+  @override
+  String get delete => 'حذف';
+
+  @override
+  String get clear => 'مسح';
+
+  @override
+  String get follow => 'متابعة';
+
+  @override
+  String get unfollow => 'إلغاء المتابعة';
+
+  @override
+  String get following => 'تتم المتابعة';
+
+  @override
+  String get showAll => 'عرض الكل';
+
+  @override
+  String get appearance => 'المظهر';
+
+  @override
+  String get subtitleSize => 'الحجم';
+
+  @override
+  String get subtitleBackground => 'الخلفية';
+
+  @override
+  String get earlier => 'أبكر';
+
+  @override
+  String get later => 'لاحقًا';
+
+  @override
+  String get reset => 'إعادة ضبط';
+
+  @override
+  String subtitleDelay(String seconds) {
+    return 'التأخير: $seconds ث';
+  }
+
+  @override
+  String get morePlaybackControls => 'المزيد من عناصر التحكم بالتشغيل';
+
+  @override
+  String get hideVideo => 'إخفاء الفيديو';
+
+  @override
+  String get showVideo => 'عرض الفيديو';
+
+  @override
+  String get closeQueue => 'إغلاق قائمة الانتظار';
+
+  @override
+  String get enabled => 'مفعّل';
+
+  @override
+  String get openFile => 'فتح ملف…';
+
+  @override
+  String get openFolder => 'فتح مجلد…';
+
+  @override
+  String get openUrl => 'فتح URL…';
+
+  @override
+  String get fileMenu => 'ملف';
+
+  @override
+  String get viewMenu => 'عرض';
+
+  @override
+  String get windowMenu => 'نافذة';
+
+  @override
+  String get saveChanges => 'حفظ التغييرات';
+
+  @override
+  String get themeAvatarColor => 'لون السمة والصورة الرمزية';
+
+  @override
+  String get networkStreams => 'تدفقات الشبكة';
+
+  @override
+  String get networkStream => 'تدفق الشبكة';
+
+  @override
+  String get openNetworkStream => 'فتح تدفق شبكة';
+
+  @override
+  String get editPlaylist => 'تعديل قائمة التشغيل';
+
+  @override
+  String get editStreamItem => 'تعديل عنصر التدفق';
+
+  @override
+  String get streamUrl => 'رابط التدفق';
+
+  @override
+  String get platformType => 'المنصة / النوع';
+
+  @override
+  String get optionalTitle => 'العنوان (اختياري)';
+
+  @override
+  String get optionalImageUrl => 'رابط الصورة (اختياري)';
+
+  @override
+  String get myStream => 'تدفقي';
+
+  @override
+  String get saveToLibrary => 'حفظ في المكتبة';
+
+  @override
+  String get justPlay => 'تشغيل فقط';
+
+  @override
+  String get autoDetect => 'اكتشاف تلقائي';
+
+  @override
+  String get apiKeyRequired => 'مفتاح API مطلوب';
+
+  @override
+  String get customApiKey => 'استخدام مفتاح API مخصص';
+
+  @override
+  String get clientId => 'معرّف العميل';
+
+  @override
+  String get clientSecret => 'سر العميل';
+
+  @override
+  String get saveCredentials => 'حفظ بيانات الاعتماد';
+
+  @override
+  String get searchStrategy => 'استراتيجية البحث';
+
+  @override
+  String get credentialsLocalOnly =>
+      'محفوظة بأمان على هذا الجهاز. لا تُرسل أبدًا إلى PPPlayer.';
+
+  @override
+  String get scrapingHelp =>
+      'لا يتطلب مفتاح API أو حصة. قد يكون أبطأ أو أقل موثوقية.';
+
+  @override
+  String get streamHelp => 'أدخل رابط HTTP(S) أو رابط قائمة تشغيل M3U.';
+
+  @override
+  String get deletePlaylistConfirm => 'حذف قائمة التشغيل هذه نهائيًا؟';
+
+  @override
+  String get clearCacheConfirm =>
+      'حذف البيانات المؤقتة؟ ستبقى مكتبتك ومفضلاتك دون تغيير.';
+
+  @override
+  String get clearHistoryConfirm => 'حذف سجل استماعك نهائيًا؟';
+
+  @override
+  String get addedToQueue => 'أُضيف إلى قائمة الانتظار';
+
+  @override
+  String get addedVideo => 'أُضيف الفيديو';
+
+  @override
+  String addedChannels(String count) {
+    return 'القنوات المضافة: $count';
+  }
+
+  @override
+  String get removedFromPlaylist => 'أُزيل من قائمة التشغيل';
+
+  @override
+  String get exportCancelled => 'أُلغي التصدير';
+
+  @override
+  String exportComplete(String count) {
+    return 'صُدّرت قائمة التشغيل. العناصر المتجاوزة: $count';
+  }
+
+  @override
+  String get playlistExported => 'صُدّرت قائمة التشغيل';
+
+  @override
+  String get live => 'مباشر';
+
+  @override
+  String get sponsored => 'برعاية';
+
+  @override
+  String get removeFromPlaylist => 'إزالة من قائمة التشغيل';
+
+  @override
+  String get likedSongsHelp => 'احفظ الأغاني لتراها هنا';
+
+  @override
+  String get apiSingleVideoHint =>
+      'يمكنك إضافة هذا الفيديو دون استيراد قائمة التشغيل.';
+
+  @override
+  String get linkCopied => 'نُسخ الرابط';
+
+  @override
+  String get willPlayNext => 'سيُشغّل تاليًا';
+
+  @override
+  String get checkItOut => 'استكشف';
+
+  @override
+  String get loadFailed => 'تعذر تحميل المحتوى. حاول مرة أخرى.';
 }

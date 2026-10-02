@@ -745,4 +745,355 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get off => 'Desactivado';
+
+  @override
+  String get playOn => 'Reproducir en';
+
+  @override
+  String get thisDevice => 'Este dispositivo';
+
+  @override
+  String get availableDevices => 'Dispositivos disponibles';
+
+  @override
+  String get searchingDevices => 'Buscando dispositivos…';
+
+  @override
+  String get refresh => 'Actualizar';
+
+  @override
+  String get connecting => 'Conectando…';
+
+  @override
+  String connectingTo(String name) {
+    return 'Conectando con $name…';
+  }
+
+  @override
+  String get connected => 'Conectado';
+
+  @override
+  String get unsupportedOutput =>
+      'Esta fuente no se puede reproducir en esta salida.';
+
+  @override
+  String get airPlayAudioOutput => 'AirPlay y salida de audio';
+
+  @override
+  String get returnForAirPlay =>
+      'Reproduce en este dispositivo para usar AirPlay.';
+
+  @override
+  String get openSoundSettings =>
+      'Abre los ajustes de sonido para elegir una salida.';
+
+  @override
+  String get soundSettingsError =>
+      'No se pudieron abrir los ajustes de sonido.';
+
+  @override
+  String get systemOutput => 'Salida del sistema';
+
+  @override
+  String playingOn(String name) {
+    return 'Reproduciendo en $name';
+  }
+
+  @override
+  String get chooseAirPlay =>
+      'Toca el botón de AirPlay para elegir un altavoz o televisor.';
+
+  @override
+  String get airPlayDevice => 'Dispositivo AirPlay';
+
+  @override
+  String get playOnIphone => 'Reproducir en este iPhone';
+
+  @override
+  String get chooseIphone =>
+      'Elige este iPhone con el botón de AirPlay de abajo.';
+
+  @override
+  String get profile => 'Perfil';
+
+  @override
+  String get preferences => 'Preferencias';
+
+  @override
+  String get themeColor => 'Color del tema';
+
+  @override
+  String get yourMusic => 'Tu música';
+
+  @override
+  String get apiCredentials => 'Credenciales de API';
+
+  @override
+  String get dataStorage => 'Datos y almacenamiento';
+
+  @override
+  String get editProfileHelp => 'Configura tu nombre y avatar';
+
+  @override
+  String get customProvider => 'Proveedor personalizado';
+
+  @override
+  String get defaultProvider => 'Predeterminado de PPPlayer';
+
+  @override
+  String get proExperience => 'Experiencia Pro activa';
+
+  @override
+  String get beta => 'Beta';
+
+  @override
+  String get loading => 'Cargando…';
+
+  @override
+  String get unknown => 'Desconocido';
+
+  @override
+  String get pause => 'Pausar';
+
+  @override
+  String get repeat => 'Repetir';
+
+  @override
+  String get mute => 'Silenciar';
+
+  @override
+  String get unmute => 'Activar sonido';
+
+  @override
+  String get fitVideo => 'Ajustar';
+
+  @override
+  String get fillVideo => 'Rellenar';
+
+  @override
+  String get fullscreen => 'Pantalla completa';
+
+  @override
+  String get exitFullscreen => 'Salir de pantalla completa';
+
+  @override
+  String get volume => 'Volumen';
+
+  @override
+  String get save => 'Guardar';
+
+  @override
+  String get delete => 'Eliminar';
+
+  @override
+  String get clear => 'Borrar';
+
+  @override
+  String get follow => 'Seguir';
+
+  @override
+  String get unfollow => 'Dejar de seguir';
+
+  @override
+  String get following => 'Siguiendo';
+
+  @override
+  String get showAll => 'Mostrar todo';
+
+  @override
+  String get appearance => 'Apariencia';
+
+  @override
+  String get subtitleSize => 'Tamaño';
+
+  @override
+  String get subtitleBackground => 'Fondo';
+
+  @override
+  String get earlier => 'Antes';
+
+  @override
+  String get later => 'Después';
+
+  @override
+  String get reset => 'Restablecer';
+
+  @override
+  String subtitleDelay(String seconds) {
+    return 'Retardo: $seconds s';
+  }
+
+  @override
+  String get morePlaybackControls => 'Más controles de reproducción';
+
+  @override
+  String get hideVideo => 'Ocultar vídeo';
+
+  @override
+  String get showVideo => 'Mostrar vídeo';
+
+  @override
+  String get closeQueue => 'Cerrar cola';
+
+  @override
+  String get enabled => 'Activado';
+
+  @override
+  String get openFile => 'Abrir archivo…';
+
+  @override
+  String get openFolder => 'Abrir carpeta…';
+
+  @override
+  String get openUrl => 'Abrir URL…';
+
+  @override
+  String get fileMenu => 'Archivo';
+
+  @override
+  String get viewMenu => 'Ver';
+
+  @override
+  String get windowMenu => 'Ventana';
+
+  @override
+  String get saveChanges => 'Guardar cambios';
+
+  @override
+  String get themeAvatarColor => 'Color del tema y avatar';
+
+  @override
+  String get networkStreams => 'Transmisiones de red';
+
+  @override
+  String get networkStream => 'Transmisión de red';
+
+  @override
+  String get openNetworkStream => 'Abrir transmisión de red';
+
+  @override
+  String get editPlaylist => 'Editar playlist';
+
+  @override
+  String get editStreamItem => 'Editar elemento de transmisión';
+
+  @override
+  String get streamUrl => 'URL de transmisión';
+
+  @override
+  String get platformType => 'Plataforma / tipo';
+
+  @override
+  String get optionalTitle => 'Título (opcional)';
+
+  @override
+  String get optionalImageUrl => 'URL de imagen (opcional)';
+
+  @override
+  String get myStream => 'Mi transmisión';
+
+  @override
+  String get saveToLibrary => 'Guardar en biblioteca';
+
+  @override
+  String get justPlay => 'Solo reproducir';
+
+  @override
+  String get autoDetect => 'Detectar automáticamente';
+
+  @override
+  String get apiKeyRequired => 'Se requiere clave de API';
+
+  @override
+  String get customApiKey => 'Usar clave de API propia';
+
+  @override
+  String get clientId => 'ID del cliente';
+
+  @override
+  String get clientSecret => 'Secreto del cliente';
+
+  @override
+  String get saveCredentials => 'Guardar credenciales';
+
+  @override
+  String get searchStrategy => 'Estrategia de búsqueda';
+
+  @override
+  String get credentialsLocalOnly =>
+      'Guardadas de forma segura en este dispositivo. Nunca se envían a PPPlayer.';
+
+  @override
+  String get scrapingHelp =>
+      'No requiere clave de API ni cuota. Puede ser más lento o menos fiable.';
+
+  @override
+  String get streamHelp =>
+      'Introduce una URL HTTP(S) o un enlace de playlist M3U.';
+
+  @override
+  String get deletePlaylistConfirm =>
+      '¿Eliminar esta playlist permanentemente?';
+
+  @override
+  String get clearCacheConfirm =>
+      '¿Eliminar datos en caché? Tu biblioteca y favoritos no cambiarán.';
+
+  @override
+  String get clearHistoryConfirm =>
+      '¿Eliminar tu historial de escucha permanentemente?';
+
+  @override
+  String get addedToQueue => 'Añadido a la cola';
+
+  @override
+  String get addedVideo => 'Vídeo añadido';
+
+  @override
+  String addedChannels(String count) {
+    return 'Canales añadidos: $count';
+  }
+
+  @override
+  String get removedFromPlaylist => 'Eliminado de la playlist';
+
+  @override
+  String get exportCancelled => 'Exportación cancelada';
+
+  @override
+  String exportComplete(String count) {
+    return 'Playlist exportada. Elementos omitidos: $count';
+  }
+
+  @override
+  String get playlistExported => 'Playlist exportada';
+
+  @override
+  String get live => 'En directo';
+
+  @override
+  String get sponsored => 'Patrocinado';
+
+  @override
+  String get removeFromPlaylist => 'Quitar de la playlist';
+
+  @override
+  String get likedSongsHelp => 'Guarda canciones para verlas aquí';
+
+  @override
+  String get apiSingleVideoHint =>
+      'Puedes añadir este vídeo sin importar la playlist.';
+
+  @override
+  String get linkCopied => 'Enlace copiado';
+
+  @override
+  String get willPlayNext => 'Se reproducirá a continuación';
+
+  @override
+  String get checkItOut => 'Descúbrelo';
+
+  @override
+  String get loadFailed =>
+      'No se pudo cargar el contenido. Inténtalo de nuevo.';
 }

@@ -741,4 +741,350 @@ class AppLocalizationsSv extends AppLocalizations {
 
   @override
   String get off => 'Av';
+
+  @override
+  String get playOn => 'Spela på';
+
+  @override
+  String get thisDevice => 'Den här enheten';
+
+  @override
+  String get availableDevices => 'Tillgängliga enheter';
+
+  @override
+  String get searchingDevices => 'Söker efter enheter…';
+
+  @override
+  String get refresh => 'Uppdatera';
+
+  @override
+  String get connecting => 'Ansluter…';
+
+  @override
+  String connectingTo(String name) {
+    return 'Ansluter till $name…';
+  }
+
+  @override
+  String get connected => 'Ansluten';
+
+  @override
+  String get unsupportedOutput =>
+      'Den här källan kan inte spelas på den här utgången.';
+
+  @override
+  String get airPlayAudioOutput => 'AirPlay och ljudutgång';
+
+  @override
+  String get returnForAirPlay =>
+      'Spela på den här enheten för att använda AirPlay.';
+
+  @override
+  String get openSoundSettings =>
+      'Öppna ljudinställningarna för att välja en utgång.';
+
+  @override
+  String get soundSettingsError => 'Kunde inte öppna ljudinställningarna.';
+
+  @override
+  String get systemOutput => 'Systemutgång';
+
+  @override
+  String playingOn(String name) {
+    return 'Spelar på $name';
+  }
+
+  @override
+  String get chooseAirPlay =>
+      'Tryck på AirPlay-knappen för att välja en högtalare eller tv.';
+
+  @override
+  String get airPlayDevice => 'AirPlay-enhet';
+
+  @override
+  String get playOnIphone => 'Spela på den här iPhone-enheten';
+
+  @override
+  String get chooseIphone => 'Välj denna iPhone med AirPlay-knappen nedan.';
+
+  @override
+  String get profile => 'Profil';
+
+  @override
+  String get preferences => 'Inställningar';
+
+  @override
+  String get themeColor => 'Temafärg';
+
+  @override
+  String get yourMusic => 'Din musik';
+
+  @override
+  String get apiCredentials => 'API-uppgifter';
+
+  @override
+  String get dataStorage => 'Data och lagring';
+
+  @override
+  String get editProfileHelp => 'Ange ditt namn och din avatar';
+
+  @override
+  String get customProvider => 'Anpassad leverantör';
+
+  @override
+  String get defaultProvider => 'PPPlayer-standard';
+
+  @override
+  String get proExperience => 'Pro-upplevelse aktiv';
+
+  @override
+  String get beta => 'Beta';
+
+  @override
+  String get loading => 'Läser in…';
+
+  @override
+  String get unknown => 'Okänd';
+
+  @override
+  String get pause => 'Pausa';
+
+  @override
+  String get repeat => 'Upprepa';
+
+  @override
+  String get mute => 'Stäng av ljud';
+
+  @override
+  String get unmute => 'Slå på ljud';
+
+  @override
+  String get fitVideo => 'Anpassa';
+
+  @override
+  String get fillVideo => 'Fyll';
+
+  @override
+  String get fullscreen => 'Helskärm';
+
+  @override
+  String get exitFullscreen => 'Avsluta helskärm';
+
+  @override
+  String get volume => 'Volym';
+
+  @override
+  String get save => 'Spara';
+
+  @override
+  String get delete => 'Ta bort';
+
+  @override
+  String get clear => 'Rensa';
+
+  @override
+  String get follow => 'Följ';
+
+  @override
+  String get unfollow => 'Sluta följa';
+
+  @override
+  String get following => 'Följer';
+
+  @override
+  String get showAll => 'Visa alla';
+
+  @override
+  String get appearance => 'Utseende';
+
+  @override
+  String get subtitleSize => 'Storlek';
+
+  @override
+  String get subtitleBackground => 'Bakgrund';
+
+  @override
+  String get earlier => 'Tidigare';
+
+  @override
+  String get later => 'Senare';
+
+  @override
+  String get reset => 'Återställ';
+
+  @override
+  String subtitleDelay(String seconds) {
+    return 'Fördröjning: $seconds s';
+  }
+
+  @override
+  String get morePlaybackControls => 'Fler uppspelningskontroller';
+
+  @override
+  String get hideVideo => 'Dölj video';
+
+  @override
+  String get showVideo => 'Visa video';
+
+  @override
+  String get closeQueue => 'Stäng kö';
+
+  @override
+  String get enabled => 'På';
+
+  @override
+  String get openFile => 'Öppna fil…';
+
+  @override
+  String get openFolder => 'Öppna mapp…';
+
+  @override
+  String get openUrl => 'Öppna URL…';
+
+  @override
+  String get fileMenu => 'Arkiv';
+
+  @override
+  String get viewMenu => 'Visa';
+
+  @override
+  String get windowMenu => 'Fönster';
+
+  @override
+  String get saveChanges => 'Spara ändringar';
+
+  @override
+  String get themeAvatarColor => 'Tema- och avatarfärg';
+
+  @override
+  String get networkStreams => 'Nätverksströmmar';
+
+  @override
+  String get networkStream => 'Nätverksström';
+
+  @override
+  String get openNetworkStream => 'Öppna nätverksström';
+
+  @override
+  String get editPlaylist => 'Redigera spellista';
+
+  @override
+  String get editStreamItem => 'Redigera strömobjekt';
+
+  @override
+  String get streamUrl => 'Ström-URL';
+
+  @override
+  String get platformType => 'Plattform / typ';
+
+  @override
+  String get optionalTitle => 'Titel (valfri)';
+
+  @override
+  String get optionalImageUrl => 'Bild-URL (valfri)';
+
+  @override
+  String get myStream => 'Min ström';
+
+  @override
+  String get saveToLibrary => 'Spara i bibliotek';
+
+  @override
+  String get justPlay => 'Spela endast';
+
+  @override
+  String get autoDetect => 'Identifiera automatiskt';
+
+  @override
+  String get apiKeyRequired => 'API-nyckel krävs';
+
+  @override
+  String get customApiKey => 'Använd egen API-nyckel';
+
+  @override
+  String get clientId => 'Klient-id';
+
+  @override
+  String get clientSecret => 'Klienthemlighet';
+
+  @override
+  String get saveCredentials => 'Spara inloggningsuppgifter';
+
+  @override
+  String get searchStrategy => 'Sökstrategi';
+
+  @override
+  String get credentialsLocalOnly =>
+      'Lagras säkert på denna enhet. Skickas aldrig till PPPlayer.';
+
+  @override
+  String get scrapingHelp =>
+      'Ingen API-nyckel eller kvot krävs. Kan vara långsammare eller mindre tillförlitligt.';
+
+  @override
+  String get streamHelp =>
+      'Ange en HTTP(S)-URL eller en länk till en M3U-spellista.';
+
+  @override
+  String get deletePlaylistConfirm => 'Ta bort denna spellista permanent?';
+
+  @override
+  String get clearCacheConfirm =>
+      'Ta bort cachedata? Bibliotek och favoriter förblir oförändrade.';
+
+  @override
+  String get clearHistoryConfirm => 'Ta bort din lyssningshistorik permanent?';
+
+  @override
+  String get addedToQueue => 'Tillagt i kön';
+
+  @override
+  String get addedVideo => 'Video tillagd';
+
+  @override
+  String addedChannels(String count) {
+    return 'Tillagda kanaler: $count';
+  }
+
+  @override
+  String get removedFromPlaylist => 'Borttaget från spellistan';
+
+  @override
+  String get exportCancelled => 'Export avbruten';
+
+  @override
+  String exportComplete(String count) {
+    return 'Spellista exporterad. Överhoppade objekt: $count';
+  }
+
+  @override
+  String get playlistExported => 'Spellista exporterad';
+
+  @override
+  String get live => 'Live';
+
+  @override
+  String get sponsored => 'Sponsrat';
+
+  @override
+  String get removeFromPlaylist => 'Ta bort från spellista';
+
+  @override
+  String get likedSongsHelp => 'Spara låtar för att se dem här';
+
+  @override
+  String get apiSingleVideoHint =>
+      'Du kan lägga till videon utan att importera spellistan.';
+
+  @override
+  String get linkCopied => 'Länk kopierad';
+
+  @override
+  String get willPlayNext => 'Spelas härnäst';
+
+  @override
+  String get checkItOut => 'Ta en titt';
+
+  @override
+  String get loadFailed => 'Det gick inte att läsa in innehållet. Försök igen.';
 }

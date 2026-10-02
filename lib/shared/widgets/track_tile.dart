@@ -112,143 +112,129 @@ class TrackTile extends ConsumerStatefulWidget {
             sigmaX: 20,
             sigmaY: 20,
             child: Consumer(
-              builder: (context, ref, child) =>
-                  FutureBuilder<List<db.Playlist>>(
-                    future: database.getPlaylists(),
-                    builder: (context, snap) {
-                      final playlists = snap.data ?? [];
-                      return SafeArea(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              margin: const EdgeInsets.all(8),
-                              width: 40,
-                              height: 4,
-                              decoration: BoxDecoration(
+              builder: (context, ref, child) => FutureBuilder<List<db.Playlist>>(
+                future: database.getPlaylists(),
+                builder: (context, snap) {
+                  final playlists = snap.data ?? [];
+                  return SafeArea(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          margin: const EdgeInsets.all(8),
+                          width: 40,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurfaceVariant
+                                .withValues(alpha: 0.3),
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          child: Text(
+                            AppLocalizations.of(context)!.addToPlaylist,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                          ),
+                        ),
+                        ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.surfaceContainerHighest,
+                            child: Icon(
+                              Icons.add,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                          ),
+                          title: Text(
+                            AppLocalizations.of(context)!.newPlaylist,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                          ),
+                          onTap: () {
+                            Navigator.of(context).pop();
+                            _showCreatePlaylistDialog(context, database, track);
+                          },
+                        ),
+                        Divider(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.outlineVariant.withValues(alpha: 0.1),
+                        ),
+                        if (playlists.isEmpty)
+                          Padding(
+                            padding: const EdgeInsets.all(32),
+                            child: Text(
+                              AppLocalizations.of(context)!.noPlaylistsYet,
+                              style: TextStyle(
                                 color: Theme.of(context)
                                     .colorScheme
                                     .onSurfaceVariant
-                                    .withValues(alpha: 0.3),
-                                borderRadius: BorderRadius.circular(2),
+                                    .withValues(alpha: 0.5),
                               ),
                             ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              child: Text(
-                                AppLocalizations.of(context)!.addToPlaylist,
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurface,
-                                ),
-                              ),
-                            ),
-                            ListTile(
-                              leading: CircleAvatar(
-                                backgroundColor: Theme.of(
+                          ),
+                        Flexible(
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: playlists.length,
+                            itemBuilder: (context, i) => ListTile(
+                              leading: Icon(
+                                Icons.playlist_play,
+                                color: Theme.of(
                                   context,
-                                ).colorScheme.surfaceContainerHighest,
-                                child: Icon(
-                                  Icons.add,
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurface,
-                                ),
+                                ).colorScheme.onSurfaceVariant,
                               ),
                               title: Text(
-                                'Create New Playlist',
+                                playlists[i].name,
                                 style: TextStyle(
                                   color: Theme.of(
                                     context,
                                   ).colorScheme.onSurface,
                                 ),
                               ),
-                              onTap: () {
-                                Navigator.of(context).pop();
-                                _showCreatePlaylistDialog(
-                                  context,
-                                  database,
-                                  track,
+                              onTap: () async {
+                                await database.addToPlaylist(
+                                  playlists[i].id,
+                                  track.spotifyId,
                                 );
+                                if (context.mounted) {
+                                  Navigator.of(context).pop();
+                                }
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      backgroundColor: Theme.of(
+                                        context,
+                                      ).colorScheme.surfaceContainerHighest,
+                                      content: Text(
+                                        '✓ ${AppLocalizations.of(context)!.playlist}: ${playlists[i].name}',
+                                        style: TextStyle(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurface,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }
                               },
                             ),
-                            Divider(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .outlineVariant
-                                  .withValues(alpha: 0.1),
-                            ),
-                            if (playlists.isEmpty)
-                              Padding(
-                                padding: const EdgeInsets.all(32),
-                                child: Text(
-                                  'No playlists yet.',
-                                  style: TextStyle(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant
-                                        .withValues(alpha: 0.5),
-                                  ),
-                                ),
-                              ),
-                            Flexible(
-                              child: ListView.builder(
-                                shrinkWrap: true,
-                                itemCount: playlists.length,
-                                itemBuilder: (context, i) => ListTile(
-                                  leading: Icon(
-                                    Icons.playlist_play,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurfaceVariant,
-                                  ),
-                                  title: Text(
-                                    playlists[i].name,
-                                    style: TextStyle(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.onSurface,
-                                    ),
-                                  ),
-                                  onTap: () async {
-                                    await database.addToPlaylist(
-                                      playlists[i].id,
-                                      track.spotifyId,
-                                    );
-                                    if (context.mounted) {
-                                      Navigator.of(context).pop();
-                                    }
-                                    if (context.mounted) {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        SnackBar(
-                                          backgroundColor: Theme.of(
-                                            context,
-                                          ).colorScheme.surfaceContainerHighest,
-                                          content: Text(
-                                            'Added to ${playlists[i].name}',
-                                            style: TextStyle(
-                                              color: Theme.of(
-                                                context,
-                                              ).colorScheme.onSurface,
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    }
-                                  },
-                                ),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
-                      );
-                    },
-                  ),
+                      ],
+                    ),
+                  );
+                },
+              ),
             ),
           ),
         ),

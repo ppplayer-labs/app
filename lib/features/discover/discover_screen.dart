@@ -45,7 +45,7 @@ class DiscoverScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'New music curated for you.',
+                      AppLocalizations.of(context)!.newMusicJustForYou,
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w500,
@@ -62,7 +62,7 @@ class DiscoverScreen extends ConsumerWidget {
                   return SliverFillRemaining(
                     child: Center(
                       child: Text(
-                        'Nothing to discover right now.',
+                        AppLocalizations.of(context)!.noResultsFound,
                         style: TextStyle(color: colorScheme.onSurfaceVariant),
                       ),
                     ),
@@ -236,7 +236,7 @@ class DiscoverScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Failed to load recommendations',
+                        AppLocalizations.of(context)!.noResultsFound,
                         style: TextStyle(color: colorScheme.onSurface),
                       ),
                       const SizedBox(height: 16),

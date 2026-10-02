@@ -1011,7 +1011,7 @@ class _HistoryCardState extends State<_HistoryCard> {
                       Positioned.fill(
                         child: Container(
                           color: Colors.black.withValues(alpha: 0.4),
-                          child: const Center(
+                          child: Center(
                             child: Icon(
                               Icons.play_circle_fill,
                               size: 48,
@@ -1504,7 +1504,7 @@ class _RadioCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        'LIVE',
+                        AppLocalizations.of(context)!.live,
                         style: TextStyle(
                           fontSize: 9,
                           fontWeight: FontWeight.w900,
@@ -1539,7 +1539,7 @@ class _RadioCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      'Exclusive Station',
+                      AppLocalizations.of(context)!.radioStations,
                       style: TextStyle(
                         color: colorScheme.onSurface.withValues(alpha: 0.5),
                         fontSize: 11,
@@ -1917,7 +1917,7 @@ class _StaggeredHeader extends StatelessWidget {
           ),
           const Spacer(),
           Text(
-            'See all >',
+            AppLocalizations.of(context)!.showAll,
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,

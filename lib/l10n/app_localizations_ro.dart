@@ -746,4 +746,352 @@ class AppLocalizationsRo extends AppLocalizations {
 
   @override
   String get off => 'Oprit';
+
+  @override
+  String get playOn => 'Redă pe';
+
+  @override
+  String get thisDevice => 'Acest dispozitiv';
+
+  @override
+  String get availableDevices => 'Dispozitive disponibile';
+
+  @override
+  String get searchingDevices => 'Se caută dispozitive…';
+
+  @override
+  String get refresh => 'Reîmprospătează';
+
+  @override
+  String get connecting => 'Se conectează…';
+
+  @override
+  String connectingTo(String name) {
+    return 'Se conectează la $name…';
+  }
+
+  @override
+  String get connected => 'Conectat';
+
+  @override
+  String get unsupportedOutput =>
+      'Această sursă nu poate fi redată pe această ieșire.';
+
+  @override
+  String get airPlayAudioOutput => 'AirPlay și ieșire audio';
+
+  @override
+  String get returnForAirPlay =>
+      'Redă pe acest dispozitiv pentru a utiliza AirPlay.';
+
+  @override
+  String get openSoundSettings =>
+      'Deschide setările de sunet pentru a alege o ieșire.';
+
+  @override
+  String get soundSettingsError => 'Nu s-au putut deschide setările de sunet.';
+
+  @override
+  String get systemOutput => 'Ieșirea sistemului';
+
+  @override
+  String playingOn(String name) {
+    return 'Se redă pe $name';
+  }
+
+  @override
+  String get chooseAirPlay =>
+      'Atinge butonul AirPlay pentru a alege un difuzor sau un televizor.';
+
+  @override
+  String get airPlayDevice => 'Dispozitiv AirPlay';
+
+  @override
+  String get playOnIphone => 'Redă pe acest iPhone';
+
+  @override
+  String get chooseIphone =>
+      'Alege acest iPhone folosind butonul AirPlay de mai jos.';
+
+  @override
+  String get profile => 'Profil';
+
+  @override
+  String get preferences => 'Preferințe';
+
+  @override
+  String get themeColor => 'Culoarea temei';
+
+  @override
+  String get yourMusic => 'Muzica ta';
+
+  @override
+  String get apiCredentials => 'Date de acces API';
+
+  @override
+  String get dataStorage => 'Date și stocare';
+
+  @override
+  String get editProfileHelp => 'Setează-ți numele și avatarul';
+
+  @override
+  String get customProvider => 'Furnizor personalizat';
+
+  @override
+  String get defaultProvider => 'Implicit PPPlayer';
+
+  @override
+  String get proExperience => 'Experiență Pro activă';
+
+  @override
+  String get beta => 'Beta';
+
+  @override
+  String get loading => 'Se încarcă…';
+
+  @override
+  String get unknown => 'Necunoscut';
+
+  @override
+  String get pause => 'Pauză';
+
+  @override
+  String get repeat => 'Repetă';
+
+  @override
+  String get mute => 'Dezactivează sunetul';
+
+  @override
+  String get unmute => 'Activează sunetul';
+
+  @override
+  String get fitVideo => 'Potrivește';
+
+  @override
+  String get fillVideo => 'Umple';
+
+  @override
+  String get fullscreen => 'Ecran complet';
+
+  @override
+  String get exitFullscreen => 'Ieși din ecran complet';
+
+  @override
+  String get volume => 'Volum';
+
+  @override
+  String get save => 'Salvează';
+
+  @override
+  String get delete => 'Șterge';
+
+  @override
+  String get clear => 'Golește';
+
+  @override
+  String get follow => 'Urmărește';
+
+  @override
+  String get unfollow => 'Nu mai urmări';
+
+  @override
+  String get following => 'Urmărit';
+
+  @override
+  String get showAll => 'Arată tot';
+
+  @override
+  String get appearance => 'Aspect';
+
+  @override
+  String get subtitleSize => 'Dimensiune';
+
+  @override
+  String get subtitleBackground => 'Fundal';
+
+  @override
+  String get earlier => 'Mai devreme';
+
+  @override
+  String get later => 'Mai târziu';
+
+  @override
+  String get reset => 'Resetează';
+
+  @override
+  String subtitleDelay(String seconds) {
+    return 'Întârziere: $seconds s';
+  }
+
+  @override
+  String get morePlaybackControls => 'Mai multe comenzi de redare';
+
+  @override
+  String get hideVideo => 'Ascunde videoclipul';
+
+  @override
+  String get showVideo => 'Arată videoclipul';
+
+  @override
+  String get closeQueue => 'Închide coada';
+
+  @override
+  String get enabled => 'Activat';
+
+  @override
+  String get openFile => 'Deschide fișier…';
+
+  @override
+  String get openFolder => 'Deschide dosar…';
+
+  @override
+  String get openUrl => 'Deschide URL…';
+
+  @override
+  String get fileMenu => 'Fișier';
+
+  @override
+  String get viewMenu => 'Vizualizare';
+
+  @override
+  String get windowMenu => 'Fereastră';
+
+  @override
+  String get saveChanges => 'Salvează modificările';
+
+  @override
+  String get themeAvatarColor => 'Culoarea temei și avatarului';
+
+  @override
+  String get networkStreams => 'Fluxuri de rețea';
+
+  @override
+  String get networkStream => 'Flux de rețea';
+
+  @override
+  String get openNetworkStream => 'Deschide flux de rețea';
+
+  @override
+  String get editPlaylist => 'Editează playlistul';
+
+  @override
+  String get editStreamItem => 'Editează elementul fluxului';
+
+  @override
+  String get streamUrl => 'URL-ul fluxului';
+
+  @override
+  String get platformType => 'Platformă / tip';
+
+  @override
+  String get optionalTitle => 'Titlu (opțional)';
+
+  @override
+  String get optionalImageUrl => 'URL imagine (opțional)';
+
+  @override
+  String get myStream => 'Fluxul meu';
+
+  @override
+  String get saveToLibrary => 'Salvează în bibliotecă';
+
+  @override
+  String get justPlay => 'Doar redă';
+
+  @override
+  String get autoDetect => 'Detectare automată';
+
+  @override
+  String get apiKeyRequired => 'Este necesară o cheie API';
+
+  @override
+  String get customApiKey => 'Folosește o cheie API proprie';
+
+  @override
+  String get clientId => 'ID client';
+
+  @override
+  String get clientSecret => 'Secret client';
+
+  @override
+  String get saveCredentials => 'Salvează datele de acces';
+
+  @override
+  String get searchStrategy => 'Strategie de căutare';
+
+  @override
+  String get credentialsLocalOnly =>
+      'Stocate în siguranță pe acest dispozitiv. Nu sunt trimise niciodată la PPPlayer.';
+
+  @override
+  String get scrapingHelp =>
+      'Nu necesită cheie API sau cotă. Poate fi mai lent sau mai puțin fiabil.';
+
+  @override
+  String get streamHelp =>
+      'Introdu un URL HTTP(S) sau un link către un playlist M3U.';
+
+  @override
+  String get deletePlaylistConfirm => 'Ștergi definitiv acest playlist?';
+
+  @override
+  String get clearCacheConfirm =>
+      'Ștergi datele din cache? Biblioteca și favoritele rămân neschimbate.';
+
+  @override
+  String get clearHistoryConfirm => 'Ștergi definitiv istoricul de ascultare?';
+
+  @override
+  String get addedToQueue => 'Adăugat în coadă';
+
+  @override
+  String get addedVideo => 'Videoclip adăugat';
+
+  @override
+  String addedChannels(String count) {
+    return 'Canale adăugate: $count';
+  }
+
+  @override
+  String get removedFromPlaylist => 'Eliminat din playlist';
+
+  @override
+  String get exportCancelled => 'Export anulat';
+
+  @override
+  String exportComplete(String count) {
+    return 'Playlist exportat. Elemente omise: $count';
+  }
+
+  @override
+  String get playlistExported => 'Playlist exportat';
+
+  @override
+  String get live => 'În direct';
+
+  @override
+  String get sponsored => 'Sponsorizat';
+
+  @override
+  String get removeFromPlaylist => 'Elimină din playlist';
+
+  @override
+  String get likedSongsHelp => 'Salvează melodii pentru a le vedea aici';
+
+  @override
+  String get apiSingleVideoHint =>
+      'Poți adăuga acest videoclip fără să imporți playlistul.';
+
+  @override
+  String get linkCopied => 'Link copiat';
+
+  @override
+  String get willPlayNext => 'Se va reda în continuare';
+
+  @override
+  String get checkItOut => 'Descoperă';
+
+  @override
+  String get loadFailed =>
+      'Conținutul nu a putut fi încărcat. Încearcă din nou.';
 }

@@ -745,4 +745,352 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get off => 'Naka-off';
+
+  @override
+  String get playOn => 'I-play sa';
+
+  @override
+  String get thisDevice => 'Device na ito';
+
+  @override
+  String get availableDevices => 'Mga available na device';
+
+  @override
+  String get searchingDevices => 'Naghahanap ng mga device…';
+
+  @override
+  String get refresh => 'I-refresh';
+
+  @override
+  String get connecting => 'Kumokonekta…';
+
+  @override
+  String connectingTo(String name) {
+    return 'Kumokonekta sa $name…';
+  }
+
+  @override
+  String get connected => 'Nakakonekta';
+
+  @override
+  String get unsupportedOutput =>
+      'Hindi mape-play ang source na ito sa output na ito.';
+
+  @override
+  String get airPlayAudioOutput => 'AirPlay at audio output';
+
+  @override
+  String get returnForAirPlay =>
+      'I-play sa device na ito para magamit ang AirPlay.';
+
+  @override
+  String get openSoundSettings =>
+      'Buksan ang mga setting ng Tunog para pumili ng output.';
+
+  @override
+  String get soundSettingsError => 'Hindi mabuksan ang mga setting ng Tunog.';
+
+  @override
+  String get systemOutput => 'Output ng system';
+
+  @override
+  String playingOn(String name) {
+    return 'Nagpe-play sa $name';
+  }
+
+  @override
+  String get chooseAirPlay =>
+      'Pindutin ang AirPlay button para pumili ng speaker o TV.';
+
+  @override
+  String get airPlayDevice => 'AirPlay device';
+
+  @override
+  String get playOnIphone => 'I-play sa iPhone na ito';
+
+  @override
+  String get chooseIphone =>
+      'Piliin ang iPhone na ito gamit ang AirPlay button sa ibaba.';
+
+  @override
+  String get profile => 'Profile';
+
+  @override
+  String get preferences => 'Mga kagustuhan';
+
+  @override
+  String get themeColor => 'Kulay ng tema';
+
+  @override
+  String get yourMusic => 'Iyong musika';
+
+  @override
+  String get apiCredentials => 'Mga kredensyal ng API';
+
+  @override
+  String get dataStorage => 'Data at storage';
+
+  @override
+  String get editProfileHelp => 'Itakda ang iyong pangalan at avatar';
+
+  @override
+  String get customProvider => 'Custom na provider';
+
+  @override
+  String get defaultProvider => 'Default ng PPPlayer';
+
+  @override
+  String get proExperience => 'Aktibo ang Pro na karanasan';
+
+  @override
+  String get beta => 'Beta';
+
+  @override
+  String get loading => 'Naglo-load…';
+
+  @override
+  String get unknown => 'Hindi alam';
+
+  @override
+  String get pause => 'I-pause';
+
+  @override
+  String get repeat => 'Ulitin';
+
+  @override
+  String get mute => 'I-mute';
+
+  @override
+  String get unmute => 'I-unmute';
+
+  @override
+  String get fitVideo => 'Iangkop';
+
+  @override
+  String get fillVideo => 'Punuin';
+
+  @override
+  String get fullscreen => 'Buong screen';
+
+  @override
+  String get exitFullscreen => 'Lumabas sa buong screen';
+
+  @override
+  String get volume => 'Lakas ng tunog';
+
+  @override
+  String get save => 'I-save';
+
+  @override
+  String get delete => 'Tanggalin';
+
+  @override
+  String get clear => 'I-clear';
+
+  @override
+  String get follow => 'Sundan';
+
+  @override
+  String get unfollow => 'Huwag nang sundan';
+
+  @override
+  String get following => 'Sinusundan';
+
+  @override
+  String get showAll => 'Ipakita lahat';
+
+  @override
+  String get appearance => 'Hitsura';
+
+  @override
+  String get subtitleSize => 'Laki';
+
+  @override
+  String get subtitleBackground => 'Background';
+
+  @override
+  String get earlier => 'Mas maaga';
+
+  @override
+  String get later => 'Mas huli';
+
+  @override
+  String get reset => 'I-reset';
+
+  @override
+  String subtitleDelay(String seconds) {
+    return 'Pagkaantala: $seconds s';
+  }
+
+  @override
+  String get morePlaybackControls => 'Iba pang kontrol sa pag-play';
+
+  @override
+  String get hideVideo => 'Itago ang video';
+
+  @override
+  String get showVideo => 'Ipakita ang video';
+
+  @override
+  String get closeQueue => 'Isara ang pila';
+
+  @override
+  String get enabled => 'Naka-on';
+
+  @override
+  String get openFile => 'Magbukas ng file…';
+
+  @override
+  String get openFolder => 'Magbukas ng folder…';
+
+  @override
+  String get openUrl => 'Magbukas ng URL…';
+
+  @override
+  String get fileMenu => 'File';
+
+  @override
+  String get viewMenu => 'Tingnan';
+
+  @override
+  String get windowMenu => 'Window';
+
+  @override
+  String get saveChanges => 'I-save ang mga pagbabago';
+
+  @override
+  String get themeAvatarColor => 'Kulay ng tema at avatar';
+
+  @override
+  String get networkStreams => 'Mga network stream';
+
+  @override
+  String get networkStream => 'Network stream';
+
+  @override
+  String get openNetworkStream => 'Magbukas ng network stream';
+
+  @override
+  String get editPlaylist => 'I-edit ang playlist';
+
+  @override
+  String get editStreamItem => 'I-edit ang stream item';
+
+  @override
+  String get streamUrl => 'URL ng stream';
+
+  @override
+  String get platformType => 'Platform / uri';
+
+  @override
+  String get optionalTitle => 'Pamagat (opsyonal)';
+
+  @override
+  String get optionalImageUrl => 'URL ng larawan (opsyonal)';
+
+  @override
+  String get myStream => 'Aking stream';
+
+  @override
+  String get saveToLibrary => 'I-save sa library';
+
+  @override
+  String get justPlay => 'I-play lang';
+
+  @override
+  String get autoDetect => 'Awtomatikong tuklasin';
+
+  @override
+  String get apiKeyRequired => 'Kailangan ng API key';
+
+  @override
+  String get customApiKey => 'Gumamit ng sariling API key';
+
+  @override
+  String get clientId => 'Client ID';
+
+  @override
+  String get clientSecret => 'Client secret';
+
+  @override
+  String get saveCredentials => 'I-save ang mga kredensyal';
+
+  @override
+  String get searchStrategy => 'Paraan ng paghahanap';
+
+  @override
+  String get credentialsLocalOnly =>
+      'Ligtas na naka-store sa device na ito. Hindi ipinapadala sa PPPlayer.';
+
+  @override
+  String get scrapingHelp =>
+      'Hindi kailangan ng API key o quota. Maaaring mas mabagal o hindi gaanong maaasahan.';
+
+  @override
+  String get streamHelp => 'Maglagay ng HTTP(S) URL o M3U playlist link.';
+
+  @override
+  String get deletePlaylistConfirm =>
+      'Permanenteng tanggalin ang playlist na ito?';
+
+  @override
+  String get clearCacheConfirm =>
+      'Tanggalin ang cache? Hindi magbabago ang library at mga paborito.';
+
+  @override
+  String get clearHistoryConfirm =>
+      'Permanenteng tanggalin ang kasaysayan ng pakikinig?';
+
+  @override
+  String get addedToQueue => 'Naidagdag sa pila';
+
+  @override
+  String get addedVideo => 'Naidagdag ang video';
+
+  @override
+  String addedChannels(String count) {
+    return 'Mga channel na naidagdag: $count';
+  }
+
+  @override
+  String get removedFromPlaylist => 'Inalis sa playlist';
+
+  @override
+  String get exportCancelled => 'Kinansela ang pag-export';
+
+  @override
+  String exportComplete(String count) {
+    return 'Na-export ang playlist. Mga item na nilaktawan: $count';
+  }
+
+  @override
+  String get playlistExported => 'Na-export ang playlist';
+
+  @override
+  String get live => 'Live';
+
+  @override
+  String get sponsored => 'Sponsored';
+
+  @override
+  String get removeFromPlaylist => 'Alisin sa playlist';
+
+  @override
+  String get likedSongsHelp => 'Mag-save ng kanta para makita rito';
+
+  @override
+  String get apiSingleVideoHint =>
+      'Maaari mong idagdag ang video nang hindi ini-import ang playlist.';
+
+  @override
+  String get linkCopied => 'Nakopya ang link';
+
+  @override
+  String get willPlayNext => 'Susunod na ipe-play';
+
+  @override
+  String get checkItOut => 'Tingnan';
+
+  @override
+  String get loadFailed => 'Hindi ma-load ang nilalaman. Subukan muli.';
 }

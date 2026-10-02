@@ -744,4 +744,350 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get off => 'O\'chirish';
+
+  @override
+  String get playOn => 'Shu qurilmada ijro etish';
+
+  @override
+  String get thisDevice => 'Bu qurilma';
+
+  @override
+  String get availableDevices => 'Mavjud qurilmalar';
+
+  @override
+  String get searchingDevices => 'Qurilmalar qidirilmoqda…';
+
+  @override
+  String get refresh => 'Yangilash';
+
+  @override
+  String get connecting => 'Ulanmoqda…';
+
+  @override
+  String connectingTo(String name) {
+    return '$name qurilmasiga ulanmoqda…';
+  }
+
+  @override
+  String get connected => 'Ulandi';
+
+  @override
+  String get unsupportedOutput =>
+      'Bu manbani ushbu chiqishda ijro etib bo‘lmaydi.';
+
+  @override
+  String get airPlayAudioOutput => 'AirPlay va audio chiqish';
+
+  @override
+  String get returnForAirPlay =>
+      'AirPlay ishlatish uchun shu qurilmada ijro eting.';
+
+  @override
+  String get openSoundSettings =>
+      'Chiqishni tanlash uchun Ovoz sozlamalarini oching.';
+
+  @override
+  String get soundSettingsError => 'Ovoz sozlamalarini ochib bo‘lmadi.';
+
+  @override
+  String get systemOutput => 'Tizim chiqishi';
+
+  @override
+  String playingOn(String name) {
+    return '$name qurilmasida ijro etilmoqda';
+  }
+
+  @override
+  String get chooseAirPlay =>
+      'Karnay yoki televizorni tanlash uchun AirPlay tugmasini bosing.';
+
+  @override
+  String get airPlayDevice => 'AirPlay qurilmasi';
+
+  @override
+  String get playOnIphone => 'Shu iPhone’da ijro etish';
+
+  @override
+  String get chooseIphone =>
+      'Quyidagi AirPlay tugmasi bilan shu iPhone’ni tanlang.';
+
+  @override
+  String get profile => 'Profil';
+
+  @override
+  String get preferences => 'Afzalliklar';
+
+  @override
+  String get themeColor => 'Mavzu rangi';
+
+  @override
+  String get yourMusic => 'Musiqangiz';
+
+  @override
+  String get apiCredentials => 'API hisob ma’lumotlari';
+
+  @override
+  String get dataStorage => 'Ma’lumotlar va xotira';
+
+  @override
+  String get editProfileHelp => 'Ismingiz va avataringizni sozlang';
+
+  @override
+  String get customProvider => 'Maxsus provayder';
+
+  @override
+  String get defaultProvider => 'PPPlayer standarti';
+
+  @override
+  String get proExperience => 'Pro imkoniyatlari faol';
+
+  @override
+  String get beta => 'Beta';
+
+  @override
+  String get loading => 'Yuklanmoqda…';
+
+  @override
+  String get unknown => 'Noma’lum';
+
+  @override
+  String get pause => 'Pauza';
+
+  @override
+  String get repeat => 'Takrorlash';
+
+  @override
+  String get mute => 'Ovozni o‘chirish';
+
+  @override
+  String get unmute => 'Ovozni yoqish';
+
+  @override
+  String get fitVideo => 'Moslashtirish';
+
+  @override
+  String get fillVideo => 'To‘ldirish';
+
+  @override
+  String get fullscreen => 'To‘liq ekran';
+
+  @override
+  String get exitFullscreen => 'To‘liq ekrandan chiqish';
+
+  @override
+  String get volume => 'Ovoz balandligi';
+
+  @override
+  String get save => 'Saqlash';
+
+  @override
+  String get delete => 'O‘chirish';
+
+  @override
+  String get clear => 'Tozalash';
+
+  @override
+  String get follow => 'Kuzatish';
+
+  @override
+  String get unfollow => 'Kuzatishni to‘xtatish';
+
+  @override
+  String get following => 'Kuzatilmoqda';
+
+  @override
+  String get showAll => 'Barchasini ko‘rsatish';
+
+  @override
+  String get appearance => 'Ko‘rinish';
+
+  @override
+  String get subtitleSize => 'O‘lcham';
+
+  @override
+  String get subtitleBackground => 'Fon';
+
+  @override
+  String get earlier => 'Oldinroq';
+
+  @override
+  String get later => 'Keyinroq';
+
+  @override
+  String get reset => 'Tiklash';
+
+  @override
+  String subtitleDelay(String seconds) {
+    return 'Kechikish: $seconds s';
+  }
+
+  @override
+  String get morePlaybackControls => 'Boshqa ijro boshqaruvlari';
+
+  @override
+  String get hideVideo => 'Videoni yashirish';
+
+  @override
+  String get showVideo => 'Videoni ko‘rsatish';
+
+  @override
+  String get closeQueue => 'Navbatni yopish';
+
+  @override
+  String get enabled => 'Yoqilgan';
+
+  @override
+  String get openFile => 'Faylni ochish…';
+
+  @override
+  String get openFolder => 'Jildni ochish…';
+
+  @override
+  String get openUrl => 'URL ochish…';
+
+  @override
+  String get fileMenu => 'Fayl';
+
+  @override
+  String get viewMenu => 'Ko‘rinish';
+
+  @override
+  String get windowMenu => 'Oyna';
+
+  @override
+  String get saveChanges => 'O‘zgarishlarni saqlash';
+
+  @override
+  String get themeAvatarColor => 'Mavzu va avatar rangi';
+
+  @override
+  String get networkStreams => 'Tarmoq oqimlari';
+
+  @override
+  String get networkStream => 'Tarmoq oqimi';
+
+  @override
+  String get openNetworkStream => 'Tarmoq oqimini ochish';
+
+  @override
+  String get editPlaylist => 'Pleylistni tahrirlash';
+
+  @override
+  String get editStreamItem => 'Oqim elementini tahrirlash';
+
+  @override
+  String get streamUrl => 'Oqim URL manzili';
+
+  @override
+  String get platformType => 'Platforma / tur';
+
+  @override
+  String get optionalTitle => 'Sarlavha (ixtiyoriy)';
+
+  @override
+  String get optionalImageUrl => 'Rasm URL manzili (ixtiyoriy)';
+
+  @override
+  String get myStream => 'Mening oqimim';
+
+  @override
+  String get saveToLibrary => 'Kutubxonaga saqlash';
+
+  @override
+  String get justPlay => 'Faqat ijro etish';
+
+  @override
+  String get autoDetect => 'Avtomatik aniqlash';
+
+  @override
+  String get apiKeyRequired => 'API kaliti kerak';
+
+  @override
+  String get customApiKey => 'O‘z API kalitidan foydalanish';
+
+  @override
+  String get clientId => 'Mijoz ID raqami';
+
+  @override
+  String get clientSecret => 'Mijoz maxfiy kaliti';
+
+  @override
+  String get saveCredentials => 'Hisob ma’lumotlarini saqlash';
+
+  @override
+  String get searchStrategy => 'Qidirish usuli';
+
+  @override
+  String get credentialsLocalOnly =>
+      'Bu qurilmada xavfsiz saqlanadi. PPPlayer’ga hech qachon yuborilmaydi.';
+
+  @override
+  String get scrapingHelp =>
+      'API kaliti yoki kvota kerak emas. Sekinroq yoki kamroq ishonchli bo‘lishi mumkin.';
+
+  @override
+  String get streamHelp => 'HTTP(S) URL yoki M3U pleylist havolasini kiriting.';
+
+  @override
+  String get deletePlaylistConfirm => 'Bu pleylist butunlay o‘chirilsinmi?';
+
+  @override
+  String get clearCacheConfirm =>
+      'Kesh o‘chirilsinmi? Kutubxona va sevimlilar o‘zgarmaydi.';
+
+  @override
+  String get clearHistoryConfirm => 'Tinglash tarixi butunlay o‘chirilsinmi?';
+
+  @override
+  String get addedToQueue => 'Navbatga qo‘shildi';
+
+  @override
+  String get addedVideo => 'Video qo‘shildi';
+
+  @override
+  String addedChannels(String count) {
+    return 'Qo‘shilgan kanallar: $count';
+  }
+
+  @override
+  String get removedFromPlaylist => 'Pleylistdan olib tashlandi';
+
+  @override
+  String get exportCancelled => 'Eksport bekor qilindi';
+
+  @override
+  String exportComplete(String count) {
+    return 'Pleylist eksport qilindi. O‘tkazilgan elementlar: $count';
+  }
+
+  @override
+  String get playlistExported => 'Pleylist eksport qilindi';
+
+  @override
+  String get live => 'Jonli';
+
+  @override
+  String get sponsored => 'Homiylik qilingan';
+
+  @override
+  String get removeFromPlaylist => 'Pleylistdan olib tashlash';
+
+  @override
+  String get likedSongsHelp => 'Qo‘shiqlarni saqlang, ular shu yerda ko‘rinadi';
+
+  @override
+  String get apiSingleVideoHint =>
+      'Pleylistni import qilmasdan bu videoni qo‘shish mumkin.';
+
+  @override
+  String get linkCopied => 'Havola nusxalandi';
+
+  @override
+  String get willPlayNext => 'Keyingi bo‘lib ijro etiladi';
+
+  @override
+  String get checkItOut => 'Ko‘rib chiqish';
+
+  @override
+  String get loadFailed => 'Kontentni yuklab bo‘lmadi. Qayta urinib ko‘ring.';
 }

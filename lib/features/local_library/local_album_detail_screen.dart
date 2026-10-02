@@ -1,3 +1,4 @@
+import 'package:ppplayer/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -79,8 +80,12 @@ class LocalAlbumDetailScreen extends ConsumerWidget {
                     },
                   );
                 },
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (e, st) => Center(child: Text('Error: $e')),
+                loading: () => Center(child: CircularProgressIndicator()),
+                error: (e, st) => Center(
+                  child: Text(
+                    AppLocalizations.of(context)!.error(e.toString()),
+                  ),
+                ),
               ),
             ),
           ],

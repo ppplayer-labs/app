@@ -747,4 +747,350 @@ class AppLocalizationsHr extends AppLocalizations {
 
   @override
   String get off => 'Isključeno';
+
+  @override
+  String get playOn => 'Reproduciraj na';
+
+  @override
+  String get thisDevice => 'Ovaj uređaj';
+
+  @override
+  String get availableDevices => 'Dostupni uređaji';
+
+  @override
+  String get searchingDevices => 'Traženje uređaja…';
+
+  @override
+  String get refresh => 'Osvježi';
+
+  @override
+  String get connecting => 'Povezivanje…';
+
+  @override
+  String connectingTo(String name) {
+    return 'Povezivanje s $name…';
+  }
+
+  @override
+  String get connected => 'Povezano';
+
+  @override
+  String get unsupportedOutput =>
+      'Ovaj izvor nije moguće reproducirati na ovom izlazu.';
+
+  @override
+  String get airPlayAudioOutput => 'AirPlay i audioizlaz';
+
+  @override
+  String get returnForAirPlay =>
+      'Reproducirajte na ovom uređaju za korištenje AirPlaya.';
+
+  @override
+  String get openSoundSettings => 'Otvorite postavke zvuka i odaberite izlaz.';
+
+  @override
+  String get soundSettingsError => 'Nije moguće otvoriti postavke zvuka.';
+
+  @override
+  String get systemOutput => 'Izlaz sustava';
+
+  @override
+  String playingOn(String name) {
+    return 'Reprodukcija na $name';
+  }
+
+  @override
+  String get chooseAirPlay =>
+      'Dodirnite gumb AirPlay za odabir zvučnika ili televizora.';
+
+  @override
+  String get airPlayDevice => 'AirPlay uređaj';
+
+  @override
+  String get playOnIphone => 'Reproduciraj na ovom iPhoneu';
+
+  @override
+  String get chooseIphone =>
+      'Odaberite ovaj iPhone pomoću gumba AirPlay u nastavku.';
+
+  @override
+  String get profile => 'Profil';
+
+  @override
+  String get preferences => 'Postavke';
+
+  @override
+  String get themeColor => 'Boja teme';
+
+  @override
+  String get yourMusic => 'Vaša glazba';
+
+  @override
+  String get apiCredentials => 'API pristupni podaci';
+
+  @override
+  String get dataStorage => 'Podaci i pohrana';
+
+  @override
+  String get editProfileHelp => 'Postavite ime i avatar';
+
+  @override
+  String get customProvider => 'Prilagođeni pružatelj';
+
+  @override
+  String get defaultProvider => 'Zadano za PPPlayer';
+
+  @override
+  String get proExperience => 'Pro iskustvo aktivno';
+
+  @override
+  String get beta => 'Beta';
+
+  @override
+  String get loading => 'Učitavanje…';
+
+  @override
+  String get unknown => 'Nepoznato';
+
+  @override
+  String get pause => 'Pauza';
+
+  @override
+  String get repeat => 'Ponavljaj';
+
+  @override
+  String get mute => 'Isključi zvuk';
+
+  @override
+  String get unmute => 'Uključi zvuk';
+
+  @override
+  String get fitVideo => 'Prilagodi';
+
+  @override
+  String get fillVideo => 'Ispuni';
+
+  @override
+  String get fullscreen => 'Cijeli zaslon';
+
+  @override
+  String get exitFullscreen => 'Izađi iz cijelog zaslona';
+
+  @override
+  String get volume => 'Glasnoća';
+
+  @override
+  String get save => 'Spremi';
+
+  @override
+  String get delete => 'Izbriši';
+
+  @override
+  String get clear => 'Očisti';
+
+  @override
+  String get follow => 'Prati';
+
+  @override
+  String get unfollow => 'Prestani pratiti';
+
+  @override
+  String get following => 'Pratite';
+
+  @override
+  String get showAll => 'Prikaži sve';
+
+  @override
+  String get appearance => 'Izgled';
+
+  @override
+  String get subtitleSize => 'Veličina';
+
+  @override
+  String get subtitleBackground => 'Pozadina';
+
+  @override
+  String get earlier => 'Ranije';
+
+  @override
+  String get later => 'Kasnije';
+
+  @override
+  String get reset => 'Vrati na zadano';
+
+  @override
+  String subtitleDelay(String seconds) {
+    return 'Odgoda: $seconds s';
+  }
+
+  @override
+  String get morePlaybackControls => 'Više kontrola reprodukcije';
+
+  @override
+  String get hideVideo => 'Sakrij video';
+
+  @override
+  String get showVideo => 'Prikaži video';
+
+  @override
+  String get closeQueue => 'Zatvori red';
+
+  @override
+  String get enabled => 'Uključeno';
+
+  @override
+  String get openFile => 'Otvori datoteku…';
+
+  @override
+  String get openFolder => 'Otvori mapu…';
+
+  @override
+  String get openUrl => 'Otvori URL…';
+
+  @override
+  String get fileMenu => 'Datoteka';
+
+  @override
+  String get viewMenu => 'Prikaz';
+
+  @override
+  String get windowMenu => 'Prozor';
+
+  @override
+  String get saveChanges => 'Spremi promjene';
+
+  @override
+  String get themeAvatarColor => 'Boja teme i avatara';
+
+  @override
+  String get networkStreams => 'Mrežni tokovi';
+
+  @override
+  String get networkStream => 'Mrežni tok';
+
+  @override
+  String get openNetworkStream => 'Otvori mrežni tok';
+
+  @override
+  String get editPlaylist => 'Uredi popis za reprodukciju';
+
+  @override
+  String get editStreamItem => 'Uredi stavku toka';
+
+  @override
+  String get streamUrl => 'URL toka';
+
+  @override
+  String get platformType => 'Platforma / vrsta';
+
+  @override
+  String get optionalTitle => 'Naslov (neobavezno)';
+
+  @override
+  String get optionalImageUrl => 'URL slike (neobavezno)';
+
+  @override
+  String get myStream => 'Moj tok';
+
+  @override
+  String get saveToLibrary => 'Spremi u biblioteku';
+
+  @override
+  String get justPlay => 'Samo reproduciraj';
+
+  @override
+  String get autoDetect => 'Automatsko prepoznavanje';
+
+  @override
+  String get apiKeyRequired => 'Potreban je API ključ';
+
+  @override
+  String get customApiKey => 'Koristi vlastiti API ključ';
+
+  @override
+  String get clientId => 'ID klijenta';
+
+  @override
+  String get clientSecret => 'Tajna klijenta';
+
+  @override
+  String get saveCredentials => 'Spremi pristupne podatke';
+
+  @override
+  String get searchStrategy => 'Strategija pretraživanja';
+
+  @override
+  String get credentialsLocalOnly =>
+      'Sigurno pohranjeni na ovom uređaju. Nikad se ne šalju PPPlayeru.';
+
+  @override
+  String get scrapingHelp =>
+      'API ključ ni kvota nisu potrebni. Može biti sporije ili manje pouzdano.';
+
+  @override
+  String get streamHelp => 'Unesite HTTP(S) URL ili poveznicu na M3U popis.';
+
+  @override
+  String get deletePlaylistConfirm =>
+      'Trajno izbrisati ovaj popis za reprodukciju?';
+
+  @override
+  String get clearCacheConfirm =>
+      'Izbrisati predmemoriju? Biblioteka i omiljeni ostaju nepromijenjeni.';
+
+  @override
+  String get clearHistoryConfirm => 'Trajno izbrisati povijest slušanja?';
+
+  @override
+  String get addedToQueue => 'Dodano u red';
+
+  @override
+  String get addedVideo => 'Video dodan';
+
+  @override
+  String addedChannels(String count) {
+    return 'Dodani kanali: $count';
+  }
+
+  @override
+  String get removedFromPlaylist => 'Uklonjeno s popisa';
+
+  @override
+  String get exportCancelled => 'Izvoz otkazan';
+
+  @override
+  String exportComplete(String count) {
+    return 'Popis izvezen. Preskočene stavke: $count';
+  }
+
+  @override
+  String get playlistExported => 'Popis izvezen';
+
+  @override
+  String get live => 'Uživo';
+
+  @override
+  String get sponsored => 'Sponzorirano';
+
+  @override
+  String get removeFromPlaylist => 'Ukloni s popisa';
+
+  @override
+  String get likedSongsHelp => 'Spremite pjesme da ih vidite ovdje';
+
+  @override
+  String get apiSingleVideoHint =>
+      'Ovaj video možete dodati bez uvoza popisa za reprodukciju.';
+
+  @override
+  String get linkCopied => 'Poveznica kopirana';
+
+  @override
+  String get willPlayNext => 'Reproducirat će se sljedeće';
+
+  @override
+  String get checkItOut => 'Pogledajte';
+
+  @override
+  String get loadFailed => 'Sadržaj se nije mogao učitati. Pokušajte ponovno.';
 }

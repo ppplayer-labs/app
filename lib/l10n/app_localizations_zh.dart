@@ -731,4 +731,341 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get off => '关闭';
+
+  @override
+  String get playOn => '播放设备';
+
+  @override
+  String get thisDevice => '此设备';
+
+  @override
+  String get availableDevices => '可用设备';
+
+  @override
+  String get searchingDevices => '正在搜索设备…';
+
+  @override
+  String get refresh => '刷新';
+
+  @override
+  String get connecting => '正在连接…';
+
+  @override
+  String connectingTo(String name) {
+    return '正在连接 $name…';
+  }
+
+  @override
+  String get connected => '已连接';
+
+  @override
+  String get unsupportedOutput => '无法在此输出设备上播放此来源。';
+
+  @override
+  String get airPlayAudioOutput => 'AirPlay 和音频输出';
+
+  @override
+  String get returnForAirPlay => '请在此设备上播放以使用 AirPlay。';
+
+  @override
+  String get openSoundSettings => '打开声音设置以选择输出设备。';
+
+  @override
+  String get soundSettingsError => '无法打开声音设置。';
+
+  @override
+  String get systemOutput => '系统输出';
+
+  @override
+  String playingOn(String name) {
+    return '正在 $name 上播放';
+  }
+
+  @override
+  String get chooseAirPlay => '轻点 AirPlay 按钮以选择扬声器或电视。';
+
+  @override
+  String get airPlayDevice => 'AirPlay 设备';
+
+  @override
+  String get playOnIphone => '在此 iPhone 上播放';
+
+  @override
+  String get chooseIphone => '使用下方的 AirPlay 按钮选择此 iPhone。';
+
+  @override
+  String get profile => '个人资料';
+
+  @override
+  String get preferences => '偏好设置';
+
+  @override
+  String get themeColor => '主题颜色';
+
+  @override
+  String get yourMusic => '你的音乐';
+
+  @override
+  String get apiCredentials => 'API 凭据';
+
+  @override
+  String get dataStorage => '数据和存储';
+
+  @override
+  String get editProfileHelp => '设置姓名和头像';
+
+  @override
+  String get customProvider => '自定义提供商';
+
+  @override
+  String get defaultProvider => 'PPPlayer 默认';
+
+  @override
+  String get proExperience => 'Pro 功能已启用';
+
+  @override
+  String get beta => '测试版';
+
+  @override
+  String get loading => '正在加载…';
+
+  @override
+  String get unknown => '未知';
+
+  @override
+  String get pause => '暂停';
+
+  @override
+  String get repeat => '重复';
+
+  @override
+  String get mute => '静音';
+
+  @override
+  String get unmute => '取消静音';
+
+  @override
+  String get fitVideo => '适应';
+
+  @override
+  String get fillVideo => '填充';
+
+  @override
+  String get fullscreen => '全屏';
+
+  @override
+  String get exitFullscreen => '退出全屏';
+
+  @override
+  String get volume => '音量';
+
+  @override
+  String get save => '保存';
+
+  @override
+  String get delete => '删除';
+
+  @override
+  String get clear => '清除';
+
+  @override
+  String get follow => '关注';
+
+  @override
+  String get unfollow => '取消关注';
+
+  @override
+  String get following => '已关注';
+
+  @override
+  String get showAll => '显示全部';
+
+  @override
+  String get appearance => '外观';
+
+  @override
+  String get subtitleSize => '大小';
+
+  @override
+  String get subtitleBackground => '背景';
+
+  @override
+  String get earlier => '提前';
+
+  @override
+  String get later => '延后';
+
+  @override
+  String get reset => '重置';
+
+  @override
+  String subtitleDelay(String seconds) {
+    return '延迟：$seconds 秒';
+  }
+
+  @override
+  String get morePlaybackControls => '更多播放控件';
+
+  @override
+  String get hideVideo => '隐藏视频';
+
+  @override
+  String get showVideo => '显示视频';
+
+  @override
+  String get closeQueue => '关闭队列';
+
+  @override
+  String get enabled => '开启';
+
+  @override
+  String get openFile => '打开文件…';
+
+  @override
+  String get openFolder => '打开文件夹…';
+
+  @override
+  String get openUrl => '打开 URL…';
+
+  @override
+  String get fileMenu => '文件';
+
+  @override
+  String get viewMenu => '视图';
+
+  @override
+  String get windowMenu => '窗口';
+
+  @override
+  String get saveChanges => '保存更改';
+
+  @override
+  String get themeAvatarColor => '主题和头像颜色';
+
+  @override
+  String get networkStreams => '网络流';
+
+  @override
+  String get networkStream => '网络流';
+
+  @override
+  String get openNetworkStream => '打开网络流';
+
+  @override
+  String get editPlaylist => '编辑播放列表';
+
+  @override
+  String get editStreamItem => '编辑流项目';
+
+  @override
+  String get streamUrl => '流 URL';
+
+  @override
+  String get platformType => '平台 / 类型';
+
+  @override
+  String get optionalTitle => '标题（可选）';
+
+  @override
+  String get optionalImageUrl => '图片 URL（可选）';
+
+  @override
+  String get myStream => '我的流';
+
+  @override
+  String get saveToLibrary => '保存到资料库';
+
+  @override
+  String get justPlay => '仅播放';
+
+  @override
+  String get autoDetect => '自动检测';
+
+  @override
+  String get apiKeyRequired => '需要 API 密钥';
+
+  @override
+  String get customApiKey => '使用自定义 API 密钥';
+
+  @override
+  String get clientId => '客户端 ID';
+
+  @override
+  String get clientSecret => '客户端密钥';
+
+  @override
+  String get saveCredentials => '保存凭据';
+
+  @override
+  String get searchStrategy => '搜索策略';
+
+  @override
+  String get credentialsLocalOnly => '安全存储在此设备上。绝不会发送给 PPPlayer。';
+
+  @override
+  String get scrapingHelp => '无需 API 密钥或配额。速度或可靠性可能较低。';
+
+  @override
+  String get streamHelp => '输入 HTTP(S) URL 或 M3U 播放列表链接。';
+
+  @override
+  String get deletePlaylistConfirm => '永久删除此播放列表？';
+
+  @override
+  String get clearCacheConfirm => '删除缓存数据？资料库和收藏将保持不变。';
+
+  @override
+  String get clearHistoryConfirm => '永久删除收听历史？';
+
+  @override
+  String get addedToQueue => '已添加到队列';
+
+  @override
+  String get addedVideo => '已添加视频';
+
+  @override
+  String addedChannels(String count) {
+    return '已添加频道：$count';
+  }
+
+  @override
+  String get removedFromPlaylist => '已从播放列表移除';
+
+  @override
+  String get exportCancelled => '已取消导出';
+
+  @override
+  String exportComplete(String count) {
+    return '已导出播放列表。跳过项目数：$count';
+  }
+
+  @override
+  String get playlistExported => '已导出播放列表';
+
+  @override
+  String get live => '直播';
+
+  @override
+  String get sponsored => '赞助';
+
+  @override
+  String get removeFromPlaylist => '从播放列表移除';
+
+  @override
+  String get likedSongsHelp => '保存歌曲后会显示在这里';
+
+  @override
+  String get apiSingleVideoHint => '你可以添加此视频而不导入播放列表。';
+
+  @override
+  String get linkCopied => '已复制链接';
+
+  @override
+  String get willPlayNext => '将作为下一首播放';
+
+  @override
+  String get checkItOut => '查看详情';
+
+  @override
+  String get loadFailed => '无法加载内容。请重试。';
 }

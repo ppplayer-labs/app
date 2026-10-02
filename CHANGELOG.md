@@ -4,6 +4,8 @@ All notable changes to PPPlayer will be documented in this file.
 
 ## [Unreleased]
 
+## [3.0.0] - 2026-10-02
+
 ### Added
 
 - macOS Play On shortcut to system Sound settings, with live default-output name and selection from Core Audio.

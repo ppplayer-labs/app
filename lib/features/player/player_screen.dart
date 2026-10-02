@@ -452,7 +452,7 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
     if (track == null) {
       return Scaffold(
         backgroundColor: Colors.black,
-        body: const Center(child: SizedBox.shrink()),
+        body: Center(child: SizedBox.shrink()),
       );
     }
 
@@ -902,7 +902,8 @@ class _QueueView extends ConsumerWidget {
                           ? Theme.of(context).colorScheme.primary
                           : null,
                     ),
-                    tooltip: autoplayEnabled ? 'Autoplay: On' : 'Autoplay: Off',
+                    tooltip:
+                        '${AppLocalizations.of(context)!.autoplay}: ${autoplayEnabled ? AppLocalizations.of(context)!.enabled : AppLocalizations.of(context)!.off}',
                   ),
                   IconButton(
                     key: const ValueKey('export_queue_button'),
@@ -918,15 +919,19 @@ class _QueueView extends ConsumerWidget {
                         if (context.mounted) {
                           if (result == null) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Export cancelled.'),
+                              SnackBar(
+                                content: Text(
+                                  AppLocalizations.of(context)!.exportCancelled,
+                                ),
                               ),
                             );
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
-                                  'Exported playlist. Skipped ${result.skippedCount} items.',
+                                  AppLocalizations.of(context)!.exportComplete(
+                                    result.skippedCount.toString(),
+                                  ),
                                 ),
                               ),
                             );
@@ -935,7 +940,13 @@ class _QueueView extends ConsumerWidget {
                       } catch (e) {
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Export failed: $e')),
+                            SnackBar(
+                              content: Text(
+                                AppLocalizations.of(
+                                  context,
+                                )!.error(e.toString()),
+                              ),
+                            ),
                           );
                         }
                       }
@@ -947,7 +958,7 @@ class _QueueView extends ConsumerWidget {
                     IconButton(
                       key: const ValueKey('queue_close_button'),
                       icon: const Icon(Icons.close_rounded),
-                      tooltip: 'Close queue',
+                      tooltip: AppLocalizations.of(context)!.closeQueue,
                       onPressed: onClose,
                     ),
                 ],

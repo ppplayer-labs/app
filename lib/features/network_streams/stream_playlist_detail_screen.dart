@@ -22,7 +22,7 @@ class StreamPlaylistDetailScreen extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Edit Playlist'),
+        title: Text(AppLocalizations.of(context)!.editPlaylist),
         content: TextField(
           controller: controller,
           decoration: InputDecoration(
@@ -44,7 +44,7 @@ class StreamPlaylistDetailScreen extends ConsumerWidget {
               }
               Navigator.pop(ctx);
             },
-            child: const Text('Save'),
+            child: Text(AppLocalizations.of(context)!.save),
           ),
         ],
       ),
@@ -56,7 +56,7 @@ class StreamPlaylistDetailScreen extends ConsumerWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(AppLocalizations.of(context)!.deletePlaylist),
-        content: const Text('Are you sure you want to delete this playlist?'),
+        content: Text(AppLocalizations.of(context)!.deletePlaylistConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
@@ -73,7 +73,7 @@ class StreamPlaylistDetailScreen extends ConsumerWidget {
                 context.pop();
               }
             },
-            child: const Text('Delete'),
+            child: Text(AppLocalizations.of(context)!.delete),
           ),
         ],
       ),
@@ -90,7 +90,7 @@ class StreamPlaylistDetailScreen extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Edit Stream Item'),
+        title: Text(AppLocalizations.of(context)!.editStreamItem),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -104,7 +104,9 @@ class StreamPlaylistDetailScreen extends ConsumerWidget {
             const SizedBox(height: 16),
             TextField(
               controller: urlController,
-              decoration: const InputDecoration(labelText: 'Stream URL'),
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.streamUrl,
+              ),
             ),
           ],
         ),
@@ -127,7 +129,7 @@ class StreamPlaylistDetailScreen extends ConsumerWidget {
               }
               Navigator.pop(ctx);
             },
-            child: const Text('Save'),
+            child: Text(AppLocalizations.of(context)!.save),
           ),
         ],
       ),
@@ -144,8 +146,10 @@ class StreamPlaylistDetailScreen extends ConsumerWidget {
         final playlist = playlistSnap.data;
         if (playlist == null) {
           return Scaffold(
-            appBar: AppBar(title: const Text('Network Stream')),
-            body: const Center(child: PPLogoLoader()),
+            appBar: AppBar(
+              title: Text(AppLocalizations.of(context)!.networkStream),
+            ),
+            body: Center(child: PPLogoLoader()),
           );
         }
 
@@ -162,13 +166,13 @@ class StreamPlaylistDetailScreen extends ConsumerWidget {
                   }
                 },
                 itemBuilder: (context) => [
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'edit',
                     child: Row(
                       children: [
                         Icon(Icons.edit, size: 20),
                         SizedBox(width: 8),
-                        Text('Edit Playlist'),
+                        Text(AppLocalizations.of(context)!.editPlaylist),
                       ],
                     ),
                   ),
@@ -193,11 +197,13 @@ class StreamPlaylistDetailScreen extends ConsumerWidget {
             stream: service.watchChannelsForPlaylist(playlistId),
             builder: (context, snap) {
               if (snap.connectionState == ConnectionState.waiting) {
-                return const Center(child: PPLogoLoader());
+                return Center(child: PPLogoLoader());
               }
               final channels = snap.data ?? [];
               if (channels.isEmpty) {
-                return const Center(child: Text('No channels found.'));
+                return Center(
+                  child: Text(AppLocalizations.of(context)!.noResultsFound),
+                );
               }
 
               return ListView.builder(
@@ -216,7 +222,11 @@ class StreamPlaylistDetailScreen extends ConsumerWidget {
                     onDismissed: (direction) {
                       service.deleteChannel(channel.id);
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Deleted ${channel.title}')),
+                        SnackBar(
+                          content: Text(
+                            '${AppLocalizations.of(context)!.removedFromPlaylist}: ${channel.title}',
+                          ),
+                        ),
                       );
                     },
                     child: ListTile(

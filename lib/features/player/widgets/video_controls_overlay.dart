@@ -174,7 +174,9 @@ class _VideoControlsOverlayState extends ConsumerState<VideoControlsOverlay> {
                         widget.isFill ? Icons.fit_screen : Icons.crop_free,
                         color: Colors.white,
                       ),
-                      tooltip: widget.isFill ? 'Fit' : 'Fill',
+                      tooltip: widget.isFill
+                          ? AppLocalizations.of(context)!.fitVideo
+                          : AppLocalizations.of(context)!.fillVideo,
                       onPressed: widget.onToggleFit,
                     ),
                     IconButton(
@@ -185,8 +187,8 @@ class _VideoControlsOverlayState extends ConsumerState<VideoControlsOverlay> {
                         color: Colors.white,
                       ),
                       tooltip: widget.isFullscreen
-                          ? 'Exit Fullscreen'
-                          : 'Fullscreen',
+                          ? AppLocalizations.of(context)!.exitFullscreen
+                          : AppLocalizations.of(context)!.fullscreen,
                       onPressed: widget.onToggleFullscreen,
                     ),
                   ],

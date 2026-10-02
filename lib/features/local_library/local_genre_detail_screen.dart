@@ -60,8 +60,10 @@ class LocalGenreDetailScreen extends ConsumerWidget {
                             .addTracksToQueue(tracks);
 
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Added to queue'),
+                          SnackBar(
+                            content: Text(
+                              AppLocalizations.of(context)!.addedToQueue,
+                            ),
                             duration: Duration(seconds: 2),
                           ),
                         );
@@ -76,7 +78,7 @@ class LocalGenreDetailScreen extends ConsumerWidget {
                   if (tracks.isEmpty) {
                     return Center(
                       child: Text(
-                        'No tracks',
+                        AppLocalizations.of(context)!.noTracksFound,
                         style: TextStyle(color: colorScheme.onSurfaceVariant),
                       ),
                     );
@@ -169,8 +171,12 @@ class LocalGenreDetailScreen extends ConsumerWidget {
                     ],
                   );
                 },
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (e, st) => Center(child: Text('Error: $e')),
+                loading: () => Center(child: CircularProgressIndicator()),
+                error: (e, st) => Center(
+                  child: Text(
+                    AppLocalizations.of(context)!.error(e.toString()),
+                  ),
+                ),
               ),
             ),
           ],

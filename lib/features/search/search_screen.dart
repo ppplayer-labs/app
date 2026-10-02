@@ -226,7 +226,7 @@ class _EmptySearch extends ConsumerWidget {
                               minimumSize: Size.zero,
                               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             ),
-                            child: const Text('Show all'),
+                            child: Text(AppLocalizations.of(context)!.showAll),
                           )
                           .animate()
                           .fadeIn(duration: 600.ms)
@@ -254,7 +254,7 @@ class _EmptySearch extends ConsumerWidget {
                               minimumSize: Size.zero,
                               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             ),
-                            child: const Text('Clear all'),
+                            child: Text(AppLocalizations.of(context)!.clear),
                           )
                           .animate()
                           .fadeIn(duration: 600.ms)
