@@ -2454,16 +2454,15 @@ class _DesktopTopBarState extends ConsumerState<_DesktopTopBar> {
         children: [
           // Search Bar
           Expanded(
-            child: Row(
-              children: [
-                SizedBox(
-                  width: 540,
-                  child: SharedSearchInput(
-                    controller: _ctrl,
-                    focusNode: _focusNode,
-                  ),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 540),
+                child: SharedSearchInput(
+                  controller: _ctrl,
+                  focusNode: _focusNode,
                 ),
-              ],
+              ),
             ),
           ),
 
