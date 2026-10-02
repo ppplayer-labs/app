@@ -13,7 +13,44 @@ class PpPlayerAudioHandler extends BaseAudioHandler with QueueHandler {
   static const _iosControlsChannel = MethodChannel(
     'com.ppplayer.app/ios_media_controls',
   );
-  PpPlayerAudioHandler(this._containerProvider) {
+  PpPlayerAudioHandler(this._containerProvider, {bool? enableIosCommands}) {
+    _iosCommandsEnabled = enableIosCommands ?? (!kIsWeb && Platform.isIOS);
+    if (_iosCommandsEnabled) {
+      _iosControlsChannel.setMethodCallHandler((call) async {
+        final source = call.arguments is Map
+            ? (call.arguments as Map)['source'] ?? 'native'
+            : 'native';
+        debugPrint(
+          '[MediaControls] iOS remote command=${call.method} source=$source',
+        );
+        switch (call.method) {
+          case 'pause':
+            await pause();
+          case 'play':
+            await play();
+          case 'togglePlayPause':
+            final player = _container.read(playerProvider);
+            if (player.isPlaying) {
+              await pause();
+            } else {
+              await play();
+            }
+          case 'next':
+            await skipToNext();
+          case 'previous':
+            await skipToPrevious();
+          case 'seek':
+            final arguments = call.arguments as Map;
+            await seek(
+              Duration(milliseconds: (arguments['positionMs'] as num).round()),
+            );
+          default:
+            throw MissingPluginException(
+              'Unknown iOS media command: ${call.method}',
+            );
+        }
+      });
+    }
     // Initial state: stopped
     playbackState.add(
       playbackState.value.copyWith(
@@ -34,7 +71,30 @@ class PpPlayerAudioHandler extends BaseAudioHandler with QueueHandler {
   }
 
   final ProviderContainer Function() _containerProvider;
+  late final bool _iosCommandsEnabled;
   ProviderContainer get _container => _containerProvider();
+
+  Future<void> _publishIosNowPlaying() async {
+    if (!_iosCommandsEnabled) return;
+    try {
+      if (playbackState.value.playing) await _ensureAudioSessionActive();
+      final item = mediaItem.value;
+      final state = playbackState.value;
+      await _iosControlsChannel.invokeMethod('updateNowPlaying', {
+        'id': item?.id,
+        'title': item?.title,
+        'artist': item?.artist,
+        'album': item?.album,
+        'durationMs': item?.duration?.inMilliseconds,
+        'artCacheFile': item?.extras?['artCacheFile'],
+        'playing': state.playing,
+        'positionMs': state.updatePosition.inMilliseconds,
+        'speed': state.speed,
+      });
+    } catch (error) {
+      debugPrint('[MediaControls] iOS Now Playing update failed: $error');
+    }
+  }
 
   String? _lastTrackId;
   ProviderSubscription<AsyncValue<bool>>? _favoriteSub;
@@ -135,6 +195,7 @@ class PpPlayerAudioHandler extends BaseAudioHandler with QueueHandler {
             : null,
       ),
     );
+    _publishIosNowPlaying();
   }
 
   /// Update the OS playback state (Playing, Paused, Position).
@@ -172,6 +233,8 @@ class PpPlayerAudioHandler extends BaseAudioHandler with QueueHandler {
         speed: speed,
       ),
     );
+
+    _publishIosNowPlaying();
 
     final track = _container.read(playerProvider).currentTrack;
     if (track?.spotifyId != _lastTrackId) {

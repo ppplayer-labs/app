@@ -261,6 +261,24 @@ void main() {
       expect(controller.count('play'), 2);
     });
 
+    iosTest(
+      'confirmed iOS pause stays paused until renderer acknowledges play',
+      (tester) async {
+        await playing(tester);
+        controller.emitState(track.id, yt.PlayerState.paused);
+        await tester.pump();
+        expect(controller.count('play'), 2);
+        expect(engine.currentStatus.state, PlaybackState.paused);
+        // Duplicate callbacks during recovery must not falsely report playback.
+        controller.emitState(track.id, yt.PlayerState.paused);
+        await tester.pump(const Duration(milliseconds: 900));
+        expect(engine.currentStatus.state, PlaybackState.paused);
+        controller.emitState(track.id, yt.PlayerState.playing);
+        await tester.pump();
+        expect(engine.currentStatus.state, PlaybackState.playing);
+      },
+    );
+
     iosTest('missing playing acknowledgement permits retry after cooldown', (
       tester,
     ) async {
@@ -947,6 +965,37 @@ void main() {
       localMediaUri: 'file:///local/b.mp3',
       sourceType: PlaybackSourceType.local,
     );
+
+    test('local audio clears the preceding video preview', () async {
+      const video = PlaybackTrack(
+        id: 'local-video',
+        title: 'Video',
+        localMediaUri: 'file:///local/video.mp4',
+        sourceType: PlaybackSourceType.local,
+        isVideo: true,
+      );
+      await engine.play(video);
+      expect(engine.currentStatus.activeVideoId, video.id);
+      expect(engine.currentStatus.hasVideo, isTrue);
+
+      await engine.play(localTrack);
+      expect(engine.currentStatus.activeVideoId, isNull);
+      expect(engine.currentStatus.hasVideo, isFalse);
+      // Embedded album art can produce video dimensions in an audio decoder.
+      adapters.last._videoParamsCtrl.add(VideoParams(w: 600, h: 600));
+      await Future<void>.delayed(Duration.zero);
+      expect(engine.currentStatus.activeVideoId, isNull);
+      expect(engine.currentStatus.hasVideo, isFalse);
+    });
+
+    test('preparing local audio clears the preceding video preview', () async {
+      await engine.play(track);
+      expect(engine.currentStatus.activeVideoId, track.id);
+      await engine.prepare(localTrack);
+      expect(engine.currentStatus.activeVideoId, isNull);
+      expect(engine.currentStatus.hasVideo, isFalse);
+      expect(engine.currentStatus.isIFrameMode, isFalse);
+    });
 
     test(
       'delayed event from disposed session is ignored after new session opens',

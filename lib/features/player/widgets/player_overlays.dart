@@ -13,6 +13,7 @@ import '../../../core/db/app_database.dart' as db;
 import '../../../shared/widgets/context_menu/content_context_menu.dart';
 import '../player_providers.dart';
 import 'subtitle_panel.dart';
+import 'player_controls_layout.dart';
 import '../../../core/network_outputs/network_output_providers.dart';
 import '../../network_outputs/output_picker.dart';
 
@@ -240,6 +241,9 @@ class _PlayerOverlaysState extends ConsumerState<PlayerOverlays> {
     final isPlaying = playerState.isPlaying;
     final colorScheme = Theme.of(context).colorScheme;
     final track = playerState.currentTrack;
+    final viewport = MediaQuery.sizeOf(context);
+    final compactLandscape =
+        viewport.width > viewport.height && viewport.height < 500;
     final playbackStatus = ref.watch(playbackStatusProvider).value;
     final hasVideo = playbackStatus?.hasVideo ?? false;
     // Capability is derived from live status fields so it updates mid-session
@@ -262,6 +266,31 @@ class _PlayerOverlaysState extends ConsumerState<PlayerOverlays> {
         }
       });
     }
+
+    final trackOptionsButton = Builder(
+      builder: (btnContext) => TactileIconButton(
+        icon: Icons.more_vert,
+        color: Colors.white.withValues(alpha: 0.8),
+        hoverColor: colorScheme.primary,
+        tooltip: AppLocalizations.of(context)!.moreOptions,
+        onTap: () {
+          _onInteraction();
+          _isHoveringControls = true;
+          final renderBox = btnContext.findRenderObject() as RenderBox?;
+          final offset = renderBox?.localToGlobal(Offset.zero);
+          if (track != null) {
+            showContentContextMenu(
+              context,
+              ref,
+              position: offset != null
+                  ? offset + Offset(0, renderBox!.size.height)
+                  : Offset.zero,
+              target: TrackContextTarget(track),
+            );
+          }
+        },
+      ),
+    );
 
     return Listener(
       onPointerHover: (_) => _onInteraction(),
@@ -311,7 +340,10 @@ class _PlayerOverlaysState extends ConsumerState<PlayerOverlays> {
                           onEnter: (_) => _isHoveringControls = true,
                           onExit: (_) => _isHoveringControls = false,
                           child: Container(
-                            padding: const EdgeInsets.only(top: 16, bottom: 24),
+                            padding: EdgeInsets.only(
+                              top: compactLandscape ? 8 : 16,
+                              bottom: compactLandscape ? 12 : 24,
+                            ),
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 begin: Alignment.topCenter,
@@ -331,13 +363,22 @@ class _PlayerOverlaysState extends ConsumerState<PlayerOverlays> {
                                   left: 56,
                                   right: 16,
                                 ),
-                                child: Row(
+                                child: Wrap(
+                                  alignment: WrapAlignment.end,
+                                  crossAxisAlignment: WrapCrossAlignment.center,
+                                  spacing: 4,
                                   children: [
-                                    const Spacer(),
-                                    widget.middleTopBar,
-                                    const Spacer(),
-                                    // Queue button moved to bottom bar
-                                    const SizedBox(width: 8),
+                                    ConstrainedBox(
+                                      constraints: BoxConstraints(
+                                        maxWidth: viewport.width > 72
+                                            ? viewport.width - 72
+                                            : 0,
+                                      ),
+                                      child: SingleChildScrollView(
+                                        scrollDirection: Axis.horizontal,
+                                        child: widget.middleTopBar,
+                                      ),
+                                    ),
                                     // Output / Cast button
                                     Builder(
                                       builder: (btnContext) {
@@ -387,46 +428,7 @@ class _PlayerOverlaysState extends ConsumerState<PlayerOverlays> {
                                       ),
                                       const SizedBox(width: 8),
                                     ],
-                                    Builder(
-                                      builder: (btnContext) =>
-                                          TactileIconButton(
-                                            icon: Icons.more_vert,
-                                            color: Colors.white.withValues(
-                                              alpha: 0.8,
-                                            ),
-                                            hoverColor: colorScheme.primary,
-                                            tooltip: AppLocalizations.of(
-                                              context,
-                                            )!.moreOptions,
-                                            onTap: () {
-                                              _onInteraction();
-                                              _isHoveringControls = true;
-                                              final renderBox =
-                                                  btnContext.findRenderObject()
-                                                      as RenderBox?;
-                                              final offset = renderBox
-                                                  ?.localToGlobal(Offset.zero);
-                                              if (track != null) {
-                                                showContentContextMenu(
-                                                  context,
-                                                  ref,
-                                                  position: offset != null
-                                                      ? offset +
-                                                            Offset(
-                                                              0,
-                                                              renderBox!
-                                                                  .size
-                                                                  .height,
-                                                            )
-                                                      : Offset.zero,
-                                                  target: TrackContextTarget(
-                                                    track,
-                                                  ),
-                                                );
-                                              }
-                                            },
-                                          ),
-                                    ),
+                                    if (compactLandscape) trackOptionsButton,
                                   ],
                                 ),
                               ),
@@ -444,11 +446,11 @@ class _PlayerOverlaysState extends ConsumerState<PlayerOverlays> {
                           onEnter: (_) => _isHoveringControls = true,
                           onExit: (_) => _isHoveringControls = false,
                           child: Container(
-                            padding: const EdgeInsets.only(
-                              top: 64,
-                              bottom: 24,
-                              left: 24,
-                              right: 24,
+                            padding: EdgeInsets.only(
+                              top: compactLandscape ? 24 : 48,
+                              bottom: compactLandscape ? 8 : 16,
+                              left: 16,
+                              right: 16,
                             ),
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
@@ -467,7 +469,7 @@ class _PlayerOverlaysState extends ConsumerState<PlayerOverlays> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   // Metadata Row
-                                  if (track != null)
+                                  if (track != null && !compactLandscape)
                                     Row(
                                       children: [
                                         Expanded(
@@ -526,9 +528,11 @@ class _PlayerOverlaysState extends ConsumerState<PlayerOverlays> {
                                             );
                                           },
                                         ),
+                                        trackOptionsButton,
                                       ],
                                     ),
-                                  const SizedBox(height: 16),
+                                  if (!compactLandscape)
+                                    const SizedBox(height: 12),
                                   // Progress Bar
                                   SliderTheme(
                                     data: SliderTheme.of(context).copyWith(
@@ -653,218 +657,175 @@ class _PlayerOverlaysState extends ConsumerState<PlayerOverlays> {
                                     ),
                                   ),
                                   const SizedBox(height: 8),
-                                  // Controls Row
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      // Left: Volume/Subtitle/Audio
-                                      Row(
-                                        children: [
-                                          if (_mkPlayer != null) ...[
-                                            IconButton(
-                                              icon: const Icon(
-                                                Icons.closed_caption,
-                                                color: Colors.white,
-                                              ),
-                                              onPressed: () {
-                                                _onInteraction();
-                                                final player = _mkPlayer;
-                                                if (Platform.isAndroid ||
-                                                    Platform.isIOS) {
-                                                  showModalBottomSheet(
-                                                    context: context,
-                                                    builder: (_) =>
-                                                        SubtitlePanel(
-                                                          player: player,
-                                                        ),
-                                                  );
-                                                } else {
-                                                  showDialog(
-                                                    context: context,
-                                                    builder: (_) => AlertDialog(
-                                                      contentPadding:
-                                                          EdgeInsets.zero,
-                                                      content: SizedBox(
-                                                        width: 400,
-                                                        child: SubtitlePanel(
-                                                          player: player,
-                                                        ),
-                                                      ),
+                                  PlayerControlsLayout(
+                                    queueLabel: AppLocalizations.of(
+                                      context,
+                                    )!.queue,
+                                    optionsLabel: 'Playback options',
+                                    queueSelected:
+                                        settings.playerView == PlayerView.queue,
+                                    onInteraction: _onInteraction,
+                                    onToggleQueue: () {
+                                      _onInteraction();
+                                      widget.onToggleQueue();
+                                    },
+                                    transport: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        TactileIconButton(
+                                          icon: Icons.skip_previous,
+                                          tooltip: 'Previous',
+                                          size: 32,
+                                          color: Colors.white,
+                                          onTap: () {
+                                            _onInteraction();
+                                            playerNotifier.skipPrevious();
+                                          },
+                                        ),
+                                        TactilePlayerPlayPauseButton(
+                                          isPlaying: playerState.isPlaying,
+                                          isLoading: playerState.isLoadingVideo,
+                                          size: 64,
+                                          onTap: () {
+                                            _onInteraction();
+                                            playerNotifier.togglePlay();
+                                          },
+                                        ),
+                                        TactileIconButton(
+                                          icon: Icons.skip_next,
+                                          tooltip: 'Next',
+                                          size: 32,
+                                          color: Colors.white,
+                                          onTap: () {
+                                            _onInteraction();
+                                            playerNotifier.skipNext();
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                    fullscreenButton: IconButton(
+                                      icon: Icon(
+                                        widget.isFullscreen
+                                            ? Icons.fullscreen_exit
+                                            : Icons.fullscreen,
+                                        color: Colors.white,
+                                      ),
+                                      tooltip: widget.isFullscreen
+                                          ? 'Exit Fullscreen'
+                                          : 'Fullscreen',
+                                      onPressed: () {
+                                        _onInteraction();
+                                        widget.onToggleFullscreen();
+                                      },
+                                    ),
+                                    actions: [
+                                      PlayerControlAction(
+                                        label: AppLocalizations.of(
+                                          context,
+                                        )!.shuffle,
+                                        icon: Icons.shuffle,
+                                        selected: playerState.isShuffled,
+                                        onSelected:
+                                            playerNotifier.toggleShuffle,
+                                      ),
+                                      PlayerControlAction(
+                                        label: 'Repeat',
+                                        icon:
+                                            playerState.repeatMode ==
+                                                RepeatMode.one
+                                            ? Icons.repeat_one
+                                            : Icons.repeat,
+                                        selected:
+                                            playerState.repeatMode !=
+                                            RepeatMode.none,
+                                        onSelected: playerNotifier.cycleRepeat,
+                                      ),
+                                      PlayerControlAction(
+                                        label: AppLocalizations.of(
+                                          context,
+                                        )!.autoplay,
+                                        icon: Icons.all_inclusive,
+                                        selected: settings.autoplayEnabled,
+                                        onSelected: () => ref
+                                            .read(settingsProvider.notifier)
+                                            .toggleAutoplay(
+                                              !settings.autoplayEnabled,
+                                            ),
+                                      ),
+                                      if (_mkPlayer != null) ...[
+                                        PlayerControlAction(
+                                          label: AppLocalizations.of(
+                                            context,
+                                          )!.subtitles,
+                                          icon: Icons.closed_caption,
+                                          onSelected: () {
+                                            final player = _mkPlayer;
+                                            if (Platform.isAndroid ||
+                                                Platform.isIOS) {
+                                              showModalBottomSheet(
+                                                context: context,
+                                                builder: (_) => SubtitlePanel(
+                                                  player: player,
+                                                ),
+                                              );
+                                            } else {
+                                              showDialog(
+                                                context: context,
+                                                builder: (_) => AlertDialog(
+                                                  contentPadding:
+                                                      EdgeInsets.zero,
+                                                  content: SizedBox(
+                                                    width: 400,
+                                                    child: SubtitlePanel(
+                                                      player: player,
                                                     ),
-                                                  );
-                                                }
-                                              },
-                                            ),
-                                            IconButton(
-                                              icon: const Icon(
-                                                Icons.audiotrack,
-                                                color: Colors.white,
-                                              ),
-                                              onPressed: () {
-                                                _onInteraction();
-                                                final player = _mkPlayer;
-                                                if (player != null) {
-                                                  _showTrackSelectionDialog(
-                                                    AppLocalizations.of(
-                                                      context,
-                                                    )!.audioTracks,
-                                                    player.state.tracks.audio,
-                                                    player.state.track.audio,
-                                                    (t) =>
-                                                        player.setAudioTrack(t),
-                                                  );
-                                                }
-                                              },
-                                            ),
-                                          ],
-                                        ],
-                                      ),
-                                      // Center: Playback controls
-                                      Row(
-                                        children: [
-                                          TactileIconButton(
-                                            icon: Icons.shuffle,
-                                            color: playerState.isShuffled
-                                                ? colorScheme.primary
-                                                : Colors.white.withValues(
-                                                    alpha: 0.6,
                                                   ),
-                                            onTap: () {
-                                              _onInteraction();
-                                              playerNotifier.toggleShuffle();
-                                            },
-                                          ),
-                                          TactileIconButton(
-                                            icon: Icons.skip_previous,
-                                            size: 32,
-                                            color: Colors.white,
-                                            onTap: () {
-                                              _onInteraction();
-                                              playerNotifier.skipPrevious();
-                                            },
-                                          ),
-                                          TactilePlayerPlayPauseButton(
-                                            isPlaying: playerState.isPlaying,
-                                            isLoading:
-                                                playerState.isLoadingVideo,
-                                            size: 64,
-                                            onTap: () {
-                                              _onInteraction();
-                                              playerNotifier.togglePlay();
-                                            },
-                                          ),
-                                          TactileIconButton(
-                                            icon: Icons.skip_next,
-                                            size: 32,
-                                            color: Colors.white,
-                                            onTap: () {
-                                              _onInteraction();
-                                              playerNotifier.skipNext();
-                                            },
-                                          ),
-                                          TactileIconButton(
-                                            icon:
-                                                playerState.repeatMode ==
-                                                    RepeatMode.one
-                                                ? Icons.repeat_one
-                                                : Icons.repeat,
-                                            color:
-                                                playerState.repeatMode !=
-                                                    RepeatMode.none
-                                                ? colorScheme.primary
-                                                : Colors.white.withValues(
-                                                    alpha: 0.6,
-                                                  ),
-                                            onTap: () {
-                                              _onInteraction();
-                                              playerNotifier.cycleRepeat();
-                                            },
-                                          ),
-                                          TactileIconButton(
-                                            icon: Icons.all_inclusive,
-                                            color: settings.autoplayEnabled
-                                                ? colorScheme.primary
-                                                : Colors.white.withValues(
-                                                    alpha: 0.6,
-                                                  ),
-                                            onTap: () {
-                                              _onInteraction();
-                                              ref
-                                                  .read(
-                                                    settingsProvider.notifier,
-                                                  )
-                                                  .toggleAutoplay(
-                                                    !settings.autoplayEnabled,
-                                                  );
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                      // Right: Queue, Fit/Fill, Mini-player, Fullscreen
-                                      Row(
-                                        children: [
-                                          IconButton(
-                                            key: const ValueKey(
-                                              'queue_toggle_button',
-                                            ),
-                                            icon: const Icon(
-                                              Icons.queue_music,
-                                              color: Colors.white,
-                                            ),
-                                            tooltip: AppLocalizations.of(
-                                              context,
-                                            )!.queue,
-                                            onPressed: () {
-                                              _onInteraction();
-                                              widget.onToggleQueue();
-                                            },
-                                          ),
-                                          if (supportsVideoFitMode)
-                                            IconButton(
-                                              icon: Icon(
+                                                ),
+                                              );
+                                            }
+                                          },
+                                        ),
+                                        PlayerControlAction(
+                                          label: AppLocalizations.of(
+                                            context,
+                                          )!.audioTracks,
+                                          icon: Icons.audiotrack,
+                                          onSelected: () {
+                                            final player = _mkPlayer;
+                                            if (player != null) {
+                                              _showTrackSelectionDialog(
+                                                AppLocalizations.of(
+                                                  context,
+                                                )!.audioTracks,
+                                                player.state.tracks.audio,
+                                                player.state.track.audio,
+                                                (t) => player.setAudioTrack(t),
+                                              );
+                                            }
+                                          },
+                                        ),
+                                      ],
+                                      if (supportsVideoFitMode)
+                                        PlayerControlAction(
+                                          label:
+                                              settings.videoFitMode ==
+                                                  VideoFitMode.fill
+                                              ? 'Fit'
+                                              : 'Fill',
+                                          icon:
+                                              settings.videoFitMode ==
+                                                  VideoFitMode.fill
+                                              ? Icons.fit_screen
+                                              : Icons.crop_free,
+                                          onSelected: () => ref
+                                              .read(settingsProvider.notifier)
+                                              .setVideoFitMode(
                                                 settings.videoFitMode ==
-                                                        VideoFitMode.fill
-                                                    ? Icons.fit_screen
-                                                    : Icons.crop_free,
-                                                color: Colors.white,
-                                              ),
-                                              tooltip:
-                                                  settings.videoFitMode ==
-                                                      VideoFitMode.fill
-                                                  ? 'Fit'
-                                                  : 'Fill',
-                                              onPressed: () {
-                                                _onInteraction();
-                                                final next =
-                                                    settings.videoFitMode ==
                                                         VideoFitMode.fit
                                                     ? VideoFitMode.fill
-                                                    : VideoFitMode.fit;
-                                                ref
-                                                    .read(
-                                                      settingsProvider.notifier,
-                                                    )
-                                                    .setVideoFitMode(next);
-                                              },
-                                            ),
-                                          IconButton(
-                                            icon: Icon(
-                                              widget.isFullscreen
-                                                  ? Icons.fullscreen_exit
-                                                  : Icons.fullscreen,
-                                              color: Colors.white,
-                                            ),
-                                            tooltip: widget.isFullscreen
-                                                ? 'Exit Fullscreen'
-                                                : 'Fullscreen',
-                                            onPressed: () {
-                                              _onInteraction();
-                                              widget.onToggleFullscreen();
-                                            },
-                                          ),
-                                        ],
-                                      ),
+                                                    : VideoFitMode.fit,
+                                              ),
+                                        ),
                                     ],
                                   ),
                                 ],

@@ -24,6 +24,8 @@ import AVKit
   private var patchTimer: Timer?
   private var networkOutputsHost: PPNetworkOutputsHost?
   private var localFilesHost: PPLocalFilesHost?
+  private var airPlayRoutes: PPAirPlayRouteObserver?
+  private var mediaCommands: PPIOSMediaCommands?
 
   // Weak set of all WKWebViews that have been patched, for fast re-injection
   // when the app returns from background.
@@ -39,12 +41,31 @@ import AVKit
       Object.defineProperty(document, 'webkitVisibilityState', { get: () => 'visible', configurable: true });
 
       if (navigator.mediaSession) {
-        navigator.mediaSession.metadata = null;
-        navigator.mediaSession.setActionHandler('play', null);
-        navigator.mediaSession.setActionHandler('pause', null);
-        navigator.mediaSession.setActionHandler('seekto', null);
-        navigator.mediaSession.setActionHandler('previoustrack', null);
-        navigator.mediaSession.setActionHandler('nexttrack', null);
+        // WebKit's active video session can receive system controls instead of
+        // MPRemoteCommandCenter. Forward those actions to Flutter too, so a
+        // deliberate pause changes intent before pause recovery can run.
+        const session = navigator.mediaSession;
+        const setAction = session.setActionHandler.bind(session);
+        const commands = {
+          play: 'play', pause: 'pause', seekto: 'seek',
+          previoustrack: 'previous', nexttrack: 'next'
+        };
+        const forward = (action) => (details) => {
+          const message = {command: commands[action]};
+          if (action === 'seekto') {
+            if (!details || !Number.isFinite(details.seekTime)) return;
+            message.positionMs = Math.round(details.seekTime * 1000);
+          }
+          window.webkit.messageHandlers.ppplayerMediaCommand.postMessage(message);
+        };
+        // YouTube installs its own handlers after initialization. Keep our
+        // intent bridge installed when it subsequently sets or clears them.
+        session.setActionHandler = (action, handler) => {
+          setAction(action, commands[action] ? forward(action) : handler);
+        };
+        for (const action of Object.keys(commands)) {
+          try { setAction(action, forward(action)); } catch (_) {}
+        }
       }
 
       // Swallow visibilitychange at the capture phase on both window and document
@@ -118,6 +139,7 @@ import AVKit
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "PPNetworkOutputs") {
       networkOutputsHost = PPNetworkOutputsHost(messenger: registrar.messenger())
       localFilesHost = PPLocalFilesHost(messenger: registrar.messenger())
+      airPlayRoutes = PPAirPlayRouteObserver(messenger: registrar.messenger())
       registrar.register(PPAirPlayPickerFactory(), withId: "com.ppplayer.app/airplay_picker")
     }
     startupLog("plugins registered")
@@ -129,10 +151,18 @@ import AVKit
       name: "com.ppplayer.app/ios_media_controls",
       binaryMessenger: engineBridge.applicationRegistrar.messenger()
     )
+    mediaCommands = PPIOSMediaCommands(channel: channel)
     channel.setMethodCallHandler { [weak self] (call: FlutterMethodCall, result: @escaping FlutterResult) in
       switch call.method {
       case "activateAudioSession":
         self?.activateAudioSession()
+        result(nil)
+      case "updateNowPlaying":
+        guard let values = call.arguments as? [String: Any] else {
+          result(FlutterError(code: "invalid_now_playing", message: "Expected playback metadata", details: nil))
+          return
+        }
+        self?.mediaCommands?.updateNowPlaying(values)
         result(nil)
       default:
         result(FlutterMethodNotImplemented)
@@ -240,9 +270,19 @@ import AVKit
         }
       }
 
-      if !hasInjected {
+      if !hasInjected, let mediaCommands = mediaCommands {
+        webView.configuration.userContentController.add(mediaCommands, name: "ppplayerMediaCommand")
         webView.configuration.userContentController.addUserScript(script)
-        webView.evaluateJavaScript(self.visibilityPatchScript, completionHandler: nil)
+        // Install in the current wrapper immediately. A child frame created
+        // before this scan needs one navigation to receive document-start
+        // scripts; retain the wrapper and its Flutter JavaScript channels.
+        webView.evaluateJavaScript(self.visibilityPatchScript + """
+          document.querySelectorAll('iframe').forEach((frame) => {
+            if (/^https:\\/\\/(www\\.)?youtube(-nocookie)?\\.com\\//.test(frame.src)) {
+              frame.src = frame.src;
+            }
+          });
+          """, completionHandler: nil)
       }
       // Track this webView for fast foreground re-injection.
       patchedWebViews.add(webView)
@@ -741,5 +781,144 @@ private final class PPLocalFilesHost {
     } catch {
       result(FlutterError(code: "BOOKMARK_REVOKED", message: "The bookmark could not be resolved.", details: nil))
     }
+  }
+}
+
+/// System audio routing has its own stream so a fake or native Cast client
+/// cannot replace its subscription. The initial event reflects the real route.
+private final class PPAirPlayRouteObserver: NSObject, FlutterStreamHandler {
+  private let channel: FlutterEventChannel
+  private var sink: FlutterEventSink?
+  private var observer: NSObjectProtocol?
+
+  init(messenger: FlutterBinaryMessenger) {
+    channel = FlutterEventChannel(name: "com.ppplayer.app/airplay_route_events", binaryMessenger: messenger)
+    super.init()
+    channel.setStreamHandler(self)
+    observer = NotificationCenter.default.addObserver(
+      forName: AVAudioSession.routeChangeNotification, object: AVAudioSession.sharedInstance(), queue: .main
+    ) { [weak self] _ in self?.emit() }
+  }
+
+  deinit {
+    if let observer = observer { NotificationCenter.default.removeObserver(observer) }
+  }
+
+  func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+    sink = events
+    emit()
+    return nil
+  }
+
+  func onCancel(withArguments arguments: Any?) -> FlutterError? {
+    sink = nil
+    return nil
+  }
+
+  private func emit() {
+    let route = AVAudioSession.sharedInstance().currentRoute.outputs.first { $0.portType == .airPlay }
+    sink?(["connected": route != nil, "name": route?.portName ?? ""])
+  }
+}
+
+/// Forward system controls into the same intent handling used by Flutter UI.
+/// Retain and remove only our own targets; WebKit owns its media targets too.
+private final class PPIOSMediaCommands: NSObject, WKScriptMessageHandler {
+  private let channel: FlutterMethodChannel
+  private var targets: [(MPRemoteCommand, Any)] = []
+  private var lastItemId: String?
+  private var lastPlaying: Bool?
+  private var artworkPath: String?
+  private var artwork: MPMediaItemArtwork?
+
+  init(channel: FlutterMethodChannel) {
+    self.channel = channel
+    super.init()
+    let center = MPRemoteCommandCenter.shared()
+    bind(center.pauseCommand, method: "pause")
+    bind(center.playCommand, method: "play")
+    bind(center.togglePlayPauseCommand, method: "togglePlayPause")
+    bind(center.nextTrackCommand, method: "next")
+    bind(center.previousTrackCommand, method: "previous")
+    center.changePlaybackPositionCommand.isEnabled = true
+    let target = center.changePlaybackPositionCommand.addTarget { [weak self] event in
+      guard let self = self, let position = event as? MPChangePlaybackPositionCommandEvent else { return .commandFailed }
+      self.send("seek", arguments: ["positionMs": Int(position.positionTime * 1000)])
+      return .success
+    }
+    targets.append((center.changePlaybackPositionCommand, target))
+  }
+
+  func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+    guard let values = message.body as? [String: Any],
+          let command = values["command"] as? String,
+          ["play", "pause", "seek", "next", "previous"].contains(command) else { return }
+    if command == "seek" {
+      guard let position = values["positionMs"] as? NSNumber,
+            position.doubleValue.isFinite, position.doubleValue >= 0 else { return }
+      send(command, arguments: ["positionMs": position.intValue, "source": "webKit"])
+    } else {
+      send(command, arguments: ["source": "webKit"])
+    }
+  }
+
+  private func bind(_ command: MPRemoteCommand, method: String) {
+    command.isEnabled = true
+    let target = command.addTarget { [weak self] _ in
+      guard let self = self else { return .commandFailed }
+      self.send(method)
+      return .success
+    }
+    targets.append((command, target))
+  }
+
+  func updateNowPlaying(_ values: [String: Any]) {
+    guard let id = values["id"] as? String, let title = values["title"] as? String else {
+      MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
+      lastItemId = nil
+      lastPlaying = nil
+      return
+    }
+    let playing = values["playing"] as? Bool ?? false
+    let speed = values["speed"] as? Double ?? 1
+    var info: [String: Any] = [
+      MPMediaItemPropertyTitle: title,
+      MPMediaItemPropertyArtist: values["artist"] as? String ?? "",
+      MPMediaItemPropertyAlbumTitle: values["album"] as? String ?? "",
+      MPNowPlayingInfoPropertyExternalContentIdentifier: id,
+      MPNowPlayingInfoPropertyMediaType: MPNowPlayingInfoMediaType.audio.rawValue,
+      MPNowPlayingInfoPropertyElapsedPlaybackTime: (values["positionMs"] as? Double ?? 0) / 1000,
+      MPNowPlayingInfoPropertyPlaybackRate: playing ? speed : 0,
+      MPNowPlayingInfoPropertyDefaultPlaybackRate: speed
+    ]
+    if let duration = values["durationMs"] as? Double {
+      info[MPMediaItemPropertyPlaybackDuration] = duration / 1000
+    }
+    let path = values["artCacheFile"] as? String
+    if path != artworkPath {
+      artworkPath = path
+      artwork = nil
+      if let path = path, let image = UIImage(contentsOfFile: path) {
+        artwork = MPMediaItemArtwork(boundsSize: image.size) { _ in image }
+      }
+    }
+    info[MPMediaItemPropertyArtwork] = artwork
+    MPNowPlayingInfoCenter.default().nowPlayingInfo = info
+    if id != lastItemId || playing != lastPlaying {
+      NSLog("[ppplayer-audio] Now Playing published playing=%@ item=%@", playing.description, id)
+    }
+    lastItemId = id
+    lastPlaying = playing
+  }
+
+  private func send(_ method: String, arguments: Any? = nil) {
+    DispatchQueue.main.async { [weak self] in
+      self?.channel.invokeMethod(method, arguments: arguments)
+      NSLog("[ppplayer-audio] remote command=%@ forwarded", method)
+    }
+  }
+
+  deinit {
+    for (command, target) in targets { command.removeTarget(target) }
   }
 }

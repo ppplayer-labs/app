@@ -156,6 +156,8 @@ void main() {
         );
         await tester.pump();
 
+        await tester.tap(find.byKey(const ValueKey('playback_options_button')));
+        await _flush(tester);
         final hasFitIcon =
             find.byIcon(Icons.fit_screen).evaluate().isNotEmpty ||
             find.byIcon(Icons.crop_free).evaluate().isNotEmpty;
@@ -186,6 +188,8 @@ void main() {
         ),
       );
       await tester.pump();
+      await tester.tap(find.byKey(const ValueKey('playback_options_button')));
+      await _flush(tester);
       expect(find.byIcon(Icons.fit_screen), findsNothing);
       expect(find.byIcon(Icons.crop_free), findsNothing);
       await _unmount(tester);
@@ -208,6 +212,8 @@ void main() {
         ),
       );
       await tester.pump();
+      await tester.tap(find.byKey(const ValueKey('playback_options_button')));
+      await _flush(tester);
       expect(find.byIcon(Icons.fit_screen), findsNothing);
       expect(find.byIcon(Icons.crop_free), findsNothing);
       await _unmount(tester);
@@ -234,11 +240,15 @@ void main() {
         );
         await tester.pump();
 
+        await tester.tap(find.byKey(const ValueKey('playback_options_button')));
+        await _flush(tester);
         final hasFitInitially =
             find.byIcon(Icons.fit_screen).evaluate().isNotEmpty ||
             find.byIcon(Icons.crop_free).evaluate().isNotEmpty;
         expect(hasFitInitially, isTrue);
 
+        Navigator.of(tester.element(find.byType(PlayerOverlays))).pop();
+        await _flush(tester);
         // Switch to YouTube iframe.
         controller.add(
           const PlaybackStatus(
@@ -249,6 +259,8 @@ void main() {
         );
         await tester.pump();
 
+        await tester.tap(find.byKey(const ValueKey('playback_options_button')));
+        await _flush(tester);
         expect(find.byIcon(Icons.fit_screen), findsNothing);
         expect(find.byIcon(Icons.crop_free), findsNothing);
 

@@ -64,6 +64,7 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
         return (
           v?.activeVideoId,
           v?.isIFrameMode ?? false,
+          v?.hasVideo ?? false,
           v?.state ?? PlaybackState.idle,
         );
       }),
@@ -79,9 +80,10 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
       playerProvider.select((s) => s.currentTrack),
     );
     final isLocalTrack = currentTrack?.sourceType == TrackSourceType.local;
-    final hasVideoId =
-        ref.watch(playerProvider.select((s) => s.videoId != null)) ||
-        (isLocalTrack && currentTrack?.isVideoFile == true);
+    final hasVideoId = isLocalTrack
+        ? currentTrack?.isVideoFile == true && playbackStatus.hasVideo
+        : ref.watch(playerProvider.select((s) => s.videoId != null)) &&
+              playbackStatus.hasVideo;
     final loadError = ref.watch(playerProvider.select((s) => s.loadError));
     final isPipMode = ref.watch(playerProvider.select((s) => s.isPipMode));
     final isFullscreen = ref.watch(isFullscreenProvider);

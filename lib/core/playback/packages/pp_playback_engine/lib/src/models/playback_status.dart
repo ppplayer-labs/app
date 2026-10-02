@@ -63,7 +63,7 @@ class PlaybackStatus {
     Duration? buffered,
     bool? hasVideo,
     bool? isIFrameMode,
-    String? activeVideoId,
+    Object? activeVideoId = _sentinel,
     Object? error = _sentinel,
     bool clearError = false,
     double? volume,
@@ -82,7 +82,10 @@ class PlaybackStatus {
       buffered: buffered ?? this.buffered,
       hasVideo: hasVideo ?? this.hasVideo,
       isIFrameMode: isIFrameMode ?? this.isIFrameMode,
-      activeVideoId: activeVideoId ?? this.activeVideoId,
+      activeVideoId:
+          identical(activeVideoId, _sentinel)
+              ? this.activeVideoId
+              : activeVideoId as String?,
       error:
           clearError
               ? null

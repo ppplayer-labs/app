@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart' hide RepeatMode;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,12 +16,32 @@ import 'package:drift/native.dart';
 void main() {
   late AppDatabase db;
 
-  setUp(() {
+  setUp(() async {
     db = AppDatabase.forTesting(NativeDatabase.memory());
+    final messenger =
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+    messenger.setMockMethodCallHandler(
+      const MethodChannel('plugins.flutter.io/path_provider'),
+      (_) async => Directory.systemTemp.path,
+    );
+    messenger.setMockMethodCallHandler(
+      const MethodChannel('com.ppplayer.app/network_output_events'),
+      (_) async => null,
+    );
   });
 
   tearDown(() async {
     await db.close();
+    final messenger =
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+    messenger.setMockMethodCallHandler(
+      const MethodChannel('plugins.flutter.io/path_provider'),
+      null,
+    );
+    messenger.setMockMethodCallHandler(
+      const MethodChannel('com.ppplayer.app/network_output_events'),
+      null,
+    );
   });
 
   testWidgets(
@@ -29,6 +51,7 @@ void main() {
         youtubeVideoId: 'test',
         spotifyId: 'test',
         name: 'Test',
+        albumImage: 'file:///preview-cover.png',
         artistId: 'test',
         artistName: 'Artist',
         sourceType: TrackSourceType.online,
@@ -56,10 +79,11 @@ void main() {
             settingsProvider.overrideWith(() => FakeSettingsNotifier()),
             appDatabaseProvider.overrideWithValue(db),
           ],
-          child: const MaterialApp(
+          child: MaterialApp(
+            theme: ThemeData.dark(),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
-            home: Scaffold(body: PlayerScreen()),
+            home: const Scaffold(body: PlayerScreen()),
           ),
         ),
       );
@@ -77,8 +101,21 @@ void main() {
       );
       expect(videoSlotFinder, findsOneWidget);
 
-      // Initial state: Queue panel is hidden, but the bottom bar toggle exists
+      // Queue navigation is labeled even before the panel is opened.
       expect(find.byKey(const ValueKey('queue_toggle_button')), findsOneWidget);
+
+      // Actual player overlays must fit a narrow phone.
+      await tester.binding.setSurfaceSize(const Size(320, 568));
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(tester.takeException(), isNull);
+      expect(
+        tester
+            .getRect(find.byKey(const ValueKey('queue_toggle_button')))
+            .bottom,
+        lessThanOrEqualTo(568),
+      );
+      await tester.binding.setSurfaceSize(const Size(1200, 800));
+      await tester.pump(const Duration(milliseconds: 500));
 
       // Open Queue
       final queueButton = find.byKey(const ValueKey('queue_toggle_button'));
@@ -88,7 +125,7 @@ void main() {
       }
 
       // Queue should be visible in side panel (width > 1000)
-      expect(find.text('QUEUE'), findsOneWidget);
+      expect(find.text('QUEUE'), findsNWidgets(2));
       expect(find.byType(BottomSheet), findsNothing);
 
       // Video slot MUST still be exactly the same widget (mounted)
@@ -102,7 +139,7 @@ void main() {
       expect(videoSlotFinder, findsOneWidget);
 
       // Queue should now be absolute positioned, not in side panel
-      expect(find.text('QUEUE'), findsOneWidget);
+      expect(find.text('QUEUE'), findsNWidgets(2));
       expect(videoSlotFinder, findsOneWidget);
 
       // Close Queue
@@ -113,7 +150,7 @@ void main() {
       for (var i = 0; i < 10; i++) {
         await tester.pump(const Duration(milliseconds: 50));
       }
-      expect(find.text('QUEUE'), findsNothing);
+      expect(find.text('QUEUE'), findsOneWidget);
       expect(videoSlotFinder, findsOneWidget);
 
       await tester.pump(const Duration(seconds: 4));

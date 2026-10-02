@@ -502,11 +502,13 @@ class MediaKitPlaybackEngine implements PlaybackController {
         // If the track is statically known to be a video, don't let a transient 0x0
         // size param hide the view, which breaks native macOS texture binding.
         final hasVideo =
-            (_currentStatus.track?.isVideo == true) || hasDimensions;
+            (_currentStatus.track?.isVideo == true) ||
+            (_currentStatus.track?.isLocal != true && hasDimensions);
 
         _updateStatus(
           _currentStatus.copyWith(
             hasVideo: hasVideo,
+            activeVideoId: hasVideo ? _currentStatus.track?.id : null,
             videoAspectRatio: hasDimensions ? w / h : null,
           ),
         );
@@ -603,7 +605,7 @@ class MediaKitPlaybackEngine implements PlaybackController {
           track: track,
           state: PlaybackState.preparing,
           clearError: true,
-          activeVideoId: track.id,
+          activeVideoId: track.isVideo ? track.id : null,
           hasVideo: track.isVideo,
           isIFrameMode: false,
           generation: myGen,
@@ -798,7 +800,7 @@ class MediaKitPlaybackEngine implements PlaybackController {
           track: track,
           state: PlaybackState.preparing,
           clearError: true,
-          activeVideoId: track.id,
+          activeVideoId: track.isVideo ? track.id : null,
           hasVideo: track.isVideo,
           isIFrameMode: false,
           generation: myGen,
@@ -1133,10 +1135,13 @@ class MediaKitPlaybackEngine implements PlaybackController {
               _latePauseGeneration = null;
               unawaited(_dispatchIFramePlay(gen, 'late-pause'));
             } else if (ytState.playerState == yt.PlayerState.paused) {
-              finalNewState = PlaybackState.playing; // Prevent emitting paused!
               if (_isIOS) {
+                // Keep the last observed state while checking for a stale
+                // callback. A recovery command is not a playing acknowledgement.
+                finalNewState = _currentStatus.state;
                 unawaited(_recoverIOSIFramePause(gen));
               } else {
+                finalNewState = PlaybackState.playing;
                 _diag(
                   'BRIDGE SPURIOUS-PAUSE: intendedState=playing. Forcing playVideo() to combat background suspension.',
                 );
@@ -1334,6 +1339,7 @@ class MediaKitPlaybackEngine implements PlaybackController {
         return;
       }
       _diag('IOS PAUSE-RECOVERY confirmed paused gen=$generation');
+      _updateStatus(_currentStatus.copyWith(state: PlaybackState.paused));
       await _dispatchIFramePlay(
         generation,
         'ios-confirmed-pause',

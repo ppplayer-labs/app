@@ -9,6 +9,8 @@ import 'package:flutter/services.dart';
 
 import '../../core/network_outputs/capability_resolver.dart';
 import '../../core/network_outputs/models.dart';
+import 'airplay_output_tile.dart';
+import '../../core/network_outputs/airplay_route.dart';
 import '../../core/network_outputs/network_output_providers.dart';
 import '../../core/player/player_provider.dart';
 import '../../core/playback/playback_providers.dart';
@@ -117,6 +119,18 @@ class _OutputPickerContent extends ConsumerWidget {
         .where((o) => o.kind != OutputKind.local)
         .toList();
     final selected = state.selectedOutput;
+    final showAirPlay =
+        Platform.isIOS &&
+        (ref
+                .watch(networkOutputCapabilitiesProvider)
+                .asData
+                ?.value
+                .airPlayPickerAvailable ??
+            false);
+    final route = showAirPlay
+        ? ref.watch(airPlayRouteProvider).asData?.value
+        : null;
+    final airPlaySelected = route?.isSelectedFor(state) ?? false;
     PlaybackTrack? pbTrack;
     try {
       pbTrack = track?.toPlaybackTrack();
@@ -133,22 +147,32 @@ class _OutputPickerContent extends ConsumerWidget {
             children: [
               Text(
                 'Play On',
-                style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                style: textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               if (kDebugMode)
                 IconButton(
                   icon: const Icon(Icons.bug_report, size: 20),
                   onPressed: () {
-                    final urls = ref.read(localMediaServerProvider).debugActiveUrls;
+                    final urls = ref
+                        .read(localMediaServerProvider)
+                        .debugActiveUrls;
                     if (urls.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('No active local media URLs')),
+                        const SnackBar(
+                          content: Text('No active local media URLs'),
+                        ),
                       );
                       return;
                     }
                     Clipboard.setData(ClipboardData(text: urls.join('\n')));
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Copied ${urls.length} URLs to clipboard')),
+                      SnackBar(
+                        content: Text(
+                          'Copied ${urls.length} URLs to clipboard',
+                        ),
+                      ),
                     );
                   },
                 ),
@@ -163,16 +187,40 @@ class _OutputPickerContent extends ConsumerWidget {
         for (final output in localOutputs)
           _OutputTile(
             output: output,
-            isSelected: selected.kind == OutputKind.local,
+            isSelected:
+                selected.kind == OutputKind.local &&
+                (!showAirPlay ||
+                    (route?.isLocalDeviceSelectedFor(state) ?? false)),
+            onTapOverride: airPlaySelected
+                ? () => showLocalAirPlayRoutePicker(context)
+                : null,
             isConnected: false,
             pbTrack: pbTrack,
             state: state,
           ),
 
-        if (remoteOutputs.isNotEmpty || state.discoveryActive) ...[
+        if (showAirPlay ||
+            remoteOutputs.isNotEmpty ||
+            state.discoveryActive) ...[
           const SizedBox(height: 8),
           _SectionHeader(label: 'AVAILABLE DEVICES'),
         ],
+        if (showAirPlay)
+          AirPlayOutputTile(
+            isSelected: airPlaySelected,
+            deviceName: route?.name ?? '',
+            remoteActive: state.connected,
+            connecting: state.connecting,
+            onReturnToLocal: () async {
+              try {
+                await ref
+                    .read(networkOutputControllerProvider)
+                    .selectOutput(PlaybackOutput.local);
+              } catch (_) {
+                // The controller exposes failures in the existing error banner.
+              }
+            },
+          ),
         if (state.discoveryActive && remoteOutputs.isEmpty)
           const _SearchingTile(),
         for (final output in remoteOutputs)
@@ -304,6 +352,7 @@ class _OutputTile extends ConsumerWidget {
     required this.isConnected,
     required this.pbTrack,
     required this.state,
+    this.onTapOverride,
   });
 
   final PlaybackOutput output;
@@ -311,6 +360,7 @@ class _OutputTile extends ConsumerWidget {
   final bool isConnected;
   final PlaybackTrack? pbTrack;
   final NetworkOutputState state;
+  final VoidCallback? onTapOverride;
 
   IconData _iconFor(OutputKind kind) => switch (kind) {
     OutputKind.local => Icons.smartphone,
@@ -371,20 +421,22 @@ class _OutputTile extends ConsumerWidget {
         trailing: isSelected
             ? Icon(Icons.check_rounded, color: cs.primary)
             : null,
-        onTap: isUnsupported
-            ? null
-            : () async {
-                final ctrl = ref.read(networkOutputControllerProvider);
-                if (output.kind == OutputKind.local || isSelected) {
-                  if (context.mounted) Navigator.of(context).pop();
-                  if (!isSelected || output.kind != OutputKind.local) {
-                    unawaited(ctrl.returnToLocal().catchError((_) {}));
-                  }
-                } else {
-                  if (context.mounted) Navigator.of(context).pop();
-                  unawaited(ctrl.selectOutput(output).catchError((_) {}));
-                }
-              },
+        onTap:
+            onTapOverride ??
+            (isUnsupported
+                ? null
+                : () async {
+                    final ctrl = ref.read(networkOutputControllerProvider);
+                    if (output.kind == OutputKind.local || isSelected) {
+                      if (context.mounted) Navigator.of(context).pop();
+                      if (!isSelected || output.kind != OutputKind.local) {
+                        unawaited(ctrl.returnToLocal().catchError((_) {}));
+                      }
+                    } else {
+                      if (context.mounted) Navigator.of(context).pop();
+                      unawaited(ctrl.selectOutput(output).catchError((_) {}));
+                    }
+                  }),
       ),
     );
   }
