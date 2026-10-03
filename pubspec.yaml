@@ -1,7 +1,7 @@
 name: ppplayer
 description: "Media player powered by Lucas Veneno."
 publish_to: 'none'
-version: 3.0.1+9
+version: 3.0.2+10
 
 environment:
   sdk: ^3.8.0
@@ -141,7 +141,7 @@ msix_config:
   publisher_display_name: Lucas Veneno
   identity_name: LucasVeneno.25880C6F60D2E
   publisher: CN=191B0E6A-B98A-4AB5-B2FC-9EBDA47DA56E
-  msix_version: 3.0.1.0
+  msix_version: 3.0.2.0
   logo_path: assets/logo.png
   architecture: x64
   capabilities: internetClient, musicLibrary
