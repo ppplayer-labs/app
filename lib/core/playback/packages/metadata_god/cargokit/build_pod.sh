@@ -7,9 +7,10 @@ BASEDIR=$(dirname "$0")
 BASEDIR=$(cd "$BASEDIR" ; pwd -P)
 
 # Remove XCode SDK from path. Otherwise this breaks tool compilation when building iOS project
-NEW_PATH=`echo $PATH | tr ":" "\n" | grep -v "Contents/Developer/" | tr "\n" ":"`
+# NEW_PATH=`echo $PATH | tr ":" "\n" | grep -v "Contents/Developer/" | tr "\n" ":"`
 
-export PATH=${NEW_PATH%?} # remove trailing :
+# export PATH=${NEW_PATH%?} # remove trailing :
+
 
 env
 
@@ -36,6 +37,8 @@ export CARGOKIT_TOOL_TEMP_DIR=$TARGET_TEMP_DIR/build_tool
 
 # Directory inside root project. Not necessarily the top level directory of root project.
 export CARGOKIT_ROOT_PROJECT_DIR=$SRCROOT
+
+# Let Cargokit resolve rustup from ~/.cargo/bin when Xcode's PATH omits it.
 
 FLUTTER_EXPORT_BUILD_ENVIRONMENT=(
   "$PODS_ROOT/../Flutter/ephemeral/flutter_export_environment.sh" # macOS
