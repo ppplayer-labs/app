@@ -67,3 +67,6 @@ keystore_base64.txt
 ppplayer_db.sqlite
 settings.hive
 settings.lock
+
+# Rust build artifacts
+**/target/
