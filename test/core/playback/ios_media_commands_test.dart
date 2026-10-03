@@ -55,6 +55,114 @@ void main() {
   }
 
   test(
+    'WebKit state changes do not repeatedly activate the app audio session',
+    () async {
+      final engine = MediaKitPlaybackEngine();
+      final player = _Player(engine);
+      final container = ProviderContainer(
+        overrides: [playerProvider.overrideWith(() => player)],
+      );
+      final handler = PpPlayerAudioHandler(
+        () => container,
+        enableIosCommands: true,
+      );
+      var activations = 0;
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, (call) async {
+            if (call.method == 'activateAudioSession') activations++;
+            return null;
+          });
+      try {
+        for (final playing in [true, false, true, false, true]) {
+          handler.updatePlaybackState(
+            playing: playing,
+            position: Duration.zero,
+            bufferedPosition: Duration.zero,
+            isIFrameMode: true,
+          );
+          await Future<void>.delayed(Duration.zero);
+        }
+        expect(
+          activations,
+          0,
+          reason: 'WebKit owns renderer session activation',
+        );
+        expect(player.calls, isEmpty);
+        await remote('play');
+        expect(
+          activations,
+          1,
+          reason: 'explicit system play can activate the app',
+        );
+        await remote('pause');
+        expect(player.calls, ['play', 'pause']);
+      } finally {
+        await engine.dispose();
+        container.dispose();
+        channel.setMethodCallHandler(null);
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(channel, null);
+      }
+    },
+  );
+
+  test(
+    'iOS session activation retries failures and reactivates after pause',
+    () async {
+      final engine = MediaKitPlaybackEngine();
+      final player = _Player(engine);
+      final container = ProviderContainer(
+        overrides: [playerProvider.overrideWith(() => player)],
+      );
+      final handler = PpPlayerAudioHandler(
+        () => container,
+        enableIosCommands: true,
+      );
+      var activations = 0;
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, (call) async {
+            if (call.method == 'activateAudioSession') {
+              activations++;
+              if (activations == 1)
+                throw PlatformException(code: 'interrupted');
+            }
+            return null;
+          });
+      void publish(bool playing) => handler.updatePlaybackState(
+        playing: playing,
+        position: Duration.zero,
+        bufferedPosition: Duration.zero,
+      );
+      try {
+        publish(true);
+        await Future<void>.delayed(Duration.zero);
+        expect(activations, 1);
+        publish(true);
+        await Future<void>.delayed(Duration.zero);
+        expect(activations, 2);
+        publish(true);
+        await Future<void>.delayed(Duration.zero);
+        expect(activations, 2, reason: 'position updates do not reactivate');
+        publish(false);
+        publish(true);
+        await Future<void>.delayed(Duration.zero);
+        expect(activations, 3, reason: 'resuming requires a fresh activation');
+        expect(
+          player.calls,
+          isEmpty,
+          reason: 'session updates never issue play commands',
+        );
+      } finally {
+        await engine.dispose();
+        container.dispose();
+        channel.setMethodCallHandler(null);
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(channel, null);
+      }
+    },
+  );
+
+  test(
     'system pause sets paused intent and late renderer events cannot replay',
     () async {
       final youtube = FakeYoutubeController();

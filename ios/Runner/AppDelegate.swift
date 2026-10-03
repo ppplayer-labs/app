@@ -155,8 +155,11 @@ import AVKit
     channel.setMethodCallHandler { [weak self] (call: FlutterMethodCall, result: @escaping FlutterResult) in
       switch call.method {
       case "activateAudioSession":
-        self?.activateAudioSession()
-        result(nil)
+        if self?.activateAudioSession() == true {
+          result(nil)
+        } else {
+          result(FlutterError(code: "audio_session_activation_failed", message: "Could not activate playback audio session", details: nil))
+        }
       case "updateNowPlaying":
         guard let values = call.arguments as? [String: Any] else {
           result(FlutterError(code: "invalid_now_playing", message: "Expected playback metadata", details: nil))
@@ -178,12 +181,21 @@ import AVKit
 
   /// Activates the audio session right before playback starts.
   /// Called from Dart via the ios_media_controls method channel.
-  @objc func activateAudioSession() {
+  @discardableResult
+  @objc func activateAudioSession() -> Bool {
     do {
-      try AVAudioSession.sharedInstance().setActive(true)
-      NSLog("[ppplayer] AVAudioSession activated for playback.")
+      let session = AVAudioSession.sharedInstance()
+      // Media renderers can change the shared category after app startup.
+      // Restore background-capable playback when starting/resuming audio.
+      if session.category != .playback || session.mode != .default {
+        try session.setCategory(.playback, mode: .default, options: [])
+      }
+      try session.setActive(true)
+      NSLog("[ppplayer-audio] session activated category=%@ appState=%ld", session.category.rawValue, UIApplication.shared.applicationState.rawValue)
+      return true
     } catch {
       NSLog("[ppplayer] AVAudioSession activation failed: %@", error.localizedDescription)
+      return false
     }
   }
 
@@ -193,7 +205,8 @@ import AVKit
           let typeValue = info[AVAudioSessionInterruptionTypeKey] as? UInt,
           let type = AVAudioSession.InterruptionType(rawValue: typeValue) else { return }
 
-    NSLog("[ppplayer-audio] interruption=%@", type == .began ? "began" : "ended")
+    let suspended = info[AVAudioSessionInterruptionWasSuspendedKey] as? Bool ?? false
+    NSLog("[ppplayer-audio] interruption=%@ suspended=%d category=%@ appState=%ld", type == .began ? "began" : "ended", suspended ? 1 : 0, AVAudioSession.sharedInstance().category.rawValue, UIApplication.shared.applicationState.rawValue)
 
     if type == .ended {
       // Re-activate after interruption ends so playback can resume.

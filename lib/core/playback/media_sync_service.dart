@@ -85,6 +85,7 @@ class MediaSyncService {
           playing: currentStatus.isPlaying,
           position: currentStatus.position,
           bufferedPosition: currentStatus.buffered,
+          isIFrameMode: currentStatus.isIFrameMode,
           speed: currentStatus.speed,
           processingState: _mapToAudioProcessingState(currentStatus.state),
         );

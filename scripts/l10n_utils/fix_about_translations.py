@@ -56,7 +56,7 @@ about_translations = {
         "copyright": "© {year} مشارکت‌کنندگان PPPlayer", "close": "بستن"
     },
     'fil': {
-        "aboutDescription": "Isang libre, open-source na music player.", "versionInfo": "Bersyon {version} (Build {build})",
+        "aboutDescription": "Isang libre, open-source na media player.", "versionInfo": "Bersyon {version} (Build {build})",
         "createdBy": "Ginawa ni Lucas Coelho", "website": "Website", "github": "GitHub",
         "releaseNotes": "Mga tala sa paglabas", "support": "Suporta", "license": "Lisensya", "acknowledgments": "Mga Pagkilala",
         "copyright": "© {year} Mga nag-ambag sa PPPlayer", "close": "Isara"
@@ -146,7 +146,7 @@ about_translations = {
         "copyright": "© {year} PPPlayer ပါဝင်ကူညီသူများ", "close": "ပိတ်ရန်"
     },
     'pcm': {
-        "aboutDescription": "A free, open-source music player.", "versionInfo": "Version {version} (Build {build})",
+        "aboutDescription": "A free, open-source media player.", "versionInfo": "Version {version} (Build {build})",
         "createdBy": "Created by Lucas Coelho", "website": "Website", "github": "GitHub",
         "releaseNotes": "Release notes", "support": "Support", "license": "License", "acknowledgments": "Acknowledgments",
         "copyright": "© {year} PPPlayer contributors", "close": "Close"

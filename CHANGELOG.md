@@ -4,6 +4,18 @@ All notable changes to PPPlayer will be documented in this file.
 
 ## [Unreleased]
 
+## [3.0.1] - 2026-10-02
+
+### Fixed
+
+- The iOS native playback surface no longer automatically pauses imported music when the app enters the background or resumes deliberately paused music on foreground return.
+- iOS audio-session activation retries failed attempts and reactivates native playback after pause, while leaving WebKit renderer session activation to WebKit to avoid repeated interruptions.
+
+### Validation
+
+- 417 app and playback-engine tests passed with clean analysis, including background lifecycle, audio-session ownership and explicit system-pause regressions.
+- Physical-device background acceptance remains pending. This version entry does not announce a published release.
+
 ## [3.0.0] - 2026-10-02
 
 ### Added

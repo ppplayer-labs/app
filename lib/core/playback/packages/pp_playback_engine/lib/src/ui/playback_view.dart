@@ -128,6 +128,11 @@ class _PlaybackViewState extends State<PlaybackView> {
     return mk.Video(
       key: ObjectKey(renderer),
       controller: renderer,
+      // iOS background audio and explicit pause belong to the playback
+      // controller, including when this surface renders an audio-only file.
+      pauseUponEnteringBackgroundMode:
+          defaultTargetPlatform != TargetPlatform.iOS,
+      resumeUponEnteringForegroundMode: false,
       controls:
           widget.showControls ? mk.MaterialVideoControls : mk.NoVideoControls,
       fit: widget.fit,

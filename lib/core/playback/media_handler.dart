@@ -77,7 +77,11 @@ class PpPlayerAudioHandler extends BaseAudioHandler with QueueHandler {
   Future<void> _publishIosNowPlaying() async {
     if (!_iosCommandsEnabled) return;
     try {
-      if (playbackState.value.playing) await _ensureAudioSessionActive();
+      // WebKit activates its own audio session. Activating the app session
+      // for its transient renderer states interrupts that child session.
+      if (playbackState.value.playing && !_webKitOwnsAudioSession) {
+        await _ensureAudioSessionActive();
+      }
       final item = mediaItem.value;
       final state = playbackState.value;
       await _iosControlsChannel.invokeMethod('updateNowPlaying', {
@@ -99,19 +103,29 @@ class PpPlayerAudioHandler extends BaseAudioHandler with QueueHandler {
   String? _lastTrackId;
   ProviderSubscription<AsyncValue<bool>>? _favoriteSub;
   bool _audioSessionActivated = false;
+  Future<void>? _audioSessionActivation;
+  int _audioSessionRevision = 0;
+  bool _webKitOwnsAudioSession = false;
 
   /// Activates the iOS AVAudioSession before playback starts.
   /// This is deferred from app launch to avoid blocking the main thread.
-  Future<void> _ensureAudioSessionActive() async {
-    if (_audioSessionActivated) return;
-    if (!kIsWeb && Platform.isIOS) {
-      _audioSessionActivated = true;
-      try {
-        await _iosControlsChannel.invokeMethod('activateAudioSession');
-      } catch (_) {
-        // Non-fatal — playback will still proceed; session may already be active.
-      }
+  Future<void> _ensureAudioSessionActive() {
+    if (!_iosCommandsEnabled || _audioSessionActivated) {
+      return Future.value();
     }
+    final pending = _audioSessionActivation;
+    if (pending != null) return pending;
+    final revision = _audioSessionRevision;
+    return _audioSessionActivation = _iosControlsChannel
+        .invokeMethod<void>('activateAudioSession')
+        .then((_) {
+          if (revision == _audioSessionRevision) _audioSessionActivated = true;
+        })
+        .catchError((Object error) {
+          // Leave activation retryable after a denied or interrupted attempt.
+          debugPrint('[MediaControls] iOS audio activation failed: $error');
+        })
+        .whenComplete(() => _audioSessionActivation = null);
   }
 
   void _updateTaskbar(bool isFav, {bool? playing}) {
@@ -203,9 +217,15 @@ class PpPlayerAudioHandler extends BaseAudioHandler with QueueHandler {
     required bool playing,
     required Duration position,
     required Duration bufferedPosition,
+    bool isIFrameMode = false,
     double speed = 1.0,
     AudioProcessingState processingState = AudioProcessingState.ready,
   }) {
+    _webKitOwnsAudioSession = isIFrameMode;
+    if (!playing) {
+      _audioSessionActivated = false;
+      _audioSessionRevision++;
+    }
     debugPrint(
       '${DateTime.now().toIso8601String()} AUDIO_HANDLER publish playing=$playing position=$position',
     );
@@ -282,6 +302,8 @@ class PpPlayerAudioHandler extends BaseAudioHandler with QueueHandler {
 
   @override
   Future<void> pause() async {
+    _audioSessionActivated = false;
+    _audioSessionRevision++;
     _container.read(playerProvider.notifier).pause();
   }
 
