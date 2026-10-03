@@ -4,6 +4,47 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>ar</string>
+		<string>bn</string>
+		<string>cs</string>
+		<string>da</string>
+		<string>de</string>
+		<string>en</string>
+		<string>es</string>
+		<string>et</string>
+		<string>fa</string>
+		<string>fil</string>
+		<string>fr</string>
+		<string>gn</string>
+		<string>hi</string>
+		<string>hr</string>
+		<string>hu</string>
+		<string>id</string>
+		<string>it</string>
+		<string>ja</string>
+		<string>ka</string>
+		<string>kk</string>
+		<string>ko</string>
+		<string>lv</string>
+		<string>ms</string>
+		<string>my</string>
+		<string>nl</string>
+		<string>pcm</string>
+		<string>pl</string>
+		<string>pt</string>
+		<string>ro</string>
+		<string>ru</string>
+		<string>sv</string>
+		<string>th</string>
+		<string>tr</string>
+		<string>uk</string>
+		<string>ur</string>
+		<string>uz</string>
+		<string>vi</string>
+		<string>zh</string>
+	</array>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIconFile</key>
@@ -35,7 +76,7 @@
 		<string>_googlecast._tcp</string>
 	</array>
 	<key>LSApplicationCategoryType</key>
-	<string>public.app-category.music</string>
+	<string>public.app-category.entertainment</string>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
