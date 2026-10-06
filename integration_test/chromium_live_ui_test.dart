@@ -75,7 +75,6 @@ void main() {
         }
       },
       createPlayer: createPlayer,
-      showBrowser: !android,
       startPlaybackService: android ? ChromiumMediaService.start : null,
       stopPlaybackService: android ? ChromiumMediaService.stop : null,
     );
@@ -165,7 +164,20 @@ void main() {
             localizationsDelegates: appLocalizationDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             locale: const Locale('en'),
-            home: const PlayerScreen(),
+            home: Consumer(
+              builder: (context, ref, _) => Stack(
+                fit: StackFit.expand,
+                children: [
+                  PlaybackView(
+                    controller: engine,
+                    status:
+                        ref.watch(playbackStatusProvider).value ??
+                        const PlaybackStatus(),
+                  ),
+                  const PlayerScreen(),
+                ],
+              ),
+            ),
           ),
         ),
       );
@@ -196,6 +208,8 @@ void main() {
         'Live playback did not progress',
       );
       expect(container.read(playerProvider).isPlaying, isTrue);
+      expect(engine.currentStatus.hasVideo, isTrue);
+      expect(find.byType(ChromiumWebView), findsOneWidget);
       final playButton = find.byType(TactilePlayerPlayPauseButton);
       expect(playButton, findsOneWidget);
       if (!container.read(controlsVisibilityProvider)) {
@@ -231,7 +245,7 @@ void main() {
             .invokeMapMethod<String, dynamic>('chromiumServiceState');
         expect(state, containsPair('chromiumPlayer', true));
         expect(state, containsPair('ownsWebView', false));
-        expect(engine.renderer, isNull);
+        expect(engine.renderer, isA<ChromiumWebView>());
         if (const bool.fromEnvironment('PPPLAYER_BACKGROUND_PROBE')) {
           // Android's Home transition needs frames until onStop completes.
           binding.framePolicy =

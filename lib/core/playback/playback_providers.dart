@@ -119,7 +119,32 @@ final localPlaybackControllerProvider = Provider<PlaybackController>((ref) {
       defaultTargetPlatform == TargetPlatform.android;
 
   if (defaultTargetPlatform == TargetPlatform.android) {
+    final mediaKit = MediaKitPlaybackEngine();
+    final foregroundEngine = chromiumAndroid
+        ? ChromiumPlaybackEngine(
+            fallback: mediaKit,
+            startPlaybackService: null,
+            stopPlaybackService: null,
+            initializeCef: () async {
+              final directory = await getApplicationSupportDirectory();
+              if (!await ChromiumWebViewController.initialize(
+                cachePath: directory.path,
+              )) {
+                throw StateError('CEF initialization failed');
+              }
+            },
+            createPlayer: () => ChromiumYoutubePlayerController(
+              documentUrl: const String.fromEnvironment(
+                'PPPLAYER_CHROMIUM_DOCUMENT_URL',
+                defaultValue: 'https://ppplayer.com/chromium/player.html',
+              ),
+              profileName: 'ppplayer_youtube_session',
+            ),
+          )
+        : mediaKit;
+
     engine = HybridPlaybackEngine(
+      foregroundEngine: foregroundEngine,
       backgroundEngine: chromiumAndroid
           ? NativeServicePlaybackEngine(startAutomatically: false)
           : null,
@@ -136,39 +161,38 @@ final localPlaybackControllerProvider = Provider<PlaybackController>((ref) {
             acquireFileLease: acquireAppleOutputFileLease,
           )
         : mediaKit;
+
+    if (chromiumEnabled &&
+        !kIsWeb &&
+        {
+          TargetPlatform.windows,
+          TargetPlatform.linux,
+          TargetPlatform.macOS,
+          TargetPlatform.iOS,
+        }.contains(defaultTargetPlatform)) {
+      engine = ChromiumPlaybackEngine(
+        fallback: engine,
+        startPlaybackService: null,
+        stopPlaybackService: null,
+        initializeCef: () async {
+          final directory = await getApplicationSupportDirectory();
+          if (!await ChromiumWebViewController.initialize(
+            cachePath: directory.path,
+          )) {
+            throw StateError('CEF initialization failed');
+          }
+        },
+        createPlayer: () => ChromiumYoutubePlayerController(
+          documentUrl: const String.fromEnvironment(
+            'PPPLAYER_CHROMIUM_DOCUMENT_URL',
+            defaultValue: 'https://ppplayer.com/chromium/player.html',
+          ),
+          profileName: 'ppplayer_youtube_session',
+        ),
+      );
+    }
   }
 
-  if (chromiumEnabled &&
-      !kIsWeb &&
-      {
-        TargetPlatform.windows,
-        TargetPlatform.android,
-        TargetPlatform.linux,
-        TargetPlatform.macOS,
-        TargetPlatform.iOS,
-      }.contains(defaultTargetPlatform)) {
-    engine = ChromiumPlaybackEngine(
-      fallback: engine,
-      showBrowser: !chromiumAndroid,
-      startPlaybackService: chromiumAndroid ? ChromiumMediaService.start : null,
-      stopPlaybackService: chromiumAndroid ? ChromiumMediaService.stop : null,
-      initializeCef: () async {
-        final directory = await getApplicationSupportDirectory();
-        if (!await ChromiumWebViewController.initialize(
-          cachePath: directory.path,
-        )) {
-          throw StateError('CEF initialization failed');
-        }
-      },
-      createPlayer: () => ChromiumYoutubePlayerController(
-        documentUrl: const String.fromEnvironment(
-          'PPPLAYER_CHROMIUM_DOCUMENT_URL',
-          defaultValue: 'https://ppplayer.com/chromium/player.html',
-        ),
-        profileName: 'ppplayer_youtube_session',
-      ),
-    );
-  }
   ref.onDispose(() {
     engine.dispose();
   });

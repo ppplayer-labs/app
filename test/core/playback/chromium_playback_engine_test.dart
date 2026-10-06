@@ -182,6 +182,27 @@ void main() {
       expect(engine.currentStatus.duration, const Duration(seconds: 120));
     },
   );
+  test('visible browser retains its background service', () async {
+    await engine.dispose();
+    native = NativeFallback();
+    final serviceCalls = <String>[];
+    final player = YoutubeFixture();
+    players.add(player);
+    engine = ChromiumPlaybackEngine(
+      fallback: native,
+      initializeCef: () async {},
+      createPlayer: () => player,
+      startPlaybackService: () async => serviceCalls.add('start'),
+      stopPlaybackService: () async => serviceCalls.add('stop'),
+    );
+    await engine.play(video);
+    expect(engine.currentStatus.hasVideo, isTrue);
+    expect(engine.renderer, isA<ChromiumWebView>());
+    expect(serviceCalls, ['start']);
+    await engine.stop();
+    expect(serviceCalls, ['start', 'stop']);
+  });
+
   test('audio-only browser starts service and releases it on stop', () async {
     await engine.dispose();
     native = NativeFallback();
