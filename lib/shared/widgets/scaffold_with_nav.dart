@@ -77,6 +77,7 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
     final settings = ref.watch(settingsProvider);
     final showVideo = settings.showVideo;
     final isPlayerScreen = Uri.parse(widget.location).path == '/player';
+    final isQueueScreen = Uri.parse(widget.location).path == '/queue';
     final currentTrack = ref.watch(
       playerProvider.select((s) => s.currentTrack),
     );
@@ -210,7 +211,7 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
               );
       }
     } else {
-      if (showVideo && hasVideoId) {
+      if (showVideo && hasVideoId && !isQueueScreen) {
         final left = screenWidth - kMinW - 16;
         final top = screenSize.height - bottomBarHeight - kMinH - 8;
         normalBounds = Rect.fromLTWH(left, top, kMinW, kMinH);
@@ -687,6 +688,23 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
                           fit: videoFit,
                         ),
                       ),
+                      if (!isQueueScreen &&
+                          !pipPresentation &&
+                          showVideo &&
+                          hasVideoId)
+                        Positioned.fill(
+                          child: GestureDetector(
+                            key: const ValueKey('video_thumbnail_open'),
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () async {
+                              await ref
+                                  .read(settingsProvider.notifier)
+                                  .setPlayerView(PlayerView.video);
+                              if (context.mounted)
+                                context.push('/player?fullscreen=true');
+                            },
+                          ),
+                        ),
                       if (loadError != null)
                         Positioned.fill(
                           child: ClipRRect(
@@ -1053,7 +1071,7 @@ class _MiniPlayerBar extends ConsumerWidget {
           child: ContentContextMenuRegion(
             target: TrackContextTarget(track),
             child: TactileTap(
-              onTap: () => context.push('/player'),
+              onTap: () => context.push('/queue'),
               scaleDown: 0.98,
               child: Container(
                 height: 64,
@@ -1845,8 +1863,7 @@ class DesktopPlayerBar extends ConsumerWidget {
     final compact = MediaQuery.sizeOf(context).width < 1000;
     final controlGap = compact ? 4.0 : 16.0;
     Future<void> openQueue() async {
-      await ref.read(settingsProvider.notifier).setPlayerView(PlayerView.queue);
-      if (context.mounted) context.push('/player');
+      context.push('/queue');
     }
 
     if (track == null) return const SizedBox.shrink();

@@ -24,7 +24,9 @@ import 'widgets/player_overlays.dart';
 const _windowChannel = MethodChannel('com.ppplayer.window');
 
 class PlayerScreen extends ConsumerStatefulWidget {
-  const PlayerScreen({super.key});
+  const PlayerScreen({super.key, this.startFullscreen = false});
+
+  final bool startFullscreen;
 
   @override
   ConsumerState<PlayerScreen> createState() => _PlayerScreenState();
@@ -62,6 +64,14 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
   @override
   void initState() {
     super.initState();
+    // Queue navigation has its own route; normalize older saved view choices.
+    if (ref.read(settingsProvider).playerView == PlayerView.queue) {
+      Future.microtask(() {
+        if (mounted) {
+          ref.read(settingsProvider.notifier).setPlayerView(PlayerView.video);
+        }
+      });
+    }
     _focusNode.requestFocus();
     // Post-frame: read current state and attempt surface init.
     // This is the primary fix for the restored-session case:
@@ -69,6 +79,7 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
     //   → no ref.listen ever fires, but this runs unconditionally.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
+        if (widget.startFullscreen) _setFullscreen(true);
         if (kDebugMode)
           debugPrint(
             '[VideoInit] Player Screen mounted — checking initial state',
@@ -802,14 +813,28 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
 
   /// Toggles the queue view
   void _toggleQueue() {
-    final currentView = ref.read(settingsProvider).playerView;
-    final notifier = ref.read(settingsProvider.notifier);
-    if (currentView == PlayerView.queue) {
-      notifier.setPlayerView(_previousPlayerView);
-    } else {
-      _previousPlayerView = currentView;
-      notifier.setPlayerView(PlayerView.queue);
-    }
+    if (ref.read(isFullscreenProvider)) _setFullscreen(false);
+    context.push('/queue');
+  }
+}
+
+/// Queue navigation never changes playback or opens the video page.
+class QueueScreen extends ConsumerWidget {
+  const QueueScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final playerState = ref.watch(playerProvider);
+    return Scaffold(
+      key: const ValueKey('queue_screen'),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.queue)),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 800),
+          child: _QueueView(playerState: playerState, compact: true),
+        ),
+      ),
+    );
   }
 }
 

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart' hide RepeatMode;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ppplayer/features/player/player_screen.dart';
-import 'package:ppplayer/features/player/player_providers.dart';
+import 'package:go_router/go_router.dart';
 import 'package:ppplayer/core/models/track.dart';
 
 import 'package:ppplayer/core/player/player_provider.dart';
@@ -61,6 +61,15 @@ void main() {
 
       await tester.binding.setSurfaceSize(const Size(1200, 800));
 
+      final router = GoRouter(
+        initialLocation: '/player',
+        routes: [
+          GoRoute(path: '/player', builder: (_, _) => const PlayerScreen()),
+          GoRoute(path: '/queue', builder: (_, _) => const QueueScreen()),
+        ],
+      );
+      addTearDown(router.dispose);
+
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
@@ -80,11 +89,11 @@ void main() {
             settingsProvider.overrideWith(() => FakeSettingsNotifier()),
             appDatabaseProvider.overrideWithValue(db),
           ],
-          child: MaterialApp(
+          child: MaterialApp.router(
             theme: ThemeData.dark(),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
-            home: const Scaffold(body: PlayerScreen()),
+            routerConfig: router,
           ),
         ),
       );
@@ -118,56 +127,31 @@ void main() {
       await tester.binding.setSurfaceSize(const Size(1200, 800));
       await tester.pump(const Duration(milliseconds: 500));
 
-      // Open Queue
-      final queueButton = find.byKey(const ValueKey('queue_toggle_button'));
-      await tester.tap(queueButton);
-      for (var i = 0; i < 10; i++) {
-        await tester.pump(const Duration(milliseconds: 50));
-      }
-
-      // Queue should be visible in side panel (width > 1000)
-      expect(find.text('QUEUE'), findsNWidgets(2));
-      expect(find.byType(BottomSheet), findsNothing);
-
-      // Video slot MUST still be exactly the same widget (mounted)
-      expect(videoSlotFinder, findsOneWidget);
-
-      // Fullscreen uses the full player width and temporarily hides the queue.
-      final playerContext = tester.element(find.byType(PlayerScreen));
-      final container = ProviderScope.containerOf(playerContext);
-      container.read(isFullscreenProvider.notifier).setFullscreen(true);
+      // Queue navigation opens only the queue, independently of viewport size.
+      await tester.tap(find.byKey(const ValueKey('queue_toggle_button')));
       await tester.pump(const Duration(milliseconds: 500));
-      expect(find.byKey(const ValueKey('export_queue_button')), findsNothing);
-      expect(tester.getSize(videoSlotFinder).width, 1200);
-      expect(videoSlotFinder, findsOneWidget);
-      container.read(isFullscreenProvider.notifier).setFullscreen(false);
-      await tester.pump(const Duration(milliseconds: 500));
+      expect(find.byType(QueueScreen), findsOneWidget);
+      expect(find.byType(PlayerScreen), findsNothing);
+      expect(find.byKey(const ValueKey('desktop_queue_panel')), findsNothing);
       expect(find.byKey(const ValueKey('export_queue_button')), findsOneWidget);
-      expect(find.byKey(const ValueKey('queue_close_button')), findsOneWidget);
+      expect(find.text('Test'), findsOneWidget);
+      expect(tester.takeException(), isNull);
 
-      // Change size to < 1000 to cross breakpoint
-      await tester.binding.setSurfaceSize(const Size(800, 800));
+      await tester.binding.setSurfaceSize(const Size(320, 568));
       await tester.pump(const Duration(milliseconds: 500));
+      expect(find.byType(QueueScreen), findsOneWidget);
+      expect(tester.takeException(), isNull);
 
-      // Video slot MUST still be mounted
+      // Back returns to the existing video page without changing playback mode.
+      router.pop();
+      await tester.pump(const Duration(milliseconds: 500));
       expect(videoSlotFinder, findsOneWidget);
-
-      // Queue should now be absolute positioned, not in side panel
-      expect(find.text('QUEUE'), findsNWidgets(2));
-      expect(videoSlotFinder, findsOneWidget);
-
-      // Close Queue
-      final BuildContext context = tester.element(find.byType(PlayerScreen));
-      ProviderScope.containerOf(
-        context,
-      ).read(settingsProvider.notifier).setPlayerView(PlayerView.video);
-      for (var i = 0; i < 10; i++) {
-        await tester.pump(const Duration(milliseconds: 50));
-      }
-      expect(find.text('QUEUE'), findsOneWidget);
-      expect(videoSlotFinder, findsOneWidget);
-
-      await tester.pump(const Duration(seconds: 4));
+      expect(find.byType(QueueScreen), findsNothing);
+      final context = tester.element(find.byType(PlayerScreen));
+      expect(
+        ProviderScope.containerOf(context).read(settingsProvider).playerView,
+        PlayerView.video,
+      );
 
       // Reset surface size
       await tester.binding.setSurfaceSize(null);

@@ -45,7 +45,7 @@ class TestSettings extends SettingsNotifier {
 }
 
 void main() {
-  testWidgets('Queue button opens the player with the queue selected', (
+  testWidgets('Queue button opens its own route without changing video mode', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(610, 640);
@@ -59,7 +59,7 @@ void main() {
           builder: (_, _) => const Scaffold(body: DesktopPlayerBar()),
         ),
         GoRoute(
-          path: '/player',
+          path: '/queue',
           builder: (_, _) => Scaffold(
             body: Consumer(
               builder: (context, ref, _) => Text(
@@ -90,7 +90,8 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(OutlinedButton, 'Queue'));
     await tester.pumpAndSettle();
-    expect(find.text('Selected view: queue'), findsOneWidget);
+    expect(router.canPop(), isTrue);
+    expect(find.text('Selected view: video'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

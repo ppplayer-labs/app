@@ -93,9 +93,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             },
           ),
           GoRoute(
+            path: '/queue',
+            builder: (context, state) => const QueueScreen(),
+          ),
+          GoRoute(
             path: '/player',
             pageBuilder: (context, state) => CustomTransitionPage(
-              child: const PlayerScreen(),
+              child: PlayerScreen(
+                startFullscreen:
+                    state.uri.queryParameters['fullscreen'] == 'true',
+              ),
               transitionsBuilder:
                   (context, animation, secondaryAnimation, child) {
                     return SlideTransition(
