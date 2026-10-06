@@ -179,15 +179,13 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
           videoLayout.size.width,
           videoLayout.size.height,
         );
-        // ── Windows / YouTube-iframe controls fix ────────────────────────────
-        // webview_win_floating renders WebView2 as a floating Win32 child window
-        // that always paints on top of Flutter content, regardless of widget
-        // Z-order. This makes PlayerOverlays (rendered by Flutter) invisible.
-        //
-        // Fix: shrink the WebView2 bounds inward so the top and bottom control
-        // bars fall in the Flutter-only area that the floating window doesn't
-        // cover. The YouTube video is still fully visible in the middle strip.
-        if (isWindows && playbackStatus.isIFrameMode) {
+        // Only legacy floating WebView2 windows need room outside their bounds
+        // for Flutter controls. Chromium's Widget renderer is composited below
+        // PlayerOverlays, so it can fill the player behind those controls even
+        // though online playback also reports isIFrameMode.
+        if (isWindows &&
+            playbackStatus.isIFrameMode &&
+            playbackEngine.renderer is! Widget) {
           const double kControlsTopH =
               72.0; // collapse button + toggle tabs bar
           const double kControlsBottomH =
