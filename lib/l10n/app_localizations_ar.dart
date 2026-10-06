@@ -390,6 +390,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get queue1 => 'قائمة الانتظار';
 
   @override
+  String get queueNowPlaying => 'Now playing';
+
+  @override
+  String get queueUpNext => 'Up next';
+
+  @override
   String get recentlyPlayed => 'تم تشغيلها مؤخرًا';
 
   @override

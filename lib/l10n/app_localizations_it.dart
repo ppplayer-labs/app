@@ -393,6 +393,12 @@ class AppLocalizationsIt extends AppLocalizations {
   String get queue1 => 'Coda';
 
   @override
+  String get queueNowPlaying => 'Now playing';
+
+  @override
+  String get queueUpNext => 'Up next';
+
+  @override
   String get recentlyPlayed => 'Ascoltati di recente';
 
   @override

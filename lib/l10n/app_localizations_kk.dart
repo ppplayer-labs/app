@@ -395,6 +395,12 @@ class AppLocalizationsKk extends AppLocalizations {
   String get queue1 => 'Кезек';
 
   @override
+  String get queueNowPlaying => 'Now playing';
+
+  @override
+  String get queueUpNext => 'Up next';
+
+  @override
   String get recentlyPlayed => 'Жақында ойнатылған';
 
   @override

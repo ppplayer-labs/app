@@ -396,6 +396,12 @@ class AppLocalizationsHi extends AppLocalizations {
   String get queue1 => 'कतार';
 
   @override
+  String get queueNowPlaying => 'Now playing';
+
+  @override
+  String get queueUpNext => 'Up next';
+
+  @override
   String get recentlyPlayed => 'हाल ही में चलाए गए';
 
   @override

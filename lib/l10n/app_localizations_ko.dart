@@ -387,6 +387,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get queue1 => '대기열';
 
   @override
+  String get queueNowPlaying => 'Now playing';
+
+  @override
+  String get queueUpNext => 'Up next';
+
+  @override
   String get recentlyPlayed => '최근 재생';
 
   @override

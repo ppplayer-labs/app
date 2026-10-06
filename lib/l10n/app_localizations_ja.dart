@@ -387,6 +387,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get queue1 => 'キュー';
 
   @override
+  String get queueNowPlaying => 'Now playing';
+
+  @override
+  String get queueUpNext => 'Up next';
+
+  @override
   String get recentlyPlayed => '最近再生した項目';
 
   @override

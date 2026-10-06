@@ -391,6 +391,12 @@ class AppLocalizationsVi extends AppLocalizations {
   String get queue1 => 'Danh sách chờ';
 
   @override
+  String get queueNowPlaying => 'Now playing';
+
+  @override
+  String get queueUpNext => 'Up next';
+
+  @override
   String get recentlyPlayed => 'Vừa mới phát';
 
   @override

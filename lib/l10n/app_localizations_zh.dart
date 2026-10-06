@@ -386,6 +386,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get queue1 => '队列';
 
   @override
+  String get queueNowPlaying => 'Now playing';
+
+  @override
+  String get queueUpNext => 'Up next';
+
+  @override
   String get recentlyPlayed => '最近播放';
 
   @override

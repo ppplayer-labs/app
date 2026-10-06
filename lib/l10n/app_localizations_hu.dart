@@ -396,6 +396,12 @@ class AppLocalizationsHu extends AppLocalizations {
   String get queue1 => 'Várólista';
 
   @override
+  String get queueNowPlaying => 'Now playing';
+
+  @override
+  String get queueUpNext => 'Up next';
+
+  @override
   String get recentlyPlayed => 'Nemrég játszott';
 
   @override

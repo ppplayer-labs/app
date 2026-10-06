@@ -394,6 +394,12 @@ class AppLocalizationsPl extends AppLocalizations {
   String get queue1 => 'Kolejka';
 
   @override
+  String get queueNowPlaying => 'Now playing';
+
+  @override
+  String get queueUpNext => 'Up next';
+
+  @override
   String get recentlyPlayed => 'Ostatnio odtwarzane';
 
   @override

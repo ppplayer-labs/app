@@ -394,6 +394,12 @@ class AppLocalizationsFil extends AppLocalizations {
   String get queue1 => 'Pila';
 
   @override
+  String get queueNowPlaying => 'Now playing';
+
+  @override
+  String get queueUpNext => 'Up next';
+
+  @override
   String get recentlyPlayed => 'Kamakailan lang na Na-play';
 
   @override

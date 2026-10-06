@@ -397,6 +397,12 @@ class AppLocalizationsHr extends AppLocalizations {
   String get queue1 => 'Red čekanja';
 
   @override
+  String get queueNowPlaying => 'Now playing';
+
+  @override
+  String get queueUpNext => 'Up next';
+
+  @override
   String get recentlyPlayed => 'Nedavno slušano';
 
   @override

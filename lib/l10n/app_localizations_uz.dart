@@ -396,6 +396,12 @@ class AppLocalizationsUz extends AppLocalizations {
   String get queue1 => 'Navbat';
 
   @override
+  String get queueNowPlaying => 'Now playing';
+
+  @override
+  String get queueUpNext => 'Up next';
+
+  @override
   String get recentlyPlayed => 'Yaqinda ijro etilgan';
 
   @override

@@ -890,6 +890,18 @@ abstract class AppLocalizations {
   /// **'Queue'**
   String get queue1;
 
+  /// No description provided for @queueNowPlaying.
+  ///
+  /// In en, this message translates to:
+  /// **'Now playing'**
+  String get queueNowPlaying;
+
+  /// No description provided for @queueUpNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Up next'**
+  String get queueUpNext;
+
   /// No description provided for @recentlyPlayed.
   ///
   /// In en, this message translates to:

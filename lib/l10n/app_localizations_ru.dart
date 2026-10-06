@@ -395,6 +395,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get queue1 => 'Очередь';
 
   @override
+  String get queueNowPlaying => 'Now playing';
+
+  @override
+  String get queueUpNext => 'Up next';
+
+  @override
   String get recentlyPlayed => 'Недавно прослушано';
 
   @override

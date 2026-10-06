@@ -20,6 +20,7 @@ import '../../shared/widgets/tactile_buttons.dart';
 import '../../shared/widgets/adaptive_blur.dart';
 import '../../shared/widgets/context_menu/content_context_menu.dart';
 import 'widgets/player_overlays.dart';
+import 'queue_page.dart';
 
 const _windowChannel = MethodChannel('com.ppplayer.window');
 
@@ -824,17 +825,7 @@ class QueueScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final playerState = ref.watch(playerProvider);
-    return Scaffold(
-      key: const ValueKey('queue_screen'),
-      appBar: AppBar(title: Text(AppLocalizations.of(context)!.queue)),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 800),
-          child: _QueueView(playerState: playerState, compact: true),
-        ),
-      ),
-    );
+    return const QueuePage();
   }
 }
 

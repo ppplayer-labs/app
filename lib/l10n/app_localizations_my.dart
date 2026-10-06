@@ -396,6 +396,12 @@ class AppLocalizationsMy extends AppLocalizations {
   String get queue1 => 'တန်းစီစာရင်း';
 
   @override
+  String get queueNowPlaying => 'Now playing';
+
+  @override
+  String get queueUpNext => 'Up next';
+
+  @override
   String get recentlyPlayed => 'လတ်တလော ဖွင့်ထားသည်များ';
 
   @override

@@ -395,6 +395,12 @@ class AppLocalizationsTr extends AppLocalizations {
   String get queue1 => 'Kuyruk';
 
   @override
+  String get queueNowPlaying => 'Now playing';
+
+  @override
+  String get queueUpNext => 'Up next';
+
+  @override
   String get recentlyPlayed => 'Son Çalınanlar';
 
   @override

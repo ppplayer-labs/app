@@ -394,6 +394,12 @@ class AppLocalizationsKa extends AppLocalizations {
   String get queue1 => 'რიგი';
 
   @override
+  String get queueNowPlaying => 'Now playing';
+
+  @override
+  String get queueUpNext => 'Up next';
+
+  @override
   String get recentlyPlayed => 'ახლახან დაკრული';
 
   @override

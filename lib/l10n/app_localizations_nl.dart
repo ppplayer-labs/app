@@ -393,6 +393,12 @@ class AppLocalizationsNl extends AppLocalizations {
   String get queue1 => 'Wachtrij';
 
   @override
+  String get queueNowPlaying => 'Now playing';
+
+  @override
+  String get queueUpNext => 'Up next';
+
+  @override
   String get recentlyPlayed => 'Recent afgespeeld';
 
   @override

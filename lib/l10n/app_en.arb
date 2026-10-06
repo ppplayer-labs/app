@@ -272,6 +272,8 @@
   "playlists1": "Playlists",
   "@playlists1": {},
   "queue1": "Queue",
+  "queueNowPlaying": "Now playing",
+  "queueUpNext": "Up next",
   "@queue1": {},
   "recentlyPlayed": "Recently Played",
   "@recentlyPlayed": {},
