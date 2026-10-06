@@ -4,11 +4,10 @@ publish_to: 'none'
 version: 3.0.2+10
 
 environment:
-  sdk: ^3.8.0
+  sdk: ^3.13.3
 
 dependencies:
-  flutter_chromium_webview:
-    path: ../../flutter_chromium_webview/packages/flutter_chromium_webview
+  flutter_chromium_webview: ^0.3.1
   audio_service: ^0.18.18
   audio_session: ^0.2.3
   cached_network_image: ^4.0.0
@@ -35,7 +34,12 @@ dependencies:
 
   json_annotation: ^4.9.0
   media_kit: ^1.2.6
-  media_kit_libs_video: ^1.0.7
+  # Android native libraries; keep other platforms on their existing providers.
+  flutter_media_kit: 1.3.8+ppplayer.egl1
+  media_kit_libs_ios_video: ^1.1.4
+  media_kit_libs_macos_video: ^1.1.4
+  media_kit_libs_windows_video: ^1.0.11
+  media_kit_libs_linux: ^1.2.1
   media_kit_video: ^2.0.1
   crypto: ^3.0.6
   file_picker: ^12.0.0
@@ -128,9 +132,6 @@ flutter_native_splash:
     image_dark: "assets/logo_splash.png"
 
 dependency_overrides:
-  # Private ppplayer native Android candidate; both artifacts are verified locally.
-  media_kit_libs_android_video:
-    path: ../../ppplayer_native_media/packages/media_kit_libs_android_video
   # Local patch of youtube_player_iframe that adds macOS to the JS bridge
   # switch statement in player.html. Without this, onReady/onStateChange never
   # fire on macOS because 'macos' was missing from sendPlatformMessage().

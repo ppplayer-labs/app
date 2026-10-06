@@ -132,9 +132,8 @@ class NativeServicePlaybackEngine implements PlaybackController {
     try {
       await _channel.invokeMethod('prepareVideo', {
         'videoId': track.id,
-        'startSeconds': position != null
-            ? (position.inMilliseconds / 1000.0)
-            : 0.0,
+        'startSeconds':
+            position != null ? (position.inMilliseconds / 1000.0) : 0.0,
         'commandId': id,
       });
     } catch (e) {

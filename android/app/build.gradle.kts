@@ -40,6 +40,10 @@ android {
     }
 
     defaultConfig {
+        // flutter_media_kit ships only these Android native architectures.
+        ndk {
+            abiFilters += listOf("arm64-v8a", "x86_64")
+        }
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.ppplayer.app"
         // You can update the following values to match your application needs.
@@ -58,6 +62,10 @@ android {
                 signingConfigs.getByName("debug")
             }
         }
+    }
+
+    packaging {
+        jniLibs.excludes += listOf("lib/armeabi-v7a/**", "lib/x86/**")
     }
 }
 

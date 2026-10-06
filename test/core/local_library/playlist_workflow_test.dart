@@ -195,7 +195,8 @@ void main() {
 
     // mechanism == managedCopy simulates temporary /cache/ file via the locator path check inside processPlaylistFile!
     final playlistId = await service.processPlaylistFile(
-      cacheM3u.path,
+      // The fixture models an Android locator, which uses forward slashes.
+      cacheM3u.path.replaceAll('\\', '/'),
       'cache_playlist.m3u',
     );
 

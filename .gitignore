@@ -70,3 +70,6 @@ settings.lock
 
 # Rust build artifacts
 **/target/
+
+# Generated Android Kotlin cache
+.kotlin/

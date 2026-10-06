@@ -132,9 +132,9 @@ class NetworkMediaItem {
 class NetworkMediaLease {
   NetworkMediaLease({
     required this.item,
-    required Future<void> Function() release,
+    required this._release,
     this.requiresSender = false,
-  }) : _release = release;
+  });
 
   final NetworkMediaItem item;
   final bool requiresSender;

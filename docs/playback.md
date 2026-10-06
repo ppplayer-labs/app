@@ -1,5 +1,8 @@
 # Playback, local files, and system controls
 
+For playback-library wiring, source usage and platform providers, see
+[native media integration](native_media.md).
+
 These instructions describe the development tree as of October 2, 2026. The new iOS functionality has physical-device checks, but iOS is not yet publicly available and this document does not announce a release.
 
 ## Import and reopen local music

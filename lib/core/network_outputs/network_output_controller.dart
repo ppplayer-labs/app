@@ -46,14 +46,11 @@ class NetworkOutputController implements PlaybackController {
   NetworkOutputController({
     required PlaybackController localController,
     required Iterable<NetworkOutputBackend> backends,
-    required NetworkMediaFactory mediaFactory,
-    OutputCapabilityResolver capabilityResolver =
-        const OutputCapabilityResolver(),
+    required this._mediaFactory,
+    this._capabilityResolver = const OutputCapabilityResolver(),
     this.operationTimeout = const Duration(seconds: 10),
   }) : _local = localController,
        _backends = {},
-       _mediaFactory = mediaFactory,
-       _capabilityResolver = capabilityResolver,
        _status = localController.currentStatus {
     _desiredPlaying = _status.isPlaying || _status.isBuffering;
     _subscriptions.add(_local.statusStream.listen(_onLocalStatus));

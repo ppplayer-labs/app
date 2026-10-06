@@ -41,7 +41,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.44.x'
+          flutter-version: '3.47.4'
           channel: 'stable'
           cache: true
 
@@ -50,7 +50,8 @@ jobs:
 
       - name: Check Formatting
         run: |
-          git ls-files -z -- ':(glob)lib/**/*.dart' ':(glob)test/**/*.dart' ':(glob)integration_test/**/*.dart' ':!:lib/core/playback/packages/**' ':!:**/*.g.dart' ':!:**/*.freezed.dart' | xargs -0 dart format --output=none --set-exit-if-changed
+          # Preserve the app's established formatting through the SDK upgrade.
+          git ls-files -z -- ':(glob)lib/**/*.dart' ':(glob)test/**/*.dart' ':(glob)integration_test/**/*.dart' ':!:lib/core/playback/packages/**' ':!:**/*.g.dart' ':!:**/*.freezed.dart' | xargs -0 dart format --language-version=3.8 --output=none --set-exit-if-changed
           # Match the nested engine's pubspec SDK floor even when its own
           # generated package_config.json is absent in a fresh checkout.
           dart format --language-version=3.7 --output=none --set-exit-if-changed lib/core/playback/packages/pp_playback_engine/lib lib/core/playback/packages/pp_playback_engine/test
@@ -82,7 +83,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.44.x'
+          flutter-version: '3.47.4'
           channel: 'stable'
           cache: true
 
@@ -150,7 +151,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.44.x'
+          flutter-version: '3.47.4'
           channel: 'stable'
           cache: true
 
@@ -274,7 +275,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.44.x'
+          flutter-version: '3.47.4'
           channel: 'stable'
           cache: true
 

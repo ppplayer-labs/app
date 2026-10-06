@@ -6,7 +6,9 @@ import 'package:ppplayer/shared/widgets/pp_image.dart';
 
 void main() {
   test('file artwork preserves spaces and Unicode in URI', () {
-    final file = File('/tmp/album art ç.png');
+    final file = File(
+      '${Directory.systemTemp.path}${Platform.pathSeparator}album art ç.png',
+    );
     final provider = PPImage.getImageProvider(file.uri.toString()) as FileImage;
     expect(provider.file.path, file.path);
   });

@@ -109,7 +109,10 @@ extension TrackToPlayback on Track {
 /// The primary local playback engine.
 final localPlaybackControllerProvider = Provider<PlaybackController>((ref) {
   PlaybackController engine;
-  const chromiumEnabled = bool.fromEnvironment('PPPLAYER_CHROMIUM', defaultValue: true);
+  const chromiumEnabled = bool.fromEnvironment(
+    'PPPLAYER_CHROMIUM',
+    defaultValue: true,
+  );
   final chromiumAndroid =
       chromiumEnabled &&
       !kIsWeb &&

@@ -38,8 +38,7 @@ class FakePlaybackService implements PlaybackService {
   final Exception? _throwError;
   int resolveCallCount = 0;
 
-  FakePlaybackService({this.candidates = const [], Exception? throwError})
-    : _throwError = throwError;
+  FakePlaybackService({this.candidates = const [], this._throwError});
 
   @override
   Ref get ref => throw UnimplementedError();
