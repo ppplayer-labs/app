@@ -21,6 +21,7 @@ import '../../shared/widgets/adaptive_blur.dart';
 import '../../shared/widgets/context_menu/content_context_menu.dart';
 import 'widgets/player_overlays.dart';
 import 'queue_page.dart';
+import 'queue_presentation.dart';
 
 const _windowChannel = MethodChannel('com.ppplayer.window');
 
@@ -815,7 +816,7 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
   /// Toggles the queue view
   void _toggleQueue() {
     if (ref.read(isFullscreenProvider)) _setFullscreen(false);
-    context.push('/queue');
+    openQueue(context, ref);
   }
 }
 

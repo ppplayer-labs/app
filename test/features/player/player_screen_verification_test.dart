@@ -5,6 +5,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ppplayer/features/player/player_screen.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ppplayer/features/player/queue_page.dart';
+import 'package:ppplayer/features/player/queue_presentation.dart';
 import 'package:ppplayer/core/models/track.dart';
 
 import 'package:ppplayer/core/player/player_provider.dart';
@@ -59,7 +61,8 @@ void main() {
       );
       final queue = PlaybackQueue(tracks: [track], currentIndex: 0);
 
-      await tester.binding.setSurfaceSize(const Size(1200, 800));
+      tester.view.physicalSize = const Size(1200, 800);
+      tester.view.devicePixelRatio = 1;
 
       final router = GoRouter(
         initialLocation: '/player',
@@ -90,7 +93,7 @@ void main() {
             appDatabaseProvider.overrideWithValue(db),
           ],
           child: MaterialApp.router(
-            theme: ThemeData.dark(),
+            theme: ThemeData.dark().copyWith(platform: TargetPlatform.windows),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             routerConfig: router,
@@ -115,7 +118,7 @@ void main() {
       expect(find.byKey(const ValueKey('queue_toggle_button')), findsOneWidget);
 
       // Actual player overlays must fit a narrow phone.
-      await tester.binding.setSurfaceSize(const Size(320, 568));
+      tester.view.physicalSize = const Size(320, 568);
       await tester.pump(const Duration(milliseconds: 500));
       expect(tester.takeException(), isNull);
       expect(
@@ -124,37 +127,50 @@ void main() {
             .bottom,
         lessThanOrEqualTo(568),
       );
-      await tester.binding.setSurfaceSize(const Size(1200, 800));
+      tester.view.physicalSize = const Size(1200, 800);
+      tester.view.devicePixelRatio = 1;
       await tester.pump(const Duration(milliseconds: 500));
 
-      // Queue navigation opens only the queue, independently of viewport size.
+      // Desktop queue toggles panel state without leaving the player route.
+      expect(
+        supportsQueuePanel(tester.element(find.byType(PlayerScreen))),
+        isTrue,
+      );
       await tester.tap(find.byKey(const ValueKey('queue_toggle_button')));
       await tester.pump(const Duration(milliseconds: 500));
-      expect(find.byType(QueueScreen), findsOneWidget);
-      expect(find.byType(PlayerScreen), findsNothing);
-      expect(find.byKey(const ValueKey('desktop_queue_panel')), findsNothing);
-      expect(find.byKey(const ValueKey('export_queue_button')), findsOneWidget);
-      expect(find.text('Test'), findsOneWidget);
-      expect(tester.takeException(), isNull);
-
-      await tester.binding.setSurfaceSize(const Size(320, 568));
-      await tester.pump(const Duration(milliseconds: 500));
-      expect(find.byType(QueueScreen), findsOneWidget);
-      expect(tester.takeException(), isNull);
-
-      // Back returns to the existing video page without changing playback mode.
-      router.pop();
-      await tester.pump(const Duration(milliseconds: 500));
-      expect(videoSlotFinder, findsOneWidget);
-      expect(find.byType(QueueScreen), findsNothing);
       final context = tester.element(find.byType(PlayerScreen));
+      final container = ProviderScope.containerOf(context);
+      expect(container.read(queuePanelProvider), isTrue);
+      expect(videoSlotFinder, findsOneWidget);
+      expect(router.canPop(), isFalse);
+      container.read(queuePanelProvider.notifier).close();
+
+      // Narrow windows/mobile show a dismissible sheet over the same route.
+      tester.view.physicalSize = const Size(320, 568);
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.tap(find.byKey(const ValueKey('queue_toggle_button')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(find.byType(QueuePage), findsOneWidget);
+      expect(find.byType(BottomSheet), findsOneWidget);
       expect(
-        ProviderScope.containerOf(context).read(settingsProvider).playerView,
-        PlayerView.video,
+        find.descendant(
+          of: find.byType(QueuePage),
+          matching: find.text('Test'),
+        ),
+        findsOneWidget,
       );
+      expect(tester.takeException(), isNull);
+      await tester.tap(find.byKey(const ValueKey('queue_dismiss_button')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(find.byType(QueuePage), findsNothing);
+      expect(videoSlotFinder, findsOneWidget);
+      expect(container.read(settingsProvider).playerView, PlayerView.video);
 
       // Reset surface size
-      await tester.binding.setSurfaceSize(null);
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
       await tester.pump(const Duration(milliseconds: 50));
 
       // Unmount and flush drift stream cancellation timers
@@ -164,6 +180,7 @@ void main() {
         const Duration(seconds: 3),
       ); // Flush engine dispose timers
     },
+    variant: TargetPlatformVariant({TargetPlatform.windows}),
   );
 }
 

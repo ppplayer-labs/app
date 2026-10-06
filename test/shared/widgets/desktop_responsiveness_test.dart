@@ -45,55 +45,64 @@ class TestSettings extends SettingsNotifier {
 }
 
 void main() {
-  testWidgets('Queue button opens its own route without changing video mode', (
-    tester,
-  ) async {
-    tester.view.physicalSize = const Size(610, 640);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-    final router = GoRouter(
-      routes: [
-        GoRoute(
-          path: '/',
-          builder: (_, _) => const Scaffold(body: DesktopPlayerBar()),
-        ),
-        GoRoute(
-          path: '/queue',
-          builder: (_, _) => Scaffold(
-            body: Consumer(
-              builder: (context, ref, _) => Text(
-                'Selected view: ${ref.watch(settingsProvider).playerView.name}',
+  testWidgets(
+    'Queue button opens a sheet in narrow windows without changing video mode',
+    (tester) async {
+      tester.view.physicalSize = const Size(610, 640);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final router = GoRouter(
+        routes: [
+          GoRoute(
+            path: '/',
+            builder: (_, _) => const Scaffold(body: DesktopPlayerBar()),
+          ),
+          GoRoute(
+            path: '/queue',
+            builder: (_, _) => Scaffold(
+              body: Consumer(
+                builder: (context, ref, _) => Text(
+                  'Selected view: ${ref.watch(settingsProvider).playerView.name}',
+                ),
               ),
             ),
           ),
-        ),
-      ],
-    );
-    addTearDown(router.dispose);
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          playerProvider.overrideWith(TestPlayer.new),
-          settingsProvider.overrideWith(TestSettings.new),
-          networkOutputSnapshotProvider.overrideWith(
-            (_) => const NetworkOutputState(),
-          ),
         ],
-        child: MaterialApp.router(
-          routerConfig: router,
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
+      );
+      addTearDown(router.dispose);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            playerProvider.overrideWith(TestPlayer.new),
+            settingsProvider.overrideWith(TestSettings.new),
+            networkOutputSnapshotProvider.overrideWith(
+              (_) => const NetworkOutputState(),
+            ),
+          ],
+          child: MaterialApp.router(
+            routerConfig: router,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+          ),
         ),
-      ),
-    );
-    await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(OutlinedButton, 'Queue'));
-    await tester.pumpAndSettle();
-    expect(router.canPop(), isTrue);
-    expect(find.text('Selected view: video'), findsOneWidget);
-    expect(tester.takeException(), isNull);
-  });
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(OutlinedButton, 'Queue'));
+      await tester.pumpAndSettle();
+      expect(router.canPop(), isTrue);
+      expect(find.byType(BottomSheet), findsOneWidget);
+      expect(find.byType(DesktopPlayerBar), findsOneWidget);
+      final context = tester.element(find.byType(DesktopPlayerBar));
+      expect(
+        ProviderScope.containerOf(context).read(settingsProvider).playerView,
+        PlayerView.video,
+      );
+      await tester.tap(find.byKey(const ValueKey('queue_dismiss_button')));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   Widget app(Widget child, {double scale = 1}) => ProviderScope(
     overrides: [

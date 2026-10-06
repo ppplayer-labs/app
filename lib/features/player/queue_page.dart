@@ -8,7 +8,8 @@ import '../../shared/widgets/context_menu/content_context_menu.dart';
 import '../../shared/widgets/pp_image.dart';
 
 class QueuePage extends ConsumerWidget {
-  const QueuePage({super.key});
+  const QueuePage({super.key, this.onClose});
+  final VoidCallback? onClose;
 
   Future<void> _export(BuildContext context, WidgetRef ref) async {
     final strings = AppLocalizations.of(context)!;
@@ -49,6 +50,7 @@ class QueuePage extends ConsumerWidget {
     return Scaffold(
       key: const ValueKey('queue_screen'),
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text(strings.queue1),
         actions: [
           IconButton(
@@ -66,7 +68,14 @@ class QueuePage extends ConsumerWidget {
             icon: const Icon(Icons.download_rounded),
             onPressed: state.queue.isEmpty ? null : () => _export(context, ref),
           ),
-          const SizedBox(width: 16),
+          if (onClose != null)
+            IconButton(
+              key: const ValueKey('queue_dismiss_button'),
+              tooltip: strings.closeQueue,
+              onPressed: onClose,
+              icon: const Icon(Icons.close),
+            ),
+          const SizedBox(width: 8),
         ],
       ),
       body: LayoutBuilder(

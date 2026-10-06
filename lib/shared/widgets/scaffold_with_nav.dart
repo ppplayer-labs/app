@@ -10,6 +10,8 @@ import '../../core/player/player_provider.dart';
 import '../../core/player/video_layout_provider.dart';
 import '../../core/services/settings_provider.dart';
 import '../../features/player/player_providers.dart';
+import '../../features/player/queue_page.dart';
+import '../../features/player/queue_presentation.dart' as queue_ui;
 import '../../core/providers/search_provider.dart';
 import '../../shared/widgets/tactile_buttons.dart';
 import '../../shared/widgets/pp_image.dart';
@@ -77,7 +79,10 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
     final settings = ref.watch(settingsProvider);
     final showVideo = settings.showVideo;
     final isPlayerScreen = Uri.parse(widget.location).path == '/player';
-    final isQueueScreen = Uri.parse(widget.location).path == '/queue';
+    final showQueuePanel =
+        ref.watch(queue_ui.queuePanelProvider) &&
+        queue_ui.supportsQueuePanel(context) &&
+        !ref.watch(isFullscreenProvider);
     final currentTrack = ref.watch(
       playerProvider.select((s) => s.currentTrack),
     );
@@ -211,8 +216,8 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
               );
       }
     } else {
-      if (showVideo && hasVideoId && !isQueueScreen) {
-        final left = screenWidth - kMinW - 16;
+      if (showVideo && hasVideoId) {
+        final left = screenWidth - (showQueuePanel ? 360 : 0) - kMinW - 16;
         final top = screenSize.height - bottomBarHeight - kMinH - 8;
         normalBounds = Rect.fromLTWH(left, top, kMinW, kMinH);
         renderRadius = 12;
@@ -275,7 +280,28 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
                           !isFullscreen)
                         const _DesktopTopBar(),
                       Expanded(
-                        child: Stack(key: _stackKey, children: [widget.child]),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Stack(
+                                key: _stackKey,
+                                children: [widget.child],
+                              ),
+                            ),
+                            if (showQueuePanel)
+                              SizedBox(
+                                key: const ValueKey('queue_side_panel'),
+                                width: 360,
+                                child: QueuePage(
+                                  onClose: () => ref
+                                      .read(
+                                        queue_ui.queuePanelProvider.notifier,
+                                      )
+                                      .close(),
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -688,10 +714,7 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
                           fit: videoFit,
                         ),
                       ),
-                      if (!isQueueScreen &&
-                          !pipPresentation &&
-                          showVideo &&
-                          hasVideoId)
+                      if (!pipPresentation && showVideo && hasVideoId)
                         Positioned.fill(
                           child: GestureDetector(
                             key: const ValueKey('video_thumbnail_open'),
@@ -1071,7 +1094,7 @@ class _MiniPlayerBar extends ConsumerWidget {
           child: ContentContextMenuRegion(
             target: TrackContextTarget(track),
             child: TactileTap(
-              onTap: () => context.push('/queue'),
+              onTap: () => queue_ui.openQueue(context, ref),
               scaleDown: 0.98,
               child: Container(
                 height: 64,
@@ -1863,7 +1886,7 @@ class DesktopPlayerBar extends ConsumerWidget {
     final compact = MediaQuery.sizeOf(context).width < 1000;
     final controlGap = compact ? 4.0 : 16.0;
     Future<void> openQueue() async {
-      context.push('/queue');
+      await queue_ui.openQueue(context, ref);
     }
 
     if (track == null) return const SizedBox.shrink();

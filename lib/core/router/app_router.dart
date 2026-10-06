@@ -93,10 +93,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             },
           ),
           GoRoute(
-            path: '/queue',
-            builder: (context, state) => const QueueScreen(),
-          ),
-          GoRoute(
             path: '/player',
             pageBuilder: (context, state) => CustomTransitionPage(
               child: PlayerScreen(
