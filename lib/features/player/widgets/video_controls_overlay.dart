@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:media_kit/media_kit.dart' as mk;
+import 'package:media_kit_video/media_kit_video.dart' as video;
 import 'package:ppplayer/l10n/app_localizations.dart';
 import '../../../core/playback/playback_providers.dart';
 import 'subtitle_panel.dart';
@@ -30,7 +31,8 @@ class _VideoControlsOverlayState extends ConsumerState<VideoControlsOverlay> {
 
   mk.Player? get _mkPlayer {
     final engine = ref.read(playbackControllerProvider);
-    return engine.renderer?.player;
+    final renderer = engine.renderer;
+    return renderer is video.VideoController ? renderer.player : null;
   }
 
   void _toggleVisibility() {

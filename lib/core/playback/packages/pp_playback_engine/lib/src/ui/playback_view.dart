@@ -120,6 +120,17 @@ class _PlaybackViewState extends State<PlaybackView> {
     }
 
     final renderer = widget.controller.renderer;
+    if (renderer is Widget) {
+      return Stack(
+        fit: StackFit.expand,
+        children: [
+          renderer,
+          if (widget.status.state == PlaybackState.preparing ||
+              widget.status.state == PlaybackState.buffering)
+            Center(child: PPLogoLoader(size: 60, color: Colors.white)),
+        ],
+      );
+    }
     if (renderer == null) {
       // Headless mode (e.g. NativeServicePlaybackEngine on Android)
       return const ColoredBox(color: Colors.black);

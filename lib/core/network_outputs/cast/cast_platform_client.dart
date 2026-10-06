@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/services.dart';
 
 abstract class CastPlatformClient {
@@ -36,7 +37,9 @@ class NativeCastPlatformClient implements CastPlatformClient {
   static const _events = EventChannel('com.ppplayer.app/network_output_events');
 
   @override
-  Stream<dynamic> get events => _events.receiveBroadcastStream();
+  Stream<dynamic> get events => Platform.isAndroid || Platform.isIOS
+      ? _events.receiveBroadcastStream()
+      : const Stream.empty();
 
   @override
   Future<void> startDiscovery() => _methods.invokeMethod('startDiscovery');
