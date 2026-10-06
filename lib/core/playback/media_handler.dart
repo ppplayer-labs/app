@@ -296,15 +296,17 @@ class PpPlayerAudioHandler extends BaseAudioHandler with QueueHandler {
 
   @override
   Future<void> play() async {
+    debugPrint('[MediaControls] system play');
     await _ensureAudioSessionActive();
-    _container.read(playerProvider.notifier).resume();
+    await _container.read(playerProvider.notifier).resume();
   }
 
   @override
   Future<void> pause() async {
+    debugPrint('[MediaControls] system pause');
     _audioSessionActivated = false;
     _audioSessionRevision++;
-    _container.read(playerProvider.notifier).pause();
+    await _container.read(playerProvider.notifier).pause();
   }
 
   @override
@@ -319,12 +321,12 @@ class PpPlayerAudioHandler extends BaseAudioHandler with QueueHandler {
 
   @override
   Future<void> seek(Duration position) async {
-    _container.read(playerProvider.notifier).seekTo(position);
+    await _container.read(playerProvider.notifier).seekTo(position);
   }
 
   @override
   Future<void> stop() async {
-    _container.read(playerProvider.notifier).pause();
+    await _container.read(playerProvider.notifier).pause();
     playbackState.add(
       playbackState.value.copyWith(
         playing: false,

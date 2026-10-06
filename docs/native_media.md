@@ -63,12 +63,14 @@ Its existing uncommitted playback experiments remain separate from this app.
 
 ## Remaining acceptance and maintenance
 
-The main adapter still disables precise seeking for every source and does not
-configure an Android demuxer disk-cache directory. The preview contains local
-precise-seek and Android cache-directory corrections. Promoting those corrections
-requires a separate review of the engine behavior and actual local-file/network
-playback acceptance; this dependency migration does not merge the preview's
-uncommitted engine and lifecycle changes.
+The preview retirement review is in
+`validation/preview-retirement-review-2026-10-06.md`. Its native session cleanup,
+local precise seeking, Android cache directory, and awaited system media-command
+changes have now been brought into the main app with regression tests. The
+startup watchdog also tracks subsequent seek targets, preventing a backward
+seek from being mistaken for stalled playback. Validation tools now live in
+`integration_test/`, `scripts/`, and `tool/`; the release probe verifies the
+resolved published native package. Runtime acceptance remains platform-specific.
 
 The Android build also reports upcoming Flutter compatibility changes for AGP
 9.0.0, Kotlin 2.2.20 and plugins using the Kotlin Gradle Plugin. Handle that

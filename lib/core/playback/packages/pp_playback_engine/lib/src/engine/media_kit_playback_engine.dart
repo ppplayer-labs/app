@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:media_kit/media_kit.dart' hide Track;
 import 'package:media_kit_video/media_kit_video.dart';
@@ -95,8 +96,6 @@ class MediaKitPlayerAdapter implements INativePlayerAdapter {
       );
       // Keep some cache around
       (_player.platform as dynamic).setProperty('cache-secs', '100');
-      // Disable exact seeking (hr-seek) for much better performance/stability on fMP4 HLS streams
-      (_player.platform as dynamic).setProperty('hr-seek', 'no');
       // Increase demuxer cache to prevent stalling when skipping fragments
       (_player.platform as dynamic).setProperty(
         'demuxer-max-bytes',
@@ -136,13 +135,46 @@ class MediaKitPlayerAdapter implements INativePlayerAdapter {
   Stream<VideoParams> get videoParamsStream => _player.stream.videoParams;
 
   Media? _currentMedia;
+  Future<void>? _cacheReady;
+
+  Future<void> _configureCacheDirectory() async {
+    if (kIsWeb || !Platform.isAndroid) return;
+    try {
+      // Android has no desktop home/cache directory for mpv's disk-cache default.
+      final directory = await Directory(
+        '${Directory.systemTemp.path}/ppplayer-mpv-cache',
+      ).create(recursive: true);
+      await (_player.platform as dynamic).setProperty(
+        'demuxer-cache-dir',
+        directory.path,
+      );
+    } on FileSystemException catch (error) {
+      // An unavailable temporary directory must not prevent memory-cached playback.
+      await (_player.platform as dynamic).setProperty('cache-on-disk', 'no');
+      debugPrint('MediaKitPlaybackEngine: Disk cache unavailable: $error');
+    }
+  }
 
   @override
   Future<void> open(
     String uri, {
     bool play = false,
     Map<String, String>? httpHeaders,
-  }) {
+  }) async {
+    await (_cacheReady ??= _configureCacheDirectory());
+    if (!kIsWeb) {
+      final scheme = Uri.tryParse(uri)?.scheme.toLowerCase() ?? '';
+      final local =
+          scheme.isEmpty ||
+          const {'asset', 'file', 'content'}.contains(scheme) ||
+          RegExp(r'^[A-Za-z]:[\\/]').hasMatch(uri);
+      // Local files need precise seeks even when the target is between keyframes.
+      // Keep keyframe seeking for network streams to avoid expensive HLS decoding.
+      await (_player.platform as dynamic).setProperty(
+        'hr-seek',
+        local ? 'yes' : 'no',
+      );
+    }
     final headers = <String, String>{};
     headers['User-Agent'] =
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
@@ -241,10 +273,16 @@ class MediaKitPlayerAdapter implements INativePlayerAdapter {
 /// late-arriving event from the old player is trivially discarded without
 /// inspecting URIs, extras, or readiness flags.
 class NativePlaybackSession {
-  NativePlaybackSession({required this.generation, required this.adapter});
+  NativePlaybackSession({
+    required this.generation,
+    required this.adapter,
+    Duration startPosition = Duration.zero,
+  }) : progressBaseline = startPosition;
 
   final int generation;
   final INativePlayerAdapter adapter;
+  Duration progressBaseline;
+  bool hasPlaybackProgress = false;
   final List<StreamSubscription<dynamic>> subscriptions = [];
   bool _torn = false;
 
@@ -370,7 +408,10 @@ class MediaKitPlaybackEngine implements PlaybackController {
     _activeSession =
         null; // detach synchronously — callbacks rejected immediately
 
-    if (old == null) return;
+    if (old == null) {
+      await _invalidationFuture;
+      return;
+    }
 
     Future<void> doInvalidate() async {
       try {
@@ -386,9 +427,9 @@ class MediaKitPlaybackEngine implements PlaybackController {
             : previous.whenComplete(doInvalidate);
 
     _invalidationFuture = current;
-    // We only await the current teardown if we want to serialize creation.
-    // To avoid blocking the caller too long, we only await the OLD session's teardown.
-    await doInvalidate();
+    // The production adapters share one native player. Finish each queued
+    // teardown once before opening a replacement on that player.
+    await current;
   }
 
   /// Bind session-owned adapter streams to engine update handlers.
@@ -402,6 +443,13 @@ class MediaKitPlaybackEngine implements PlaybackController {
       a.positionStream.listen((pos) {
         if (session != _activeSession || _disposed) return;
         if (_currentStatus.isIFrameMode) return;
+        // A playing acknowledgement can precede a failed native output.
+        // Only position beyond the requested seek point proves playback started.
+        if (_intendedState == PlaybackState.playing &&
+            pos > session.progressBaseline) {
+          session.hasPlaybackProgress = true;
+          _watchdogTimer?.cancel();
+        }
         _updateStatus(
           _currentStatus.copyWith(
             position: pos,
@@ -438,9 +486,6 @@ class MediaKitPlaybackEngine implements PlaybackController {
         if (_currentStatus.isIFrameMode) return;
         // Don't overwrite preparing — wait for buffering/playing stream events.
         if (_currentStatus.state == PlaybackState.preparing) return;
-        if (playing) {
-          _watchdogTimer?.cancel();
-        }
         _updateStatus(
           _currentStatus.copyWith(
             state: playing ? PlaybackState.playing : PlaybackState.paused,
@@ -732,6 +777,7 @@ class MediaKitPlaybackEngine implements PlaybackController {
   // play()
   // ---------------------------------------------------------------------------
 
+  @override
   Future<void> play(
     PlaybackTrack track, {
     Duration startAt = Duration.zero,
@@ -769,6 +815,7 @@ class MediaKitPlaybackEngine implements PlaybackController {
       final session = NativePlaybackSession(
         generation: myGen,
         adapter: _makeAdapter(),
+        startPosition: startAt,
       );
       _activeSession = session;
       _attemptActive = true;
@@ -784,11 +831,16 @@ class MediaKitPlaybackEngine implements PlaybackController {
       _watchdogTimer?.cancel();
       _watchdogTimer = Timer(Duration(seconds: track.isLocal ? 5 : 20), () {
         if (_disposed || _activeSession != session) return;
-        if (_currentStatus.state == PlaybackState.preparing ||
+        final stalledStart =
+            _currentStatus.state == PlaybackState.playing &&
+            _intendedState == PlaybackState.playing &&
+            !session.hasPlaybackProgress;
+        if (stalledStart ||
+            _currentStatus.state == PlaybackState.preparing ||
             _currentStatus.state == PlaybackState.buffering) {
           _failAttempt(
             myGen,
-            track.isLocal
+            track.isLocal && !stalledStart
                 ? 'error:file_inaccessible'
                 : 'error:playback_timeout',
           );
@@ -1548,6 +1600,9 @@ class MediaKitPlaybackEngine implements PlaybackController {
     } else {
       final session = _activeSession;
       if (session == null) return;
+      // A seek acknowledgement is not playback progress. Move the baseline
+      // before dispatch so a backward seek during startup can still advance.
+      session.progressBaseline = position;
       await session.adapter.seek(position);
       if (wasPlaying && _activeSession == session) {
         await session.adapter.play();

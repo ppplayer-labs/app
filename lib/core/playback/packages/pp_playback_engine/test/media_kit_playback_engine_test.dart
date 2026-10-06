@@ -51,6 +51,7 @@ class FakeNativeAdapter implements INativePlayerAdapter {
   bool _disposed = false;
   final Completer<void>? openCompleter; // null = complete immediately
   bool closeStreamsOnDispose = true;
+  Completer<void>? stopCompleter;
 
   FakeNativeAdapter({this.openCompleter});
 
@@ -105,6 +106,7 @@ class FakeNativeAdapter implements INativePlayerAdapter {
   @override
   Future<void> stop() async {
     stops++;
+    await stopCompleter?.future;
     if (!_disposed) _playingCtrl.add(false);
   }
 
@@ -1016,6 +1018,67 @@ void main() {
       sourceType: PlaybackSourceType.local,
     );
 
+    testWidgets('backward seek during startup still confirms playback', (
+      tester,
+    ) async {
+      await engine.play(localTrack, startAt: const Duration(seconds: 30));
+      adapters.last._durationCtrl.add(const Duration(minutes: 3));
+      await tester.pump();
+      await engine.seekTo(const Duration(seconds: 5));
+      adapters.last._positionCtrl.add(const Duration(seconds: 5));
+      await tester.pump();
+      adapters.last._positionCtrl.add(const Duration(seconds: 6));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 6));
+      expect(engine.currentStatus.state, PlaybackState.playing);
+      expect(engine.currentStatus.error, isNull);
+    });
+
+    testWidgets('seek acknowledgement alone does not hide stalled startup', (
+      tester,
+    ) async {
+      await engine.play(localTrack, startAt: const Duration(seconds: 30));
+      adapters.last._durationCtrl.add(const Duration(minutes: 3));
+      await tester.pump();
+      await engine.seekTo(const Duration(seconds: 45));
+      adapters.last._positionCtrl.add(const Duration(seconds: 45));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 6));
+      expect(engine.currentStatus.state, PlaybackState.error);
+      expect(engine.currentStatus.error, 'error:playback_timeout');
+    });
+
+    testWidgets('native playing without progress still times out', (
+      tester,
+    ) async {
+      await engine.play(localTrack);
+      await tester.pump();
+      expect(engine.currentStatus.state, PlaybackState.playing);
+      await tester.pump(const Duration(seconds: 6));
+      expect(engine.currentStatus.state, PlaybackState.error);
+      expect(engine.currentStatus.error, 'error:playback_timeout');
+    });
+
+    testWidgets('initial seek alone does not confirm native playback', (
+      tester,
+    ) async {
+      await engine.play(localTrack, startAt: const Duration(seconds: 30));
+      adapters.last._positionCtrl.add(const Duration(seconds: 30));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 6));
+      expect(engine.currentStatus.state, PlaybackState.error);
+    });
+
+    testWidgets('native progress beyond initial seek cancels startup timeout', (
+      tester,
+    ) async {
+      await engine.play(localTrack, startAt: const Duration(seconds: 30));
+      adapters.last._positionCtrl.add(const Duration(seconds: 31));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 6));
+      expect(engine.currentStatus.state, PlaybackState.playing);
+      expect(engine.currentStatus.error, isNull);
+    });
     test('local audio clears the preceding video preview', () async {
       const video = PlaybackTrack(
         id: 'local-video',
@@ -1246,8 +1309,8 @@ void main() {
       // A must have been stopped before disposal.
       expect(
         adapterA.stops,
-        greaterThanOrEqualTo(1),
-        reason: 'old session adapter must be stopped before teardown',
+        1,
+        reason: 'old session must stop once before a replacement opens',
       );
       expect(
         adapterA.disposes,
@@ -1261,7 +1324,44 @@ void main() {
         reason:
             'old adapter must not receive additional play() calls after switching',
       );
+      final adapterB = adapters[1];
+      await engine.play(localTrack);
+      expect(
+        adapterA.stops,
+        1,
+        reason: 'queued cleanup must not stop the shared player again',
+      );
+      expect(
+        adapterB.stops,
+        1,
+        reason: 'each replaced session must stop exactly once',
+      );
+      expect(adapterB.disposes, 1);
     });
+
+    test(
+      'replacement waits for a detached session to finish stopping',
+      () async {
+        await engine.play(localTrack);
+        final gate = Completer<void>();
+        adapters.single.stopCompleter = gate;
+        final stopping = engine.stop();
+        await Future<void>.delayed(Duration.zero);
+        final replacement = engine.play(localTrackB);
+        await Future<void>.delayed(Duration.zero);
+        expect(
+          adapters,
+          hasLength(1),
+          reason: 'do not reopen the shared native player before stop finishes',
+        );
+        gate.complete();
+        await stopping;
+        await replacement;
+        expect(adapters, hasLength(2));
+        expect(adapters.first.stops, 1);
+        expect(adapters.last.opens, 1);
+      },
+    );
 
     test('dispose during open prevents subsequent updates', () async {
       final openCompleter = Completer<void>();

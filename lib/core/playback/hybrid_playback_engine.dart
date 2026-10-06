@@ -455,6 +455,7 @@ class HybridPlaybackEngine implements PlaybackController {
   /// Silently cues the given track on the inactive engine so it is ready
   /// to take over on the next handoff without a full prepare round-trip.
   void _prewarmInactiveEngine(PlaybackTrack track) {
+    if (track.isLocal) return;
     final inactive = _inactiveEngine;
     _prewarmedTrack = track;
     // Use position=0 for pre-warm; actual position is seeked on handoff.

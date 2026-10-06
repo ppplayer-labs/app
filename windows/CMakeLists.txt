@@ -59,6 +59,19 @@ add_subdirectory("runner")
 include(flutter/generated_plugins.cmake)
 chromium_webview_enable_sandbox(${BINARY_NAME})
 
+# Extract native headers before compiling plugins in parallel on a fresh build.
+foreach(EXTRACT_TARGET IN ITEMS
+    media_kit_libs_windows_video_LIBMPV_EXTRACT
+    media_kit_libs_windows_video_ANGLE_EXTRACT)
+  if(TARGET ${EXTRACT_TARGET} AND TARGET media_kit_video_plugin)
+    add_dependencies(media_kit_video_plugin ${EXTRACT_TARGET})
+  endif()
+endforeach()
+if(TARGET webview_win_floating_DEPENDENCIES_DOWNLOAD AND TARGET webview_win_floating_plugin)
+  add_dependencies(webview_win_floating_plugin
+    webview_win_floating_DEPENDENCIES_DOWNLOAD)
+endif()
+
 
 # === Installation ===
 # Support files are copied into place next to the executable, so that it can

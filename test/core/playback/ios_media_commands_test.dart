@@ -15,16 +15,16 @@ class _Player extends Notifier<PlayerState> implements PlayerNotifier {
   @override
   PlayerState build() => PlayerState(isPlaying: true);
   @override
-  void pause() {
+  Future<void> pause() async {
     calls.add('pause');
-    unawaited(engine.pause());
+    await engine.pause();
     state = state.copyWith(isPlaying: false);
   }
 
   @override
-  void resume() {
+  Future<void> resume() async {
     calls.add('play');
-    unawaited(engine.resume());
+    await engine.resume();
     state = state.copyWith(isPlaying: true);
   }
 

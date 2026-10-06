@@ -178,6 +178,26 @@ void main() {
     PipHandler.resetForTest();
   });
 
+  test(
+    'local playback does not prewarm the background YouTube service',
+    () async {
+      const local = PlaybackTrack(
+        id: 'local-file',
+        title: 'Local file',
+        sourceType: PlaybackSourceType.local,
+        localMediaUri: 'file:///music/local.mp3',
+      );
+      await engine.play(local);
+      await pump();
+      expect(fg.playCalls, 1);
+      expect(bg.callLog, isNot(contains('prepare(local-file)')));
+      PipHandler.simulateActivityStopped();
+      await pump();
+      expect(engine.owner, EngineOwner.foreground);
+      expect(bg.playCalls, 0);
+    },
+  );
+
   test('paused load preserves autoplay=false for local restoration', () async {
     await engine.play(
       _track,

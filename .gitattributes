@@ -1,0 +1,2 @@
+# Shell entry points must remain executable on Linux and macOS after checkout.
+*.sh text eol=lf

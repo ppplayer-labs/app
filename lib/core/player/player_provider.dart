@@ -867,12 +867,12 @@ class PlayerNotifier extends Notifier<PlayerState> {
     await playTrack(track, queue: state.playbackQueue.tracks);
   }
 
-  void pause() {
+  Future<void> pause() async {
     _userIntentPlay = false;
-    _controller.pause();
+    await _controller.pause();
   }
 
-  void resume() {
+  Future<void> resume() async {
     _userIntentPlay = true;
     // Block system-initiated play commands (e.g. macOS media session) while
     // the startup restore is cuing the video. _restoringState is cleared by
@@ -888,9 +888,9 @@ class PlayerNotifier extends Notifier<PlayerState> {
     if (state.currentTrack != null &&
         (engineState == PlaybackState.idle ||
             engineState == PlaybackState.preparing)) {
-      _resumeRestoredState();
+      await _resumeRestoredState();
     } else {
-      _controller.resume();
+      await _controller.resume();
     }
   }
 
@@ -909,7 +909,7 @@ class PlayerNotifier extends Notifier<PlayerState> {
           startAt: state.position,
         );
       } else {
-        _controller.resume();
+        await _controller.resume();
       }
       return;
     }
