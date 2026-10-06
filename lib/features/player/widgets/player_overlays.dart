@@ -246,6 +246,7 @@ class _PlayerOverlaysState extends ConsumerState<PlayerOverlays> {
     final viewport = MediaQuery.sizeOf(context);
     final compactLandscape =
         viewport.width > viewport.height && viewport.height < 500;
+    final desktopWindow = viewport.width >= 1000 && !widget.isFullscreen;
     final playbackStatus = ref.watch(playbackStatusProvider).value;
     final hasVideo = playbackStatus?.hasVideo ?? false;
     // Capability is derived from live status fields so it updates mid-session
@@ -343,8 +344,10 @@ class _PlayerOverlaysState extends ConsumerState<PlayerOverlays> {
                           onExit: (_) => _isHoveringControls = false,
                           child: Container(
                             padding: EdgeInsets.only(
-                              top: compactLandscape ? 8 : 16,
-                              bottom: compactLandscape ? 12 : 24,
+                              top: compactLandscape || desktopWindow ? 8 : 16,
+                              bottom: compactLandscape || desktopWindow
+                                  ? 12
+                                  : 24,
                             ),
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
@@ -459,8 +462,10 @@ class _PlayerOverlaysState extends ConsumerState<PlayerOverlays> {
                           onExit: (_) => _isHoveringControls = false,
                           child: Container(
                             padding: EdgeInsets.only(
-                              top: compactLandscape ? 24 : 48,
-                              bottom: compactLandscape ? 8 : 16,
+                              top: compactLandscape || desktopWindow ? 24 : 48,
+                              bottom: compactLandscape || desktopWindow
+                                  ? 8
+                                  : 16,
                               left: 16,
                               right: 16,
                             ),

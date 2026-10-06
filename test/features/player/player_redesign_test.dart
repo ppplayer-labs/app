@@ -423,7 +423,7 @@ void main() {
       await _unmount(tester);
     });
 
-    testWidgets('wide-screen queue side panel shows no close button', (
+    testWidgets('wide-screen queue closes and restores the previous view', (
       tester,
     ) async {
       final queue = PlaybackQueue(
@@ -448,7 +448,14 @@ void main() {
       ).read(settingsProvider.notifier).setPlayerView(PlayerView.queue);
       await _flush(tester);
 
-      expect(find.byKey(const ValueKey('queue_close_button')), findsNothing);
+      expect(find.byKey(const ValueKey('queue_close_button')), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('queue_close_button')));
+      await _flush(tester);
+      expect(find.byKey(const ValueKey('desktop_queue_panel')), findsNothing);
+      expect(
+        ProviderScope.containerOf(ctx).read(settingsProvider).playerView,
+        isNot(PlayerView.queue),
+      );
 
       tester.view.resetPhysicalSize();
       tester.view.resetDevicePixelRatio();
@@ -547,7 +554,8 @@ void main() {
       tester.view.devicePixelRatio = 1.0;
       await _flush(tester);
       expect(videoSlot, findsOneWidget);
-      expect(find.byKey(const ValueKey('queue_close_button')), findsNothing);
+      expect(find.byKey(const ValueKey('queue_close_button')), findsOneWidget);
+      expect(find.byKey(const ValueKey('desktop_queue_panel')), findsOneWidget);
 
       tester.view.resetPhysicalSize();
       tester.view.resetDevicePixelRatio();
@@ -579,9 +587,9 @@ void main() {
       ).read(settingsProvider.notifier).setPlayerView(PlayerView.queue);
       await _flush(tester);
       expect(
-        find.byKey(const ValueKey('queue_close_button')),
-        findsNothing,
-        reason: 'At 1000px should be side panel (no close button)',
+        find.byKey(const ValueKey('desktop_queue_panel')),
+        findsOneWidget,
+        reason: 'At 1000px should be side panel',
       );
 
       // 999px.
@@ -589,9 +597,9 @@ void main() {
       tester.view.devicePixelRatio = 1.0;
       await _flush(tester);
       expect(
-        find.byKey(const ValueKey('queue_close_button')),
-        findsOneWidget,
-        reason: 'At 999px should be overlay (close button visible)',
+        find.byKey(const ValueKey('desktop_queue_panel')),
+        findsNothing,
+        reason: 'At 999px should be overlay',
       );
 
       tester.view.resetPhysicalSize();

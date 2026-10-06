@@ -475,7 +475,8 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
     final status = ref.watch(playbackStatusProvider).asData?.value;
     final hasVideo = status?.hasVideo ?? false;
     final isDesktop = MediaQuery.sizeOf(context).width >= 1000;
-    final showDesktopQueuePanel = isDesktop && isQueueView && !isPipMode;
+    final showDesktopQueuePanel =
+        isDesktop && isQueueView && !isPipMode && !isFullscreen;
 
     Widget middleTopBar = AdaptiveBlur(
       sigmaX: 12,
@@ -659,9 +660,11 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
                 PlayerOverlays(
                   isFullscreen: isFullscreen,
                   alwaysShowControls:
+                      (isDesktop && !isFullscreen) ||
                       !hasVideo ||
                       (isQueueView && !isDesktop) ||
-                      (!kIsWeb &&
+                      (!isFullscreen &&
+                          !kIsWeb &&
                           Platform.isWindows &&
                           (status?.isIFrameMode ?? false)),
                   onToggleFullscreen: () => _setFullscreen(!isFullscreen),
@@ -675,7 +678,7 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
                   middleTopBar: middleTopBar,
                 ),
 
-              if (!isDesktop && isQueueView && !isPipMode)
+              if (!isDesktop && isQueueView && !isPipMode && !isFullscreen)
                 _NarrowQueueOverlay(
                   playerState: playerState,
                   onClose: _closeQueue,
@@ -685,10 +688,15 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
         ),
         if (showDesktopQueuePanel)
           SizedBox(
+            key: const ValueKey('desktop_queue_panel'),
             width: 320,
             child: Material(
               color: colorScheme.surfaceContainerLow,
-              child: _QueueView(playerState: playerState),
+              child: _QueueView(
+                playerState: playerState,
+                compact: true,
+                onClose: _closeQueue,
+              ),
             ),
           ),
       ],
@@ -726,7 +734,7 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
           // 1. Narrow-screen queue open → close queue (don't exit player).
           // 2. Fullscreen → exit fullscreen.
           // 3. Otherwise → let the Navigator handle it.
-          final queueNarrow = isQueueView && !showDesktopQueuePanel;
+          final queueNarrow = isQueueView && !isDesktop && !isFullscreen;
           if (queueNarrow) {
             _closeQueue();
             return KeyEventResult.handled;
@@ -769,7 +777,7 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
         key: const ValueKey('player_pop_scope'),
         // Intercept the system back gesture/button when the narrow-screen
         // queue is visible OR when in fullscreen mode.
-        canPop: !(isQueueView && !showDesktopQueuePanel) && !isFullscreen,
+        canPop: !(isQueueView && !isDesktop) && !isFullscreen,
         onPopInvokedWithResult: (didPop, _) {
           if (didPop) {
             return;
@@ -777,7 +785,7 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
           // didPop == false means canPop was false and the pop was intercepted.
           if (isFullscreen) {
             _setFullscreen(false);
-          } else if (isQueueView && !showDesktopQueuePanel) {
+          } else if (isQueueView && !isDesktop) {
             _closeQueue();
           }
         },
@@ -853,17 +861,18 @@ class _ToggleTab extends StatelessWidget {
 class _QueueView extends ConsumerWidget {
   final PlayerState playerState;
 
-  /// Called when the user taps the close button (narrow-screen only).
-  /// Null when rendered in the desktop side panel (no close button shown).
+  /// Called when the user closes the queue on either desktop or mobile.
   final VoidCallback? onClose;
 
   /// Extra bottom padding for the list, used to account for safe-area insets.
   final double bottomPadding;
+  final bool compact;
 
   const _QueueView({
     required this.playerState,
     this.onClose,
     this.bottomPadding = 0,
+    this.compact = false,
   });
 
   @override
@@ -1004,7 +1013,7 @@ class _QueueView extends ConsumerWidget {
                 key: ValueKey(t.queueItemId ?? t.spotifyId),
                 child:
                     Padding(
-                          padding: const EdgeInsets.only(bottom: 12.0),
+                          padding: EdgeInsets.only(bottom: compact ? 6 : 12),
                           child: ContentContextMenuRegion(
                             target: TrackContextTarget(
                               t,
@@ -1019,9 +1028,11 @@ class _QueueView extends ConsumerWidget {
                               child: AdaptiveBlur(
                                 sigmaX: 15,
                                 sigmaY: 15,
-                                borderRadius: BorderRadius.circular(24),
+                                borderRadius: BorderRadius.circular(
+                                  compact ? 10 : 24,
+                                ),
                                 child: Container(
-                                  padding: const EdgeInsets.all(14),
+                                  padding: EdgeInsets.all(compact ? 10 : 14),
                                   decoration: BoxDecoration(
                                     color: isCurrent
                                         ? colorScheme.primary.withValues(
@@ -1030,7 +1041,9 @@ class _QueueView extends ConsumerWidget {
                                         : colorScheme.onSurface.withValues(
                                             alpha: 0.03,
                                           ),
-                                    borderRadius: BorderRadius.circular(24),
+                                    borderRadius: BorderRadius.circular(
+                                      compact ? 10 : 24,
+                                    ),
                                     border: Border.all(
                                       color: isCurrent
                                           ? colorScheme.primary.withValues(
@@ -1042,7 +1055,7 @@ class _QueueView extends ConsumerWidget {
                                       width: 0.5,
                                     ),
                                     boxShadow: [
-                                      if (isCurrent)
+                                      if (isCurrent && !compact)
                                         BoxShadow(
                                           color: Theme.of(context)
                                               .colorScheme
@@ -1056,13 +1069,15 @@ class _QueueView extends ConsumerWidget {
                                   child: Row(
                                     children: [
                                       ClipRRect(
-                                        borderRadius: BorderRadius.circular(12),
+                                        borderRadius: BorderRadius.circular(
+                                          compact ? 6 : 12,
+                                        ),
                                         child: Stack(
                                           children: [
                                             PPImage(
                                               imageUrl: t.albumImage ?? '',
-                                              width: 52,
-                                              height: 52,
+                                              width: compact ? 40 : 52,
+                                              height: compact ? 40 : 52,
                                               fit: BoxFit.cover,
                                             ),
                                             if (isCurrent)
@@ -1084,7 +1099,7 @@ class _QueueView extends ConsumerWidget {
                                           ],
                                         ),
                                       ),
-                                      const SizedBox(width: 16),
+                                      SizedBox(width: compact ? 12 : 16),
                                       Expanded(
                                         child: Column(
                                           crossAxisAlignment:
@@ -1099,18 +1114,24 @@ class _QueueView extends ConsumerWidget {
                                                           .withValues(
                                                             alpha: 0.9,
                                                           ),
-                                                fontWeight: isCurrent
+                                                fontWeight: compact
+                                                    ? FontWeight.w600
+                                                    : isCurrent
                                                     ? FontWeight.w900
                                                     : FontWeight.w800,
-                                                fontSize: 17,
-                                                letterSpacing: -0.7,
+                                                fontSize: compact ? 14 : 17,
+                                                letterSpacing: compact
+                                                    ? 0
+                                                    : -0.7,
                                               ),
                                               maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
                                             ),
                                             const SizedBox(height: 2),
                                             Text(
-                                              t.artistName.toUpperCase(),
+                                              compact
+                                                  ? t.artistName
+                                                  : t.artistName.toUpperCase(),
                                               style: TextStyle(
                                                 color: isCurrent
                                                     ? Theme.of(context)
@@ -1123,9 +1144,13 @@ class _QueueView extends ConsumerWidget {
                                                           .withValues(
                                                             alpha: 0.4,
                                                           ),
-                                                fontWeight: FontWeight.w900,
+                                                fontWeight: compact
+                                                    ? FontWeight.w500
+                                                    : FontWeight.w900,
                                                 fontSize: 11,
-                                                letterSpacing: 1.0,
+                                                letterSpacing: compact
+                                                    ? 0
+                                                    : 1.0,
                                               ),
                                               maxLines: 1,
                                               overflow: TextOverflow.ellipsis,

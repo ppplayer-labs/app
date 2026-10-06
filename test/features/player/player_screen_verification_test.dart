@@ -4,6 +4,7 @@ import 'package:flutter/material.dart' hide RepeatMode;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ppplayer/features/player/player_screen.dart';
+import 'package:ppplayer/features/player/player_providers.dart';
 import 'package:ppplayer/core/models/track.dart';
 
 import 'package:ppplayer/core/player/player_provider.dart';
@@ -130,6 +131,19 @@ void main() {
 
       // Video slot MUST still be exactly the same widget (mounted)
       expect(videoSlotFinder, findsOneWidget);
+
+      // Fullscreen uses the full player width and temporarily hides the queue.
+      final playerContext = tester.element(find.byType(PlayerScreen));
+      final container = ProviderScope.containerOf(playerContext);
+      container.read(isFullscreenProvider.notifier).setFullscreen(true);
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(find.byKey(const ValueKey('export_queue_button')), findsNothing);
+      expect(tester.getSize(videoSlotFinder).width, 1200);
+      expect(videoSlotFinder, findsOneWidget);
+      container.read(isFullscreenProvider.notifier).setFullscreen(false);
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(find.byKey(const ValueKey('export_queue_button')), findsOneWidget);
+      expect(find.byKey(const ValueKey('queue_close_button')), findsOneWidget);
 
       // Change size to < 1000 to cross breakpoint
       await tester.binding.setSurfaceSize(const Size(800, 800));
