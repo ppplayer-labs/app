@@ -20,9 +20,10 @@ class NativeServicePlaybackEngine implements PlaybackController {
   /// Passed to the JS layer so stale cueVideo calls from pre-warms are rejected.
   int _commandId = 0;
 
-  NativeServicePlaybackEngine() {
+  Future<void>? _service;
+  NativeServicePlaybackEngine({bool startAutomatically = true}) {
     _channel.setMethodCallHandler(_handleMethodCall);
-    _startService();
+    if (startAutomatically) _service = _startService();
   }
 
   Future<void> _startService() async {
@@ -117,6 +118,7 @@ class NativeServicePlaybackEngine implements PlaybackController {
 
   @override
   Future<void> prepare(PlaybackTrack track, {Duration? position}) async {
+    await (_service ??= _startService());
     // Capture commandId before awaiting — pre-warm uses current value.
     // When play() later increments commandId, the JS-side cueVideo is rejected.
     final id = _commandId;
@@ -130,8 +132,9 @@ class NativeServicePlaybackEngine implements PlaybackController {
     try {
       await _channel.invokeMethod('prepareVideo', {
         'videoId': track.id,
-        'startSeconds':
-            position != null ? (position.inMilliseconds / 1000.0) : 0.0,
+        'startSeconds': position != null
+            ? (position.inMilliseconds / 1000.0)
+            : 0.0,
         'commandId': id,
       });
     } catch (e) {
@@ -145,6 +148,7 @@ class NativeServicePlaybackEngine implements PlaybackController {
     Duration startAt = Duration.zero,
     bool play = true,
   }) async {
+    await (_service ??= _startService());
     // Increment commandId BEFORE dispatching — invalidates any pending pre-warm cue.
     final id = ++_commandId;
     _updateStatus(
@@ -322,9 +326,11 @@ class NativeServicePlaybackEngine implements PlaybackController {
   Future<void> dispose() async {
     _disposed = true;
     try {
-      await _channel
-          .invokeMethod('stopService')
-          .timeout(const Duration(seconds: 2));
+      if (_service != null) {
+        await _channel
+            .invokeMethod('stopService')
+            .timeout(const Duration(seconds: 2));
+      }
     } catch (_) {}
     _channel.setMethodCallHandler(null);
     _statusController.close();

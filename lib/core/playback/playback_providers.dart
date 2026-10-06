@@ -2,12 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pp_playback_engine/pp_playback_engine.dart';
+import 'package:flutter_chromium_webview/chromium_youtube_player.dart';
+import 'package:flutter_chromium_webview/flutter_chromium_webview.dart';
+import 'package:path_provider/path_provider.dart';
+
+import 'chromium_playback_engine.dart';
+import 'chromium_media_service.dart';
 import '../models/track.dart';
 import 'hybrid_playback_engine.dart';
 import 'local_file_playback_controller.dart';
 import '../network_outputs/network_output_providers.dart';
 
 export 'playback_service.dart' show playbackServiceProvider, PlaybackService;
+
 export 'package:pp_playback_engine/pp_playback_engine.dart';
 
 // Extension to convert App Track to PlaybackTrack
@@ -101,10 +108,19 @@ extension TrackToPlayback on Track {
 
 /// The primary local playback engine.
 final localPlaybackControllerProvider = Provider<PlaybackController>((ref) {
-  final PlaybackController engine;
+  PlaybackController engine;
+  const chromiumEnabled = bool.fromEnvironment('PPPLAYER_CHROMIUM', defaultValue: true);
+  final chromiumAndroid =
+      chromiumEnabled &&
+      !kIsWeb &&
+      defaultTargetPlatform == TargetPlatform.android;
 
   if (defaultTargetPlatform == TargetPlatform.android) {
-    engine = HybridPlaybackEngine();
+    engine = HybridPlaybackEngine(
+      backgroundEngine: chromiumAndroid
+          ? NativeServicePlaybackEngine(startAutomatically: false)
+          : null,
+    );
   } else {
     final mediaKit = MediaKitPlaybackEngine();
     engine =
@@ -119,6 +135,37 @@ final localPlaybackControllerProvider = Provider<PlaybackController>((ref) {
         : mediaKit;
   }
 
+  if (chromiumEnabled &&
+      !kIsWeb &&
+      {
+        TargetPlatform.windows,
+        TargetPlatform.android,
+        TargetPlatform.linux,
+        TargetPlatform.macOS,
+        TargetPlatform.iOS,
+      }.contains(defaultTargetPlatform)) {
+    engine = ChromiumPlaybackEngine(
+      fallback: engine,
+      showBrowser: !chromiumAndroid,
+      startPlaybackService: chromiumAndroid ? ChromiumMediaService.start : null,
+      stopPlaybackService: chromiumAndroid ? ChromiumMediaService.stop : null,
+      initializeCef: () async {
+        final directory = await getApplicationSupportDirectory();
+        if (!await ChromiumWebViewController.initialize(
+          cachePath: directory.path,
+        )) {
+          throw StateError('CEF initialization failed');
+        }
+      },
+      createPlayer: () => ChromiumYoutubePlayerController(
+        documentUrl: const String.fromEnvironment(
+          'PPPLAYER_CHROMIUM_DOCUMENT_URL',
+          defaultValue: 'https://ppplayer.com/chromium/player.html',
+        ),
+        profileName: 'ppplayer_youtube_session',
+      ),
+    );
+  }
   ref.onDispose(() {
     engine.dispose();
   });

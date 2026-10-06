@@ -31,6 +31,7 @@ class CustomWebViewService : Service() {
         private const val CHANNEL_ID = "WebViewServiceChannel"
         const val ACTION_START_SERVICE = "START_WEBVIEW_SERVICE"
         const val ACTION_STOP_SERVICE = "STOP_WEBVIEW_SERVICE"
+        const val EXTRA_CHROMIUM_PLAYER = "chromiumPlayer"
 
         var instance: CustomWebViewService? = null
     }
@@ -39,13 +40,15 @@ class CustomWebViewService : Service() {
     private var webViewClient: CustomWebViewClient? = null
     private var virtualDisplay: VirtualDisplay? = null
     private var presentation: Presentation? = null
+    var chromiumPlayer = false
+        private set
+    val ownsWebView: Boolean get() = webView != null
 
     override fun onCreate() {
         super.onCreate()
         instance = this
         createNotificationChannel()
         startForeground(999, createNotification())
-        initWebView()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -54,6 +57,8 @@ class CustomWebViewService : Service() {
             stopSelf()
             return START_NOT_STICKY
         }
+        chromiumPlayer = intent?.getBooleanExtra(EXTRA_CHROMIUM_PLAYER, false) == true
+        if (!chromiumPlayer && webView == null) initWebView()
         return START_NOT_STICKY
     }
 

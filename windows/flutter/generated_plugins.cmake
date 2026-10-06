@@ -5,6 +5,7 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   connectivity_plus
   file_selector_windows
+  flutter_chromium_webview
   flutter_secure_storage_windows
   fullscreen_window
   media_kit_libs_windows_video

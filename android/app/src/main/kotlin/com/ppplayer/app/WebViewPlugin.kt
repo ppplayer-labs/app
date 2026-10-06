@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Handler
 import android.os.Looper
+import android.os.PowerManager
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -50,6 +51,7 @@ class WebViewPlugin : FlutterPlugin, MethodCallHandler {
     }
 
     private var context: Context? = null
+    private var ownsChromiumService = false
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         context = binding.applicationContext
@@ -59,7 +61,41 @@ class WebViewPlugin : FlutterPlugin, MethodCallHandler {
 
     override fun onMethodCall(call: MethodCall, result: Result) {
         when (call.method) {
+            "startChromiumService" -> {
+                if (CustomWebViewService.instance?.ownsWebView == true) {
+                    result.error("BUSY", "Legacy playback service already owns a WebView", null)
+                    return
+                }
+                val intent = Intent(context, CustomWebViewService::class.java).apply {
+                    putExtra(CustomWebViewService.EXTRA_CHROMIUM_PLAYER, true)
+                }
+                try {
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O)
+                        context?.startForegroundService(intent)
+                    else context?.startService(intent)
+                    ownsChromiumService = true
+                    result.success(null)
+                } catch (e: Exception) {
+                    result.error("SERVICE_START_FAILED", e.message, null)
+                }
+            }
+            "stopChromiumService" -> {
+                if (ownsChromiumService && CustomWebViewService.instance?.ownsWebView != true)
+                    context?.stopService(Intent(context, CustomWebViewService::class.java))
+                ownsChromiumService = false
+                result.success(null)
+            }
+            "chromiumServiceState" -> {
+                result.success(mapOf("running" to (CustomWebViewService.instance != null),
+                    "interactive" to ((context?.getSystemService(Context.POWER_SERVICE) as? PowerManager)?.isInteractive == true),
+                    "chromiumPlayer" to (CustomWebViewService.instance?.chromiumPlayer == true),
+                    "ownsWebView" to (CustomWebViewService.instance?.ownsWebView == true)))
+            }
             "startService" -> {
+                if (ownsChromiumService) {
+                    result.error("BUSY", "Chromium playback already owns the service", null)
+                    return
+                }
                 val intent = Intent(context, CustomWebViewService::class.java)
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                     context?.startForegroundService(intent)
@@ -115,6 +151,8 @@ class WebViewPlugin : FlutterPlugin, MethodCallHandler {
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        if (ownsChromiumService) context?.stopService(Intent(context, CustomWebViewService::class.java))
+        ownsChromiumService = false
         methodChannel?.setMethodCallHandler(null)
         methodChannel = null
         context = null
