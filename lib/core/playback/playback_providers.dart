@@ -162,11 +162,7 @@ final localPlaybackControllerProvider = Provider<PlaybackController>((ref) {
     );
   } else {
     final mediaKit = MediaKitPlaybackEngine();
-    engine =
-        {
-          TargetPlatform.iOS,
-          TargetPlatform.macOS,
-        }.contains(defaultTargetPlatform)
+    engine = defaultTargetPlatform == TargetPlatform.iOS
         ? IframeYoutubePlaybackEngine(
             fallback: LocalFilePlaybackController(
               mediaKit,
@@ -174,7 +170,6 @@ final localPlaybackControllerProvider = Provider<PlaybackController>((ref) {
             ),
           )
         : mediaKit;
-
     if (chromiumEnabled &&
         !kIsWeb &&
         {
