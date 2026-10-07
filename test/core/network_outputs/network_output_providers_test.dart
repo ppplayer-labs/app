@@ -9,7 +9,6 @@ import 'package:ppplayer/core/network_outputs/dlna/dlna_output_backend.dart';
 import 'package:ppplayer/core/network_outputs/cast/cast_output_backend.dart';
 import 'package:ppplayer/core/network_outputs/models.dart';
 import 'package:ppplayer/core/playback/playback_providers.dart';
-import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 class MockPlaybackController implements PlaybackController {
   @override
@@ -30,10 +29,7 @@ class MockPlaybackController implements PlaybackController {
     hasVideo: false,
   );
   @override
-  dynamic get renderer => null;
-  @override
-  YoutubePlayerController? get youtubeController => null;
-  @override
+  dynamic get renderer => null;  @override
   bool get supportsSpeed => false;
   @override
   bool get supportsTrackSelection => false;

@@ -167,8 +167,7 @@ void main() {
     () async {
       final youtube = FakeYoutubeController();
       final engine = MediaKitPlaybackEngine(
-        youtubeControllerFactory: (_, _) => youtube,
-      );
+              );
       final player = _Player(engine);
       final container = ProviderContainer(
         overrides: [playerProvider.overrideWith(() => player)],

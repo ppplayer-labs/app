@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import '../models/playback_status.dart';
 import '../models/playback_event.dart';
 import '../models/playback_track.dart';
@@ -37,8 +36,6 @@ abstract class PlaybackController {
 
   /// A platform-specific renderer (e.g. VideoController for media_kit)
   dynamic get renderer;
-
-  YoutubePlayerController? get youtubeController;
 
   Future<void> prepare(PlaybackTrack track, {Duration? position});
 

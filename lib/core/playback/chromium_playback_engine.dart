@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:flutter_chromium_webview/chromium_youtube_player.dart';
 import 'package:flutter_chromium_webview/flutter_chromium_webview.dart';
 import 'package:pp_playback_engine/pp_playback_engine.dart';
-import 'package:youtube_player_iframe/youtube_player_iframe.dart';
+
 
 /// Opt-in YouTube path; delegates other sources to [fallback].
 class ChromiumPlaybackEngine implements PlaybackController {
@@ -99,9 +99,7 @@ class ChromiumPlaybackEngine implements PlaybackController {
   }) {
     _checkOpen();
     if (startAt.isNegative) throw ArgumentError.value(startAt, 'startAt');
-    final online =
-        track.sourceType == PlaybackSourceType.online &&
-        RegExp(r'^[A-Za-z0-9_-]{11}$').hasMatch(track.id);
+    final online = track.sourceType == PlaybackSourceType.online;
     final generation = ++_generation;
     _durationRequest = null;
     _durationAttempt = null;
@@ -165,9 +163,17 @@ class ChromiumPlaybackEngine implements PlaybackController {
       if (!_valid(generation)) return;
       final seconds = start.inMicroseconds / Duration.microsecondsPerSecond;
       if (_wantsPlaying) {
-        await player.loadVideoById(videoId: track.id, startSeconds: seconds);
+        if (track.youtubeSourceType == YoutubeSourceType.playlist) {
+          await player.loadPlaylist(playlistId: track.id, startSeconds: seconds);
+        } else {
+          await player.loadVideoById(videoId: track.id, startSeconds: seconds);
+        }
       } else {
-        await player.cueVideoById(videoId: track.id, startSeconds: seconds);
+        if (track.youtubeSourceType == YoutubeSourceType.playlist) {
+          await player.cuePlaylist(playlistId: track.id, startSeconds: seconds);
+        } else {
+          await player.cueVideoById(videoId: track.id, startSeconds: seconds);
+        }
       }
       if (_valid(generation)) {
         if (!_wantsPlaying) await player.pauseVideo();
@@ -242,6 +248,23 @@ class ChromiumPlaybackEngine implements PlaybackController {
         _ => null,
       };
       if (mapped != null) {
+        if (state == 0 && _status.track?.youtubeSourceType == YoutubeSourceType.playlist) {
+          unawaited(() async {
+            try {
+              final index = await player.getPlaylistIndex();
+              final playlist = await player.getPlaylist();
+              if (!_valid(generation) || !identical(player, _player)) return;
+              if (index == playlist.length - 1) {
+                _publish(_status.copyWith(state: PlaybackState.ended, clearError: true));
+                if (_started && !_ended) {
+                  _ended = true;
+                  _event(PlaybackEventType.trackEnded);
+                }
+              }
+            } catch (_) {}
+          }());
+          return;
+        }
         if (state == 1 && !_wantsPlaying) {
           if (!_correctingPause) {
             _correctingPause = true;
@@ -403,9 +426,7 @@ class ChromiumPlaybackEngine implements PlaybackController {
           controller: _player!.webViewController,
           disposeController: false,
         ));
-  @override
-  YoutubePlayerController? get youtubeController =>
-      _chromium ? null : fallback.youtubeController;
+
   @override
   bool get supportsSpeed => !_chromium && fallback.supportsSpeed;
   @override

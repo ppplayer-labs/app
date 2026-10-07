@@ -132,6 +132,8 @@ flutter_native_splash:
     image_dark: "assets/logo_splash.png"
 
 dependency_overrides:
+  flutter_chromium_webview:
+    path: ../../flutter_chromium_webview/packages/flutter_chromium_webview
   # Local patch of youtube_player_iframe that adds macOS to the JS bridge
   # switch statement in player.html. Without this, onReady/onStateChange never
   # fire on macOS because 'macos' was missing from sendPlatformMessage().

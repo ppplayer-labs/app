@@ -10,7 +10,7 @@ void main() {
       final fakeController = FakeYoutubeController();
 
       final engine = MediaKitPlaybackEngine(
-        youtubeControllerFactory: (id, params) => fakeController,
+
       );
 
       addTearDown(engine.dispose);
@@ -62,7 +62,7 @@ void main() {
   testWidgets('Engine accepts errors with missing video IDs', (tester) async {
     final fakeController = FakeYoutubeController();
     final engine = MediaKitPlaybackEngine(
-      youtubeControllerFactory: (id, params) => fakeController,
+
     );
     addTearDown(engine.dispose);
     final statuses = <PlaybackStatus>[];
@@ -92,7 +92,7 @@ void main() {
   ) async {
     final fakeController = FakeYoutubeController();
     final engine = MediaKitPlaybackEngine(
-      youtubeControllerFactory: (id, params) => fakeController,
+
     );
     addTearDown(engine.dispose);
     final statuses = <PlaybackStatus>[];

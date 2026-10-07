@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 import 'package:pp_playback_engine/pp_playback_engine.dart';
 import 'pip_handler.dart';
@@ -394,11 +393,6 @@ class HybridPlaybackEngine implements PlaybackController {
 
   @override
   dynamic get renderer => _foregroundEngine.renderer;
-
-  @override
-  YoutubePlayerController? get youtubeController =>
-      _foregroundEngine.youtubeController;
-
   @override
   Future<void> prepare(PlaybackTrack track, {Duration? position}) async {
     _playGeneration++;

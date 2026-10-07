@@ -6,3 +6,4 @@ export 'src/engine/media_kit_playback_engine.dart';
 export 'src/engine/native_service_playback_engine.dart';
 export 'src/ui/playback_view.dart';
 export 'src/engine/background_playback_experiment.dart';
+export 'src/engine/iframe_youtube_playback_engine.dart';

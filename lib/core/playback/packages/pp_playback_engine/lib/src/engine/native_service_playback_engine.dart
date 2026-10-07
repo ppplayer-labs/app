@@ -114,9 +114,6 @@ class NativeServicePlaybackEngine implements PlaybackController {
   dynamic get renderer => null; // No UI renderer for headless
 
   @override
-  YoutubePlayerController? get youtubeController => null; // No iframe controller
-
-  @override
   Future<void> prepare(PlaybackTrack track, {Duration? position}) async {
     await (_service ??= _startService());
     // Capture commandId before awaiting — pre-warm uses current value.

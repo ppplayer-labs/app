@@ -1,3 +1,4 @@
+import 'package:ppplayer/core/playback/chromium_playback_engine.dart';
 import 'dart:async';
 import 'dart:convert';
 
@@ -5,7 +6,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_chromium_webview/chromium_youtube_player.dart';
 import 'package:flutter_chromium_webview/flutter_chromium_webview.dart';
 import 'package:pp_playback_engine/pp_playback_engine.dart';
-import 'package:ppplayer/core/playback/chromium_playback_engine.dart';
 
 class NativeFallback extends Fake implements PlaybackController {
   final statuses = StreamController<PlaybackStatus>.broadcast(sync: true);
@@ -276,7 +276,7 @@ void main() {
     expect(() => engine.setSpeed(2), throwsUnsupportedError);
   });
   test(
-    'switching to local and playlist keeps fallback and ignores old video events',
+    'switching to local keeps fallback and ignores old video events',
     () async {
       await engine.play(video);
       final old = players.single;
@@ -293,17 +293,6 @@ void main() {
       expect(engine.renderer, 'native-renderer');
       await engine.pause(caller: 'native', failOnTimeout: true);
       expect(native.calls, contains('pause:native:true'));
-      await engine.play(
-        const PlaybackTrack(
-          id: 'PL_fixture_playlist_identifier',
-          title: 'Playlist',
-        ),
-      );
-      expect(players.length, 1);
-      expect(
-        native.calls,
-        contains('play:PL_fixture_playlist_identifier:true'),
-      );
     },
   );
   test('late old player error cannot corrupt new track', () async {

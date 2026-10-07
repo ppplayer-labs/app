@@ -4,6 +4,8 @@ enum PlaybackSourceType { online, local, networkStream }
 
 enum PlaybackLiveStatus { unknown, live, onDemand }
 
+enum YoutubeSourceType { video, playlist }
+
 class PlaybackTrack {
   final String id;
   final String title;
@@ -18,6 +20,7 @@ class PlaybackTrack {
   final String? localMediaUri;
   final String? networkMediaUri;
   final bool isVideo;
+  final YoutubeSourceType? youtubeSourceType;
 
   /// Explicit flag set by the upstream coordinator (e.g. manifest parser)
   /// to indicate this stream is known to be a live broadcast.
@@ -35,6 +38,7 @@ class PlaybackTrack {
     this.localMediaUri,
     this.networkMediaUri,
     this.isVideo = false,
+    this.youtubeSourceType,
     this.liveStatus = PlaybackLiveStatus.unknown,
     this.httpHeaders,
   });

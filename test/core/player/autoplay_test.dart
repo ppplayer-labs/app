@@ -11,7 +11,6 @@ import 'package:ppplayer/core/api/spotify_repository.dart';
 import 'package:ppplayer/core/services/settings_provider.dart';
 import 'package:ppplayer/core/cache/catalog_cache_repository.dart';
 // ignore: depend_on_referenced_packages
-import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 // ---------------------------------------------------------------------------
 // Stubs
@@ -73,10 +72,6 @@ class FakePlaybackController implements PlaybackController {
 
   @override
   Future<void> setSpeed(double speed) async {}
-
-  @override
-  YoutubePlayerController? get youtubeController => null;
-
   @override
   Stream<PlaybackStatus> get statusStream => _statusController.stream;
 

@@ -144,10 +144,6 @@ class SpeedMockEngine implements PlaybackController {
 
   @override
   dynamic get renderer => null;
-
-  @override
-  yt.YoutubePlayerController? get youtubeController => null;
-
   @override
   Future<void> dispose() async {
     _statusController.close();

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:pp_playback_engine/pp_playback_engine.dart';
-import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import '../network_outputs/local_media_server.dart';
 import '../network_outputs/network_media_factory.dart';
 
@@ -139,7 +138,4 @@ class LocalFilePlaybackController implements PlaybackController {
   @override
   bool get supportsVideoFitMode => _engine.supportsVideoFitMode;
   @override
-  dynamic get renderer => _engine.renderer;
-  @override
-  YoutubePlayerController? get youtubeController => _engine.youtubeController;
-}
+  dynamic get renderer => _engine.renderer;}

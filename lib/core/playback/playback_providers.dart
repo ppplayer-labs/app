@@ -25,7 +25,7 @@ extension TrackToPlayback on Track {
           'Cannot create PlaybackTrack: youtubeVideoId is null for online track',
         );
       }
-      if (youtubeVideoId!.length != 11 || youtubeVideoId!.contains('http')) {
+      if (youtubeVideoId!.contains('http')) {
         throw StateError(
           'Cannot create PlaybackTrack: Invalid online source ID "$youtubeVideoId"',
         );
@@ -45,6 +45,7 @@ extension TrackToPlayback on Track {
 
     PlaybackSourceType playbackSource;
     String finalId = spotifyId;
+    YoutubeSourceType? youtubeSourceType;
 
     switch (sourceType) {
       case TrackSourceType.local:
@@ -75,6 +76,11 @@ extension TrackToPlayback on Track {
             if (match != null && match.groupCount >= 1) {
               playbackSource = PlaybackSourceType.online;
               finalId = match.group(1)!;
+              if (exp.pattern.contains('playlist')) {
+                youtubeSourceType = YoutubeSourceType.playlist;
+              } else {
+                youtubeSourceType = YoutubeSourceType.video;
+              }
               break;
             }
           }
@@ -83,6 +89,11 @@ extension TrackToPlayback on Track {
       case TrackSourceType.online:
         playbackSource = PlaybackSourceType.online;
         finalId = youtubeVideoId!;
+        if (finalId.length > 11 && (finalId.startsWith('PL') || finalId.startsWith('RD') || finalId.startsWith('LL'))) {
+          youtubeSourceType = YoutubeSourceType.playlist;
+        } else {
+          youtubeSourceType = YoutubeSourceType.video;
+        }
         break;
     }
 
@@ -99,6 +110,7 @@ extension TrackToPlayback on Track {
       localMediaUri: localFilePath,
       networkMediaUri: networkStreamUrl,
       isVideo: isVideoFile,
+      youtubeSourceType: youtubeSourceType,
       liveStatus: mapLiveStatus(liveStatus),
       httpHeaders: httpHeaders,
     );
@@ -155,9 +167,11 @@ final localPlaybackControllerProvider = Provider<PlaybackController>((ref) {
           TargetPlatform.iOS,
           TargetPlatform.macOS,
         }.contains(defaultTargetPlatform)
-        ? LocalFilePlaybackController(
-            mediaKit,
-            acquireFileLease: acquireAppleOutputFileLease,
+        ? IframeYoutubePlaybackEngine(
+            fallback: LocalFilePlaybackController(
+              mediaKit,
+              acquireFileLease: acquireAppleOutputFileLease,
+            ),
           )
         : mediaKit;
 
@@ -167,7 +181,6 @@ final localPlaybackControllerProvider = Provider<PlaybackController>((ref) {
           TargetPlatform.windows,
           TargetPlatform.linux,
           TargetPlatform.macOS,
-          TargetPlatform.iOS,
         }.contains(defaultTargetPlatform)) {
       engine = ChromiumPlaybackEngine(
         fallback: engine,

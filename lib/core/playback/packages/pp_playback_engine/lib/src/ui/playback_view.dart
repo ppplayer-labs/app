@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:media_kit_video/media_kit_video.dart' as mk;
-import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import 'pp_logo_loader.dart';
 
 import '../engine/playback_controller.dart';
@@ -32,8 +31,6 @@ class PlaybackView extends StatefulWidget {
 class _PlaybackViewState extends State<PlaybackView> {
   bool _toggle = false;
   Size? _lastSize;
-  Widget? _cachedYoutubePlayer;
-  YoutubePlayerController? _lastController;
   Timer? _pumpTimer;
 
   @override
@@ -74,49 +71,6 @@ class _PlaybackViewState extends State<PlaybackView> {
     // Changing the layout constraints forces the platform view to update its global position!
     if (isWindows) {
       _toggle = !_toggle;
-    }
-
-    if (widget.status.isIFrameMode &&
-        widget.controller.youtubeController != null) {
-      if (_cachedYoutubePlayer == null ||
-          _lastController != widget.controller.youtubeController) {
-        _lastController = widget.controller.youtubeController;
-        _cachedYoutubePlayer = YoutubePlayer(
-          key: const ValueKey('pp_youtube_iframe'),
-          controller: _lastController!,
-          backgroundColor: Colors.transparent,
-        );
-      }
-
-      Widget playerWidget = _cachedYoutubePlayer!;
-
-      if (isWindows) {
-        playerWidget = LayoutBuilder(
-          builder: (context, constraints) {
-            // Alternate the width by 0.01px to FORCE a layout pass every build.
-            // This causes the Win32 platform view to update its global position.
-            final targetWidth = constraints.maxWidth - (!_toggle ? 0.01 : 0.0);
-            return SizedBox(
-              width: targetWidth < 0 ? 0.0 : targetWidth,
-              height: constraints.maxHeight,
-              child: _cachedYoutubePlayer!,
-            );
-          },
-        );
-      }
-
-      return ColoredBox(
-        color: Colors.transparent,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            playerWidget,
-            if (widget.status.state == PlaybackState.preparing ||
-                widget.status.state == PlaybackState.buffering)
-              Center(child: PPLogoLoader(size: 60, color: Colors.white)),
-          ],
-        ),
-      );
     }
 
     final renderer = widget.controller.renderer;

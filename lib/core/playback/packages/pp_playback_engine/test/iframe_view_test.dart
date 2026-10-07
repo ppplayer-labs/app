@@ -74,7 +74,7 @@ void main() {
     when(
       () => mockController.statusStream,
     ).thenAnswer((_) => Stream.value(status));
-    when(() => mockController.youtubeController).thenReturn(ytController);
+
 
     // 2. Build the widget
     await tester.pumpWidget(
@@ -103,9 +103,7 @@ void main() {
     when(
       () => mockController.statusStream,
     ).thenAnswer((_) => Stream.value(statusIFrame));
-    when(() => mockController.youtubeController).thenReturn(null);
-
-    // Verify IFrame branch doesn't throw even with null youtubeController (it should handle it in build)
+    // Verify IFrame branch doesn't throw even with null renderer (it should handle it in build)
     await tester.pumpWidget(
       MaterialApp(
         home: PlaybackView(controller: mockController, status: statusIFrame),

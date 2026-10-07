@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pp_playback_engine/pp_playback_engine.dart';
-import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import 'package:ppplayer/core/network_outputs/models.dart';
 import 'package:ppplayer/core/network_outputs/network_output_backend.dart';
 import 'package:ppplayer/core/network_outputs/network_output_controller.dart';
@@ -141,10 +140,7 @@ class FakePlaybackController implements PlaybackController {
   @override
   bool get supportsVideoFitMode => false;
   @override
-  dynamic get renderer => null;
-  @override
-  YoutubePlayerController? get youtubeController => null;
-  @override
+  dynamic get renderer => null;  @override
   Future<void> dispose() async {
     disposed = true;
     await _status.close();

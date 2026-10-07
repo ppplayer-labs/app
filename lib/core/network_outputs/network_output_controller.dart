@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:pp_playback_engine/pp_playback_engine.dart';
-import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 import 'capability_resolver.dart';
 import 'models.dart';
@@ -943,10 +942,7 @@ class NetworkOutputController implements PlaybackController {
   @override
   PlaybackStatus get currentStatus => _status;
   @override
-  dynamic get renderer => _local.renderer;
-  @override
-  YoutubePlayerController? get youtubeController => _local.youtubeController;
-  @override
+  dynamic get renderer => _local.renderer;  @override
   bool get supportsSpeed => _remote == null && _local.supportsSpeed;
   @override
   bool get supportsTrackSelection =>

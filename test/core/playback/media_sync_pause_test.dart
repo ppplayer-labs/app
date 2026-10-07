@@ -62,8 +62,7 @@ void main() {
         }
         final renderer = FakeYoutubeController();
         final engine = MediaKitPlaybackEngine(
-          youtubeControllerFactory: (_, _) => renderer,
-        );
+                  );
         final container = ProviderContainer(
           overrides: [
             playbackControllerProvider.overrideWithValue(engine),
@@ -146,8 +145,7 @@ void main() {
       await Hive.openBox('player_state');
       final renderer = FakeYoutubeController();
       final engine = MediaKitPlaybackEngine(
-        youtubeControllerFactory: (_, _) => renderer,
-      );
+              );
       late ProviderContainer container;
       final handler = PpPlayerAudioHandler(() => container);
       container = ProviderContainer(

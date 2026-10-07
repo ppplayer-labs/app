@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:pp_playback_engine/pp_playback_engine.dart';
 import 'package:ppplayer/core/playback/hybrid_playback_engine.dart';
 import 'package:ppplayer/core/playback/pip_handler.dart';
-import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 // ---------------------------------------------------------------------------
 // Controllable fake engine — lets tests pause/resume play/pause at will.
@@ -118,10 +117,7 @@ class FakeEngine implements PlaybackController {
   }
 
   @override
-  dynamic get renderer => null;
-  @override
-  YoutubePlayerController? get youtubeController => null;
-  @override
+  dynamic get renderer => null;  @override
   Future<void> setSubtitleTrack(String? uri) async {}
 
   @override
