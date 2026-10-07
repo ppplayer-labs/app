@@ -74,3 +74,4 @@ settings.lock
 
 # Generated Android Kotlin cache
 .kotlin/
+dist/

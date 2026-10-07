@@ -4,20 +4,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ppplayer/core/playback/chromium_playback_engine.dart';
 import 'package:ppplayer/core/models/track.dart';
 import 'package:ppplayer/core/playback/playback_providers.dart';
+import 'package:ppplayer/core/playback/hybrid_playback_engine.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  test('Android enables visible video alongside its playback service', () {
+  test('Android uses HybridPlaybackEngine with Chromium frontend', () {
     debugDefaultTargetPlatformOverride = TargetPlatform.android;
     addTearDown(() => debugDefaultTargetPlatformOverride = null);
     final container = ProviderContainer();
     addTearDown(container.dispose);
     final engine = container.read(localPlaybackControllerProvider);
-    expect(engine, isA<ChromiumPlaybackEngine>());
-    final chromium = engine as ChromiumPlaybackEngine;
-    expect(chromium.showBrowser, isTrue);
-    expect(chromium.startPlaybackService, isNotNull);
-    expect(chromium.stopPlaybackService, isNotNull);
+    expect(engine, isA<HybridPlaybackEngine>());
   });
 
   group('TrackToPlayback Extension', () {

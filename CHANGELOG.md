@@ -4,6 +4,12 @@ All notable changes to PPPlayer will be documented in this file.
 
 ## [Unreleased]
 
+## [3.0.3] - 2026-10-06
+
+### Added
+- Added Linux distribution pipeline including AppImage, Debian package, and Portable tarball artifacts.
+- Unified application identifier to `com.ppplayer.app` across all Linux packages.
+
 ## [3.1.0] - 2026-10-06
 
 ### Added
