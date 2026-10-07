@@ -294,11 +294,46 @@ jobs:
           name: PPPlayer-Windows-MSIX
           path: build/windows/x64/runner/Release/*.msix
 
-  # TODO: Build Linux App (build-linux)
+  build-linux:
+    name: Build Linux App
+    needs: validate-and-test
+    if: needs.validate-and-test.outputs.is_new_version == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install System Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev libgl1-mesa-dev libegl1-mesa-dev libx11-dev libxcb1-dev libstdc++-11-dev libvulkan-dev
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.4'
+          channel: 'stable'
+          cache: true
+
+      - name: Build Linux Packages
+        run: |
+          chmod +x packaging/linux/scripts/build_linux.sh
+          ./packaging/linux/scripts/build_linux.sh
+
+      - name: Validate Checksums
+        run: |
+          cd dist
+          sha256sum -c SHA256SUMS
+
+      - name: Upload Linux Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: PPPlayer-Linux
+          path: dist/
 
   publish-release:
     name: Publish GitHub Release
-    needs: [validate-and-test, build-android, build-macos, build-windows]
+    needs: [validate-and-test, build-android, build-macos, build-windows, build-linux]
     if: needs.validate-and-test.outputs.is_new_version == 'true'
     runs-on: ubuntu-latest
     permissions:
@@ -343,6 +378,11 @@ jobs:
              exit 1
           fi
 
+          if [ ! -f "artifacts/PPPlayer-Linux/PPPlayer-Linux-x86_64.AppImage" ]; then
+             echo "::error::Linux AppImage artifact is missing!"
+             exit 1
+          fi
+
       - name: Prepare Assets & Checksums
         run: |
           mkdir -p release-assets
@@ -351,6 +391,10 @@ jobs:
           cp artifacts/PPPlayer-macOS-zip/PPPlayer-macOS.zip release-assets/PPPlayer-macOS.zip
           cp artifacts/PPPlayer-macOS-dmg/PPPlayer-macOS.dmg release-assets/PPPlayer-macOS.dmg
           cp artifacts/PPPlayer-Windows-MSIX/*.msix release-assets/PPPlayer-Windows.msix
+          cp artifacts/PPPlayer-Linux/PPPlayer-Linux-x86_64.AppImage release-assets/
+          cp artifacts/PPPlayer-Linux/PPPlayer-Linux-x86_64.tar.gz release-assets/
+          cp artifacts/PPPlayer-Linux/ppplayer_*_amd64.deb release-assets/
+          cp artifacts/PPPlayer-Linux/SHA256SUMS release-assets/SHA256SUMS
           
           cd release-assets
           shasum -a 256 * > checksums.txt

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Name=PPPlayer
+Comment=Media player powered by Lucas Veneno.
+Exec=ppplayer %U
+Icon=com.ppplayer.app
+Terminal=false
+Type=Application
+Categories=AudioVideo;Audio;Video;Player;
+MimeType=audio/mpeg;audio/x-wav;audio/ogg;audio/flac;video/mp4;video/x-matroska;video/webm;x-scheme-handler/ppplayer;

@@ -21,6 +21,28 @@ These describe the development tree, not availability in every published binary.
 - [Android setup](README_ANDROID.md), [macOS release guide](MACOS_RELEASE_GUIDE.md), [Windows Store release guide](docs/WINDOWS_STORE_RELEASE.md).
 - [Historical architecture discovery](PPPLAYER_CONTEXT.md): September 2026 snapshot; use the current guides above for playback behavior.
 
+## Linux Installation
+
+PPPlayer is distributed in multiple formats for Linux (x86_64). Tested on Ubuntu 26.04 and Debian-based systems.
+
+**AppImage**
+```bash
+chmod +x PPPlayer-Linux-x86_64.AppImage
+./PPPlayer-Linux-x86_64.AppImage
+```
+
+**Debian/Ubuntu (.deb)**
+```bash
+sudo apt install ./ppplayer_<version>_amd64.deb
+```
+
+**Portable archive (tar.gz)**
+```bash
+tar -xzf PPPlayer-Linux-x86_64.tar.gz
+cd PPPlayer
+./ppplayer
+```
+
 ## Development
 
 Install Flutter compatible with the Dart constraint in `pubspec.yaml`, along with the target platform's native toolchain. Supply the local `.env` configuration expected by `lib/main.dart`; never commit credentials.

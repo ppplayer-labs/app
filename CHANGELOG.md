@@ -4,6 +4,39 @@ All notable changes to PPPlayer will be documented in this file.
 
 ## [Unreleased]
 
+## [3.1.0] - 2026-10-06
+
+### Added
+
+- Unified Chromium playback engine across all platforms with comprehensive testing and integration.
+- Playback providers and CMake build configuration for Linux and Windows platforms.
+- Store listing builder tool and updated Linux run configuration.
+- Additional internationalization support with multiple language localizations.
+
+### Changed
+
+- Redesigned queue with now playing and compact upcoming tracks, presented in a desktop panel and mobile sheet.
+- Separated queue navigation from fullscreen video and refined desktop queue and fullscreen player layout.
+- Windows Chromium video now fills behind player controls.
+- Promoted preview playback fixes and validation into the main app.
+- Integrated published native media package and documented playback usage.
+
+### Fixed
+
+- Fixed Chromium renderer controls and desktop Cast startup.
+
+## [3.0.2] - 2026-10-06
+
+### Added
+- Added lofty v0.22.4 metadata library for audio playback package.
+
+### Changed
+- Updated iOS app icons, release documentation, and encryption declaration.
+- Hardcoded macOS deployment target to 12.0 to resolve CI build failure.
+
+### Fixed
+- Resolved undefined variable error in user authentication module.
+
 ## [3.0.1] - 2026-10-02
 
 ### Fixed
