@@ -10,6 +10,8 @@ PPPlayer is a Flutter media player for music discovery, local music and video li
 - A responsive video player with a dedicated **Queue** button and secondary playback options.
 - iPhone lock-screen and Control Center play/pause commands that respect explicit playback intent.
 - Correct local-audio artwork without stale video thumbnails; file and network images go through `PPImage`.
+- **Unified Chromium playback engine** across all platforms for a consistent media experience.
+- Redesigned queue interface with desktop panel and mobile sheet integration, and a refined fullscreen player layout.
 
 These describe the development tree, not availability in every published binary. iOS is not yet publicly available. Local AirPlay and system commands have been checked on a physical iPhone; physical Chromecast and DLNA receiver testing remain pending.
 
