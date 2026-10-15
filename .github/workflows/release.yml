@@ -51,7 +51,12 @@ jobs:
       - name: Check Formatting
         run: |
           # Preserve the app's established formatting through the SDK upgrade.
-          git ls-files -z -- ':(glob)lib/**/*.dart' ':(glob)test/**/*.dart' ':(glob)integration_test/**/*.dart' ':!:lib/core/playback/packages/**' ':!:**/*.g.dart' ':!:**/*.freezed.dart' | xargs -0 dart format --language-version=3.8 --output=none --set-exit-if-changed
+          if ! git ls-files -z -- ':(glob)lib/**/*.dart' ':(glob)test/**/*.dart' ':(glob)integration_test/**/*.dart' ':!:lib/core/playback/packages/**' ':!:**/*.g.dart' ':!:**/*.freezed.dart' | xargs -0 dart format --language-version=3.8 --output=none --set-exit-if-changed; then
+            echo "::error::Dart format check failed. Printing diff:"
+            git ls-files -z -- ':(glob)lib/**/*.dart' ':(glob)test/**/*.dart' ':(glob)integration_test/**/*.dart' ':!:lib/core/playback/packages/**' ':!:**/*.g.dart' ':!:**/*.freezed.dart' | xargs -0 dart format --language-version=3.8
+            git diff
+            exit 1
+          fi
           # Match the nested engine's pubspec SDK floor even when its own
           # generated package_config.json is absent in a fresh checkout.
           dart format --language-version=3.7 --output=none --set-exit-if-changed lib/core/playback/packages/pp_playback_engine/lib lib/core/playback/packages/pp_playback_engine/test
