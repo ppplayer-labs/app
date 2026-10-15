@@ -118,9 +118,9 @@ class _StreamPlaylistDetailScreenState
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to refresh playlist: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to refresh playlist: $e')));
     } finally {
       if (mounted) {
         setState(() => _isRefreshing = false);
@@ -153,10 +153,7 @@ class _StreamPlaylistDetailScreenState
     );
   }
 
-  void _editPlaylist(
-    BuildContext context,
-    StreamPlaylist playlist,
-  ) {
+  void _editPlaylist(BuildContext context, StreamPlaylist playlist) {
     final controller = TextEditingController(text: playlist.title);
     showDialog(
       context: context,
@@ -332,8 +329,9 @@ class _StreamPlaylistDetailScreenState
                     c.groupTitle?.toLowerCase().contains(_searchQuery) ?? false;
                 final matchTvgId =
                     c.tvgId?.toLowerCase().contains(_searchQuery) ?? false;
-                final matchUrl =
-                    c.streamUrl.toLowerCase().contains(_searchQuery);
+                final matchUrl = c.streamUrl.toLowerCase().contains(
+                  _searchQuery,
+                );
                 if (!matchTitle && !matchGroup && !matchTvgId && !matchUrl) {
                   return false;
                 }
@@ -348,7 +346,8 @@ class _StreamPlaylistDetailScreenState
                         controller: _searchController,
                         autofocus: true,
                         decoration: InputDecoration(
-                          hintText: '${AppLocalizations.of(context)!.search}...',
+                          hintText:
+                              '${AppLocalizations.of(context)!.search}...',
                           border: InputBorder.none,
                           suffixIcon: _searchController.text.isNotEmpty
                               ? IconButton(
@@ -364,9 +363,7 @@ class _StreamPlaylistDetailScreenState
                 actions: [
                   IconButton(
                     icon: Icon(
-                      _isSearching
-                          ? Icons.close_rounded
-                          : Icons.search_rounded,
+                      _isSearching ? Icons.close_rounded : Icons.search_rounded,
                     ),
                     onPressed: () {
                       setState(() {
@@ -456,7 +453,11 @@ class _StreamPlaylistDetailScreenState
                         value: 'delete',
                         child: Row(
                           children: [
-                            const Icon(Icons.delete, size: 20, color: Colors.red),
+                            const Icon(
+                              Icons.delete,
+                              size: 20,
+                              color: Colors.red,
+                            ),
                             const SizedBox(width: 8),
                             Text(
                               AppLocalizations.of(context)!.deletePlaylist,
@@ -528,8 +529,13 @@ class _StreamPlaylistDetailScreenState
                                   vertical: 4,
                                 ),
                               ),
-                              icon: const Icon(Icons.play_arrow_rounded, size: 18),
-                              label: Text(AppLocalizations.of(context)!.playAll),
+                              icon: const Icon(
+                                Icons.play_arrow_rounded,
+                                size: 18,
+                              ),
+                              label: Text(
+                                AppLocalizations.of(context)!.playAll,
+                              ),
                               onPressed: () => _playAll(filteredChannels),
                             ),
                         ],
@@ -548,7 +554,9 @@ class _StreamPlaylistDetailScreenState
                           return Center(
                             child: EmptyResultsWidget(
                               icon: Icons.connected_tv_rounded,
-                              message: AppLocalizations.of(context)!.noResultsFound,
+                              message: AppLocalizations.of(
+                                context,
+                              )!.noResultsFound,
                             ),
                           );
                         }
@@ -578,8 +586,9 @@ class _StreamPlaylistDetailScreenState
                           );
                         }
 
-                        final allTracks =
-                            filteredChannels.map(_channelToTrack).toList();
+                        final allTracks = filteredChannels
+                            .map(_channelToTrack)
+                            .toList();
 
                         return ListView.builder(
                           itemCount: filteredChannels.length,
@@ -587,15 +596,17 @@ class _StreamPlaylistDetailScreenState
                             final channel = filteredChannels[index];
                             final isCurrent =
                                 currentTrack?.networkStreamUrl ==
-                                    channel.streamUrl;
+                                channel.streamUrl;
                             final qualityBadge = _StreamMetadata.extractQuality(
                               channel.title,
                               tvgId: channel.tvgId,
                             );
-                            final formatBadge =
-                                _StreamMetadata.extractFormat(channel.streamUrl);
-                            final domain =
-                                _StreamMetadata.extractDomain(channel.streamUrl);
+                            final formatBadge = _StreamMetadata.extractFormat(
+                              channel.streamUrl,
+                            );
+                            final domain = _StreamMetadata.extractDomain(
+                              channel.streamUrl,
+                            );
 
                             return Dismissible(
                               key: ValueKey(channel.id),
@@ -625,13 +636,15 @@ class _StreamPlaylistDetailScreenState
                                   child: SizedBox(
                                     width: 44,
                                     height: 44,
-                                    child: channel.logo != null &&
+                                    child:
+                                        channel.logo != null &&
                                             channel.logo!.isNotEmpty
                                         ? PPImage(
                                             imageUrl: channel.logo!,
                                             fit: BoxFit.contain,
-                                            borderRadius:
-                                                BorderRadius.circular(8),
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
                                           )
                                         : Container(
                                             color: colorScheme
@@ -640,7 +653,8 @@ class _StreamPlaylistDetailScreenState
                                               Icons.tv_rounded,
                                               color: isCurrent
                                                   ? colorScheme.primary
-                                                  : colorScheme.onSurfaceVariant,
+                                                  : colorScheme
+                                                        .onSurfaceVariant,
                                               size: 24,
                                             ),
                                           ),
@@ -686,8 +700,9 @@ class _StreamPlaylistDetailScreenState
                                           decoration: BoxDecoration(
                                             color: colorScheme
                                                 .surfaceContainerHighest,
-                                            borderRadius:
-                                                BorderRadius.circular(4),
+                                            borderRadius: BorderRadius.circular(
+                                              4,
+                                            ),
                                           ),
                                           child: Text(
                                             qualityBadge,
@@ -706,11 +721,11 @@ class _StreamPlaylistDetailScreenState
                                           vertical: 1,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: colorScheme
-                                              .primaryContainer
+                                          color: colorScheme.primaryContainer
                                               .withValues(alpha: 0.5),
-                                          borderRadius:
-                                              BorderRadius.circular(4),
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
                                         ),
                                         child: Text(
                                           formatBadge,
@@ -858,7 +873,9 @@ class _StreamPlaylistDetailScreenState
                                   ],
                                 ),
                                 onTap: () {
-                                  ref.read(playerProvider.notifier).playTrack(
+                                  ref
+                                      .read(playerProvider.notifier)
+                                      .playTrack(
                                         allTracks[index],
                                         queue: allTracks,
                                         queueIndex: index,

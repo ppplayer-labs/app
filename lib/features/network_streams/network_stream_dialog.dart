@@ -201,10 +201,7 @@ class _NetworkStreamDialogState extends ConsumerState<NetworkStreamDialog> {
       }
 
       // For autoDetect or custom, analyze URL contents
-      final analysis = await service.analyzeUrl(
-        url,
-        client: _activeClient,
-      );
+      final analysis = await service.analyzeUrl(url, client: _activeClient);
 
       if (analysis.channels.isEmpty) {
         if (!mounted) return;
@@ -255,13 +252,9 @@ class _NetworkStreamDialogState extends ConsumerState<NetworkStreamDialog> {
 
         if (mounted) {
           Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                l10n.addedVideo,
-              ),
-            ),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(l10n.addedVideo)));
         }
       } else {
         if (mounted) {
@@ -272,7 +265,8 @@ class _NetworkStreamDialogState extends ConsumerState<NetworkStreamDialog> {
             streamUrl: first.url,
             title: first.title.isNotEmpty ? first.title : streamTitle,
             groupTitle: first.groupTitle ?? _selectedPlatform.displayName,
-            logoUrl: first.tvgLogo ??
+            logoUrl:
+                first.tvgLogo ??
                 (_imageUrlController.text.trim().isNotEmpty
                     ? _imageUrlController.text.trim()
                     : null),

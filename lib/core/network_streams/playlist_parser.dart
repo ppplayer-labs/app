@@ -176,8 +176,8 @@ class PlaylistParser {
           currentTitle = (tvgName != null && tvgName.isNotEmpty)
               ? tvgName
               : (currentTvgId != null && currentTvgId.isNotEmpty
-                  ? currentTvgId
-                  : 'Unknown Channel');
+                    ? currentTvgId
+                    : 'Unknown Channel');
         }
 
         currentTvgLogo =
@@ -266,8 +266,9 @@ class PlaylistParser {
               tvgId: currentTvgId,
               tvgLogo: currentTvgLogo,
               groupTitle: currentGroupTitle,
-              httpHeaders:
-                  currentHeaders != null ? Map.from(currentHeaders) : null,
+              httpHeaders: currentHeaders != null
+                  ? Map.from(currentHeaders)
+                  : null,
             ),
           );
         }

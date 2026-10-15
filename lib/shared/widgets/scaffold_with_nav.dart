@@ -326,7 +326,10 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
                                     queue_ui.queuePanelWidthProvider,
                                   );
                                   var target = current - delta;
-                                  if ((target - queue_ui.kDefaultQueuePanelWidth).abs() < 8.0) {
+                                  if ((target -
+                                              queue_ui.kDefaultQueuePanelWidth)
+                                          .abs() <
+                                      8.0) {
                                     target = queue_ui.kDefaultQueuePanelWidth;
                                   }
                                   final newWidth = target.clamp(
@@ -335,14 +338,18 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
                                   );
                                   ref
                                       .read(
-                                        queue_ui.queuePanelWidthProvider.notifier,
+                                        queue_ui
+                                            .queuePanelWidthProvider
+                                            .notifier,
                                       )
                                       .setWidth(newWidth);
                                 },
                                 onReset: () {
                                   ref
                                       .read(
-                                        queue_ui.queuePanelWidthProvider.notifier,
+                                        queue_ui
+                                            .queuePanelWidthProvider
+                                            .notifier,
                                       )
                                       .reset();
                                 },
@@ -723,7 +730,8 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
 
     if (errLower.contains('forbidden') || errLower.contains('403')) {
       title = 'Access Forbidden (HTTP 403)';
-      subtitle = 'This stream is restricted or requires authentication credentials.';
+      subtitle =
+          'This stream is restricted or requires authentication credentials.';
       iconData = Icons.lock_outline_rounded;
     } else if (errLower.contains('not_found') ||
         errLower.contains('404') ||
@@ -740,7 +748,8 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
       iconData = Icons.wifi_off_rounded;
     } else if (errLower.contains('unsupported_format')) {
       title = AppLocalizations.of(context)!.playbackErrorUnsupportedFormat;
-      subtitle = 'The media format or codec is not supported by the playback engine.';
+      subtitle =
+          'The media format or codec is not supported by the playback engine.';
       iconData = Icons.video_file_outlined;
     } else if (errLower.contains('file_inaccessible')) {
       title = AppLocalizations.of(context)!.playbackErrorFileInaccessible;
@@ -752,7 +761,9 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
       iconData = Icons.sync_problem_rounded;
     } else {
       title = 'Playback Failed';
-      subtitle = loadError.startsWith('error:') ? loadError.substring(6) : loadError;
+      subtitle = loadError.startsWith('error:')
+          ? loadError.substring(6)
+          : loadError;
       iconData = Icons.error_outline_rounded;
     }
 
@@ -769,7 +780,10 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
 
                 if (isMini) {
                   return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     child: Row(
                       children: [
                         Icon(iconData, color: colorScheme.error, size: 20),
@@ -788,7 +802,8 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
                         ),
                         const SizedBox(width: 8),
                         TactileTap(
-                          onTap: () => ref.read(playerProvider.notifier).retryLoad(),
+                          onTap: () =>
+                              ref.read(playerProvider.notifier).retryLoad(),
                           child: Container(
                             padding: const EdgeInsets.all(7),
                             decoration: BoxDecoration(
@@ -805,7 +820,8 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
                         if (hasNext) ...[
                           const SizedBox(width: 6),
                           TactileTap(
-                            onTap: () => ref.read(playerProvider.notifier).skipNext(),
+                            onTap: () =>
+                                ref.read(playerProvider.notifier).skipNext(),
                             child: Container(
                               padding: const EdgeInsets.all(7),
                               decoration: BoxDecoration(
@@ -827,7 +843,10 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
 
                 return Center(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 24,
+                    ),
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 480),
                       child: Column(
@@ -877,7 +896,9 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
                             alignment: WrapAlignment.center,
                             children: [
                               TactileTap(
-                                onTap: () => ref.read(playerProvider.notifier).retryLoad(),
+                                onTap: () => ref
+                                    .read(playerProvider.notifier)
+                                    .retryLoad(),
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 22,
@@ -888,7 +909,9 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
                                     borderRadius: BorderRadius.circular(22),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: colorScheme.primary.withValues(alpha: 0.35),
+                                        color: colorScheme.primary.withValues(
+                                          alpha: 0.35,
+                                        ),
                                         blurRadius: 10,
                                         offset: const Offset(0, 4),
                                       ),
@@ -917,17 +940,21 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
                               ),
                               if (hasNext)
                                 TactileTap(
-                                  onTap: () => ref.read(playerProvider.notifier).skipNext(),
+                                  onTap: () => ref
+                                      .read(playerProvider.notifier)
+                                      .skipNext(),
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 22,
                                       vertical: 11,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: colorScheme.surfaceContainerHighest,
+                                      color:
+                                          colorScheme.surfaceContainerHighest,
                                       borderRadius: BorderRadius.circular(22),
                                       border: Border.all(
-                                        color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+                                        color: colorScheme.outlineVariant
+                                            .withValues(alpha: 0.5),
                                       ),
                                     ),
                                     child: Row(
@@ -1465,10 +1492,7 @@ class _MiniPlayerBar extends ConsumerWidget {
 }
 
 class _QueueResizeDivider extends StatefulWidget {
-  const _QueueResizeDivider({
-    required this.onResize,
-    required this.onReset,
-  });
+  const _QueueResizeDivider({required this.onResize, required this.onReset});
 
   final ValueChanged<double> onResize;
   final VoidCallback onReset;
@@ -1530,7 +1554,9 @@ class _QueueResizeDividerState extends State<_QueueResizeDivider> {
                     boxShadow: active
                         ? [
                             BoxShadow(
-                              color: colorScheme.primary.withValues(alpha: 0.45),
+                              color: colorScheme.primary.withValues(
+                                alpha: 0.45,
+                              ),
                               blurRadius: 6,
                               spreadRadius: 1,
                             ),

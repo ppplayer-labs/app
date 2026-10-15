@@ -488,8 +488,7 @@ class MediaKitPlaybackEngine implements PlaybackController {
             errStr.contains('codec') ||
             errStr.contains('corrupt')) {
           errorCode = 'error:unsupported_format';
-        } else if (errStr.contains('access') ||
-            errStr.contains('permission')) {
+        } else if (errStr.contains('access') || errStr.contains('permission')) {
           errorCode = 'error:file_inaccessible';
         }
         _watchdogTimer?.cancel();

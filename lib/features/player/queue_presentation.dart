@@ -25,7 +25,10 @@ class QueuePanelWidthNotifier extends Notifier<double> {
       if (Hive.isBoxOpen(_boxName)) {
         final saved = Hive.box(_boxName).get(_queueWidthKey);
         if (saved is num) {
-          return saved.toDouble().clamp(kMinQueuePanelWidth, kMaxQueuePanelWidth);
+          return saved.toDouble().clamp(
+            kMinQueuePanelWidth,
+            kMaxQueuePanelWidth,
+          );
         }
       } else {
         _loadPersistedWidth();
@@ -42,7 +45,10 @@ class QueuePanelWidthNotifier extends Notifier<double> {
       final box = await Hive.openBox(_boxName);
       final saved = box.get(_queueWidthKey);
       if (saved is num) {
-        state = saved.toDouble().clamp(kMinQueuePanelWidth, kMaxQueuePanelWidth);
+        state = saved.toDouble().clamp(
+          kMinQueuePanelWidth,
+          kMaxQueuePanelWidth,
+        );
       }
     } catch (_) {
       // Ignore storage errors on startup or in unit tests
@@ -78,8 +84,8 @@ class QueuePanelWidthNotifier extends Notifier<double> {
 
 final queuePanelWidthProvider =
     NotifierProvider<QueuePanelWidthNotifier, double>(
-  QueuePanelWidthNotifier.new,
-);
+      QueuePanelWidthNotifier.new,
+    );
 
 class QueuePanelVisibility extends Notifier<bool> {
   @override

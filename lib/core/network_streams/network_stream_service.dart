@@ -575,7 +575,8 @@ class NetworkStreamService {
       final inserts = <StreamChannelsCompanion>[];
 
       for (final c in channels) {
-        final streamUrl = (c.httpHeaders != null &&
+        final streamUrl =
+            (c.httpHeaders != null &&
                 c.httpHeaders!.isNotEmpty &&
                 !c.url.contains('|'))
             ? '${c.url}|${c.httpHeaders!.entries.map((e) => '${e.key}=${Uri.encodeComponent(e.value)}').join('&')}'
@@ -689,9 +690,9 @@ class NetworkStreamService {
 
   /// Refreshes an existing playlist from its remote source URL.
   Future<int> refreshPlaylist(int playlistId, {http.Client? client}) async {
-    final playlist = await (_db.select(_db.streamPlaylists)
-          ..where((t) => t.id.equals(playlistId)))
-        .getSingleOrNull();
+    final playlist = await (_db.select(
+      _db.streamPlaylists,
+    )..where((t) => t.id.equals(playlistId))).getSingleOrNull();
     if (playlist == null) return 0;
 
     final analysis = await analyzeUrl(playlist.sourceUri, client: client);

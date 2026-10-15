@@ -251,7 +251,8 @@ class PlayerNotifier extends Notifier<PlayerState> {
       if (isNetworkStream) {
         final err = status.error ?? '';
         final errLower = err.toLowerCase();
-        final isPermanent = errLower.contains('forbidden') ||
+        final isPermanent =
+            errLower.contains('forbidden') ||
             errLower.contains('403') ||
             errLower.contains('404') ||
             errLower.contains('not_found') ||
@@ -1307,7 +1308,8 @@ class PlayerNotifier extends Notifier<PlayerState> {
         'PlayerNotifier: Max network stream recovery attempts reached.',
       );
       state = state.copyWith(
-        loadError: statusError ?? 'Stream failed to connect after multiple attempts',
+        loadError:
+            statusError ?? 'Stream failed to connect after multiple attempts',
         isLoadingVideo: false,
       );
       _isRecovering = false;
