@@ -10,17 +10,8 @@ This guide will help you run the PPPlayer application on an Android emulator usi
 
 ## Running the App
 
-We have provided a convenient bash script to automatically launch an Android emulator and start the app:
-
-```bash
-./run_android.sh
-```
-
-### What the script does:
-1. Checks if an Android emulator or device is already running.
-2. If not, it launches the default emulator (currently configured to `Medium_Phone_API_36.1`).
-3. Waits for the emulator to fully boot.
-4. Executes `flutter run -d android` to compile and install the app on the running emulator.
+Run the commands below from the `app` directory. Use the device ID returned by
+`flutter devices`; the configured local emulator is `Medium_Phone_API_36.1`.
 
 ## Manual Launch (ADB & Flutter CLI)
 
@@ -46,8 +37,37 @@ flutter run
 ```
 If you have multiple devices connected (e.g., an iOS simulator and an Android emulator), specify the Android device:
 ```bash
-flutter run -d android
+flutter run -d emulator-5554
 ```
+
+## Playback acceptance before release
+
+The Android candidate supports ARM64 and x64. YouTube uses a single Android
+Chromium WebView; local files and direct streams use MediaKit. AudioService
+owns system media controls. The Chromium support service does not create a
+second player. Minimizing or locking the screen should preserve playback;
+explicit pause must stay paused until the user requests play.
+
+Run live playback, Home, screen-off, system pause/play and three local-video /
+YouTube source-switch cycles with Python 3:
+
+```bash
+python3 scripts/test_chromium_android.py --device emulator-5554
+```
+
+The existing PowerShell equivalent is `scripts/test_chromium_android.ps1`.
+These tests install a test host under the normal app ID, so use an emulator or
+test device. Reinstall the regular app afterward with `flutter run`.
+When switching from integration tests to a release build, use
+`flutter build apk --release --target-platform android-arm64,android-x64`
+with plugin regeneration enabled (omit `--no-pub`). The local Flutter SDK can
+otherwise leave the integration-only plugin in the release Java registry.
+Logs default to `build/validation/chromium-android-live.log`; `--log` chooses
+another path. The runner fails on a missing lifecycle phase and restores the
+activity after background testing. Secure test devices require a manual unlock
+after the screen-on phase. Emulator success does not establish audible
+output, OEM battery behavior, headset/Bluetooth handling or physical ARM64
+acceptance. See the [current validation report](docs/validation/pre-release-2026-10-14/REPORT.md).
 
 ## Troubleshooting
 

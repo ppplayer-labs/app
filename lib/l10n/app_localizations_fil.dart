@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -337,6 +336,21 @@ class AppLocalizationsFil extends AppLocalizations {
   String get copyLink => 'Kopyahin ang link';
 
   @override
+  String get copySpotifyLink => 'Kopyahin ang link ng Spotify';
+
+  @override
+  String get copyYouTubeLink => 'Kopyahin ang link ng YouTube';
+
+  @override
+  String get copySpotifyId => 'Kopyahin ang Spotify ID';
+
+  @override
+  String get copyYouTubeId => 'Kopyahin ang YouTube ID';
+
+  @override
+  String get idCopied => 'Nakopya ang ID';
+
+  @override
   String get discover => 'Tuklasin';
 
   @override
@@ -394,10 +408,10 @@ class AppLocalizationsFil extends AppLocalizations {
   String get queue1 => 'Pila';
 
   @override
-  String get queueNowPlaying => 'Now playing';
+  String get queueNowPlaying => 'Kasalukuyang Tumutugtog';
 
   @override
-  String get queueUpNext => 'Up next';
+  String get queueUpNext => 'Susunod';
 
   @override
   String get recentlyPlayed => 'Kamakailan lang na Na-play';
@@ -1100,4 +1114,55 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get loadFailed => 'Hindi ma-load ang nilalaman. Subukan muli.';
+
+  @override
+  String get removeFolder => 'Alisin ang folder';
+
+  @override
+  String get removeFolderConfirmTitle => 'Alisin ang folder?';
+
+  @override
+  String removeFolderConfirmMessage(String name) {
+    return 'Alisin ang \"$name\" at ang media nito mula sa iyong library? Hindi mabubura ang mga file sa disk.';
+  }
+
+  @override
+  String fileMissingOnDisk(String name) {
+    return 'Hindi na mahanap ang \"$name\" sa disk';
+  }
+
+  @override
+  String get folderUnavailable =>
+      'Hindi available ang folder. Pakisuri kung nakakonekta ang drive.';
+
+  @override
+  String fileAlreadyImported(String name) {
+    return 'Nasa iyong library na ang \"$name\"';
+  }
+
+  @override
+  String filesAlreadyImported(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count file ay nasa iyong library na',
+      one: '1 file ay nasa iyong library na',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get folderAlreadyImported =>
+      'Na-import na ang folder na ito — naghahanap ng mga bagong file';
+
+  @override
+  String get rescanCompleted => 'Nakumpleto ang pag-rescan ng library';
+
+  @override
+  String rescanFailed(String error) {
+    return 'Nabigong i-rescan ang folder: $error';
+  }
+
+  @override
+  String get importedFolderFallback => 'Na-import na Folder';
 }

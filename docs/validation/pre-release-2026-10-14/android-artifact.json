@@ -1,0 +1,11 @@
+{
+  "apk_sha256": "75fa2dca135277471b32c94c716ecc20a28bbfdc2692b3cd4ce966b221625d2a",
+  "bytes": 94930532,
+  "cupertino_font": {
+    "assets/flutter_assets/packages/cupertino_icons/assets/CupertinoIcons.ttf": 848
+  },
+  "native_abis": [
+    "arm64-v8a",
+    "x86_64"
+  ]
+}

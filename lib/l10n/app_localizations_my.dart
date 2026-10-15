@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -339,6 +338,21 @@ class AppLocalizationsMy extends AppLocalizations {
   String get copyLink => 'လင့်ခ်ကို ကူးယူမည်';
 
   @override
+  String get copySpotifyLink => 'Spotify လင့်ခ်ကို ကူးယူပါ';
+
+  @override
+  String get copyYouTubeLink => 'YouTube လင့်ခ်ကို ကူးယူပါ';
+
+  @override
+  String get copySpotifyId => 'Spotify ID ကို ကူးယူပါ';
+
+  @override
+  String get copyYouTubeId => 'YouTube ID ကို ကူးယူပါ';
+
+  @override
+  String get idCopied => 'ID ကို ကူးယူပြီးပါပြီ';
+
+  @override
   String get discover => 'ရှာဖွေတွေ့ရှိရန်';
 
   @override
@@ -396,10 +410,10 @@ class AppLocalizationsMy extends AppLocalizations {
   String get queue1 => 'တန်းစီစာရင်း';
 
   @override
-  String get queueNowPlaying => 'Now playing';
+  String get queueNowPlaying => 'ယခုဖွင့်နေသည်';
 
   @override
-  String get queueUpNext => 'Up next';
+  String get queueUpNext => 'နောက်တစ်ခု';
 
   @override
   String get recentlyPlayed => 'လတ်တလော ဖွင့်ထားသည်များ';
@@ -1096,4 +1110,54 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get loadFailed => 'အကြောင်းအရာကို မဖွင့်နိုင်ပါ။ ထပ်မံကြိုးစားပါ။';
+
+  @override
+  String get removeFolder => 'ဖိုင်တွဲကို ဖယ်ရှားရန်';
+
+  @override
+  String get removeFolderConfirmTitle => 'ဖိုင်တွဲကို ဖယ်ရှားမလား?';
+
+  @override
+  String removeFolderConfirmMessage(String name) {
+    return '\"$name\" နှင့် ၎င်း၏ မီဒီယာများကို စာကြည့်တိုက်မှ ဖယ်ရှားမလား? ဒစ်ခ်ပေါ်ရှိ ဖိုင်များ ပျက်ပြယ်မည် မဟုတ်ပါ။';
+  }
+
+  @override
+  String fileMissingOnDisk(String name) {
+    return '\"$name\" ကို ဒစ်ခ်ပေါ်တွင် ရှာမတွေ့တော့ပါ';
+  }
+
+  @override
+  String get folderUnavailable =>
+      'ဖိုင်တွဲ မရနိုင်ပါ။ ဒရိုက်ဗ် ချိတ်ဆက်ထားမှု ရှိမရှိ စစ်ဆေးပါ။';
+
+  @override
+  String fileAlreadyImported(String name) {
+    return '\"$name\" သည် စာကြည့်တိုက်တွင် ရှိနှင့်ပြီးသားဖြစ်သည်';
+  }
+
+  @override
+  String filesAlreadyImported(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ဖိုင် $count ခုသည် စာကြည့်တိုက်တွင် ရှိနှင့်ပြီးသားဖြစ်သည်',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get folderAlreadyImported =>
+      'ဤဖိုင်တွဲကို ထည့်သွင်းပြီးဖြစ်သည် — ဖိုင်အသစ်များကို စစ်ဆေးနေသည်';
+
+  @override
+  String get rescanCompleted => 'စာကြည့်တိုက်ကို ပြန်လည်စစ်ဆေးပြီးပါပြီ';
+
+  @override
+  String rescanFailed(String error) {
+    return 'ဖိုင်တွဲကို ပြန်လည်စစ်ဆေး၍မရပါ: $error';
+  }
+
+  @override
+  String get importedFolderFallback => 'သွင်းယူထားသော ဖိုင်တွဲ';
 }

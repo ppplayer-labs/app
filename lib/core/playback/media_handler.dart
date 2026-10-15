@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../player/player_provider.dart';
+import 'playback_providers.dart' show playbackControllerProvider;
 import '../services/favorites_provider.dart';
 
 /// An [AudioHandler] that bridges the Flutter player state with the system media controls.
@@ -13,15 +14,28 @@ class PpPlayerAudioHandler extends BaseAudioHandler with QueueHandler {
   static const _iosControlsChannel = MethodChannel(
     'com.ppplayer.app/ios_media_controls',
   );
-  PpPlayerAudioHandler(this._containerProvider, {bool? enableIosCommands}) {
+  static const _macosControlsChannel = MethodChannel(
+    'com.ppplayer.app/macos_media_controls',
+  );
+  PpPlayerAudioHandler(
+    this._containerProvider, {
+    bool? enableIosCommands,
+    bool? enableMacosCommands,
+    bool? enableAndroidLifecycle,
+  }) {
+    _androidLifecycleEnabled =
+        enableAndroidLifecycle ??
+        (!kIsWeb && defaultTargetPlatform == TargetPlatform.android);
     _iosCommandsEnabled = enableIosCommands ?? (!kIsWeb && Platform.isIOS);
-    if (_iosCommandsEnabled) {
-      _iosControlsChannel.setMethodCallHandler((call) async {
+    _macosCommandsEnabled =
+        enableMacosCommands ?? (!kIsWeb && Platform.isMacOS);
+    if (_iosCommandsEnabled || _macosCommandsEnabled) {
+      _controlsChannel.setMethodCallHandler((call) async {
         final source = call.arguments is Map
             ? (call.arguments as Map)['source'] ?? 'native'
             : 'native';
         debugPrint(
-          '[MediaControls] iOS remote command=${call.method} source=$source',
+          '[MediaControls] Apple remote command=${call.method} source=$source',
         );
         switch (call.method) {
           case 'pause':
@@ -35,6 +49,8 @@ class PpPlayerAudioHandler extends BaseAudioHandler with QueueHandler {
             } else {
               await play();
             }
+          case 'stop':
+            await stop();
           case 'next':
             await skipToNext();
           case 'previous':
@@ -46,7 +62,7 @@ class PpPlayerAudioHandler extends BaseAudioHandler with QueueHandler {
             );
           default:
             throw MissingPluginException(
-              'Unknown iOS media command: ${call.method}',
+              'Unknown Apple media command: ${call.method}',
             );
         }
       });
@@ -72,10 +88,14 @@ class PpPlayerAudioHandler extends BaseAudioHandler with QueueHandler {
 
   final ProviderContainer Function() _containerProvider;
   late final bool _iosCommandsEnabled;
+  late final bool _macosCommandsEnabled;
+  MethodChannel get _controlsChannel =>
+      _iosCommandsEnabled ? _iosControlsChannel : _macosControlsChannel;
+  late final bool _androidLifecycleEnabled;
   ProviderContainer get _container => _containerProvider();
 
   Future<void> _publishIosNowPlaying() async {
-    if (!_iosCommandsEnabled) return;
+    if (!_iosCommandsEnabled && !_macosCommandsEnabled) return;
     try {
       // WebKit activates its own audio session. Activating the app session
       // for its transient renderer states interrupts that child session.
@@ -84,7 +104,7 @@ class PpPlayerAudioHandler extends BaseAudioHandler with QueueHandler {
       }
       final item = mediaItem.value;
       final state = playbackState.value;
-      await _iosControlsChannel.invokeMethod('updateNowPlaying', {
+      await _controlsChannel.invokeMethod('updateNowPlaying', {
         'id': item?.id,
         'title': item?.title,
         'artist': item?.artist,
@@ -325,8 +345,17 @@ class PpPlayerAudioHandler extends BaseAudioHandler with QueueHandler {
   }
 
   @override
+  Future<void> onTaskRemoved() async {
+    // A removed Android task must not leave an Activity-backed WebView orphaned.
+    // Queue persistence survives, but restarting the process never grants autoplay.
+    if (_androidLifecycleEnabled) await stop();
+  }
+
+  @override
   Future<void> stop() async {
     await _container.read(playerProvider.notifier).pause();
+    if (_androidLifecycleEnabled)
+      await _container.read(playbackControllerProvider).stop();
     playbackState.add(
       playbackState.value.copyWith(
         playing: false,

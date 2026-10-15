@@ -1,0 +1,1317 @@
+diff --git a/.gitignore b/.gitignore
+index 991f389..3f07ccd 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -75,3 +75,6 @@ settings.lock
+ # Generated Android Kotlin cache
+ .kotlin/
+ dist/
++
++# Developer-only dependency overrides
++/pubspec_overrides.yaml
+diff --git a/analysis_options.yaml b/analysis_options.yaml
+index 8878d9e..5a623aa 100644
+--- a/analysis_options.yaml
++++ b/analysis_options.yaml
+@@ -2,6 +2,8 @@ include: package:flutter_lints/flutter.yaml
+ 
+ analyzer:
+   exclude:
++    # Archived pre-refactor source; its relative imports target the old location.
++    - refactor_mk_original.dart
+     - build/**
+     - .dart_tool/**
+     - android/**
+diff --git a/lib/core/playback/chromium_playback_engine.dart b/lib/core/playback/chromium_playback_engine.dart
+index 6fd5797..cc3fd4d 100644
+--- a/lib/core/playback/chromium_playback_engine.dart
++++ b/lib/core/playback/chromium_playback_engine.dart
+@@ -1,11 +1,11 @@
+ import 'dart:async';
+ import 'dart:convert';
++import 'package:flutter/services.dart';
+ 
+ import 'package:flutter_chromium_webview/chromium_youtube_player.dart';
+ import 'package:flutter_chromium_webview/flutter_chromium_webview.dart';
+ import 'package:pp_playback_engine/pp_playback_engine.dart';
+ 
+-
+ /// Opt-in YouTube path; delegates other sources to [fallback].
+ class ChromiumPlaybackEngine implements PlaybackController {
+   ChromiumPlaybackEngine({
+@@ -15,6 +15,7 @@ class ChromiumPlaybackEngine implements PlaybackController {
+     this.startPlaybackService,
+     this.stopPlaybackService,
+     this.showBrowser = true,
++    this.youtubeEnabled = true,
+   }) {
+     _subscriptions.add(
+       fallback.statusStream.listen((status) {
+@@ -34,6 +35,7 @@ class ChromiumPlaybackEngine implements PlaybackController {
+   final Future<void> Function()? startPlaybackService;
+   final Future<void> Function()? stopPlaybackService;
+   final bool showBrowser;
++  final bool youtubeEnabled;
+   final _statuses = StreamController<PlaybackStatus>.broadcast();
+   final _events = StreamController<PlaybackEvent>.broadcast();
+   final _subscriptions = <StreamSubscription<dynamic>>[];
+@@ -100,6 +102,9 @@ class ChromiumPlaybackEngine implements PlaybackController {
+     _checkOpen();
+     if (startAt.isNegative) throw ArgumentError.value(startAt, 'startAt');
+     final online = track.sourceType == PlaybackSourceType.online;
++    if (online && !youtubeEnabled) {
++      return _rejectYoutube(track, startAt);
++    }
+     final generation = ++_generation;
+     _durationRequest = null;
+     _durationAttempt = null;
+@@ -123,7 +128,36 @@ class ChromiumPlaybackEngine implements PlaybackController {
+         isSeekable: track.liveStatus != PlaybackLiveStatus.live,
+       ),
+     );
+-    return _opening = _open(track, startAt, online, generation);
++    // Serialize native/browser replacement. A superseded initialization must
++    // finish before its successor creates another browser or native session.
++    final previousOpening = _opening;
++    return _opening = () async {
++      try {
++        await previousOpening;
++      } catch (_) {
++        // A failed older generation does not prevent an explicit new request.
++      }
++      if (!_valid(generation)) return;
++      await _open(track, startAt, online, generation);
++    }();
++  }
++
++  Future<void> _rejectYoutube(PlaybackTrack track, Duration position) async {
++    final generation = _generation + 1;
++    await stop();
++    if (!_valid(generation)) return;
++    const message =
++        'YouTube requires an enabled YouTube engine; MediaKit cannot play online IDs';
++    _publish(
++      _status.copyWith(
++        track: track,
++        position: position,
++        state: PlaybackState.error,
++        error: message,
++      ),
++    );
++    _event(PlaybackEventType.playbackError, message: message);
++    throw UnsupportedError(message);
+   }
+ 
+   Future<void> _open(
+@@ -151,36 +185,91 @@ class ChromiumPlaybackEngine implements PlaybackController {
+       if (!_valid(generation)) return;
+       await startPlaybackService?.call();
+       if (!_valid(generation)) return;
+-      await (_cef ??= initializeCef());
+-      if (!_valid(generation)) return;
+-      final player = _player = createPlayer();
+-      _playerSubscription = player.events.listen(
+-        (event) => _receive(event, generation, player),
+-      );
+-      await player.initialize();
+-      if (!_valid(generation)) return;
+-      await player.setVolume((_status.volume * 100).round());
+-      if (!_valid(generation)) return;
+-      final seconds = start.inMicroseconds / Duration.microsecondsPerSecond;
+-      if (_wantsPlaying) {
+-        if (track.youtubeSourceType == YoutubeSourceType.playlist) {
+-          await player.loadPlaylist(playlistId: track.id, startSeconds: seconds);
+-        } else {
+-          await player.loadVideoById(videoId: track.id, startSeconds: seconds);
+-        }
+-      } else {
+-        if (track.youtubeSourceType == YoutubeSourceType.playlist) {
+-          await player.cuePlaylist(playlistId: track.id, startSeconds: seconds);
+-        } else {
+-          await player.cueVideoById(videoId: track.id, startSeconds: seconds);
++      int retries = 0;
++      ChromiumYoutubePlayerController? player;
++      while (true) {
++        try {
++          try {
++            await (_cef ??= initializeCef());
++          } catch (e) {
++            _cef = null;
++            rethrow;
++          }
++          if (!_valid(generation)) return;
++          player = _player = createPlayer();
++          _playerSubscription = player.events.listen(
++            (event) => _receive(event, generation, player!),
++          );
++          await player.initialize();
++          if (!_valid(generation)) return;
++          await player.setVolume((_status.volume * 100).round());
++          if (!_valid(generation)) return;
++          final seconds = start.inMicroseconds / Duration.microsecondsPerSecond;
++          if (_wantsPlaying) {
++            if (track.youtubeSourceType == YoutubeSourceType.playlist) {
++              await player.loadPlaylist(
++                playlistId: track.id,
++                startSeconds: seconds,
++              );
++            } else {
++              await player.loadVideoById(
++                videoId: track.id,
++                startSeconds: seconds,
++              );
++            }
++          } else {
++            if (track.youtubeSourceType == YoutubeSourceType.playlist) {
++              await player.cuePlaylist(
++                playlistId: track.id,
++                startSeconds: seconds,
++              );
++            } else {
++              await player.cueVideoById(
++                videoId: track.id,
++                startSeconds: seconds,
++              );
++            }
++          }
++          if (_valid(generation)) {
++            if (!_wantsPlaying) await player.pauseVideo();
++            await _readDuration(player, generation);
++          }
++          break;
++        } catch (e) {
++          final isCrash = e is StateError && e.message == 'Browser crashed';
++          final isPlatformFail =
++              e is PlatformException &&
++              const {
++                'INIT_FAILED',
++                'HOST_FAILED',
++                'INIT_TIMEOUT',
++                'NOT_READY',
++              }.contains(e.code);
++          if ((isCrash || isPlatformFail) && retries < 10) {
++            _cef = null;
++            retries++;
++            await _playerSubscription?.cancel();
++            _playerSubscription = null;
++            await player?.dispose();
++            _player = null;
++            await Future.delayed(const Duration(milliseconds: 500));
++            if (!_valid(generation)) return;
++            continue;
++          }
++          _cef = null;
++          rethrow;
+         }
+       }
+-      if (_valid(generation)) {
+-        if (!_wantsPlaying) await player.pauseVideo();
+-        await _readDuration(player, generation);
+-      }
+     } catch (error) {
+       if (!_valid(generation)) return;
++      final failedPlayer = _player;
++      _player = null;
++      await _playerSubscription?.cancel();
++      _playerSubscription = null;
++      await failedPlayer?.dispose();
++      await stopPlaybackService?.call();
++      if (!_valid(generation)) return;
++      // Report the original track/position without replaying through MediaKit.
+       _fail(error, generation);
+       rethrow;
+     }
+@@ -248,14 +337,20 @@ class ChromiumPlaybackEngine implements PlaybackController {
+         _ => null,
+       };
+       if (mapped != null) {
+-        if (state == 0 && _status.track?.youtubeSourceType == YoutubeSourceType.playlist) {
++        if (state == 0 &&
++            _status.track?.youtubeSourceType == YoutubeSourceType.playlist) {
+           unawaited(() async {
+             try {
+               final index = await player.getPlaylistIndex();
+               final playlist = await player.getPlaylist();
+               if (!_valid(generation) || !identical(player, _player)) return;
+               if (index == playlist.length - 1) {
+-                _publish(_status.copyWith(state: PlaybackState.ended, clearError: true));
++                _publish(
++                  _status.copyWith(
++                    state: PlaybackState.ended,
++                    clearError: true,
++                  ),
++                );
+                 if (_started && !_ended) {
+                   _ended = true;
+                   _event(PlaybackEventType.trackEnded);
+diff --git a/lib/core/playback/hybrid_playback_engine.dart b/lib/core/playback/hybrid_playback_engine.dart
+index 4013ef2..bbd5f75 100644
+--- a/lib/core/playback/hybrid_playback_engine.dart
++++ b/lib/core/playback/hybrid_playback_engine.dart
+@@ -81,7 +81,8 @@ class HybridPlaybackEngine implements PlaybackController {
+       );
+       return;
+     }
+-    _initiateHandoff(EngineOwner.background);
++    _log('[ChromiumBG] Phase B Experiment: Disabled handoff to background engine.');
++    // _initiateHandoff(EngineOwner.background);
+   }
+ 
+   void _onActivityStarted() {
+@@ -89,7 +90,8 @@ class HybridPlaybackEngine implements PlaybackController {
+     // Only initiate if we are not already on foreground and not already
+     // mid-transfer toward foreground, to avoid redundant handoffs.
+     if (_owner == EngineOwner.foreground && !_isTransferring) return;
+-    _initiateHandoff(EngineOwner.foreground);
++    _log('[ChromiumBG] Phase B Experiment: Disabled handoff to foreground engine.');
++    // _initiateHandoff(EngineOwner.foreground);
+   }
+ 
+   // SAFETY NET: onPipModeChanged(true) is the authoritative confirmation that
+diff --git a/lib/core/playback/playback_providers.dart b/lib/core/playback/playback_providers.dart
+index daa467f..f226362 100644
+--- a/lib/core/playback/playback_providers.dart
++++ b/lib/core/playback/playback_providers.dart
+@@ -7,6 +7,7 @@ import 'package:flutter_chromium_webview/flutter_chromium_webview.dart';
+ import 'package:path_provider/path_provider.dart';
+ 
+ import 'chromium_playback_engine.dart';
++import 'playback_selection.dart';
+ import '../models/track.dart';
+ import 'hybrid_playback_engine.dart';
+ import 'local_file_playback_controller.dart';
+@@ -25,6 +26,11 @@ extension TrackToPlayback on Track {
+           'Cannot create PlaybackTrack: youtubeVideoId is null for online track',
+         );
+       }
++      final id = youtubeVideoId!;
++      final playlist = RegExp(r'^(PL|RD|LL)[a-zA-Z0-9_-]+$').hasMatch(id);
++      if (!playlist && !RegExp(r'^[a-zA-Z0-9_-]{11}$').hasMatch(id)) {
++        throw StateError('Invalid YouTube source ID "$id"');
++      }
+       if (youtubeVideoId!.contains('http')) {
+         throw StateError(
+           'Cannot create PlaybackTrack: Invalid online source ID "$youtubeVideoId"',
+@@ -89,7 +95,10 @@ extension TrackToPlayback on Track {
+       case TrackSourceType.online:
+         playbackSource = PlaybackSourceType.online;
+         finalId = youtubeVideoId!;
+-        if (finalId.length > 11 && (finalId.startsWith('PL') || finalId.startsWith('RD') || finalId.startsWith('LL'))) {
++        if (finalId.length > 11 &&
++            (finalId.startsWith('PL') ||
++                finalId.startsWith('RD') ||
++                finalId.startsWith('LL'))) {
+           youtubeSourceType = YoutubeSourceType.playlist;
+         } else {
+           youtubeSourceType = YoutubeSourceType.video;
+@@ -124,35 +133,36 @@ final localPlaybackControllerProvider = Provider<PlaybackController>((ref) {
+     'PPPLAYER_CHROMIUM',
+     defaultValue: true,
+   );
++  final selection = PlaybackSelection(
++    platform: defaultTargetPlatform,
++    chromiumEnabled: chromiumEnabled && !kIsWeb,
++  );
+   final chromiumAndroid =
+-      chromiumEnabled &&
+-      !kIsWeb &&
+-      defaultTargetPlatform == TargetPlatform.android;
++      selection.usesChromium && defaultTargetPlatform == TargetPlatform.android;
+ 
+   if (defaultTargetPlatform == TargetPlatform.android) {
+     final mediaKit = MediaKitPlaybackEngine();
+-    final foregroundEngine = chromiumAndroid
+-        ? ChromiumPlaybackEngine(
+-            fallback: mediaKit,
+-            startPlaybackService: null,
+-            stopPlaybackService: null,
+-            initializeCef: () async {
+-              final directory = await getApplicationSupportDirectory();
+-              if (!await ChromiumWebViewController.initialize(
+-                cachePath: directory.path,
+-              )) {
+-                throw StateError('CEF initialization failed');
+-              }
+-            },
+-            createPlayer: () => ChromiumYoutubePlayerController(
+-              documentUrl: const String.fromEnvironment(
+-                'PPPLAYER_CHROMIUM_DOCUMENT_URL',
+-                defaultValue: 'https://ppplayer.com/chromium/player.html',
+-              ),
+-              profileName: 'ppplayer_youtube_session',
+-            ),
+-          )
+-        : mediaKit;
++    final foregroundEngine = ChromiumPlaybackEngine(
++      youtubeEnabled: chromiumAndroid,
++      fallback: mediaKit,
++      startPlaybackService: null,
++      stopPlaybackService: null,
++      initializeCef: () async {
++        final directory = await getApplicationSupportDirectory();
++        if (!await ChromiumWebViewController.initialize(
++          cachePath: directory.path,
++        )) {
++          throw StateError('CEF initialization failed');
++        }
++      },
++      createPlayer: () => ChromiumYoutubePlayerController(
++        documentUrl: const String.fromEnvironment(
++          'PPPLAYER_CHROMIUM_DOCUMENT_URL',
++          defaultValue: 'https://ppplayer.com/chromium/player.html',
++        ),
++        profileName: 'ppplayer_youtube_session',
++      ),
++    );
+ 
+     engine = HybridPlaybackEngine(
+       foregroundEngine: foregroundEngine,
+@@ -162,7 +172,7 @@ final localPlaybackControllerProvider = Provider<PlaybackController>((ref) {
+     );
+   } else {
+     final mediaKit = MediaKitPlaybackEngine();
+-    engine = defaultTargetPlatform == TargetPlatform.iOS
++    engine = selection.usesWebKit
+         ? IframeYoutubePlaybackEngine(
+             fallback: LocalFilePlaybackController(
+               mediaKit,
+@@ -170,7 +180,7 @@ final localPlaybackControllerProvider = Provider<PlaybackController>((ref) {
+             ),
+           )
+         : mediaKit;
+-    if (chromiumEnabled &&
++    if (!selection.usesWebKit &&
+         !kIsWeb &&
+         {
+           TargetPlatform.windows,
+@@ -178,6 +188,7 @@ final localPlaybackControllerProvider = Provider<PlaybackController>((ref) {
+           TargetPlatform.macOS,
+         }.contains(defaultTargetPlatform)) {
+       engine = ChromiumPlaybackEngine(
++        youtubeEnabled: selection.usesChromium,
+         fallback: engine,
+         startPlaybackService: null,
+         stopPlaybackService: null,
+diff --git a/lib/l10n/app_localizations_ar.dart b/lib/l10n/app_localizations_ar.dart
+index 1260be1..319a779 100644
+--- a/lib/l10n/app_localizations_ar.dart
++++ b/lib/l10n/app_localizations_ar.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_bn.dart b/lib/l10n/app_localizations_bn.dart
+index f8f0d97..872e491 100644
+--- a/lib/l10n/app_localizations_bn.dart
++++ b/lib/l10n/app_localizations_bn.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_cs.dart b/lib/l10n/app_localizations_cs.dart
+index beb2759..f6615f6 100644
+--- a/lib/l10n/app_localizations_cs.dart
++++ b/lib/l10n/app_localizations_cs.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_da.dart b/lib/l10n/app_localizations_da.dart
+index 5b9eb79..cdb5bfd 100644
+--- a/lib/l10n/app_localizations_da.dart
++++ b/lib/l10n/app_localizations_da.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_de.dart b/lib/l10n/app_localizations_de.dart
+index 79de754..347ae08 100644
+--- a/lib/l10n/app_localizations_de.dart
++++ b/lib/l10n/app_localizations_de.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_en.dart b/lib/l10n/app_localizations_en.dart
+index e81aaa9..8db581f 100644
+--- a/lib/l10n/app_localizations_en.dart
++++ b/lib/l10n/app_localizations_en.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_es.dart b/lib/l10n/app_localizations_es.dart
+index fae3429..36f07f4 100644
+--- a/lib/l10n/app_localizations_es.dart
++++ b/lib/l10n/app_localizations_es.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_et.dart b/lib/l10n/app_localizations_et.dart
+index 51a4b35..a299469 100644
+--- a/lib/l10n/app_localizations_et.dart
++++ b/lib/l10n/app_localizations_et.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_fa.dart b/lib/l10n/app_localizations_fa.dart
+index c93b665..8e6c270 100644
+--- a/lib/l10n/app_localizations_fa.dart
++++ b/lib/l10n/app_localizations_fa.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_fil.dart b/lib/l10n/app_localizations_fil.dart
+index d0b07ff..d9c11d4 100644
+--- a/lib/l10n/app_localizations_fil.dart
++++ b/lib/l10n/app_localizations_fil.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_fr.dart b/lib/l10n/app_localizations_fr.dart
+index 4bcdfc7..dfccc96 100644
+--- a/lib/l10n/app_localizations_fr.dart
++++ b/lib/l10n/app_localizations_fr.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_gn.dart b/lib/l10n/app_localizations_gn.dart
+index e490397..9285792 100644
+--- a/lib/l10n/app_localizations_gn.dart
++++ b/lib/l10n/app_localizations_gn.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_hi.dart b/lib/l10n/app_localizations_hi.dart
+index 0051a84..a164ffc 100644
+--- a/lib/l10n/app_localizations_hi.dart
++++ b/lib/l10n/app_localizations_hi.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_hr.dart b/lib/l10n/app_localizations_hr.dart
+index 3e6c0dd..a177eb8 100644
+--- a/lib/l10n/app_localizations_hr.dart
++++ b/lib/l10n/app_localizations_hr.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_hu.dart b/lib/l10n/app_localizations_hu.dart
+index 1f33b9d..aeb375a 100644
+--- a/lib/l10n/app_localizations_hu.dart
++++ b/lib/l10n/app_localizations_hu.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_id.dart b/lib/l10n/app_localizations_id.dart
+index bc5b8b8..1a362aa 100644
+--- a/lib/l10n/app_localizations_id.dart
++++ b/lib/l10n/app_localizations_id.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_it.dart b/lib/l10n/app_localizations_it.dart
+index dbcd17c..aad77be 100644
+--- a/lib/l10n/app_localizations_it.dart
++++ b/lib/l10n/app_localizations_it.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_ja.dart b/lib/l10n/app_localizations_ja.dart
+index 62e74ca..45ae624 100644
+--- a/lib/l10n/app_localizations_ja.dart
++++ b/lib/l10n/app_localizations_ja.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_ka.dart b/lib/l10n/app_localizations_ka.dart
+index 69b82f5..372d335 100644
+--- a/lib/l10n/app_localizations_ka.dart
++++ b/lib/l10n/app_localizations_ka.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_kk.dart b/lib/l10n/app_localizations_kk.dart
+index 4f61dc8..fcc4648 100644
+--- a/lib/l10n/app_localizations_kk.dart
++++ b/lib/l10n/app_localizations_kk.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_ko.dart b/lib/l10n/app_localizations_ko.dart
+index 06c28fd..86e7768 100644
+--- a/lib/l10n/app_localizations_ko.dart
++++ b/lib/l10n/app_localizations_ko.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_lv.dart b/lib/l10n/app_localizations_lv.dart
+index e086b96..deebc60 100644
+--- a/lib/l10n/app_localizations_lv.dart
++++ b/lib/l10n/app_localizations_lv.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_ms.dart b/lib/l10n/app_localizations_ms.dart
+index 69769f3..b5f05be 100644
+--- a/lib/l10n/app_localizations_ms.dart
++++ b/lib/l10n/app_localizations_ms.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_my.dart b/lib/l10n/app_localizations_my.dart
+index 6754829..963e38b 100644
+--- a/lib/l10n/app_localizations_my.dart
++++ b/lib/l10n/app_localizations_my.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_nl.dart b/lib/l10n/app_localizations_nl.dart
+index a6258e1..e22ceb5 100644
+--- a/lib/l10n/app_localizations_nl.dart
++++ b/lib/l10n/app_localizations_nl.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_pcm.dart b/lib/l10n/app_localizations_pcm.dart
+index 7791b67..7fe3454 100644
+--- a/lib/l10n/app_localizations_pcm.dart
++++ b/lib/l10n/app_localizations_pcm.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_pl.dart b/lib/l10n/app_localizations_pl.dart
+index 1f640a1..015e605 100644
+--- a/lib/l10n/app_localizations_pl.dart
++++ b/lib/l10n/app_localizations_pl.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_pt.dart b/lib/l10n/app_localizations_pt.dart
+index a2536e4..4f0faff 100644
+--- a/lib/l10n/app_localizations_pt.dart
++++ b/lib/l10n/app_localizations_pt.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_ro.dart b/lib/l10n/app_localizations_ro.dart
+index 17fb14c..66c1c8f 100644
+--- a/lib/l10n/app_localizations_ro.dart
++++ b/lib/l10n/app_localizations_ro.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_ru.dart b/lib/l10n/app_localizations_ru.dart
+index 6edfb09..37ada52 100644
+--- a/lib/l10n/app_localizations_ru.dart
++++ b/lib/l10n/app_localizations_ru.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_sv.dart b/lib/l10n/app_localizations_sv.dart
+index ca39c35..b4361ae 100644
+--- a/lib/l10n/app_localizations_sv.dart
++++ b/lib/l10n/app_localizations_sv.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_th.dart b/lib/l10n/app_localizations_th.dart
+index ffc7713..85d361b 100644
+--- a/lib/l10n/app_localizations_th.dart
++++ b/lib/l10n/app_localizations_th.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_tr.dart b/lib/l10n/app_localizations_tr.dart
+index 062f3f3..60d5940 100644
+--- a/lib/l10n/app_localizations_tr.dart
++++ b/lib/l10n/app_localizations_tr.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_uk.dart b/lib/l10n/app_localizations_uk.dart
+index 04234f7..6d0de29 100644
+--- a/lib/l10n/app_localizations_uk.dart
++++ b/lib/l10n/app_localizations_uk.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_ur.dart b/lib/l10n/app_localizations_ur.dart
+index 1f18512..f173624 100644
+--- a/lib/l10n/app_localizations_ur.dart
++++ b/lib/l10n/app_localizations_ur.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_uz.dart b/lib/l10n/app_localizations_uz.dart
+index 0ddd05b..44725ee 100644
+--- a/lib/l10n/app_localizations_uz.dart
++++ b/lib/l10n/app_localizations_uz.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_vi.dart b/lib/l10n/app_localizations_vi.dart
+index f8f6b13..07c651f 100644
+--- a/lib/l10n/app_localizations_vi.dart
++++ b/lib/l10n/app_localizations_vi.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_zh.dart b/lib/l10n/app_localizations_zh.dart
+index 9699981..e0be0f0 100644
+--- a/lib/l10n/app_localizations_zh.dart
++++ b/lib/l10n/app_localizations_zh.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/macos/Podfile b/macos/Podfile
+index d9cc56e..fc463ef 100644
+--- a/macos/Podfile
++++ b/macos/Podfile
+@@ -1,4 +1,4 @@
+-platform :osx, '12.0'
++platform :osx, '13.0'
+ 
+ # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
+ ENV['COCOAPODS_DISABLE_STATS'] = 'true'
+@@ -30,6 +30,11 @@ target 'Runner' do
+   use_frameworks!
+ 
+   flutter_install_all_macos_pods File.dirname(File.realpath(__FILE__))
++
++  cef_plugin = File.join(__dir__, 'Flutter/ephemeral/.symlinks/plugins/flutter_chromium_webview/macos')
++  cef_arch = ENV.fetch('CHROMIUM_WEBVIEW_MACOS_ARCH') { `uname -m`.strip }
++  raise 'CEF preparation failed' unless system('python3', File.join(cef_plugin, 'scripts/prepare_cef.py'), '--arch', cef_arch)
++
+   target 'RunnerTests' do
+     inherit! :search_paths
+   end
+@@ -39,7 +44,9 @@ post_install do |installer|
+   installer.pods_project.targets.each do |target|
+     flutter_additional_macos_build_settings(target)
+     target.build_configurations.each do |config|
+-      config.build_settings['MACOSX_DEPLOYMENT_TARGET'] = '12.0'
++      config.build_settings['MACOSX_DEPLOYMENT_TARGET'] = '13.0'
++      cef_arch_val = ENV.fetch('CHROMIUM_WEBVIEW_MACOS_ARCH') { `uname -m`.strip }
++      config.build_settings['ARCHS'] = cef_arch_val
+       if config.build_settings['GCC_PREPROCESSOR_DEFINITIONS']
+         if config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'].is_a?(Array)
+           config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'].map! do |val|
+diff --git a/macos/Podfile.lock b/macos/Podfile.lock
+index 521161b..88a5c73 100644
+--- a/macos/Podfile.lock
++++ b/macos/Podfile.lock
+@@ -11,6 +11,8 @@ PODS:
+     - FlutterMacOS
+   - file_selector_macos (0.0.1):
+     - FlutterMacOS
++  - flutter_chromium_webview (0.1.0):
++    - FlutterMacOS
+   - flutter_secure_storage_darwin (10.0.0):
+     - Flutter
+     - FlutterMacOS
+@@ -42,6 +44,7 @@ DEPENDENCIES:
+   - connectivity_plus (from `Flutter/ephemeral/.symlinks/plugins/connectivity_plus/macos`)
+   - file_picker_darwin (from `Flutter/ephemeral/.symlinks/plugins/file_picker_darwin/darwin`)
+   - file_selector_macos (from `Flutter/ephemeral/.symlinks/plugins/file_selector_macos/macos`)
++  - flutter_chromium_webview (from `Flutter/ephemeral/.symlinks/plugins/flutter_chromium_webview/macos`)
+   - flutter_secure_storage_darwin (from `Flutter/ephemeral/.symlinks/plugins/flutter_secure_storage_darwin/darwin`)
+   - FlutterMacOS (from `Flutter/ephemeral`)
+   - macos_file_open_handler (from `Flutter/ephemeral/.symlinks/plugins/macos_file_open_handler/macos`)
+@@ -65,6 +68,8 @@ EXTERNAL SOURCES:
+     :path: Flutter/ephemeral/.symlinks/plugins/file_picker_darwin/darwin
+   file_selector_macos:
+     :path: Flutter/ephemeral/.symlinks/plugins/file_selector_macos/macos
++  flutter_chromium_webview:
++    :path: Flutter/ephemeral/.symlinks/plugins/flutter_chromium_webview/macos
+   flutter_secure_storage_darwin:
+     :path: Flutter/ephemeral/.symlinks/plugins/flutter_secure_storage_darwin/darwin
+   FlutterMacOS:
+@@ -94,6 +99,7 @@ SPEC CHECKSUMS:
+   connectivity_plus: 4adf20a405e25b42b9c9f87feff8f4b6fde18a4e
+   file_picker_darwin: 4c2b9a50ea44cb3b071381ea0cf48591bdd80251
+   file_selector_macos: 9e9e068e90ebee155097d00e89ae91edb2374db7
++  flutter_chromium_webview: 233739f26ebc70afdc6e9383bc24372dafdd06ef
+   flutter_secure_storage_darwin: 46e401699982ee74142909676535e0f6a7321e58
+   FlutterMacOS: d0db08ddef1a9af05a5ec4b724367152bb0500b1
+   macos_file_open_handler: a0ab1237d6bb2f8a7032f302018fd268a5802b1f
+@@ -106,6 +112,6 @@ SPEC CHECKSUMS:
+   wakelock_plus: 917609be14d812ddd9e9528876538b2263aaa03b
+   webview_flutter_wkwebview: 8ebf4fded22593026f7dbff1fbff31ea98573c8d
+ 
+-PODFILE CHECKSUM: 101c448110a4f5bfe9eac8950e4449dfad028a03
++PODFILE CHECKSUM: 758dd2e0a7f2e52856ec2153c1c16f4803b623f3
+ 
+ COCOAPODS: 1.16.2
+diff --git a/macos/Runner.xcodeproj/project.pbxproj b/macos/Runner.xcodeproj/project.pbxproj
+index 0e3f234..d5d90db 100644
+--- a/macos/Runner.xcodeproj/project.pbxproj
++++ b/macos/Runner.xcodeproj/project.pbxproj
+@@ -244,6 +244,7 @@
+ 				33CC110E2044A8840003C045 /* Bundle Framework */,
+ 				3399D490228B24CF009A79C7 /* Thin Binary */,
+ 				EA6537D4A1AFC2197FE9A4A6 /* [CP] Embed Pods Frameworks */,
++				EFD860FD56EE528B4AF35A25 /* Embed CEF Framework */,
+ 			);
+ 			buildRules = (
+ 			);
+@@ -470,6 +471,24 @@
+ 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks.sh\"\n";
+ 			showEnvVarsInLog = 0;
+ 		};
++		EFD860FD56EE528B4AF35A25 /* Embed CEF Framework */ = {
++			isa = PBXShellScriptBuildPhase;
++			buildActionMask = 2147483647;
++			files = (
++			);
++			inputFileListPaths = (
++			);
++			inputPaths = (
++			);
++			name = "Embed CEF Framework";
++			outputFileListPaths = (
++			);
++			outputPaths = (
++			);
++			runOnlyForDeploymentPostprocessing = 0;
++			shellPath = /bin/sh;
++			shellScript = "python3 \"$PROJECT_DIR/Flutter/ephemeral/.symlinks/plugins/flutter_chromium_webview/macos/scripts/embed_cef.py\"";
++		};
+ /* End PBXShellScriptBuildPhase section */
+ 
+ /* Begin PBXSourcesBuildPhase section */
+@@ -529,7 +548,7 @@
+ 				CURRENT_PROJECT_VERSION = 1;
+ 				DEVELOPMENT_TEAM = PCW3792YL2;
+ 				GENERATE_INFOPLIST_FILE = YES;
+-				MACOSX_DEPLOYMENT_TARGET = 12.0;
++				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
+ 				MARKETING_VERSION = 1.0;
+ 				PRODUCT_BUNDLE_IDENTIFIER = com.ppplayer.app.RunnerTests;
+ 				PRODUCT_NAME = "$(TARGET_NAME)";
+@@ -549,7 +568,7 @@
+ 				CURRENT_PROJECT_VERSION = 1;
+ 				DEVELOPMENT_TEAM = PCW3792YL2;
+ 				GENERATE_INFOPLIST_FILE = YES;
+-				MACOSX_DEPLOYMENT_TARGET = 12.0;
++				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
+ 				MARKETING_VERSION = 1.0;
+ 				PRODUCT_BUNDLE_IDENTIFIER = com.ppplayer.app.RunnerTests;
+ 				PRODUCT_NAME = "$(TARGET_NAME)";
+@@ -569,7 +588,7 @@
+ 				CURRENT_PROJECT_VERSION = 1;
+ 				DEVELOPMENT_TEAM = PCW3792YL2;
+ 				GENERATE_INFOPLIST_FILE = YES;
+-				MACOSX_DEPLOYMENT_TARGET = 12.0;
++				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
+ 				MARKETING_VERSION = 1.0;
+ 				PRODUCT_BUNDLE_IDENTIFIER = com.ppplayer.app.RunnerTests;
+ 				PRODUCT_NAME = "$(TARGET_NAME)";
+@@ -621,7 +640,7 @@
+ 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+ 				GCC_WARN_UNUSED_FUNCTION = YES;
+ 				GCC_WARN_UNUSED_VARIABLE = YES;
+-				MACOSX_DEPLOYMENT_TARGET = 12.0;
++				MACOSX_DEPLOYMENT_TARGET = 13.0;
+ 				MTL_ENABLE_DEBUG_INFO = NO;
+ 				SDKROOT = macosx;
+ 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+@@ -649,7 +668,7 @@
+ 					"$(inherited)",
+ 					"@executable_path/../Frameworks",
+ 				);
+-				MACOSX_DEPLOYMENT_TARGET = 12.0;
++				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
+ 				MARKETING_VERSION = "$(FLUTTER_BUILD_NAME)";
+ 				PROVISIONING_PROFILE_SPECIFIER = "";
+ 				SWIFT_VERSION = 5.0;
+@@ -660,7 +679,7 @@
+ 			isa = XCBuildConfiguration;
+ 			buildSettings = {
+ 				CODE_SIGN_STYLE = Manual;
+-				MACOSX_DEPLOYMENT_TARGET = 12.0;
++				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
+ 				PRODUCT_NAME = "$(TARGET_NAME)";
+ 			};
+ 			name = Profile;
+@@ -713,7 +732,7 @@
+ 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+ 				GCC_WARN_UNUSED_FUNCTION = YES;
+ 				GCC_WARN_UNUSED_VARIABLE = YES;
+-				MACOSX_DEPLOYMENT_TARGET = 12.0;
++				MACOSX_DEPLOYMENT_TARGET = 13.0;
+ 				MTL_ENABLE_DEBUG_INFO = YES;
+ 				ONLY_ACTIVE_ARCH = YES;
+ 				SDKROOT = macosx;
+@@ -765,7 +784,7 @@
+ 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+ 				GCC_WARN_UNUSED_FUNCTION = YES;
+ 				GCC_WARN_UNUSED_VARIABLE = YES;
+-				MACOSX_DEPLOYMENT_TARGET = 12.0;
++				MACOSX_DEPLOYMENT_TARGET = 13.0;
+ 				MTL_ENABLE_DEBUG_INFO = NO;
+ 				SDKROOT = macosx;
+ 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+@@ -793,7 +812,7 @@
+ 					"$(inherited)",
+ 					"@executable_path/../Frameworks",
+ 				);
+-				MACOSX_DEPLOYMENT_TARGET = 12.0;
++				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
+ 				MARKETING_VERSION = "$(FLUTTER_BUILD_NAME)";
+ 				PROVISIONING_PROFILE_SPECIFIER = "";
+ 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+@@ -820,7 +839,7 @@
+ 					"$(inherited)",
+ 					"@executable_path/../Frameworks",
+ 				);
+-				MACOSX_DEPLOYMENT_TARGET = 12.0;
++				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
+ 				MARKETING_VERSION = "$(FLUTTER_BUILD_NAME)";
+ 				PROVISIONING_PROFILE_SPECIFIER = "";
+ 				SWIFT_VERSION = 5.0;
+@@ -831,7 +850,7 @@
+ 			isa = XCBuildConfiguration;
+ 			buildSettings = {
+ 				CODE_SIGN_STYLE = Manual;
+-				MACOSX_DEPLOYMENT_TARGET = 12.0;
++				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
+ 				PRODUCT_NAME = "$(TARGET_NAME)";
+ 			};
+ 			name = Debug;
+@@ -840,7 +859,7 @@
+ 			isa = XCBuildConfiguration;
+ 			buildSettings = {
+ 				CODE_SIGN_STYLE = Automatic;
+-				MACOSX_DEPLOYMENT_TARGET = 12.0;
++				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
+ 				PRODUCT_NAME = "$(TARGET_NAME)";
+ 			};
+ 			name = Release;
+diff --git a/macos/Runner/Configs/AppInfo.xcconfig b/macos/Runner/Configs/AppInfo.xcconfig
+index d56815d..3a400c0 100644
+--- a/macos/Runner/Configs/AppInfo.xcconfig
++++ b/macos/Runner/Configs/AppInfo.xcconfig
+@@ -12,3 +12,6 @@ PRODUCT_BUNDLE_IDENTIFIER = com.ppplayer.app
+ 
+ // The copyright displayed in application information
+ PRODUCT_COPYRIGHT = Copyright © 2026 PPPlayer. All rights reserved.
++#include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"
++#include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"
++#include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"
+diff --git a/macos/Runner/DebugProfile.entitlements b/macos/Runner/DebugProfile.entitlements
+index ce7f919..d920ea0 100644
+--- a/macos/Runner/DebugProfile.entitlements
++++ b/macos/Runner/DebugProfile.entitlements
+@@ -2,19 +2,11 @@
+ <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+ <plist version="1.0">
+ <dict>
+-	<key>com.apple.security.app-sandbox</key>
+-	<true/>
+ 	<key>com.apple.security.cs.allow-jit</key>
+ 	<true/>
+-	<key>com.apple.security.network.client</key>
+-	<true/>
+ 	<key>com.apple.security.network.server</key>
+ 	<true/>
+-	<key>com.apple.security.files.user-selected.read-write</key>
+-	<true/>
+-	<key>com.apple.security.assets.music.read-only</key>
+-	<true/>
+-	<key>com.apple.security.files.downloads.read-only</key>
++	<key>com.apple.security.network.client</key>
+ 	<true/>
+ </dict>
+ </plist>
+diff --git a/macos/Runner/Info.plist b/macos/Runner/Info.plist
+index 0a30f29..8f319cf 100644
+--- a/macos/Runner/Info.plist
++++ b/macos/Runner/Info.plist
+@@ -68,7 +68,7 @@
+ 	<key>NSMainNibFile</key>
+ 	<string>MainMenu</string>
+ 	<key>NSPrincipalClass</key>
+-	<string>NSApplication</string>
++	<string>ChromiumWebViewApplication</string>
+ 	<key>NSLocalNetworkUsageDescription</key>
+ 	<string>PPPlayer discovers Chromecast and other playback devices on your local network.</string>
+ 	<key>NSBonjourServices</key>
+diff --git a/macos/Runner/Release.entitlements b/macos/Runner/Release.entitlements
+index 822812c..5d82b3d 100644
+--- a/macos/Runner/Release.entitlements
++++ b/macos/Runner/Release.entitlements
+@@ -2,17 +2,11 @@
+ <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+ <plist version="1.0">
+ <dict>
+-	<key>com.apple.security.app-sandbox</key>
++	<key>com.apple.security.cs.allow-jit</key>
+ 	<true/>
+ 	<key>com.apple.security.network.client</key>
+ 	<true/>
+ 	<key>com.apple.security.network.server</key>
+ 	<true/>
+-	<key>com.apple.security.files.user-selected.read-write</key>
+-	<true/>
+-	<key>com.apple.security.assets.music.read-only</key>
+-	<true/>
+-	<key>com.apple.security.files.downloads.read-only</key>
+-	<true/>
+ </dict>
+ </plist>
+diff --git a/pubspec.yaml b/pubspec.yaml
+index 3fcb042..6ce3738 100644
+--- a/pubspec.yaml
++++ b/pubspec.yaml
+@@ -8,10 +8,7 @@ environment:
+ 
+ dependencies:
+   flutter_chromium_webview:
+-    git:
+-      url: https://github.com/devflier/flutter_chromium_webview.git
+-      path: packages/flutter_chromium_webview
+-      ref: v0.5.0
++    path: third_party/chromium/packages/flutter_chromium_webview
+   audio_service: ^0.18.18
+   audio_session: ^0.2.3
+   cached_network_image: ^4.0.0
+@@ -145,6 +142,8 @@ dependency_overrides:
+     path: lib/core/playback/packages/metadata_god
+   freezed_annotation: ^3.1.0
+   flutter_rust_bridge: 2.11.1
++  flutter_chromium_webview_platform_interface:
++    path: third_party/chromium/packages/flutter_chromium_webview_platform_interface
+ 
+ msix_config:
+   display_name: PPPlayer
+diff --git a/test/core/playback/chromium_playback_engine_test.dart b/test/core/playback/chromium_playback_engine_test.dart
+index aeb5f60..6f63990 100644
+--- a/test/core/playback/chromium_playback_engine_test.dart
++++ b/test/core/playback/chromium_playback_engine_test.dart
+@@ -67,6 +67,7 @@ class YoutubeFixture extends Fake implements ChromiumYoutubePlayerController {
+   final controller = ChromiumWebViewController();
+   Completer<void>? gate;
+   bool fail = false;
++  bool crashOnInitialize = false;
+   bool durationReady = true;
+   @override
+   Stream<Map<String, Object?>> get events => messages.stream;
+@@ -75,6 +76,7 @@ class YoutubeFixture extends Fake implements ChromiumYoutubePlayerController {
+   @override
+   Future<void> initialize() async {
+     await gate?.future;
++    if (crashOnInitialize) throw StateError('Browser crashed');
+   }
+ 
+   @override
+@@ -360,4 +362,151 @@ void main() {
+       expect(() => engine.play(video), throwsStateError);
+     },
+   );
++  test(
++    'initialization failure preserves track and position without online fallback',
++    () async {
++      await engine.dispose();
++      native = NativeFallback();
++      engine = ChromiumPlaybackEngine(
++        fallback: native,
++        initializeCef: () async => throw StateError('CEF unavailable'),
++        createPlayer: () => throw StateError('must not create'),
++      );
++      await expectLater(
++        engine.play(video, startAt: const Duration(seconds: 9), play: false),
++        throwsStateError,
++      );
++      expect(engine.currentStatus.state, PlaybackState.error);
++      expect(engine.currentStatus.track, video);
++      expect(engine.currentStatus.position, const Duration(seconds: 9));
++      expect(native.calls.where((call) => call.startsWith('play:')), isEmpty);
++    },
++  );
++  test(
++    'replacement waits for initialization and preserves latest pause intent',
++    () async {
++      final gate = Completer<void>();
++      await engine.dispose();
++      native = NativeFallback();
++      engine = ChromiumPlaybackEngine(
++        fallback: native,
++        initializeCef: () async {},
++        createPlayer: () {
++          final player = YoutubeFixture();
++          if (players.isEmpty) player.gate = gate;
++          players.add(player);
++          return player;
++        },
++      );
++      final first = engine.play(video);
++      await Future<void>.delayed(Duration.zero);
++      const next = PlaybackTrack(id: 'dQw4w9WgXcQ', title: 'Next');
++      final second = engine.play(
++        next,
++        startAt: const Duration(seconds: 3),
++        play: false,
++      );
++      expect(players, hasLength(1));
++      gate.complete();
++      await Future.wait([first, second]);
++      expect(players, hasLength(2));
++      expect(players.first.calls, contains('dispose'));
++      expect(players.last.calls, contains('cue:dQw4w9WgXcQ:3.0'));
++      expect(
++        players
++            .expand((player) => player.calls)
++            .where((call) => call.startsWith('load:')),
++        isEmpty,
++      );
++      players.first.messages.add({'StateChange': 1});
++      expect(engine.currentStatus.track, next);
++      expect(engine.currentStatus.state, isNot(PlaybackState.playing));
++    },
++  );
++
++  test(
++    'disabled YouTube reports unsupported without initializing or delegating online',
++    () async {
++      await engine.dispose();
++      native = NativeFallback();
++      engine = ChromiumPlaybackEngine(
++        youtubeEnabled: false,
++        fallback: native,
++        initializeCef: () async => throw StateError('must not initialize'),
++        createPlayer: () => throw StateError('must not create'),
++      );
++      await expectLater(
++        engine.play(video, startAt: const Duration(seconds: 4), play: false),
++        throwsUnsupportedError,
++      );
++      expect(engine.currentStatus.track, video);
++      expect(engine.currentStatus.position, const Duration(seconds: 4));
++      expect(engine.currentStatus.state, PlaybackState.error);
++      expect(native.calls.where((call) => call.startsWith('play:')), isEmpty);
++      await engine.play(
++        const PlaybackTrack(
++          id: 'file',
++          title: 'File',
++          sourceType: PlaybackSourceType.local,
++        ),
++      );
++      expect(native.calls, contains('play:file:true'));
++    },
++  );
++  for (final source in [
++    PlaybackSourceType.local,
++    PlaybackSourceType.networkStream,
++  ]) {
++    for (final video in [false, true]) {
++      test(
++        '$source video=$video delegates to native without a browser',
++        () async {
++          await engine.play(
++            PlaybackTrack(
++              id: 'native',
++              title: 'Native',
++              sourceType: source,
++              isVideo: video,
++              liveStatus: source == PlaybackSourceType.networkStream
++                  ? PlaybackLiveStatus.live
++                  : PlaybackLiveStatus.unknown,
++            ),
++          );
++          expect(players, isEmpty);
++          expect(native.calls, contains('play:native:true'));
++        },
++      );
++    }
++  }
++  test(
++    'initialization retry preserves a user pause and disposes failed browser',
++    () async {
++      await engine.dispose();
++      native = NativeFallback();
++      engine = ChromiumPlaybackEngine(
++        fallback: native,
++        initializeCef: () async {},
++        createPlayer: () {
++          final player = YoutubeFixture()..crashOnInitialize = players.isEmpty;
++          players.add(player);
++          return player;
++        },
++      );
++      final opening = engine.play(video, startAt: const Duration(seconds: 8));
++      await Future<void>.delayed(Duration.zero);
++      final pause = engine.pause();
++      await Future.wait([opening, pause]);
++      expect(players, hasLength(2));
++      expect(players.first.calls, contains('dispose'));
++      expect(players.last.calls, contains('cue:M7lc1UVf-VE:8.0'));
++      expect(
++        players
++            .expand((player) => player.calls)
++            .where((call) => call.startsWith('load:')),
++        isEmpty,
++      );
++      players.first.messages.add({'StateChange': 1});
++      expect(engine.currentStatus.state, isNot(PlaybackState.playing));
++    },
++  );
+ }
+diff --git a/test/core/player/player_notifier_playback_speed_test.dart b/test/core/player/player_notifier_playback_speed_test.dart
+index 383ae61..7fcf411 100644
+--- a/test/core/player/player_notifier_playback_speed_test.dart
++++ b/test/core/player/player_notifier_playback_speed_test.dart
+@@ -7,7 +7,6 @@ import 'package:ppplayer/core/models/track.dart';
+ import 'package:ppplayer/core/player/player_provider.dart';
+ import 'package:ppplayer/core/models/resolved_video_candidate.dart';
+ import 'package:ppplayer/core/playback/playback_providers.dart';
+-import 'package:youtube_player_iframe/youtube_player_iframe.dart' as yt;
+ import 'package:ppplayer/core/services/settings_provider.dart';
+ 
+ class FakeSettingsNotifier extends SettingsNotifier {

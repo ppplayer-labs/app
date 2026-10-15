@@ -117,7 +117,8 @@ class FakeEngine implements PlaybackController {
   }
 
   @override
-  dynamic get renderer => null;  @override
+  dynamic get renderer => null;
+  @override
   Future<void> setSubtitleTrack(String? uri) async {}
 
   @override
@@ -777,5 +778,75 @@ void main() {
     await engine.setSpeed(1.5);
     expect(fg.callLog, contains('setSpeed(1.5)'));
     expect(bg.callLog, contains('setSpeed(1.5)'));
+  });
+  test(
+    'persistent Chromium owner never prewarms or hands off on any PiP/activity path',
+    () async {
+      await engine.dispose();
+      fg = FakeEngine('persistent');
+      bg = FakeEngine('unused');
+      engine = HybridPlaybackEngine(
+        foregroundEngine: fg,
+        backgroundEngine: bg,
+        ownershipPolicy: PlaybackOwnershipPolicy.persistentForeground,
+      );
+      await engine.play(_track);
+      PipHandler.simulateActivityStopped();
+      PipHandler.simulatePipEntryFailed();
+      PipHandler.simulatePipModeChanged(true);
+      PipHandler.simulatePipModeChanged(false);
+      PipHandler.simulateActivityStarted();
+      await pump();
+      expect(engine.owner, EngineOwner.foreground);
+      expect(bg.callLog, isEmpty);
+      expect(fg.playCalls, 1);
+      await engine.pause();
+      PipHandler.simulateActivityStopped();
+      PipHandler.simulateActivityStarted();
+      await pump();
+      expect(fg.resumeCalls, 0);
+      expect(engine.currentStatus.state, PlaybackState.paused);
+    },
+  );
+  test(
+    'handoff destination timeout reports error and never restarts source',
+    () async {
+      await engine.dispose();
+      fg = FakeEngine('fg');
+      bg = FakeEngine('bg');
+      engine = HybridPlaybackEngine(
+        foregroundEngine: fg,
+        backgroundEngine: bg,
+        handoffTimeout: const Duration(milliseconds: 25),
+      );
+      await engine.play(_track);
+      bg.playCompleter = Completer<void>();
+      PipHandler.simulateActivityStopped();
+      await pump(75);
+      expect(engine.currentStatus.state, PlaybackState.error);
+      expect(engine.owner, EngineOwner.foreground);
+      expect(fg.resumeCalls, 0);
+      expect(bg.callLog, contains('stop()'));
+      bg.playCompleter!.complete();
+      await pump();
+      expect(engine.currentStatus.state, PlaybackState.error);
+    },
+  );
+  test('persistent pause contains late foreground playing events', () async {
+    await engine.dispose();
+    fg = FakeEngine('fg');
+    bg = FakeEngine('bg');
+    engine = HybridPlaybackEngine(
+      foregroundEngine: fg,
+      backgroundEngine: bg,
+      ownershipPolicy: PlaybackOwnershipPolicy.persistentForeground,
+    );
+    await engine.play(_track);
+    await engine.pause();
+    fg.emit(const PlaybackStatus(state: PlaybackState.playing));
+    await pump();
+    expect(fg.callLog, contains('pause(caller: intent_containment)'));
+    expect(engine.currentStatus.state, PlaybackState.paused);
+    expect(bg.callLog, isEmpty);
   });
 }

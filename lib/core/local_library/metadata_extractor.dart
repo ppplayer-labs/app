@@ -159,16 +159,20 @@ String _extForMime(String? mime) => switch (mime?.toLowerCase()) {
 };
 
 bool _metadataGodInitialized = false;
+Future<void>? _metadataGodInit;
 
 Future<ExtractedMetadata> _doExtract(String filePath) async {
-  if (!_metadataGodInitialized) {
+  if (!_metadataGodInitialized &&
+      !Platform.environment.containsKey('FLUTTER_TEST')) {
+    // Share one in-flight init so concurrent extractions wait for the Rust
+    // bridge instead of racing it (reads before init throw StateError).
+    _metadataGodInit ??= MetadataGod.initialize();
     try {
-      if (!Platform.environment.containsKey('FLUTTER_TEST')) {
-        MetadataGod.initialize();
-      }
+      await _metadataGodInit;
       _metadataGodInitialized = true;
     } catch (_) {
-      // Ignore initialization errors in tests where native library is missing
+      // Ignore initialization errors where the native library is missing.
+      _metadataGodInit = null;
     }
   }
 

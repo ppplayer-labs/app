@@ -7,7 +7,6 @@ import 'package:ppplayer/core/models/track.dart';
 import 'package:ppplayer/core/player/player_provider.dart';
 import 'package:ppplayer/core/models/resolved_video_candidate.dart';
 import 'package:ppplayer/core/playback/playback_providers.dart';
-import 'package:youtube_player_iframe/youtube_player_iframe.dart' as yt;
 import 'package:ppplayer/core/services/settings_provider.dart';
 
 class FakeSettingsNotifier extends SettingsNotifier {
@@ -42,6 +41,8 @@ class FakePlaybackService implements PlaybackService {
 
   @override
   Future<void> cacheYoutubeId(String spotifyId, String? youtubeId) async {}
+  @override
+  Future<String?> getCachedYoutubeId(String spotifyId) async => null;
   @override
   Future<void> recordPlay(Track track) async {}
   Future<void> registerAppTrack(Track track) async {}

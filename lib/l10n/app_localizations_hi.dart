@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -339,6 +338,21 @@ class AppLocalizationsHi extends AppLocalizations {
   String get copyLink => 'लिंक कॉपी करें';
 
   @override
+  String get copySpotifyLink => 'Spotify लिंक कॉपी करें';
+
+  @override
+  String get copyYouTubeLink => 'YouTube लिंक कॉपी करें';
+
+  @override
+  String get copySpotifyId => 'Spotify आईडी कॉपी करें';
+
+  @override
+  String get copyYouTubeId => 'YouTube आईडी कॉपी करें';
+
+  @override
+  String get idCopied => 'आईडी कॉपी हो गई';
+
+  @override
   String get discover => 'खोजें';
 
   @override
@@ -396,10 +410,10 @@ class AppLocalizationsHi extends AppLocalizations {
   String get queue1 => 'कतार';
 
   @override
-  String get queueNowPlaying => 'Now playing';
+  String get queueNowPlaying => 'अभी बज रहा है';
 
   @override
-  String get queueUpNext => 'Up next';
+  String get queueUpNext => 'अगला';
 
   @override
   String get recentlyPlayed => 'हाल ही में चलाए गए';
@@ -1092,4 +1106,55 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get loadFailed => 'सामग्री लोड नहीं हो सकी। कृपया फिर से कोशिश करें।';
+
+  @override
+  String get removeFolder => 'फ़ोल्डर हटाएं';
+
+  @override
+  String get removeFolderConfirmTitle => 'फ़ोल्डर हटाएं?';
+
+  @override
+  String removeFolderConfirmMessage(String name) {
+    return '\"$name\" और उसके मीडिया को अपनी लाइब्रेरी से हटाएं? डिस्क पर मौजूद फ़ाइलें हटाई नहीं जाएंगी।';
+  }
+
+  @override
+  String fileMissingOnDisk(String name) {
+    return '\"$name\" डिस्क पर अब नहीं मिल रही है';
+  }
+
+  @override
+  String get folderUnavailable =>
+      'फ़ोल्डर अनुपलब्ध है। कृपया जांचें कि ड्राइव कनेक्ट है या नहीं।';
+
+  @override
+  String fileAlreadyImported(String name) {
+    return '\"$name\" पहले से आपकी लाइब्रेरी में है';
+  }
+
+  @override
+  String filesAlreadyImported(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count फ़ाइलें पहले से आपकी लाइब्रेरी में थीं',
+      one: '1 फ़ाइल पहले से आपकी लाइब्रेरी में थी',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get folderAlreadyImported =>
+      'यह फ़ोल्डर पहले से आयातित है — नई फ़ाइलों की जांच की जा रही है';
+
+  @override
+  String get rescanCompleted => 'लाइब्रेरी पुनः स्कैन पूरा हुआ';
+
+  @override
+  String rescanFailed(String error) {
+    return 'फ़ोल्डर को पुनः स्कैन करने में विफल: $error';
+  }
+
+  @override
+  String get importedFolderFallback => 'आयातित फ़ोल्डर';
 }

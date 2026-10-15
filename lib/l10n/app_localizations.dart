@@ -776,6 +776,36 @@ abstract class AppLocalizations {
   /// **'Copy link'**
   String get copyLink;
 
+  /// No description provided for @copySpotifyLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy Spotify link'**
+  String get copySpotifyLink;
+
+  /// No description provided for @copyYouTubeLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy YouTube link'**
+  String get copyYouTubeLink;
+
+  /// No description provided for @copySpotifyId.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy Spotify ID'**
+  String get copySpotifyId;
+
+  /// No description provided for @copyYouTubeId.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy YouTube ID'**
+  String get copyYouTubeId;
+
+  /// No description provided for @idCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'ID copied'**
+  String get idCopied;
+
   /// No description provided for @discover.
   ///
   /// In en, this message translates to:
@@ -2197,6 +2227,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not load content. Please try again.'**
   String get loadFailed;
+
+  /// No description provided for @removeFolder.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove folder'**
+  String get removeFolder;
+
+  /// No description provided for @removeFolderConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove folder?'**
+  String get removeFolderConfirmTitle;
+
+  /// No description provided for @removeFolderConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove \"{name}\" and its media from your library? Files on disk will not be deleted.'**
+  String removeFolderConfirmMessage(String name);
+
+  /// No description provided for @fileMissingOnDisk.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{name}\" can no longer be found on disk'**
+  String fileMissingOnDisk(String name);
+
+  /// No description provided for @folderUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Folder is unavailable. Please check that the drive is connected.'**
+  String get folderUnavailable;
+
+  /// No description provided for @fileAlreadyImported.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{name}\" is already in your library'**
+  String fileAlreadyImported(String name);
+
+  /// No description provided for @filesAlreadyImported.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 file was already in your library} other{{count} files were already in your library}}'**
+  String filesAlreadyImported(num count);
+
+  /// No description provided for @folderAlreadyImported.
+  ///
+  /// In en, this message translates to:
+  /// **'This folder is already imported — checking for new files'**
+  String get folderAlreadyImported;
+
+  /// No description provided for @rescanCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Library rescan completed'**
+  String get rescanCompleted;
+
+  /// No description provided for @rescanFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to rescan folder: {error}'**
+  String rescanFailed(String error);
+
+  /// No description provided for @importedFolderFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported Folder'**
+  String get importedFolderFallback;
 }
 
 class _AppLocalizationsDelegate

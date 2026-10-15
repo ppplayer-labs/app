@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -335,6 +334,21 @@ class AppLocalizationsPt extends AppLocalizations {
   String get copyLink => 'Copiar link';
 
   @override
+  String get copySpotifyLink => 'Copiar link do Spotify';
+
+  @override
+  String get copyYouTubeLink => 'Copiar link do YouTube';
+
+  @override
+  String get copySpotifyId => 'Copiar ID do Spotify';
+
+  @override
+  String get copyYouTubeId => 'Copiar ID do YouTube';
+
+  @override
+  String get idCopied => 'ID copiado';
+
+  @override
   String get discover => 'Descobrir';
 
   @override
@@ -392,10 +406,10 @@ class AppLocalizationsPt extends AppLocalizations {
   String get queue1 => 'Fila';
 
   @override
-  String get queueNowPlaying => 'Now playing';
+  String get queueNowPlaying => 'Tocando agora';
 
   @override
-  String get queueUpNext => 'Up next';
+  String get queueUpNext => 'A seguir';
 
   @override
   String get recentlyPlayed => 'Tocadas Recentemente';
@@ -1097,4 +1111,55 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get loadFailed =>
       'Não foi possível carregar o conteúdo. Tente novamente.';
+
+  @override
+  String get removeFolder => 'Remover pasta';
+
+  @override
+  String get removeFolderConfirmTitle => 'Remover pasta?';
+
+  @override
+  String removeFolderConfirmMessage(String name) {
+    return 'Remover \"$name\" e suas mídias da sua biblioteca? Os arquivos no disco não serão excluídos.';
+  }
+
+  @override
+  String fileMissingOnDisk(String name) {
+    return '\"$name\" não foi encontrado no disco';
+  }
+
+  @override
+  String get folderUnavailable =>
+      'Pasta indisponível. Verifique se a unidade está conectada.';
+
+  @override
+  String fileAlreadyImported(String name) {
+    return '\"$name\" já está na sua biblioteca';
+  }
+
+  @override
+  String filesAlreadyImported(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count arquivos já estavam na sua biblioteca',
+      one: '1 arquivo já estava na sua biblioteca',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get folderAlreadyImported =>
+      'Esta pasta já foi importada — procurando novos arquivos';
+
+  @override
+  String get rescanCompleted => 'Verificação da biblioteca concluída';
+
+  @override
+  String rescanFailed(String error) {
+    return 'Falha ao verificar pasta novamente: $error';
+  }
+
+  @override
+  String get importedFolderFallback => 'Pasta importada';
 }

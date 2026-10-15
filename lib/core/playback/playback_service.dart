@@ -98,6 +98,11 @@ class PlaybackService {
     await _db.cacheYoutubeId(spotifyId, youtubeId);
   }
 
+  /// Gets cached YouTube ID if already resolved in database.
+  Future<String?> getCachedYoutubeId(String spotifyId) async {
+    return await _db.getCachedYoutubeId(spotifyId);
+  }
+
   /// Prefetches candidates for a track to populate resolver state.
   Future<void> prefetchNext(Track track, String? regionCode) async {
     if (track.sourceType != TrackSourceType.online) return;

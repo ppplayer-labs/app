@@ -153,8 +153,15 @@ class _IOsBookmarkResolver implements LocalFileResolver {
     }
     try {
       final path = await _LocalFilesChannel.resolveBookmark(source.locator);
-      if (path != null)
-        await _LocalFilesChannel.stopBookmarkAccess(source.locator);
+      if (path != null) {
+        // Bug fix: always attempt to stop access; if stopBookmarkAccess throws
+        // we still return the correct status rather than leaking the resource.
+        try {
+          await _LocalFilesChannel.stopBookmarkAccess(source.locator);
+        } catch (_) {
+          // Best-effort: native side may have already cleaned up.
+        }
+      }
       return path != null
           ? TrackAvailabilityStatus.available
           : TrackAvailabilityStatus.missing;

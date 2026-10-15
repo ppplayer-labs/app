@@ -19,6 +19,7 @@ class NativeServicePlaybackEngine implements PlaybackController {
   /// Monotonically increasing command ID. Incremented by every play() call.
   /// Passed to the JS layer so stale cueVideo calls from pre-warms are rejected.
   int _commandId = 0;
+  bool _wantsPlaying = false;
 
   Future<void>? _service;
   NativeServicePlaybackEngine({bool startAutomatically = true}) {
@@ -30,11 +31,13 @@ class NativeServicePlaybackEngine implements PlaybackController {
     try {
       await _channel.invokeMethod('startService');
     } catch (e) {
-      debugPrint('NativeServicePlaybackEngine: Error starting service: $e');
+      _service = null;
+      rethrow;
     }
   }
 
   Future<dynamic> _handleMethodCall(MethodCall call) async {
+    if (_disposed) return;
     switch (call.method) {
       case 'onReady':
         debugPrint('NativeServicePlaybackEngine: Headless WebView Ready');
@@ -43,6 +46,11 @@ class NativeServicePlaybackEngine implements PlaybackController {
         final args = call.arguments as Map<dynamic, dynamic>;
         final state = args['state'] as int;
         final commandId = args['commandId'] as int;
+        if (commandId != _commandId || _currentStatus.track == null) return;
+        if (state == 1 && !_wantsPlaying) {
+          await _channel.invokeMethod('pauseVideo');
+          return;
+        }
         final newState = _mapYtState(state);
         _updateStatus(
           _currentStatus.copyWith(state: newState, generation: commandId),
@@ -115,10 +123,11 @@ class NativeServicePlaybackEngine implements PlaybackController {
 
   @override
   Future<void> prepare(PlaybackTrack track, {Duration? position}) async {
+    if (_disposed) return;
+    _wantsPlaying = false;
+    final id = ++_commandId;
     await (_service ??= _startService());
-    // Capture commandId before awaiting — pre-warm uses current value.
-    // When play() later increments commandId, the JS-side cueVideo is rejected.
-    final id = _commandId;
+    if (_disposed || id != _commandId) return;
     _updateStatus(
       _currentStatus.copyWith(
         track: track,
@@ -144,9 +153,11 @@ class NativeServicePlaybackEngine implements PlaybackController {
     Duration startAt = Duration.zero,
     bool play = true,
   }) async {
-    await (_service ??= _startService());
-    // Increment commandId BEFORE dispatching — invalidates any pending pre-warm cue.
+    if (_disposed) return;
+    _wantsPlaying = play;
     final id = ++_commandId;
+    await (_service ??= _startService());
+    if (_disposed || id != _commandId) return;
     _updateStatus(
       _currentStatus.copyWith(
         track: track,
@@ -155,7 +166,7 @@ class NativeServicePlaybackEngine implements PlaybackController {
       ),
     );
     try {
-      await _channel.invokeMethod('loadVideo', {
+      await _channel.invokeMethod(play ? 'loadVideo' : 'prepareVideo', {
         'videoId': track.id,
         'startSeconds': startAt.inMilliseconds / 1000.0,
         'commandId': id,
@@ -174,6 +185,8 @@ class NativeServicePlaybackEngine implements PlaybackController {
     String caller = 'user',
     bool failOnTimeout = false,
   }) async {
+    _wantsPlaying = false;
+    if (_disposed || _service == null) return;
     if (_currentStatus.state == PlaybackState.paused ||
         _currentStatus.state == PlaybackState.idle) {
       return;
@@ -226,6 +239,8 @@ class NativeServicePlaybackEngine implements PlaybackController {
   Future<void> resume() async {
     // Do NOT emit playing optimistically — state must come from WebView onStateChange.
     // The handoff coordinator's firstWhere(playing) requires real WebView confirmation.
+    if (_disposed || _service == null || _currentStatus.track == null) return;
+    _wantsPlaying = true;
     try {
       await _channel.invokeMethod('playVideo');
     } catch (e) {
@@ -235,9 +250,12 @@ class NativeServicePlaybackEngine implements PlaybackController {
 
   @override
   Future<void> stop() async {
+    ++_commandId;
+    _wantsPlaying = false;
     _updateStatus(
       _currentStatus.copyWith(state: PlaybackState.idle, track: null),
     );
+    if (_disposed || _service == null) return;
     try {
       await _channel.invokeMethod('pauseVideo');
     } catch (e) {

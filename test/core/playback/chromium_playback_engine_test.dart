@@ -67,6 +67,7 @@ class YoutubeFixture extends Fake implements ChromiumYoutubePlayerController {
   final controller = ChromiumWebViewController();
   Completer<void>? gate;
   bool fail = false;
+  bool crashOnInitialize = false;
   bool durationReady = true;
   @override
   Stream<Map<String, Object?>> get events => messages.stream;
@@ -75,6 +76,7 @@ class YoutubeFixture extends Fake implements ChromiumYoutubePlayerController {
   @override
   Future<void> initialize() async {
     await gate?.future;
+    if (crashOnInitialize) throw StateError('Browser crashed');
   }
 
   @override
@@ -360,4 +362,214 @@ void main() {
       expect(() => engine.play(video), throwsStateError);
     },
   );
+  test(
+    'initialization failure preserves track and position without online fallback',
+    () async {
+      await engine.dispose();
+      native = NativeFallback();
+      engine = ChromiumPlaybackEngine(
+        fallback: native,
+        initializeCef: () async => throw StateError('CEF unavailable'),
+        createPlayer: () => throw StateError('must not create'),
+      );
+      await expectLater(
+        engine.play(video, startAt: const Duration(seconds: 9), play: false),
+        throwsStateError,
+      );
+      expect(engine.currentStatus.state, PlaybackState.error);
+      expect(engine.currentStatus.track, video);
+      expect(engine.currentStatus.position, const Duration(seconds: 9));
+      expect(native.calls.where((call) => call.startsWith('play:')), isEmpty);
+    },
+  );
+  test(
+    'replacement waits for initialization and preserves latest pause intent',
+    () async {
+      final gate = Completer<void>();
+      await engine.dispose();
+      native = NativeFallback();
+      engine = ChromiumPlaybackEngine(
+        fallback: native,
+        initializeCef: () async {},
+        createPlayer: () {
+          final player = YoutubeFixture();
+          if (players.isEmpty) player.gate = gate;
+          players.add(player);
+          return player;
+        },
+      );
+      final first = engine.play(video);
+      await Future<void>.delayed(Duration.zero);
+      const next = PlaybackTrack(id: 'dQw4w9WgXcQ', title: 'Next');
+      final second = engine.play(
+        next,
+        startAt: const Duration(seconds: 3),
+        play: false,
+      );
+      expect(players, hasLength(1));
+      gate.complete();
+      await Future.wait([first, second]);
+      expect(players, hasLength(2));
+      expect(players.first.calls, contains('dispose'));
+      expect(players.last.calls, contains('cue:dQw4w9WgXcQ:3.0'));
+      expect(
+        players
+            .expand((player) => player.calls)
+            .where((call) => call.startsWith('load:')),
+        isEmpty,
+      );
+      players.first.messages.add({'StateChange': 1});
+      expect(engine.currentStatus.track, next);
+      expect(engine.currentStatus.state, isNot(PlaybackState.playing));
+    },
+  );
+
+  test(
+    'disabled YouTube reports unsupported without initializing or delegating online',
+    () async {
+      await engine.dispose();
+      native = NativeFallback();
+      engine = ChromiumPlaybackEngine(
+        youtubeEnabled: false,
+        fallback: native,
+        initializeCef: () async => throw StateError('must not initialize'),
+        createPlayer: () => throw StateError('must not create'),
+      );
+      await expectLater(
+        engine.play(video, startAt: const Duration(seconds: 4), play: false),
+        throwsUnsupportedError,
+      );
+      expect(engine.currentStatus.track, video);
+      expect(engine.currentStatus.position, const Duration(seconds: 4));
+      expect(engine.currentStatus.state, PlaybackState.error);
+      expect(native.calls.where((call) => call.startsWith('play:')), isEmpty);
+      await engine.play(
+        const PlaybackTrack(
+          id: 'file',
+          title: 'File',
+          sourceType: PlaybackSourceType.local,
+        ),
+      );
+      expect(native.calls, contains('play:file:true'));
+    },
+  );
+  for (final source in [
+    PlaybackSourceType.local,
+    PlaybackSourceType.networkStream,
+  ]) {
+    for (final video in [false, true]) {
+      test(
+        '$source video=$video delegates to native without a browser',
+        () async {
+          await engine.play(
+            PlaybackTrack(
+              id: 'native',
+              title: 'Native',
+              sourceType: source,
+              isVideo: video,
+              liveStatus: source == PlaybackSourceType.networkStream
+                  ? PlaybackLiveStatus.live
+                  : PlaybackLiveStatus.unknown,
+            ),
+          );
+          expect(players, isEmpty);
+          expect(native.calls, contains('play:native:true'));
+        },
+      );
+    }
+  }
+  test(
+    'initialization retry preserves a user pause and disposes failed browser',
+    () async {
+      await engine.dispose();
+      native = NativeFallback();
+      engine = ChromiumPlaybackEngine(
+        fallback: native,
+        initializeCef: () async {},
+        createPlayer: () {
+          final player = YoutubeFixture()..crashOnInitialize = players.isEmpty;
+          players.add(player);
+          return player;
+        },
+      );
+      final opening = engine.play(video, startAt: const Duration(seconds: 8));
+      await Future<void>.delayed(Duration.zero);
+      final pause = engine.pause();
+      await Future.wait([opening, pause]);
+      expect(players, hasLength(2));
+      expect(players.first.calls, contains('dispose'));
+      expect(players.last.calls, contains('cue:M7lc1UVf-VE:8.0'));
+      expect(
+        players
+            .expand((player) => player.calls)
+            .where((call) => call.startsWith('load:')),
+        isEmpty,
+      );
+      players.first.messages.add({'StateChange': 1});
+      expect(engine.currentStatus.state, isNot(PlaybackState.playing));
+    },
+  );
+  test(
+    'host-coordinated crash rejects late state and explicit retry preserves position',
+    () async {
+      await engine.play(
+        video,
+        startAt: const Duration(seconds: 6),
+        play: false,
+      );
+      final old = players.single;
+      old.messages.add({'BrowserCrashed': true});
+      old.messages.add({'StateChange': 1});
+      expect(engine.currentStatus.state, PlaybackState.error);
+      await engine.pause();
+      expect(players, hasLength(1));
+      await engine.resume();
+      expect(players, hasLength(2));
+      expect(old.calls, contains('dispose'));
+      expect(players.last.calls, contains('load:M7lc1UVf-VE:6.0'));
+      expect(engine.currentStatus.track, video);
+    },
+  );
+  test(
+    'paused process restoration does not start a foreground service',
+    () async {
+      await engine.dispose();
+      native = NativeFallback();
+      final serviceCalls = <String>[];
+      engine = ChromiumPlaybackEngine(
+        fallback: native,
+        initializeCef: () async {},
+        createPlayer: () {
+          final player = YoutubeFixture();
+          players.add(player);
+          return player;
+        },
+        startPlaybackService: () async => serviceCalls.add('start'),
+        stopPlaybackService: () async => serviceCalls.add('stop'),
+      );
+      await engine.prepare(video, position: const Duration(seconds: 5));
+      expect(serviceCalls, isEmpty);
+      expect(players.single.calls, contains('cue:M7lc1UVf-VE:5.0'));
+      await engine.resume();
+      expect(serviceCalls, ['start']);
+      await engine.pause();
+      expect(serviceCalls, ['start', 'stop']);
+      await engine.stop();
+      expect(players.single.calls, contains('dispose'));
+    },
+  );
+  test('service startup failure cannot autoplay a browser', () async {
+    await engine.dispose();
+    native = NativeFallback();
+    engine = ChromiumPlaybackEngine(
+      fallback: native,
+      initializeCef: () async {},
+      createPlayer: () => throw StateError('must not create'),
+      startPlaybackService: () async =>
+          throw StateError('service start rejected'),
+    );
+    await expectLater(engine.play(video), throwsStateError);
+    expect(engine.currentStatus.state, PlaybackState.error);
+    expect(players, isEmpty);
+  });
 }

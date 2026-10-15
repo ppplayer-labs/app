@@ -1,0 +1,65 @@
+ M .gitignore
+ M analysis_options.yaml
+ M lib/core/playback/chromium_playback_engine.dart
+ M lib/core/playback/hybrid_playback_engine.dart
+ M lib/core/playback/playback_providers.dart
+ M lib/l10n/app_localizations_ar.dart
+ M lib/l10n/app_localizations_bn.dart
+ M lib/l10n/app_localizations_cs.dart
+ M lib/l10n/app_localizations_da.dart
+ M lib/l10n/app_localizations_de.dart
+ M lib/l10n/app_localizations_en.dart
+ M lib/l10n/app_localizations_es.dart
+ M lib/l10n/app_localizations_et.dart
+ M lib/l10n/app_localizations_fa.dart
+ M lib/l10n/app_localizations_fil.dart
+ M lib/l10n/app_localizations_fr.dart
+ M lib/l10n/app_localizations_gn.dart
+ M lib/l10n/app_localizations_hi.dart
+ M lib/l10n/app_localizations_hr.dart
+ M lib/l10n/app_localizations_hu.dart
+ M lib/l10n/app_localizations_id.dart
+ M lib/l10n/app_localizations_it.dart
+ M lib/l10n/app_localizations_ja.dart
+ M lib/l10n/app_localizations_ka.dart
+ M lib/l10n/app_localizations_kk.dart
+ M lib/l10n/app_localizations_ko.dart
+ M lib/l10n/app_localizations_lv.dart
+ M lib/l10n/app_localizations_ms.dart
+ M lib/l10n/app_localizations_my.dart
+ M lib/l10n/app_localizations_nl.dart
+ M lib/l10n/app_localizations_pcm.dart
+ M lib/l10n/app_localizations_pl.dart
+ M lib/l10n/app_localizations_pt.dart
+ M lib/l10n/app_localizations_ro.dart
+ M lib/l10n/app_localizations_ru.dart
+ M lib/l10n/app_localizations_sv.dart
+ M lib/l10n/app_localizations_th.dart
+ M lib/l10n/app_localizations_tr.dart
+ M lib/l10n/app_localizations_uk.dart
+ M lib/l10n/app_localizations_ur.dart
+ M lib/l10n/app_localizations_uz.dart
+ M lib/l10n/app_localizations_vi.dart
+ M lib/l10n/app_localizations_zh.dart
+ M macos/Podfile
+ M macos/Podfile.lock
+ M macos/Runner.xcodeproj/project.pbxproj
+ M macos/Runner/Configs/AppInfo.xcconfig
+ M macos/Runner/DebugProfile.entitlements
+ M macos/Runner/Info.plist
+ M macos/Runner/Release.entitlements
+ M pubspec.yaml
+ M test/core/playback/chromium_playback_engine_test.dart
+ M test/core/player/player_notifier_playback_speed_test.dart
+?? add_build_phase.rb
+?? crash.ips
+?? docs/validation/phase1-2026-10-13/
+?? fix.py
+?? integration_test/chromium_input_ipc_test.dart
+?? integration_test/chromium_javascript_ipc_test.dart
+?? lib/core/playback/playback_selection.dart
+?? pubspec.lock
+?? scripts/verify_chromium_snapshot.py
+?? test/core/playback/playback_selection_test.dart
+?? third_party/
+?? verification/input-ipc-20261008/

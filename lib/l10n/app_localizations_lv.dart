@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -338,6 +337,21 @@ class AppLocalizationsLv extends AppLocalizations {
   String get copyLink => 'Kopēt saiti';
 
   @override
+  String get copySpotifyLink => 'Kopēt Spotify saiti';
+
+  @override
+  String get copyYouTubeLink => 'Kopēt YouTube saiti';
+
+  @override
+  String get copySpotifyId => 'Kopēt Spotify ID';
+
+  @override
+  String get copyYouTubeId => 'Kopēt YouTube ID';
+
+  @override
+  String get idCopied => 'ID nokopēts';
+
+  @override
   String get discover => 'Atklāt';
 
   @override
@@ -395,10 +409,10 @@ class AppLocalizationsLv extends AppLocalizations {
   String get queue1 => 'Rinda';
 
   @override
-  String get queueNowPlaying => 'Now playing';
+  String get queueNowPlaying => 'Pašlaik atskaņo';
 
   @override
-  String get queueUpNext => 'Up next';
+  String get queueUpNext => 'Nākamais';
 
   @override
   String get recentlyPlayed => 'Nesen atskaņotie';
@@ -1100,4 +1114,55 @@ class AppLocalizationsLv extends AppLocalizations {
 
   @override
   String get loadFailed => 'Neizdevās ielādēt saturu. Mēģiniet vēlreiz.';
+
+  @override
+  String get removeFolder => 'Noņemt mapi';
+
+  @override
+  String get removeFolderConfirmTitle => 'Vai noņemt mapi?';
+
+  @override
+  String removeFolderConfirmMessage(String name) {
+    return 'Vai noņemt \"$name\" un tās multividi no bibliotēkas? Faila saturs diskā netiks dzēsts.';
+  }
+
+  @override
+  String fileMissingOnDisk(String name) {
+    return '\"$name\" vairs nevar atrast diskā';
+  }
+
+  @override
+  String get folderUnavailable =>
+      'Mape nav pieejama. Lūdzu, pārbaudiet, vai disks ir pievienots.';
+
+  @override
+  String fileAlreadyImported(String name) {
+    return '\"$name\" jau ir jūsu bibliotēkā';
+  }
+
+  @override
+  String filesAlreadyImported(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count faili jau bija bibliotēkā',
+      one: '1 fails jau bija bibliotēkā',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get folderAlreadyImported =>
+      'Šī mape jau ir importēta — tiek meklēti jauni faili';
+
+  @override
+  String get rescanCompleted => 'Bibliotēkas atkārtota skenēšana pabeigta';
+
+  @override
+  String rescanFailed(String error) {
+    return 'Neizdevās atkārtoti skenēt mapi: $error';
+  }
+
+  @override
+  String get importedFolderFallback => 'Importētā mape';
 }

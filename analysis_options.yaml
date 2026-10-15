@@ -2,6 +2,8 @@ include: package:flutter_lints/flutter.yaml
 
 analyzer:
   exclude:
+    # Archived pre-refactor source; its relative imports target the old location.
+    - refactor_mk_original.dart
     - build/**
     - .dart_tool/**
     - android/**

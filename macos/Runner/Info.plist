@@ -68,7 +68,7 @@
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
-	<string>NSApplication</string>
+	<string>ChromiumWebViewApplication</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>PPPlayer discovers Chromecast and other playback devices on your local network.</string>
 	<key>NSBonjourServices</key>

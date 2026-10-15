@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -337,6 +336,21 @@ class AppLocalizationsKa extends AppLocalizations {
   String get copyLink => 'ბმულის კოპირება';
 
   @override
+  String get copySpotifyLink => 'Spotify ბმულის კოპირება';
+
+  @override
+  String get copyYouTubeLink => 'YouTube ბმულის კოპირება';
+
+  @override
+  String get copySpotifyId => 'Spotify ID-ის კოპირება';
+
+  @override
+  String get copyYouTubeId => 'YouTube ID-ის კოპირება';
+
+  @override
+  String get idCopied => 'ID დაკოპირდა';
+
+  @override
   String get discover => 'აღმოჩენა';
 
   @override
@@ -394,10 +408,10 @@ class AppLocalizationsKa extends AppLocalizations {
   String get queue1 => 'რიგი';
 
   @override
-  String get queueNowPlaying => 'Now playing';
+  String get queueNowPlaying => 'ახლა უკრავს';
 
   @override
-  String get queueUpNext => 'Up next';
+  String get queueUpNext => 'შემდეგი';
 
   @override
   String get recentlyPlayed => 'ახლახან დაკრული';
@@ -1097,4 +1111,55 @@ class AppLocalizationsKa extends AppLocalizations {
 
   @override
   String get loadFailed => 'შიგთავსის ჩატვირთვა ვერ მოხერხდა. სცადეთ ხელახლა.';
+
+  @override
+  String get removeFolder => 'საქაღალდის ამოღება';
+
+  @override
+  String get removeFolderConfirmTitle => 'საქაღალდის ამოღება?';
+
+  @override
+  String removeFolderConfirmMessage(String name) {
+    return 'ამოვიღოთ „$name“ და მისი მედია ბიბლიოთეკიდან? დისკზე არსებული ფაილები არ წაიშლება.';
+  }
+
+  @override
+  String fileMissingOnDisk(String name) {
+    return '„$name“ დისკზე ვეღარ მოიძებნა';
+  }
+
+  @override
+  String get folderUnavailable =>
+      'საქაღალდე მიუწვდომელია. შეამოწმეთ, შეერთებულია თუ არა დისკი.';
+
+  @override
+  String fileAlreadyImported(String name) {
+    return '„$name“ უკვე თქვენს ბიბლიოთეკაშია';
+  }
+
+  @override
+  String filesAlreadyImported(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ფაილი უკვე ბიბლიოთეკაში იყო',
+      one: '1 ფაილი უკვე ბიბლიოთეკაში იყო',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get folderAlreadyImported =>
+      'ეს საქაღალდე უკვე იმპორტირებულია — მოწმდება ახალი ფაილები';
+
+  @override
+  String get rescanCompleted => 'ბიბლიოთეკის ხელახალი სკანირება დასრულდა';
+
+  @override
+  String rescanFailed(String error) {
+    return 'საქაღალდის ხელახალი სკანირება ვერ მოხერხდა: $error';
+  }
+
+  @override
+  String get importedFolderFallback => 'იმპორტირებული საქაღალდე';
 }

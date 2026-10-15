@@ -3,7 +3,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:media_kit/media_kit.dart' hide Track;
-import 'package:media_kit_video/media_kit_video.dart';
 
 /// Result of a video probe operation.
 enum VideoProbeResult {
@@ -83,80 +82,71 @@ class VideoProbeService {
     try {
       MediaKit.ensureInitialized();
       player = Player();
-      // VideoController must exist for the native renderer to decode video
-      // Create video controller purely to probe constraints/tracks
-      VideoController(player);
+      // NOTE: deliberately no VideoController.  Without a mounted Video
+      // widget a controller makes Player.open() wait forever for a render
+      // target.  Demuxer track metadata is available without rendering.
+
+      bool realVideo(Tracks t) => t.video.any(
+        (v) =>
+            v.id != 'auto' &&
+            v.id != 'no' &&
+            v.image != true &&
+            v.albumart != true,
+      );
 
       final completer = Completer<VideoProbeResult>();
 
-      // Subscribe to videoParams stream.  The native player emits a
-      // VideoParams() (default, with null w/h) when no video is present, and
-      // a VideoParams(w:N, h:M, ...) when a video stream is found.
-      StreamSubscription<VideoParams>? sub;
-      sub = player.stream.videoParams.listen((params) {
+      void evaluate(Tracks t) {
         if (completer.isCompleted) return;
-        // Guard: w and h must both be positive.  A still image attached to an
-        // audio file may produce w/h values of 0 or emit an event with only
-        // pixelformat set but no geometry.
-        final w = params.w;
-        final h = params.h;
-        if (w != null && w > 0 && h != null && h > 0) {
-          sub?.cancel();
-          completer.complete(VideoProbeResult.hasVideo);
-        }
-      });
+        if (realVideo(t)) completer.complete(VideoProbeResult.hasVideo);
+      }
 
-      // Listen for errors to resolve the completer early.
-      StreamSubscription<String>? errSub;
-      errSub = player.stream.error.listen((err) {
+      final tracksSub = player.stream.tracks.listen(evaluate);
+      final errSub = player.stream.error.listen((err) {
         if (completer.isCompleted) return;
-        errSub?.cancel();
-        sub?.cancel();
         completer.complete(VideoProbeResult.probeFailed);
       });
 
       // Open the media without starting playback.
-      await player.open(Media(mediaUri), play: false);
+      await player.open(Media(mediaUri), play: false).timeout(probeTimeout);
+      evaluate(player.state.tracks);
 
-      // Also watch completed: an audio-only file that loads and immediately
-      // signals completion without any videoParams event → audioOnly.
-      StreamSubscription<bool>? completedSub;
-      completedSub = player.stream.completed.listen((done) {
-        if (done && !completer.isCompleted) {
-          completedSub?.cancel();
-          sub?.cancel();
-          errSub?.cancel();
-          completer.complete(VideoProbeResult.audioOnly);
-        }
-      });
-
-      // Timeout and cancellation guard.
-      final result = await completer.future
-          .timeout(probeTimeout, onTimeout: () => VideoProbeResult.probeFailed)
-          .then((r) {
-            if (cancellationToken?.isCancelled == true) {
-              return VideoProbeResult.cancelled;
-            }
-            return r;
-          });
-
-      sub.cancel();
-      errSub.cancel();
-      completedSub.cancel();
-
-      // If no videoParams event fired and no error/completion, we consider the
-      // stream as audio-only (the timeout catches a genuine hang).
       if (!completer.isCompleted) {
-        return VideoProbeResult.audioOnly;
+        // Tracks may populate shortly after open() resolves.  If nothing
+        // video-like shows up within a short grace window, the file is
+        // audio-only provided the demuxer exposed an audio track/duration.
+        await completer.future.timeout(
+          const Duration(milliseconds: 700),
+          onTimeout: () {
+            if (!completer.isCompleted) {
+              final s = player!.state;
+              final hasAudio = s.tracks.audio.any(
+                (a) => a.id != 'auto' && a.id != 'no',
+              );
+              completer.complete(
+                hasAudio || s.duration > Duration.zero
+                    ? VideoProbeResult.audioOnly
+                    : VideoProbeResult.probeFailed,
+              );
+            }
+            return completer.future;
+          },
+        );
       }
 
-      return result;
+      await tracksSub.cancel();
+      await errSub.cancel();
+
+      if (cancellationToken?.isCancelled == true) {
+        return VideoProbeResult.cancelled;
+      }
+      return await completer.future;
     } catch (e) {
       debugPrint('VideoProbeService: probe failed for $mediaUri: $e');
       return VideoProbeResult.probeFailed;
     } finally {
       try {
-        await player?.dispose();
+        await player?.dispose().timeout(const Duration(seconds: 3));
       } catch (_) {}
       _release();
     }

@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -336,6 +335,21 @@ class AppLocalizationsIt extends AppLocalizations {
   String get copyLink => 'Copia link';
 
   @override
+  String get copySpotifyLink => 'Copia link Spotify';
+
+  @override
+  String get copyYouTubeLink => 'Copia link YouTube';
+
+  @override
+  String get copySpotifyId => 'Copia ID Spotify';
+
+  @override
+  String get copyYouTubeId => 'Copia ID YouTube';
+
+  @override
+  String get idCopied => 'ID copiato';
+
+  @override
   String get discover => 'Scopri';
 
   @override
@@ -393,10 +407,10 @@ class AppLocalizationsIt extends AppLocalizations {
   String get queue1 => 'Coda';
 
   @override
-  String get queueNowPlaying => 'Now playing';
+  String get queueNowPlaying => 'In riproduzione';
 
   @override
-  String get queueUpNext => 'Up next';
+  String get queueUpNext => 'In coda';
 
   @override
   String get recentlyPlayed => 'Ascoltati di recente';
@@ -1100,4 +1114,55 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get loadFailed => 'Impossibile caricare il contenuto. Riprova.';
+
+  @override
+  String get removeFolder => 'Rimuovi cartella';
+
+  @override
+  String get removeFolderConfirmTitle => 'Rimuovere la cartella?';
+
+  @override
+  String removeFolderConfirmMessage(String name) {
+    return 'Rimuovere \"$name\" e i relativi file multimediali dalla libreria? I file sul disco non verranno eliminati.';
+  }
+
+  @override
+  String fileMissingOnDisk(String name) {
+    return '\"$name\" non è più presente sul disco';
+  }
+
+  @override
+  String get folderUnavailable =>
+      'Cartella non disponibile. Verifica che l\'unità sia collegata.';
+
+  @override
+  String fileAlreadyImported(String name) {
+    return '\"$name\" è già nella tua libreria';
+  }
+
+  @override
+  String filesAlreadyImported(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count file erano già nella tua libreria',
+      one: '1 file era già nella tua libreria',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get folderAlreadyImported =>
+      'Questa cartella è già importata — controllo nuovi file';
+
+  @override
+  String get rescanCompleted => 'Nuova scansione della libreria completata';
+
+  @override
+  String rescanFailed(String error) {
+    return 'Nuova scansione della cartella non riuscita: $error';
+  }
+
+  @override
+  String get importedFolderFallback => 'Cartella importata';
 }

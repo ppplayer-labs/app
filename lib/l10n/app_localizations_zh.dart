@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -329,6 +328,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get copyLink => '复制链接';
 
   @override
+  String get copySpotifyLink => '复制 Spotify 链接';
+
+  @override
+  String get copyYouTubeLink => '复制 YouTube 链接';
+
+  @override
+  String get copySpotifyId => '复制 Spotify ID';
+
+  @override
+  String get copyYouTubeId => '复制 YouTube ID';
+
+  @override
+  String get idCopied => '已复制 ID';
+
+  @override
   String get discover => '发现';
 
   @override
@@ -386,10 +400,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get queue1 => '队列';
 
   @override
-  String get queueNowPlaying => 'Now playing';
+  String get queueNowPlaying => '正在播放';
 
   @override
-  String get queueUpNext => 'Up next';
+  String get queueUpNext => '接下来播放';
 
   @override
   String get recentlyPlayed => '最近播放';
@@ -1075,4 +1089,52 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get loadFailed => '无法加载内容。请重试。';
+
+  @override
+  String get removeFolder => '移除文件夹';
+
+  @override
+  String get removeFolderConfirmTitle => '移除文件夹？';
+
+  @override
+  String removeFolderConfirmMessage(String name) {
+    return '是否从库中移除“$name”及其媒体文件？磁盘上的文件不会被删除。';
+  }
+
+  @override
+  String fileMissingOnDisk(String name) {
+    return '在磁盘上未找到“$name”';
+  }
+
+  @override
+  String get folderUnavailable => '文件夹不可用。请检查驱动器是否已连接。';
+
+  @override
+  String fileAlreadyImported(String name) {
+    return '“$name”已在您的库中';
+  }
+
+  @override
+  String filesAlreadyImported(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 个文件已在您的库中',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get folderAlreadyImported => '此文件夹已导入 — 正在检查新文件';
+
+  @override
+  String get rescanCompleted => '库重新扫描已完成';
+
+  @override
+  String rescanFailed(String error) {
+    return '重新扫描文件夹失败：$error';
+  }
+
+  @override
+  String get importedFolderFallback => '已导入的文件夹';
 }

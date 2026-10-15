@@ -1,0 +1,1177 @@
+==========================================================================================
+ChromiumWebView Helper [8410]: 64-bit    Footprint: 173589728 B (16384 bytes per page)
+==========================================================================================
+
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+ 19120128 B      147456 B           0 B    11108352 B    14123008 B        233    IOAccelerator (graphics)
+ 16793600 B      983040 B           0 B     4145152 B           0 B        837    App-Specific Tag 14
+ 13926400 B           0 B           0 B           0 B    11534336 B         48    Owned physical footprint (unmapped) (graphics)
+ 11725176 B    10227272 B       32768 B           0 B           0 B         19    __DATA_CONST
+  5816320 B           0 B           0 B           0 B     3948544 B         12    IOSurface
+  4079616 B     3489792 B           0 B           0 B           0 B          8    Malloc Small
+  3014656 B           0 B           0 B           0 B     3014656 B         37    Owned physical footprint (unmapped)
+  2685192 B     1375702 B           0 B           0 B           0 B         57    __DATA
+  1146880 B       16384 B           0 B           0 B           0 B         33    Stack
+   869600 B           0 B           0 B           0 B      869600 B          1    page table
+   835102 B      202934 B           0 B           0 B           0 B        190    __DATA_DIRTY
+   753664 B      425984 B           0 B           0 B           0 B         11    Malloc Metadata
+   327680 B           0 B     2932736 B           0 B           0 B          6    mapped file
+   229376 B       32768 B           0 B           0 B           0 B          9    Mach Message
+   229376 B           0 B           0 B           0 B           0 B          1    Dispatch Continuations
+   221689 B      148564 B           0 B           0 B           0 B         94    unused dyld shared cache area
+   180785 B       55000 B           0 B           0 B           0 B         41    __AUTH
+   180224 B       65536 B           0 B           0 B           0 B         14    Untagged
+   163840 B       49152 B           0 B           0 B           0 B          1    Malloc Tiny
+   114616 B       16384 B           0 B           0 B           0 B          3    __TPRO_CONST
+    98304 B           0 B           0 B           0 B       98304 B          2    IOAccelerator
+    49152 B           0 B           0 B           0 B       49152 B          3    IOKit
+    48000 B           0 B           0 B           0 B           0 B          1    __OBJC_RW
+    32768 B       16384 B           0 B           0 B           0 B          2    ColorSync
+    32768 B           0 B           0 B           0 B           0 B          1    Activity Tracing
+    16384 B           0 B           0 B           0 B           0 B          1    Deferred Reclaim
+    16384 B           0 B           0 B           0 B           0 B          1    OS Alloc Once
+        0 B           0 B     2752512 B           0 B           0 B          2    __TEXT
+        0 B           0 B       49152 B           0 B           0 B          2    __LINKEDIT
+        ---           ---           ---           ---           ---        ---    ---
+ 82707680 B    17252352 B     5767168 B    15253504 B    33637600 B       1672    TOTAL
+
+Shared with ChromiumWebView Helper [8411], ChromiumWebView Helper [8412], ChromiumWebView Helper (Renderer) [8911], ChromiumWebView Helper (Renderer) [8912], ChromiumWebView Helper [8419], ChromiumWebView Helper [8418], ChromiumWebView Helper (Renderer) [8915]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B       32768 B           0 B           0 B          8    __TEXT
+        0 B           0 B       16384 B           0 B           0 B          8    __LINKEDIT
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B       49152 B           0 B           0 B         16    TOTAL
+
+Shared with ChromiumWebViewHost [8403]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+ 83034112 B           0 B           0 B           0 B     5603328 B         46    IOSurface
+   212992 B       49152 B           0 B           0 B           0 B          8    Untagged
+    16384 B           0 B           0 B           0 B       16384 B          1    IOAccelerator
+        0 B           0 B      770048 B           0 B           0 B          1    mapped file
+        ---           ---           ---           ---           ---        ---    ---
+ 83263488 B       49152 B      770048 B           0 B     5619712 B         56    TOTAL
+
+Shared with ChromiumWebView Helper [8411], ChromiumWebViewHost [8403], ChromiumWebView Helper (Renderer) [8911], ChromiumWebView Helper (Renderer) [8912], ChromiumWebView Helper [8419], ChromiumWebView Helper [8418], ChromiumWebView Helper (Renderer) [8915]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+    16384 B           0 B           0 B           0 B           0 B          1    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+    16384 B           0 B           0 B           0 B           0 B          1    TOTAL
+
+Shared with ChromiumWebViewHost [8403], ChromiumWebView Helper [8419]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+   147456 B       16384 B           0 B           0 B           0 B          9    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+   147456 B       16384 B           0 B           0 B           0 B          9    TOTAL
+
+Shared with ChromiumWebView Helper (Renderer) [8912]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+   196608 B           0 B           0 B           0 B           0 B          7    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+   196608 B           0 B           0 B           0 B           0 B          7    TOTAL
+
+Shared with ChromiumWebView Helper [8419]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+    65536 B       65536 B           0 B           0 B           0 B          4    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+    65536 B       65536 B           0 B           0 B           0 B          4    TOTAL
+
+Shared with ChromiumWebView Helper [8411], ChromiumWebView Helper [8418], ChromiumWebView Helper [8419], ChromiumWebView Helper [8412]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B      147456 B           0 B           0 B          5    __TEXT
+        0 B           0 B       98304 B           0 B           0 B          5    __LINKEDIT
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B      245760 B           0 B           0 B         10    TOTAL
+
+Shared with ChromiumWebView Helper (Renderer) [8911]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+  6684672 B           0 B           0 B           0 B     5849088 B          8    IOSurface
+   393216 B           0 B           0 B           0 B           0 B         25    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+  7077888 B           0 B           0 B           0 B     5849088 B         33    TOTAL
+
+Shared with ChromiumWebViewHost [8403], ChromiumWebView Helper (Renderer) [8911]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+    32768 B           0 B           0 B           0 B       65536 B          5    IOKit
+        0 B           0 B           0 B           0 B       65536 B          4    IOSurface
+        ---           ---           ---           ---           ---        ---    ---
+    32768 B           0 B           0 B           0 B      131072 B          9    TOTAL
+
+Shared with ChromiumWebView Helper [8411], ChromiumWebView Helper [8412], ChromiumWebViewHost [8403], ChromiumWebView Helper (Renderer) [8911], ChromiumWebView Helper (Renderer) [8912], ChromiumWebView Helper [8419], ChromiumWebView Helper [8418], ChromiumWebView Helper (Renderer) [8915]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+    49152 B           0 B           0 B           0 B           0 B          3    Untagged
+        0 B           0 B      557056 B           0 B           0 B          8    mapped file
+        0 B           0 B      229376 B           0 B           0 B          9    __LINKEDIT
+        ---           ---           ---           ---           ---        ---    ---
+    49152 B           0 B      786432 B           0 B           0 B         20    TOTAL
+
+Shared with ChromiumWebView Helper (Renderer) [8915]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+    32768 B           0 B           0 B           0 B           0 B          1    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+    32768 B           0 B           0 B           0 B           0 B          1    TOTAL
+
+Shared with ChromiumWebView Helper [8411], ChromiumWebViewHost [8403], ChromiumWebView Helper [8418], ChromiumWebView Helper [8419], ChromiumWebView Helper [8412]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B    71041024 B           0 B           0 B          6    __TEXT
+        0 B           0 B           0 B           0 B           0 B          1    PROTECTED_MEMORY
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B    71041024 B           0 B           0 B          7    TOTAL
+
+Shared with ChromiumWebView Helper [8418], ChromiumWebView Helper [8419], ChromiumWebViewHost [8403]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B       16384 B           0 B           0 B          1    mapped file
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B       16384 B           0 B           0 B          1    TOTAL
+
+Auxiliary data:
+    phys_footprint: 173966560 B
+    phys_footprint_peak: 364299488 B
+
+==========================================================================================
+ChromiumWebView Helper (Renderer) [8911]: 64-bit    Footprint: 118245080 B (16384 bytes per page)
+==========================================================================================
+
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+ 58294272 B           0 B           0 B    18448384 B           0 B       1316    App-Specific Tag 14
+ 38010880 B           0 B           0 B     1327104 B           0 B      11427    App-Specific Tag 16
+ 11479416 B           0 B      114688 B           0 B           0 B         17    __DATA_CONST
+  3044354 B           0 B           0 B           0 B           0 B         47    __DATA
+  1214168 B           0 B           0 B           0 B     1214168 B          1    page table
+   933888 B           0 B           0 B           0 B           0 B          8    Malloc Small
+   835584 B           0 B           0 B           0 B           0 B         58    Stack
+   776523 B           0 B           0 B           0 B           0 B        158    __DATA_DIRTY
+   737280 B           0 B           0 B           0 B           0 B         11    Malloc Metadata
+   344064 B           0 B     4014080 B           0 B           0 B          4    mapped file
+   262144 B           0 B           0 B           0 B           0 B          6    Mach Message
+   212992 B           0 B           0 B       16384 B           0 B          1    Dispatch Continuations
+   185261 B           0 B           0 B           0 B           0 B         32    __AUTH
+   178774 B           0 B           0 B           0 B           0 B         84    unused dyld shared cache area
+    98304 B           0 B           0 B           0 B           0 B          1    Malloc Tiny
+    98232 B           0 B           0 B           0 B           0 B          3    __TPRO_CONST
+    81920 B           0 B           0 B           0 B           0 B          2    App-Specific Tag 2
+    81920 B           0 B           0 B           0 B           0 B         20    Untagged
+    48000 B           0 B           0 B           0 B           0 B          1    __OBJC_RW
+    32768 B           0 B           0 B           0 B           0 B          1    Activity Tracing
+    16384 B           0 B           0 B           0 B           0 B          1    Deferred Reclaim
+    16384 B           0 B           0 B           0 B           0 B          1    ColorSync
+    16384 B           0 B           0 B           0 B           0 B          1    OS Alloc Once
+    16384 B           0 B           0 B           0 B           0 B          1    PROTECTED_MEMORY
+        0 B           0 B    75087872 B           0 B           0 B          1    __TEXT
+        0 B           0 B           0 B           0 B           0 B          1    CoreServices
+        ---           ---           ---           ---           ---        ---    ---
+117016280 B           0 B    79216640 B    19791872 B     1214168 B      13206    TOTAL
+
+Shared with ChromiumWebView Helper [8411], ChromiumWebView Helper [8412], ChromiumWebView Helper (Renderer) [8912], ChromiumWebView Helper [8419], ChromiumWebView Helper [8418], ChromiumWebView Helper (Renderer) [8915], ChromiumWebView Helper [8410]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B       32768 B           0 B           0 B          8    __TEXT
+        0 B           0 B       16384 B           0 B           0 B          8    __LINKEDIT
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B       49152 B           0 B           0 B         16    TOTAL
+
+Shared with ChromiumWebView Helper (Renderer) [8912], ChromiumWebView Helper (Renderer) [8915]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B      344064 B           0 B           0 B          3    __TEXT
+        0 B           0 B       98304 B           0 B           0 B          3    __LINKEDIT
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B      442368 B           0 B           0 B          6    TOTAL
+
+Shared with ChromiumWebView Helper (Renderer) [8912], ChromiumWebViewHost [8403], ChromiumWebView Helper (Renderer) [8915]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B           0 B           0 B           0 B          1    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B           0 B           0 B           0 B          1    TOTAL
+
+Shared with ChromiumWebView Helper [8411], ChromiumWebViewHost [8403], ChromiumWebView Helper (Renderer) [8912], ChromiumWebView Helper [8419], ChromiumWebView Helper [8418], ChromiumWebView Helper (Renderer) [8915], ChromiumWebView Helper [8410]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+    16384 B           0 B           0 B           0 B           0 B          1    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+    16384 B           0 B           0 B           0 B           0 B          1    TOTAL
+
+Shared with ChromiumWebViewHost [8403], ChromiumWebView Helper [8419]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B      114688 B           0 B           0 B          1    mapped file
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B      114688 B           0 B           0 B          1    TOTAL
+
+Shared with ChromiumWebView Helper [8418]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+    32768 B           0 B           0 B           0 B           0 B          2    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+    32768 B           0 B           0 B           0 B           0 B          2    TOTAL
+
+Shared with ChromiumWebViewHost [8403], ChromiumWebView Helper (Renderer) [8912]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B      245760 B           0 B           0 B          1    mapped file
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B      245760 B           0 B           0 B          1    TOTAL
+
+Shared with ChromiumWebView Helper (Renderer) [8912]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B      212992 B           0 B           0 B          1    mapped file
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B      212992 B           0 B           0 B          1    TOTAL
+
+Shared with ChromiumWebViewHost [8403]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+   491520 B           0 B           0 B           0 B           0 B          6    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+   491520 B           0 B           0 B           0 B           0 B          6    TOTAL
+
+Shared with ChromiumWebView Helper [8410]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+   491520 B           0 B           0 B           0 B           0 B         25    Untagged
+        0 B           0 B     6684672 B           0 B     5849088 B          8    IOSurface
+        ---           ---           ---           ---           ---        ---    ---
+   491520 B           0 B     6684672 B           0 B     5849088 B         33    TOTAL
+
+Shared with ChromiumWebViewHost [8403], ChromiumWebView Helper [8410]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+    16384 B           0 B           0 B           0 B       65536 B          4    IOKit
+        0 B           0 B           0 B           0 B       65536 B          4    IOSurface
+        ---           ---           ---           ---           ---        ---    ---
+    16384 B           0 B           0 B           0 B      131072 B          8    TOTAL
+
+Shared with ChromiumWebView Helper [8411]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+    65536 B           0 B           0 B           0 B           0 B          2    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+    65536 B           0 B           0 B           0 B           0 B          2    TOTAL
+
+Shared with ChromiumWebView Helper [8412]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+    49152 B           0 B           0 B           0 B           0 B          1    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+    49152 B           0 B           0 B           0 B           0 B          1    TOTAL
+
+Shared with ChromiumWebView Helper [8411], ChromiumWebView Helper [8412], ChromiumWebViewHost [8403], ChromiumWebView Helper (Renderer) [8912], ChromiumWebView Helper [8419], ChromiumWebView Helper [8418], ChromiumWebView Helper (Renderer) [8915], ChromiumWebView Helper [8410]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+    65536 B           0 B           0 B           0 B           0 B          3    Untagged
+        0 B           0 B     3162112 B           0 B           0 B          8    mapped file
+        0 B           0 B      229376 B           0 B           0 B          9    __LINKEDIT
+        ---           ---           ---           ---           ---        ---    ---
+    65536 B           0 B     3391488 B           0 B           0 B         20    TOTAL
+
+Shared with ChromiumWebView Helper (Renderer) [8912], ChromiumWebView Helper [8412], ChromiumWebView Helper [8411], ChromiumWebView Helper (Renderer) [8915], ChromiumWebView Helper [8419], ChromiumWebView Helper [8418]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B      655360 B           0 B           0 B          1    mapped file
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B      655360 B           0 B           0 B          1    TOTAL
+
+Auxiliary data:
+    phys_footprint: 118245080 B
+    phys_footprint_peak: 119867072 B
+
+==========================================================================================
+ChromiumWebViewHost [8403]: 64-bit    Footprint: 72648504 B (16384 bytes per page)
+==========================================================================================
+
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+ 53379072 B    22904832 B           0 B     6897664 B           0 B       2639    App-Specific Tag 14
+  5554176 B           0 B           0 B           0 B     5554176 B          3    IOSurface
+  2361285 B      397025 B      114688 B           0 B           0 B         88    __DATA
+  1702439 B      594631 B           0 B           0 B           0 B        358    __DATA_DIRTY
+  1294336 B      196608 B           0 B           0 B           0 B         93    Stack
+  1279800 B           0 B           0 B           0 B     1279800 B          1    page table
+   835584 B      491520 B           0 B           0 B           0 B         12    Malloc Metadata
+   786432 B      344064 B           0 B           0 B           0 B          6    Malloc Small
+   770048 B           0 B           0 B           0 B      737280 B         18    IOAccelerator (graphics)
+   462391 B      346136 B           0 B           0 B           0 B        187    unused dyld shared cache area
+   344064 B       32768 B     7258112 B           0 B           0 B         28    mapped file
+   327680 B           0 B           0 B           0 B           0 B          9    Mach Message
+   315109 B      143488 B           0 B           0 B           0 B         54    __AUTH
+   294912 B           0 B           0 B       49152 B           0 B          1    Dispatch Continuations
+   278528 B      229376 B           0 B           0 B           0 B        388    Untagged
+   157120 B      124352 B     4947968 B           0 B           0 B         27    __DATA_CONST
+    81920 B           0 B           0 B           0 B           0 B          1    Malloc Tiny
+    81848 B           0 B           0 B           0 B           0 B          3    __TPRO_CONST
+    49152 B           0 B           0 B           0 B       49152 B          1    IOAccelerator
+    49152 B           0 B           0 B           0 B           0 B          1    Activity Tracing
+    48000 B           0 B           0 B           0 B           0 B          1    __OBJC_RW
+    32768 B           0 B           0 B           0 B       32768 B          2    IOKit
+    16384 B           0 B           0 B           0 B           0 B          1    Deferred Reclaim
+    16384 B           0 B           0 B           0 B           0 B          1    OS Alloc Once
+    16384 B           0 B           0 B           0 B           0 B          2    Foundation
+    16384 B           0 B           0 B           0 B       16384 B          1    Owned physical footprint (unmapped) (graphics)
+    16384 B       16384 B           0 B           0 B           0 B          1    Owned physical footprint (unmapped)
+        0 B           0 B           0 B       32768 B           0 B          4    Image IO
+        0 B           0 B      671744 B           0 B           0 B          3    __TEXT
+        0 B           0 B      147456 B           0 B           0 B          3    __LINKEDIT
+        0 B           0 B           0 B           0 B           0 B          1    CoreGraphics
+        ---           ---           ---           ---           ---        ---    ---
+ 70567736 B    25821184 B    13139968 B     6979584 B     7669560 B       3940    TOTAL
+
+Shared with ChromiumWebView Helper [8410]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+   229376 B      131072 B           0 B           0 B           0 B          8    Untagged
+    16384 B           0 B           0 B           0 B       16384 B          1    IOAccelerator
+        0 B           0 B    83034112 B           0 B     5603328 B         46    IOSurface
+        0 B           0 B       98304 B           0 B           0 B          1    mapped file
+        ---           ---           ---           ---           ---        ---    ---
+   245760 B      131072 B    83132416 B           0 B     5619712 B         56    TOTAL
+
+Shared with ChromiumWebView Helper (Renderer) [8911], ChromiumWebView Helper (Renderer) [8912], ChromiumWebView Helper (Renderer) [8915]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+    16384 B       16384 B           0 B           0 B           0 B          1    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+    16384 B       16384 B           0 B           0 B           0 B          1    TOTAL
+
+Shared with ChromiumWebView Helper [8411], ChromiumWebView Helper (Renderer) [8911], ChromiumWebView Helper (Renderer) [8912], ChromiumWebView Helper [8419], ChromiumWebView Helper [8418], ChromiumWebView Helper (Renderer) [8915], ChromiumWebView Helper [8410]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+    16384 B           0 B           0 B           0 B           0 B          1    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+    16384 B           0 B           0 B           0 B           0 B          1    TOTAL
+
+Shared with ChromiumWebView Helper [8419], ChromiumWebView Helper [8410]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+   147456 B       16384 B           0 B           0 B           0 B          9    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+   147456 B       16384 B           0 B           0 B           0 B          9    TOTAL
+
+Shared with ChromiumWebView Helper [8412]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+   163840 B       98304 B           0 B           0 B           0 B          3    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+   163840 B       98304 B           0 B           0 B           0 B          3    TOTAL
+
+Shared with ChromiumWebView Helper (Renderer) [8911], ChromiumWebView Helper [8419]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B      131072 B           0 B           0 B          1    mapped file
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B      131072 B           0 B           0 B          1    TOTAL
+
+Shared with ChromiumWebView Helper [8411]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+   163840 B       81920 B           0 B           0 B           0 B          3    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+   163840 B       81920 B           0 B           0 B           0 B          3    TOTAL
+
+Shared with ChromiumWebView Helper (Renderer) [8911], ChromiumWebView Helper (Renderer) [8912]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B      196608 B           0 B           0 B          1    mapped file
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B      196608 B           0 B           0 B          1    TOTAL
+
+Shared with ChromiumWebView Helper (Renderer) [8912]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+   311296 B           0 B           0 B           0 B           0 B          5    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+   311296 B           0 B           0 B           0 B           0 B          5    TOTAL
+
+Shared with ChromiumWebView Helper (Renderer) [8911]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+   327680 B           0 B           0 B           0 B           0 B          6    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+   327680 B           0 B           0 B           0 B           0 B          6    TOTAL
+
+Shared with ChromiumWebView Helper [8419]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+   212992 B       98304 B           0 B           0 B           0 B          6    Untagged
+    16384 B           0 B           0 B           0 B           0 B          1    CoreGraphics
+        0 B           0 B      999424 B           0 B           0 B          9    mapped file
+        0 B           0 B       16384 B           0 B           0 B          2    __LINKEDIT
+        0 B           0 B       16384 B           0 B           0 B          2    __TEXT
+        ---           ---           ---           ---           ---        ---    ---
+   229376 B       98304 B     1032192 B           0 B           0 B         20    TOTAL
+
+Shared with ChromiumWebView Helper [8418]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+   163840 B       98304 B           0 B           0 B           0 B          3    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+   163840 B       98304 B           0 B           0 B           0 B          3    TOTAL
+
+Shared with ChromiumWebView Helper (Renderer) [8911], ChromiumWebView Helper [8410]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+    32768 B           0 B           0 B           0 B       65536 B          5    IOKit
+        0 B           0 B           0 B           0 B       65536 B          4    IOSurface
+        ---           ---           ---           ---           ---        ---    ---
+    32768 B           0 B           0 B           0 B      131072 B          9    TOTAL
+
+Shared with ChromiumWebView Helper [8411], ChromiumWebView Helper [8412], ChromiumWebView Helper (Renderer) [8911], ChromiumWebView Helper (Renderer) [8912], ChromiumWebView Helper [8419], ChromiumWebView Helper [8418], ChromiumWebView Helper (Renderer) [8915], ChromiumWebView Helper [8410]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+    81920 B           0 B           0 B           0 B           0 B          4    Untagged
+        0 B           0 B     3293184 B           0 B           0 B          8    mapped file
+        0 B           0 B      229376 B           0 B           0 B          9    __LINKEDIT
+        ---           ---           ---           ---           ---        ---    ---
+    81920 B           0 B     3522560 B           0 B           0 B         21    TOTAL
+
+Shared with ChromiumWebView Helper [8411], ChromiumWebView Helper [8410], ChromiumWebView Helper [8418], ChromiumWebView Helper [8419], ChromiumWebView Helper [8412]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B    71041024 B           0 B           0 B          6    __TEXT
+        0 B           0 B           0 B           0 B           0 B          1    PROTECTED_MEMORY
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B    71041024 B           0 B           0 B          7    TOTAL
+
+Shared with ChromiumWebView Helper [8410], ChromiumWebView Helper [8418], ChromiumWebView Helper [8419]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B       16384 B           0 B           0 B          1    mapped file
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B       16384 B           0 B           0 B          1    TOTAL
+
+Shared with ChromiumWebView Helper (Renderer) [8915]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+   180224 B           0 B           0 B           0 B           0 B          4    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+   180224 B           0 B           0 B           0 B           0 B          4    TOTAL
+
+Auxiliary data:
+    phys_footprint: 72648504 B
+    phys_footprint_peak: 232294176 B
+
+==========================================================================================
+ChromiumWebView Helper (Renderer) [8912]: 64-bit    Footprint: 33883528 B (16384 bytes per page)
+==========================================================================================
+
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+ 11479416 B           0 B       98304 B           0 B           0 B         17    __DATA_CONST
+ 10747904 B           0 B           0 B     1114112 B           0 B        681    App-Specific Tag 14
+  3686400 B           0 B           0 B           0 B           0 B      11226    App-Specific Tag 16
+  2716674 B           0 B           0 B           0 B           0 B         46    __DATA
+   984456 B           0 B           0 B           0 B      984456 B          1    page table
+   786432 B           0 B           0 B           0 B           0 B          7    Malloc Small
+   743762 B           0 B           0 B           0 B           0 B        153    __DATA_DIRTY
+   589824 B           0 B           0 B           0 B           0 B         10    Malloc Metadata
+   344064 B           0 B           0 B           0 B           0 B         26    Stack
+   229376 B           0 B           0 B           0 B           0 B          6    Mach Message
+   178760 B           0 B           0 B           0 B           0 B         82    unused dyld shared cache area
+   168884 B           0 B           0 B           0 B           0 B         29    __AUTH
+   163840 B           0 B           0 B           0 B           0 B          1    Dispatch Continuations
+    98304 B           0 B           0 B           0 B           0 B          1    Malloc Tiny
+    98232 B           0 B           0 B           0 B           0 B          3    __TPRO_CONST
+    65536 B           0 B           0 B           0 B           0 B         18    Untagged
+    48000 B           0 B           0 B           0 B           0 B          1    __OBJC_RW
+    32768 B           0 B           0 B           0 B           0 B          1    Activity Tracing
+    16384 B           0 B           0 B           0 B           0 B          1    Deferred Reclaim
+    16384 B           0 B           0 B           0 B           0 B          1    ColorSync
+    16384 B           0 B           0 B           0 B           0 B          1    OS Alloc Once
+    16384 B           0 B           0 B           0 B           0 B          1    PROTECTED_MEMORY
+        0 B           0 B    53723136 B           0 B           0 B          1    __TEXT
+        0 B           0 B     1196032 B           0 B           0 B          1    mapped file
+        ---           ---           ---           ---           ---        ---    ---
+ 33228168 B           0 B    55017472 B     1114112 B      984456 B      12317    TOTAL
+
+Shared with ChromiumWebView Helper [8411], ChromiumWebView Helper [8412], ChromiumWebView Helper (Renderer) [8911], ChromiumWebView Helper [8419], ChromiumWebView Helper [8418], ChromiumWebView Helper (Renderer) [8915], ChromiumWebView Helper [8410]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B       32768 B           0 B           0 B          8    __TEXT
+        0 B           0 B       16384 B           0 B           0 B          8    __LINKEDIT
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B       49152 B           0 B           0 B         16    TOTAL
+
+Shared with ChromiumWebView Helper (Renderer) [8911], ChromiumWebView Helper (Renderer) [8915]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B      344064 B           0 B           0 B          3    __TEXT
+        0 B           0 B       98304 B           0 B           0 B          3    __LINKEDIT
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B      442368 B           0 B           0 B          6    TOTAL
+
+Shared with ChromiumWebView Helper (Renderer) [8911], ChromiumWebViewHost [8403], ChromiumWebView Helper (Renderer) [8915]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B           0 B           0 B           0 B          1    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B           0 B           0 B           0 B          1    TOTAL
+
+Shared with ChromiumWebView Helper [8411], ChromiumWebViewHost [8403], ChromiumWebView Helper (Renderer) [8911], ChromiumWebView Helper [8419], ChromiumWebView Helper [8418], ChromiumWebView Helper (Renderer) [8915], ChromiumWebView Helper [8410]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+    16384 B           0 B           0 B           0 B           0 B          1    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+    16384 B           0 B           0 B           0 B           0 B          1    TOTAL
+
+Shared with ChromiumWebView Helper [8411]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+    16384 B           0 B           0 B           0 B           0 B          1    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+    16384 B           0 B           0 B           0 B           0 B          1    TOTAL
+
+Shared with ChromiumWebView Helper [8410]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+   180224 B           0 B           0 B           0 B           0 B          7    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+   180224 B           0 B           0 B           0 B           0 B          7    TOTAL
+
+Shared with ChromiumWebViewHost [8403], ChromiumWebView Helper (Renderer) [8911]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B      114688 B           0 B           0 B          1    mapped file
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B      114688 B           0 B           0 B          1    TOTAL
+
+Shared with ChromiumWebView Helper (Renderer) [8911]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B      147456 B           0 B           0 B          1    mapped file
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B      147456 B           0 B           0 B          1    TOTAL
+
+Shared with ChromiumWebView Helper [8412]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+    32768 B           0 B           0 B           0 B           0 B          1    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+    32768 B           0 B           0 B           0 B           0 B          1    TOTAL
+
+Shared with ChromiumWebViewHost [8403]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+   344064 B           0 B           0 B           0 B           0 B          5    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+   344064 B           0 B           0 B           0 B           0 B          5    TOTAL
+
+Shared with ChromiumWebView Helper [8411], ChromiumWebView Helper [8412], ChromiumWebViewHost [8403], ChromiumWebView Helper (Renderer) [8911], ChromiumWebView Helper [8419], ChromiumWebView Helper [8418], ChromiumWebView Helper (Renderer) [8915], ChromiumWebView Helper [8410]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+    65536 B           0 B           0 B           0 B           0 B          3    Untagged
+        0 B           0 B     1130496 B           0 B           0 B          8    mapped file
+        0 B           0 B      229376 B           0 B           0 B          9    __LINKEDIT
+        ---           ---           ---           ---           ---        ---    ---
+    65536 B           0 B     1359872 B           0 B           0 B         20    TOTAL
+
+Shared with ChromiumWebView Helper (Renderer) [8911], ChromiumWebView Helper [8412], ChromiumWebView Helper [8411], ChromiumWebView Helper (Renderer) [8915], ChromiumWebView Helper [8419], ChromiumWebView Helper [8418]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B      655360 B           0 B           0 B          1    mapped file
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B      655360 B           0 B           0 B          1    TOTAL
+
+Auxiliary data:
+    phys_footprint: 33883528 B
+    phys_footprint_peak: 33883528 B
+
+==========================================================================================
+ChromiumWebView Helper [8419]: 64-bit    Footprint: 29033720 B (16384 bytes per page)
+==========================================================================================
+
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+ 11479416 B    10554952 B       32768 B           0 B           0 B         17    __DATA_CONST
+  8486912 B     3702784 B           0 B           0 B           0 B        922    App-Specific Tag 14
+  2552797 B     1635489 B           0 B           0 B           0 B         74    __DATA
+  1182137 B      506230 B           0 B           0 B           0 B        235    __DATA_DIRTY
+  1146880 B      557056 B           0 B           0 B           0 B          7    Malloc Small
+   886008 B           0 B           0 B           0 B      886008 B          1    page table
+   851968 B      425984 B           0 B           0 B           0 B         12    Malloc Metadata
+   425984 B           0 B     2916352 B           0 B           0 B          1    mapped file
+   279577 B      210648 B           0 B           0 B           0 B        122    unused dyld shared cache area
+   262144 B       49152 B           0 B           0 B           0 B         20    Stack
+   212992 B           0 B           0 B           0 B           0 B          1    Dispatch Continuations
+   212992 B      212992 B           0 B           0 B           0 B         52    Untagged
+   203169 B      101577 B           0 B           0 B           0 B         35    __AUTH
+    98304 B           0 B           0 B           0 B           0 B          1    Malloc Tiny
+    98232 B           0 B           0 B           0 B           0 B          3    __TPRO_CONST
+    65536 B       32768 B           0 B           0 B           0 B          2    Mach Message
+    49152 B       16384 B           0 B           0 B           0 B          1    Activity Tracing
+    48000 B           0 B           0 B           0 B           0 B          1    __OBJC_RW
+    16384 B       16384 B           0 B           0 B           0 B          1    Foundation
+    16384 B           0 B           0 B           0 B           0 B          1    Deferred Reclaim
+    16384 B           0 B           0 B           0 B           0 B          1    OS Alloc Once
+        0 B           0 B           0 B           0 B           0 B          1    CoreGraphics
+        ---           ---           ---           ---           ---        ---    ---
+ 28591352 B    18022400 B     2949120 B           0 B      886008 B       1513    TOTAL
+
+Shared with ChromiumWebView Helper [8411], ChromiumWebView Helper [8412], ChromiumWebView Helper (Renderer) [8911], ChromiumWebView Helper (Renderer) [8912], ChromiumWebView Helper [8418], ChromiumWebView Helper (Renderer) [8915], ChromiumWebView Helper [8410]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B       32768 B           0 B           0 B          8    __TEXT
+        0 B           0 B       16384 B           0 B           0 B          8    __LINKEDIT
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B       49152 B           0 B           0 B         16    TOTAL
+
+Shared with ChromiumWebView Helper [8411], ChromiumWebViewHost [8403], ChromiumWebView Helper (Renderer) [8911], ChromiumWebView Helper (Renderer) [8912], ChromiumWebView Helper [8418], ChromiumWebView Helper (Renderer) [8915], ChromiumWebView Helper [8410]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+    16384 B           0 B           0 B           0 B           0 B          1    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+    16384 B           0 B           0 B           0 B           0 B          1    TOTAL
+
+Shared with ChromiumWebViewHost [8403], ChromiumWebView Helper [8410]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+   147456 B       16384 B           0 B           0 B           0 B          9    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+   147456 B       16384 B           0 B           0 B           0 B          9    TOTAL
+
+Shared with ChromiumWebViewHost [8403], ChromiumWebView Helper (Renderer) [8911]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B      114688 B           0 B           0 B          1    mapped file
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B      114688 B           0 B           0 B          1    TOTAL
+
+Shared with ChromiumWebView Helper [8410]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+    98304 B       98304 B           0 B           0 B           0 B          4    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+    98304 B       98304 B           0 B           0 B           0 B          4    TOTAL
+
+Shared with ChromiumWebView Helper [8411], ChromiumWebView Helper [8410], ChromiumWebView Helper [8418], ChromiumWebView Helper [8412]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B      147456 B           0 B           0 B          5    __TEXT
+        0 B           0 B       98304 B           0 B           0 B          5    __LINKEDIT
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B      245760 B           0 B           0 B         10    TOTAL
+
+Shared with ChromiumWebViewHost [8403]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+   114688 B           0 B           0 B           0 B           0 B          6    Untagged
+    16384 B           0 B           0 B           0 B           0 B          1    CoreGraphics
+        0 B           0 B      917504 B           0 B           0 B          9    mapped file
+        0 B           0 B       16384 B           0 B           0 B          2    __LINKEDIT
+        0 B           0 B       16384 B           0 B           0 B          2    __TEXT
+        ---           ---           ---           ---           ---        ---    ---
+   131072 B           0 B      950272 B           0 B           0 B         20    TOTAL
+
+Shared with ChromiumWebView Helper [8411], ChromiumWebView Helper [8412], ChromiumWebViewHost [8403], ChromiumWebView Helper (Renderer) [8911], ChromiumWebView Helper (Renderer) [8912], ChromiumWebView Helper [8418], ChromiumWebView Helper (Renderer) [8915], ChromiumWebView Helper [8410]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+    49152 B           0 B           0 B           0 B           0 B          3    Untagged
+        0 B           0 B      655360 B           0 B           0 B          8    mapped file
+        0 B           0 B      229376 B           0 B           0 B          9    __LINKEDIT
+        ---           ---           ---           ---           ---        ---    ---
+    49152 B           0 B      884736 B           0 B           0 B         20    TOTAL
+
+Shared with ChromiumWebView Helper (Renderer) [8911], ChromiumWebView Helper (Renderer) [8912], ChromiumWebView Helper [8412], ChromiumWebView Helper [8411], ChromiumWebView Helper (Renderer) [8915], ChromiumWebView Helper [8418]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B           0 B           0 B           0 B          1    mapped file
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B           0 B           0 B           0 B          1    TOTAL
+
+Shared with ChromiumWebView Helper [8411], ChromiumWebViewHost [8403], ChromiumWebView Helper [8410], ChromiumWebView Helper [8418], ChromiumWebView Helper [8412]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B    71041024 B           0 B           0 B          6    __TEXT
+        0 B           0 B           0 B           0 B           0 B          1    PROTECTED_MEMORY
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B    71041024 B           0 B           0 B          7    TOTAL
+
+Shared with ChromiumWebView Helper [8410], ChromiumWebView Helper [8418], ChromiumWebViewHost [8403]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B       16384 B           0 B           0 B          1    mapped file
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B       16384 B           0 B           0 B          1    TOTAL
+
+Auxiliary data:
+    phys_footprint: 29033720 B
+    phys_footprint_peak: 29558008 B
+
+==========================================================================================
+ChromiumWebView Helper [8411]: 64-bit    Footprint: 28886192 B (16384 bytes per page)
+==========================================================================================
+
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+ 11479416 B    10627448 B       32768 B           0 B           0 B         17    __DATA_CONST
+  7274496 B      524288 B           0 B     5357568 B           0 B        634    App-Specific Tag 14
+  3833856 B     3309568 B           0 B           0 B           0 B         11    Malloc Small
+  2211732 B     1622008 B           0 B           0 B           0 B         31    __DATA
+   836784 B           0 B           0 B           0 B      836784 B          1    page table
+   701180 B      318306 B           0 B           0 B           0 B        161    __DATA_DIRTY
+   655360 B      425984 B           0 B           0 B           0 B         10    Malloc Metadata
+   475136 B      196608 B           0 B           0 B           0 B         29    Stack
+   185584 B      157534 B           0 B           0 B           0 B         68    unused dyld shared cache area
+   163840 B           0 B           0 B           0 B           0 B          1    Dispatch Continuations
+   147456 B       49152 B           0 B           0 B           0 B          1    Malloc Tiny
+    98304 B           0 B           0 B           0 B           0 B          3    Mach Message
+    98232 B       65536 B           0 B           0 B           0 B          3    __TPRO_CONST
+    81920 B       16384 B           0 B           0 B           0 B          2    App-Specific Tag 2
+    70608 B       54224 B           0 B           0 B           0 B         20    __AUTH
+    49152 B       32768 B           0 B           0 B           0 B          4    Untagged
+    48000 B           0 B           0 B           0 B           0 B          1    __OBJC_RW
+    32768 B           0 B           0 B           0 B           0 B          1    Activity Tracing
+    16384 B           0 B           0 B           0 B           0 B          1    Deferred Reclaim
+    16384 B           0 B           0 B           0 B           0 B          1    OS Alloc Once
+        0 B           0 B      180224 B           0 B           0 B          8    mapped file
+        ---           ---           ---           ---           ---        ---    ---
+ 28476592 B    17399808 B      212992 B     5357568 B      836784 B       1010    TOTAL
+
+Shared with ChromiumWebView Helper [8412], ChromiumWebView Helper (Renderer) [8911], ChromiumWebView Helper (Renderer) [8912], ChromiumWebView Helper [8419], ChromiumWebView Helper [8418], ChromiumWebView Helper (Renderer) [8915], ChromiumWebView Helper [8410]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B       32768 B           0 B           0 B          8    __TEXT
+        0 B           0 B       16384 B           0 B           0 B          8    __LINKEDIT
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B       49152 B           0 B           0 B         16    TOTAL
+
+Shared with ChromiumWebViewHost [8403], ChromiumWebView Helper (Renderer) [8911], ChromiumWebView Helper (Renderer) [8912], ChromiumWebView Helper [8419], ChromiumWebView Helper [8418], ChromiumWebView Helper (Renderer) [8915], ChromiumWebView Helper [8410]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+    16384 B           0 B           0 B           0 B           0 B          1    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+    16384 B           0 B           0 B           0 B           0 B          1    TOTAL
+
+Shared with ChromiumWebView Helper (Renderer) [8912]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+    16384 B           0 B           0 B           0 B           0 B          1    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+    16384 B           0 B           0 B           0 B           0 B          1    TOTAL
+
+Shared with ChromiumWebViewHost [8403]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+   262144 B           0 B           0 B           0 B           0 B          3    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+   262144 B           0 B           0 B           0 B           0 B          3    TOTAL
+
+Shared with ChromiumWebView Helper [8410], ChromiumWebView Helper [8418], ChromiumWebView Helper [8419], ChromiumWebView Helper [8412]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B      147456 B           0 B           0 B          5    __TEXT
+        0 B           0 B       98304 B           0 B           0 B          5    __LINKEDIT
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B      245760 B           0 B           0 B         10    TOTAL
+
+Shared with ChromiumWebView Helper (Renderer) [8911]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+    65536 B           0 B           0 B           0 B           0 B          2    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+    65536 B           0 B           0 B           0 B           0 B          2    TOTAL
+
+Shared with ChromiumWebView Helper [8412], ChromiumWebViewHost [8403], ChromiumWebView Helper (Renderer) [8911], ChromiumWebView Helper (Renderer) [8912], ChromiumWebView Helper [8419], ChromiumWebView Helper [8418], ChromiumWebView Helper (Renderer) [8915], ChromiumWebView Helper [8410]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+    49152 B           0 B           0 B           0 B           0 B          3    Untagged
+        0 B           0 B      442368 B           0 B           0 B          8    mapped file
+        0 B           0 B      229376 B           0 B           0 B          9    __LINKEDIT
+        ---           ---           ---           ---           ---        ---    ---
+    49152 B           0 B      671744 B           0 B           0 B         20    TOTAL
+
+Shared with ChromiumWebView Helper (Renderer) [8911], ChromiumWebView Helper (Renderer) [8912], ChromiumWebView Helper [8412], ChromiumWebView Helper (Renderer) [8915], ChromiumWebView Helper [8419], ChromiumWebView Helper [8418]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B           0 B           0 B           0 B          1    mapped file
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B           0 B           0 B           0 B          1    TOTAL
+
+Shared with ChromiumWebViewHost [8403], ChromiumWebView Helper [8410], ChromiumWebView Helper [8418], ChromiumWebView Helper [8419], ChromiumWebView Helper [8412]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B    71041024 B           0 B           0 B          6    __TEXT
+        0 B           0 B           0 B           0 B           0 B          1    PROTECTED_MEMORY
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B    71041024 B           0 B           0 B          7    TOTAL
+
+Auxiliary data:
+    phys_footprint: 28886192 B
+    phys_footprint_peak: 32703640 B
+
+==========================================================================================
+ChromiumWebView Helper (Renderer) [8915]: 64-bit    Footprint: 26068216 B (16384 bytes per page)
+==========================================================================================
+
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+ 11479416 B           0 B       49152 B           0 B           0 B         17    __DATA_CONST
+  6176768 B           0 B           0 B     2359296 B           0 B        627    App-Specific Tag 14
+  2588504 B           0 B           0 B           0 B           0 B         35    __DATA
+  1458176 B           0 B           0 B           0 B           0 B      11211    App-Specific Tag 16
+   886008 B           0 B           0 B           0 B      886008 B          1    page table
+   770048 B           0 B           0 B           0 B           0 B          8    Malloc Small
+   679347 B           0 B           0 B           0 B           0 B        138    __DATA_DIRTY
+   606208 B           0 B           0 B           0 B           0 B         10    Malloc Metadata
+   294912 B           0 B           0 B           0 B           0 B         28    Stack
+   174713 B           0 B           0 B           0 B           0 B         66    unused dyld shared cache area
+   147456 B           0 B           0 B       16384 B           0 B          1    Dispatch Continuations
+   119756 B           0 B           0 B           0 B           0 B         25    __AUTH
+    98304 B           0 B           0 B           0 B           0 B          1    Malloc Tiny
+    98232 B           0 B           0 B           0 B           0 B          3    __TPRO_CONST
+    65536 B           0 B           0 B           0 B           0 B          2    Mach Message
+    48000 B           0 B           0 B           0 B           0 B          1    __OBJC_RW
+    32768 B           0 B           0 B           0 B           0 B         17    Untagged
+    32768 B           0 B           0 B           0 B           0 B          1    Activity Tracing
+    16384 B           0 B           0 B           0 B           0 B          1    PROTECTED_MEMORY
+    16384 B           0 B           0 B           0 B           0 B          1    Deferred Reclaim
+    16384 B           0 B           0 B           0 B           0 B          1    OS Alloc Once
+        0 B           0 B    25362432 B           0 B           0 B          1    __TEXT
+        0 B           0 B           0 B           0 B           0 B          1    mapped file
+        ---           ---           ---           ---           ---        ---    ---
+ 25806072 B           0 B    25411584 B     2375680 B      886008 B      12199    TOTAL
+
+Shared with ChromiumWebView Helper [8411], ChromiumWebView Helper [8412], ChromiumWebView Helper (Renderer) [8911], ChromiumWebView Helper (Renderer) [8912], ChromiumWebView Helper [8419], ChromiumWebView Helper [8418], ChromiumWebView Helper [8410]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B       32768 B           0 B           0 B          8    __TEXT
+        0 B           0 B       16384 B           0 B           0 B          8    __LINKEDIT
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B       49152 B           0 B           0 B         16    TOTAL
+
+Shared with ChromiumWebView Helper (Renderer) [8912], ChromiumWebView Helper (Renderer) [8911]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B      344064 B           0 B           0 B          3    __TEXT
+        0 B           0 B       98304 B           0 B           0 B          3    __LINKEDIT
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B      442368 B           0 B           0 B          6    TOTAL
+
+Shared with ChromiumWebView Helper (Renderer) [8911], ChromiumWebView Helper (Renderer) [8912], ChromiumWebViewHost [8403]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B           0 B           0 B           0 B          1    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B           0 B           0 B           0 B          1    TOTAL
+
+Shared with ChromiumWebView Helper [8411], ChromiumWebViewHost [8403], ChromiumWebView Helper (Renderer) [8911], ChromiumWebView Helper (Renderer) [8912], ChromiumWebView Helper [8419], ChromiumWebView Helper [8418], ChromiumWebView Helper [8410]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+    16384 B           0 B           0 B           0 B           0 B          1    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+    16384 B           0 B           0 B           0 B           0 B          1    TOTAL
+
+Shared with ChromiumWebView Helper [8411], ChromiumWebView Helper [8412], ChromiumWebViewHost [8403], ChromiumWebView Helper (Renderer) [8911], ChromiumWebView Helper (Renderer) [8912], ChromiumWebView Helper [8419], ChromiumWebView Helper [8418], ChromiumWebView Helper [8410]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+    65536 B           0 B           0 B           0 B           0 B          3    Untagged
+        0 B           0 B     1015808 B           0 B           0 B          8    mapped file
+        0 B           0 B      229376 B           0 B           0 B          9    __LINKEDIT
+        ---           ---           ---           ---           ---        ---    ---
+    65536 B           0 B     1245184 B           0 B           0 B         20    TOTAL
+
+Shared with ChromiumWebView Helper [8410]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+    32768 B           0 B           0 B           0 B           0 B          1    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+    32768 B           0 B           0 B           0 B           0 B          1    TOTAL
+
+Shared with ChromiumWebView Helper (Renderer) [8911], ChromiumWebView Helper (Renderer) [8912], ChromiumWebView Helper [8412], ChromiumWebView Helper [8411], ChromiumWebView Helper [8419], ChromiumWebView Helper [8418]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B      507904 B           0 B           0 B          1    mapped file
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B      507904 B           0 B           0 B          1    TOTAL
+
+Shared with ChromiumWebViewHost [8403]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+   147456 B           0 B           0 B           0 B           0 B          4    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+   147456 B           0 B           0 B           0 B           0 B          4    TOTAL
+
+Auxiliary data:
+    phys_footprint: 26068216 B
+    phys_footprint_peak: 27804920 B
+
+==========================================================================================
+ChromiumWebView Helper [8418]: 64-bit    Footprint: 24740944 B (16384 bytes per page)
+==========================================================================================
+
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+ 11577720 B    10817096 B       32768 B           0 B           0 B         18    __DATA_CONST
+  3833856 B     3244032 B           0 B           0 B           0 B          7    Malloc Small
+  3047424 B      344064 B           0 B       49152 B           0 B        520    App-Specific Tag 14
+  2293604 B     1359847 B           0 B           0 B           0 B         43    __DATA
+   821436 B      246815 B           0 B           0 B           0 B        197    __DATA_DIRTY
+   771152 B           0 B           0 B           0 B      771152 B          1    page table
+   688128 B      294912 B           0 B           0 B           0 B         12    Malloc Metadata
+   311296 B      196608 B           0 B           0 B       81920 B          9    Untagged
+   262144 B           0 B           0 B           0 B           0 B         20    Stack
+   229376 B       65536 B           0 B           0 B           0 B          1    Dispatch Continuations
+   196448 B      141010 B           0 B           0 B           0 B         84    unused dyld shared cache area
+   163840 B       65536 B           0 B           0 B           0 B          1    Malloc Tiny
+    98232 B           0 B           0 B           0 B           0 B          3    __TPRO_CONST
+    86992 B       50912 B           0 B           0 B           0 B         24    __AUTH
+    65536 B           0 B           0 B           0 B           0 B          2    Mach Message
+    48000 B           0 B           0 B           0 B           0 B          1    __OBJC_RW
+    32768 B           0 B           0 B           0 B           0 B          1    Activity Tracing
+    16384 B           0 B           0 B           0 B           0 B          1    Deferred Reclaim
+    16384 B           0 B           0 B           0 B           0 B          1    OS Alloc Once
+        0 B           0 B      442368 B           0 B           0 B          1    __TEXT
+        0 B           0 B       81920 B           0 B           0 B          1    mapped file
+        0 B           0 B       32768 B           0 B           0 B          1    __LINKEDIT
+        ---           ---           ---           ---           ---        ---    ---
+ 24560720 B    16826368 B      589824 B       49152 B      853072 B        951    TOTAL
+
+Shared with ChromiumWebView Helper [8411], ChromiumWebView Helper [8412], ChromiumWebView Helper (Renderer) [8911], ChromiumWebView Helper (Renderer) [8912], ChromiumWebView Helper [8419], ChromiumWebView Helper (Renderer) [8915], ChromiumWebView Helper [8410]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B       32768 B           0 B           0 B          8    __TEXT
+        0 B           0 B       16384 B           0 B           0 B          8    __LINKEDIT
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B       49152 B           0 B           0 B         16    TOTAL
+
+Shared with ChromiumWebView Helper [8411], ChromiumWebViewHost [8403], ChromiumWebView Helper (Renderer) [8911], ChromiumWebView Helper (Renderer) [8912], ChromiumWebView Helper [8419], ChromiumWebView Helper (Renderer) [8915], ChromiumWebView Helper [8410]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+    16384 B           0 B           0 B           0 B           0 B          1    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+    16384 B           0 B           0 B           0 B           0 B          1    TOTAL
+
+Shared with ChromiumWebView Helper (Renderer) [8911]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+    32768 B           0 B           0 B           0 B           0 B          2    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+    32768 B           0 B           0 B           0 B           0 B          2    TOTAL
+
+Shared with ChromiumWebView Helper [8411], ChromiumWebView Helper [8410], ChromiumWebView Helper [8419], ChromiumWebView Helper [8412]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B      147456 B           0 B           0 B          5    __TEXT
+        0 B           0 B       98304 B           0 B           0 B          5    __LINKEDIT
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B      245760 B           0 B           0 B         10    TOTAL
+
+Shared with ChromiumWebViewHost [8403]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+    81920 B           0 B           0 B           0 B           0 B          3    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+    81920 B           0 B           0 B           0 B           0 B          3    TOTAL
+
+Shared with ChromiumWebView Helper [8411], ChromiumWebView Helper [8412], ChromiumWebViewHost [8403], ChromiumWebView Helper (Renderer) [8911], ChromiumWebView Helper (Renderer) [8912], ChromiumWebView Helper [8419], ChromiumWebView Helper (Renderer) [8915], ChromiumWebView Helper [8410]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+    49152 B           0 B           0 B           0 B           0 B          3    Untagged
+        0 B           0 B      557056 B           0 B           0 B          8    mapped file
+        0 B           0 B      229376 B           0 B           0 B          9    __LINKEDIT
+        ---           ---           ---           ---           ---        ---    ---
+    49152 B           0 B      786432 B           0 B           0 B         20    TOTAL
+
+Shared with ChromiumWebView Helper (Renderer) [8911], ChromiumWebView Helper (Renderer) [8912], ChromiumWebView Helper [8412], ChromiumWebView Helper [8411], ChromiumWebView Helper (Renderer) [8915], ChromiumWebView Helper [8419]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B           0 B           0 B           0 B          1    mapped file
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B           0 B           0 B           0 B          1    TOTAL
+
+Shared with ChromiumWebView Helper [8411], ChromiumWebViewHost [8403], ChromiumWebView Helper [8410], ChromiumWebView Helper [8419], ChromiumWebView Helper [8412]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B    71041024 B           0 B           0 B          6    __TEXT
+        0 B           0 B           0 B           0 B           0 B          1    PROTECTED_MEMORY
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B    71041024 B           0 B           0 B          7    TOTAL
+
+Shared with ChromiumWebView Helper [8410], ChromiumWebView Helper [8419], ChromiumWebViewHost [8403]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B       16384 B           0 B           0 B          1    mapped file
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B       16384 B           0 B           0 B          1    TOTAL
+
+Auxiliary data:
+    phys_footprint: 24740944 B
+    phys_footprint_peak: 24888400 B
+
+==========================================================================================
+ChromiumWebView Helper [8412]: 64-bit    Footprint: 20399160 B (16384 bytes per page)
+==========================================================================================
+
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+ 11479416 B    10611064 B       32768 B           0 B           0 B         17    __DATA_CONST
+  2818048 B     1081344 B           0 B       49152 B           0 B        538    App-Specific Tag 14
+  2195348 B     1507320 B           0 B           0 B           0 B         25    __DATA
+   754744 B           0 B           0 B           0 B      754744 B          1    page table
+   720896 B      655360 B           0 B           0 B           0 B          9    Malloc Small
+   622592 B      573440 B           0 B           0 B           0 B         10    Malloc Metadata
+   571859 B      360169 B           0 B           0 B           0 B        127    __DATA_DIRTY
+   278528 B      131072 B           0 B           0 B           0 B         20    Stack
+   167449 B      165975 B           0 B           0 B           0 B         60    unused dyld shared cache area
+    98304 B       49152 B           0 B           0 B           0 B          1    Malloc Tiny
+    98304 B           0 B           0 B           0 B           0 B          4    Mach Message
+    98232 B       65536 B           0 B           0 B           0 B          3    __TPRO_CONST
+    81920 B       81920 B           0 B           0 B           0 B          1    Dispatch Continuations
+    70608 B       70608 B           0 B           0 B           0 B         20    __AUTH
+    48000 B       31616 B           0 B           0 B           0 B          1    __OBJC_RW
+    32768 B       32768 B           0 B           0 B           0 B          4    Untagged
+    32768 B       32768 B           0 B           0 B           0 B          1    Activity Tracing
+    16384 B           0 B           0 B           0 B           0 B          1    Deferred Reclaim
+    16384 B       16384 B           0 B           0 B           0 B          1    OS Alloc Once
+        ---           ---           ---           ---           ---        ---    ---
+ 20202552 B    15466496 B       32768 B       49152 B      754744 B        846    TOTAL
+
+Shared with ChromiumWebView Helper [8411], ChromiumWebView Helper (Renderer) [8911], ChromiumWebView Helper (Renderer) [8912], ChromiumWebView Helper [8419], ChromiumWebView Helper [8418], ChromiumWebView Helper (Renderer) [8915], ChromiumWebView Helper [8410]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B       32768 B           0 B           0 B          8    __TEXT
+        0 B           0 B       16384 B           0 B           0 B          8    __LINKEDIT
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B       49152 B           0 B           0 B         16    TOTAL
+
+Shared with ChromiumWebViewHost [8403]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+    65536 B           0 B           0 B           0 B           0 B          3    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+    65536 B           0 B           0 B           0 B           0 B          3    TOTAL
+
+Shared with ChromiumWebView Helper (Renderer) [8912]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+    32768 B           0 B           0 B           0 B           0 B          1    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+    32768 B           0 B           0 B           0 B           0 B          1    TOTAL
+
+Shared with ChromiumWebView Helper [8411], ChromiumWebView Helper [8410], ChromiumWebView Helper [8418], ChromiumWebView Helper [8419]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B      147456 B           0 B           0 B          5    __TEXT
+        0 B           0 B       98304 B           0 B           0 B          5    __LINKEDIT
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B      245760 B           0 B           0 B         10    TOTAL
+
+Shared with ChromiumWebView Helper (Renderer) [8911]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+    49152 B           0 B           0 B           0 B           0 B          1    Untagged
+        ---           ---           ---           ---           ---        ---    ---
+    49152 B           0 B           0 B           0 B           0 B          1    TOTAL
+
+Shared with ChromiumWebView Helper [8411], ChromiumWebViewHost [8403], ChromiumWebView Helper (Renderer) [8911], ChromiumWebView Helper (Renderer) [8912], ChromiumWebView Helper [8419], ChromiumWebView Helper [8418], ChromiumWebView Helper (Renderer) [8915], ChromiumWebView Helper [8410]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+    49152 B           0 B           0 B           0 B           0 B          3    Untagged
+        0 B           0 B     1146880 B           0 B           0 B          8    mapped file
+        0 B           0 B      229376 B           0 B           0 B          9    __LINKEDIT
+        ---           ---           ---           ---           ---        ---    ---
+    49152 B           0 B     1376256 B           0 B           0 B         20    TOTAL
+
+Shared with ChromiumWebView Helper (Renderer) [8911], ChromiumWebView Helper (Renderer) [8912], ChromiumWebView Helper [8411], ChromiumWebView Helper (Renderer) [8915], ChromiumWebView Helper [8419], ChromiumWebView Helper [8418]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B           0 B           0 B           0 B          1    mapped file
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B           0 B           0 B           0 B          1    TOTAL
+
+Shared with ChromiumWebView Helper [8411], ChromiumWebViewHost [8403], ChromiumWebView Helper [8410], ChromiumWebView Helper [8418], ChromiumWebView Helper [8419]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B    71041024 B           0 B           0 B          6    __TEXT
+        0 B           0 B           0 B           0 B           0 B          1    PROTECTED_MEMORY
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B    71041024 B           0 B           0 B          7    TOTAL
+
+Auxiliary data:
+    phys_footprint: 20399160 B
+    phys_footprint_peak: 21627960 B
+
+==========================================================================================
+Shared Cache C284A291-B68B-3D0D-A1A0-3F866F87EFDC
+==========================================================================================
+
+Shared with ChromiumWebView Helper [8411], ChromiumWebView Helper [8412], ChromiumWebViewHost [8403], ChromiumWebView Helper (Renderer) [8911], ChromiumWebView Helper (Renderer) [8912], ChromiumWebView Helper [8419], ChromiumWebView Helper [8418], ChromiumWebView Helper (Renderer) [8915], ChromiumWebView Helper [8410]:
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B           0 B           0 B           0 B       9396    __DATA_CONST
+        0 B           0 B           0 B           0 B           0 B          9    __FONT_DATA
+        0 B           0 B           0 B           0 B           0 B      24218    unused dyld shared cache area
+        0 B           0 B           0 B           0 B           0 B          9    __OBJC_RO
+        0 B           0 B           0 B           0 B           0 B       5994    __AUTH
+        0 B           0 B           0 B           0 B           0 B       6743    __DATA_DIRTY
+        0 B           0 B           0 B           0 B           0 B       9501    __AUTH_CONST
+        0 B           0 B           0 B           0 B           0 B      10322    __TEXT
+        0 B           0 B           0 B           0 B           0 B          9    __LINKEDIT
+        0 B           0 B           0 B           0 B           0 B          9    __CTF
+        0 B           0 B           0 B           0 B           0 B          9    __TPRO_CONST
+        0 B           0 B           0 B           0 B           0 B       9132    __DATA
+        ---           ---           ---           ---           ---        ---    ---
+        0 B           0 B           0 B           0 B           0 B      75351    TOTAL
+
+==========================================================================================
+Summary Footprint: 524824480 B
+==========================================================================================
+
+      Dirty     (Swapped)         Clean   Reclaimable       (Wired)    Regions    Category
+        ---           ---           ---           ---           ---        ---    ---
+167018496 B    29540352 B           0 B    38420480 B           0 B       8714    App-Specific Tag 14
+101089280 B           0 B           0 B           0 B    21020672 B        135    IOSurface
+ 92336512 B    52962184 B     5373952 B           0 B           0 B       9562    __DATA_CONST
+ 43155456 B           0 B           0 B     1327104 B           0 B      33864    App-Specific Tag 16
+ 22649490 B     7897391 B      114688 B           0 B           0 B       9578    __DATA
+ 19890176 B      147456 B           0 B    11108352 B    14860288 B        251    IOAccelerator (graphics)
+ 16891904 B    11599872 B           0 B           0 B           0 B         71    Malloc Small
+ 13942784 B           0 B           0 B           0 B    11550720 B         49    Owned physical footprint (unmapped) (graphics)
+  8482720 B           0 B           0 B           0 B     8482720 B          9    page table
+  8013785 B     2229085 B           0 B           0 B           0 B       8460    __DATA_DIRTY
+  6340608 B     2637824 B           0 B           0 B           0 B         98    Malloc Metadata
+  5193728 B      589824 B           0 B           0 B           0 B        327    Stack
+  5128192 B     1425408 B           0 B           0 B       81920 B        757    Untagged
+  3031040 B       16384 B           0 B           0 B     3014656 B         38    Owned physical footprint (unmapped)
+  2045385 B     1169867 B           0 B           0 B           0 B      25065    unused dyld shared cache area
+  1736704 B      147456 B           0 B       81920 B           0 B          9    Dispatch Continuations
+  1441792 B       32768 B    26394624 B           0 B           0 B        161    mapped file
+  1441792 B       65536 B           0 B           0 B           0 B         43    Mach Message
+  1401172 B      475809 B           0 B           0 B           0 B       6274    __AUTH
+  1048576 B      212992 B           0 B           0 B           0 B          9    Malloc Tiny
+   884088 B      147456 B           0 B           0 B           0 B         36    __TPRO_CONST
+   432000 B       31616 B           0 B           0 B           0 B          9    __OBJC_RW
+   327680 B       49152 B           0 B           0 B           0 B          9    Activity Tracing
+   163840 B           0 B           0 B           0 B      163840 B          5    IOAccelerator
+   163840 B       16384 B           0 B           0 B           0 B          4    App-Specific Tag 2
+   147456 B           0 B           0 B           0 B           0 B          9    Deferred Reclaim
+   147456 B       16384 B           0 B           0 B           0 B          9    OS Alloc Once
+   114688 B           0 B           0 B           0 B      147456 B         19    IOKit
+    65536 B       16384 B           0 B           0 B           0 B          4    ColorSync
+    49152 B           0 B           0 B           0 B           0 B          9    PROTECTED_MEMORY
+    32768 B       16384 B           0 B           0 B           0 B          3    Foundation
+    16384 B           0 B           0 B           0 B           0 B          4    CoreGraphics
+        0 B           0 B           0 B       32768 B           0 B          4    Image IO
+        0 B           0 B   229621760 B           0 B           0 B      10355    __TEXT
+        0 B           0 B      688128 B           0 B           0 B         42    __LINKEDIT
+        0 B           0 B           0 B           0 B           0 B          9    __OBJC_RO
+        0 B           0 B           0 B           0 B           0 B          9    __FONT_DATA
+        0 B           0 B           0 B           0 B           0 B          1    CoreServices
+        0 B           0 B           0 B           0 B           0 B          9    __CTF
+        0 B           0 B           0 B           0 B           0 B       9501    __AUTH_CONST
+        ---           ---           ---           ---           ---        ---    ---
+524824480 B   111443968 B   262193152 B    50970624 B    59322272 B     123542    TOTAL

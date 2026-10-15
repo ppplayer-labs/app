@@ -4,6 +4,21 @@ All notable changes to PPPlayer will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+
+- Corrected Android autoplay WebView visibility propagation during Activity minimize. Live screen-off playback still stalls; this correction is not yet a verified background-playback fix.
+- Linux packaging builds a fresh release bundle and stops on Flutter build failure, preventing missing or stale artifacts in clean CI.
+- Corrected two network-output test files that failed the release formatting check.
+- Included the Cupertino icon font required by reachable Flutter controls, eliminating the missing-font release-build warning.
+
+### Validation and documentation
+
+- Added a Python Android acceptance runner for macOS/Linux/Windows covering Home, screen-off, system pause/play and repeated local-video/YouTube transitions.
+- Corrected the live Android test to disable PiP for the minimize check, use production persistent-player ownership and verify a ten-second explicit pause.
+- Release CI now runs the vendored Chromium package tests, checks frozen source hashes and runs packaging regression guards.
+- Updated Android setup, playback architecture, candidate dependency/SDK guidance and platform support documentation. Current results and remaining device/distribution gates are in `docs/validation/pre-release-2026-10-14/REPORT.md`.
+- Local static analysis and 604 app/engine/Chromium tests passed at the October 14 checkpoint; this does not announce a published release or certify untested platforms.
+
 ## [3.0.3] - 2026-10-06
 
 ### Added

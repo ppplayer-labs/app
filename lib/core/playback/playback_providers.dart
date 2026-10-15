@@ -7,10 +7,13 @@ import 'package:flutter_chromium_webview/flutter_chromium_webview.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'chromium_playback_engine.dart';
+import 'chromium_media_service.dart';
+import 'playback_selection.dart';
 import '../models/track.dart';
 import 'hybrid_playback_engine.dart';
 import 'local_file_playback_controller.dart';
 import '../network_outputs/network_output_providers.dart';
+import '../db/app_database.dart' show appDatabaseProvider;
 
 export 'playback_service.dart' show playbackServiceProvider, PlaybackService;
 
@@ -24,6 +27,11 @@ extension TrackToPlayback on Track {
         throw StateError(
           'Cannot create PlaybackTrack: youtubeVideoId is null for online track',
         );
+      }
+      final id = youtubeVideoId!;
+      final playlist = RegExp(r'^(PL|RD|LL)[a-zA-Z0-9_-]+$').hasMatch(id);
+      if (!playlist && !RegExp(r'^[a-zA-Z0-9_-]{11}$').hasMatch(id)) {
+        throw StateError('Invalid YouTube source ID "$id"');
       }
       if (youtubeVideoId!.contains('http')) {
         throw StateError(
@@ -89,7 +97,10 @@ extension TrackToPlayback on Track {
       case TrackSourceType.online:
         playbackSource = PlaybackSourceType.online;
         finalId = youtubeVideoId!;
-        if (finalId.length > 11 && (finalId.startsWith('PL') || finalId.startsWith('RD') || finalId.startsWith('LL'))) {
+        if (finalId.length > 11 &&
+            (finalId.startsWith('PL') ||
+                finalId.startsWith('RD') ||
+                finalId.startsWith('LL'))) {
           youtubeSourceType = YoutubeSourceType.playlist;
         } else {
           youtubeSourceType = YoutubeSourceType.video;
@@ -124,53 +135,73 @@ final localPlaybackControllerProvider = Provider<PlaybackController>((ref) {
     'PPPLAYER_CHROMIUM',
     defaultValue: true,
   );
+  final selection = PlaybackSelection(
+    platform: defaultTargetPlatform,
+    chromiumEnabled: chromiumEnabled && !kIsWeb,
+  );
   final chromiumAndroid =
-      chromiumEnabled &&
-      !kIsWeb &&
-      defaultTargetPlatform == TargetPlatform.android;
+      selection.usesChromium && defaultTargetPlatform == TargetPlatform.android;
 
   if (defaultTargetPlatform == TargetPlatform.android) {
     final mediaKit = MediaKitPlaybackEngine();
-    final foregroundEngine = chromiumAndroid
-        ? ChromiumPlaybackEngine(
-            fallback: mediaKit,
-            startPlaybackService: null,
-            stopPlaybackService: null,
-            initializeCef: () async {
-              final directory = await getApplicationSupportDirectory();
-              if (!await ChromiumWebViewController.initialize(
-                cachePath: directory.path,
-              )) {
-                throw StateError('CEF initialization failed');
-              }
-            },
-            createPlayer: () => ChromiumYoutubePlayerController(
-              documentUrl: const String.fromEnvironment(
-                'PPPLAYER_CHROMIUM_DOCUMENT_URL',
-                defaultValue: 'https://ppplayer.com/chromium/player.html',
-              ),
-              profileName: 'ppplayer_youtube_session',
-            ),
-          )
-        : mediaKit;
+    final foregroundEngine = ChromiumPlaybackEngine(
+      youtubeEnabled: chromiumAndroid,
+      fallback: mediaKit,
+      startPlaybackService: ChromiumMediaService.start,
+      stopPlaybackService: ChromiumMediaService.stop,
+      initializeCef: () async {
+        final directory = await getApplicationSupportDirectory();
+        if (!await ChromiumWebViewController.initialize(
+          cachePath: directory.path,
+        )) {
+          throw StateError('CEF initialization failed');
+        }
+      },
+      createPlayer: () => ChromiumYoutubePlayerController(
+        recoverAutomatically: false,
+        documentUrl: const String.fromEnvironment(
+          'PPPLAYER_CHROMIUM_DOCUMENT_URL',
+          defaultValue: 'https://ppplayer.com/chromium/player.html',
+        ),
+        profileName: 'ppplayer_youtube_session',
+      ),
+    );
 
     engine = HybridPlaybackEngine(
+      ownershipPolicy: PlaybackOwnershipPolicy.persistentForeground,
       foregroundEngine: foregroundEngine,
-      backgroundEngine: chromiumAndroid
-          ? NativeServicePlaybackEngine(startAutomatically: false)
-          : null,
+      backgroundEngine: NativeServicePlaybackEngine(startAutomatically: false),
     );
   } else {
     final mediaKit = MediaKitPlaybackEngine();
-    engine = defaultTargetPlatform == TargetPlatform.iOS
-        ? IframeYoutubePlaybackEngine(
-            fallback: LocalFilePlaybackController(
-              mediaKit,
-              acquireFileLease: acquireAppleOutputFileLease,
+    final nativePlayback =
+        !kIsWeb &&
+            {
+              TargetPlatform.iOS,
+              TargetPlatform.macOS,
+            }.contains(defaultTargetPlatform)
+        ? LocalFilePlaybackController(
+            mediaKit,
+            acquireFileLease: (track) => acquireAppleOutputFileLease(
+              track,
+              rootLocatorFor: (path) async {
+                // A failed lookup must never block playback: fall back to the
+                // plain path (valid for unsandboxed builds).
+                try {
+                  return await ref
+                      .read(appDatabaseProvider)
+                      .importRootLocatorForPath(path);
+                } catch (_) {
+                  return null;
+                }
+              },
             ),
           )
         : mediaKit;
-    if (chromiumEnabled &&
+    engine = selection.usesWebKit
+        ? IframeYoutubePlaybackEngine(fallback: nativePlayback)
+        : nativePlayback;
+    if (!selection.usesWebKit &&
         !kIsWeb &&
         {
           TargetPlatform.windows,
@@ -178,6 +209,7 @@ final localPlaybackControllerProvider = Provider<PlaybackController>((ref) {
           TargetPlatform.macOS,
         }.contains(defaultTargetPlatform)) {
       engine = ChromiumPlaybackEngine(
+        youtubeEnabled: selection.usesChromium,
         fallback: engine,
         startPlaybackService: null,
         stopPlaybackService: null,

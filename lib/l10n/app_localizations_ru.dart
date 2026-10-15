@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -338,6 +337,21 @@ class AppLocalizationsRu extends AppLocalizations {
   String get copyLink => 'Копировать ссылку';
 
   @override
+  String get copySpotifyLink => 'Скопировать ссылку Spotify';
+
+  @override
+  String get copyYouTubeLink => 'Скопировать ссылку YouTube';
+
+  @override
+  String get copySpotifyId => 'Скопировать ID Spotify';
+
+  @override
+  String get copyYouTubeId => 'Скопировать ID YouTube';
+
+  @override
+  String get idCopied => 'ID скопирован';
+
+  @override
   String get discover => 'Обзор';
 
   @override
@@ -395,10 +409,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get queue1 => 'Очередь';
 
   @override
-  String get queueNowPlaying => 'Now playing';
+  String get queueNowPlaying => 'Сейчас играет';
 
   @override
-  String get queueUpNext => 'Up next';
+  String get queueUpNext => 'Далее';
 
   @override
   String get recentlyPlayed => 'Недавно прослушано';
@@ -1099,4 +1113,55 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get loadFailed => 'Не удалось загрузить содержимое. Попробуйте снова.';
+
+  @override
+  String get removeFolder => 'Удалить папку';
+
+  @override
+  String get removeFolderConfirmTitle => 'Удалить папку?';
+
+  @override
+  String removeFolderConfirmMessage(String name) {
+    return 'Удалить «$name» и медиафайлы из медиатеки? Файлы на диске удалены не будут.';
+  }
+
+  @override
+  String fileMissingOnDisk(String name) {
+    return 'Файл «$name» больше не найден на диске';
+  }
+
+  @override
+  String get folderUnavailable =>
+      'Папка недоступна. Убедитесь, что накопитель подключен.';
+
+  @override
+  String fileAlreadyImported(String name) {
+    return '«$name» уже есть в вашей медиатеке';
+  }
+
+  @override
+  String filesAlreadyImported(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count файлов уже были в медиатеке',
+      one: '1 файл уже был в медиатеке',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get folderAlreadyImported =>
+      'Эта папка уже импортирована — проверка новых файлов';
+
+  @override
+  String get rescanCompleted => 'Повторное сканирование медиатеки завершено';
+
+  @override
+  String rescanFailed(String error) {
+    return 'Не удалось повторно отсканировать папку: $error';
+  }
+
+  @override
+  String get importedFolderFallback => 'Импортированная папка';
 }

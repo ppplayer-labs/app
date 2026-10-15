@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -340,6 +339,21 @@ class AppLocalizationsHr extends AppLocalizations {
   String get copyLink => 'Kopiraj vezu';
 
   @override
+  String get copySpotifyLink => 'Kopiraj Spotify vezu';
+
+  @override
+  String get copyYouTubeLink => 'Kopiraj YouTube vezu';
+
+  @override
+  String get copySpotifyId => 'Kopiraj Spotify ID';
+
+  @override
+  String get copyYouTubeId => 'Kopiraj YouTube ID';
+
+  @override
+  String get idCopied => 'ID kopiran';
+
+  @override
   String get discover => 'Otkrij';
 
   @override
@@ -397,10 +411,10 @@ class AppLocalizationsHr extends AppLocalizations {
   String get queue1 => 'Red čekanja';
 
   @override
-  String get queueNowPlaying => 'Now playing';
+  String get queueNowPlaying => 'Sada se reproducira';
 
   @override
-  String get queueUpNext => 'Up next';
+  String get queueUpNext => 'Sljedeće';
 
   @override
   String get recentlyPlayed => 'Nedavno slušano';
@@ -1100,4 +1114,55 @@ class AppLocalizationsHr extends AppLocalizations {
 
   @override
   String get loadFailed => 'Sadržaj se nije mogao učitati. Pokušajte ponovno.';
+
+  @override
+  String get removeFolder => 'Ukloni mapu';
+
+  @override
+  String get removeFolderConfirmTitle => 'Ukloniti mapu?';
+
+  @override
+  String removeFolderConfirmMessage(String name) {
+    return 'Ukloniti \"$name\" i njegove medije iz biblioteke? Datoteke na disku neće biti izbrisane.';
+  }
+
+  @override
+  String fileMissingOnDisk(String name) {
+    return '\"$name\" više nije pronađena na disku';
+  }
+
+  @override
+  String get folderUnavailable =>
+      'Mapa nije dostupna. Provjerite je li pogon spojen.';
+
+  @override
+  String fileAlreadyImported(String name) {
+    return '\"$name\" je već u vašoj biblioteci';
+  }
+
+  @override
+  String filesAlreadyImported(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count datoteka je već bilo u vašoj biblioteci',
+      one: '1 datoteka je već bila u vašoj biblioteci',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get folderAlreadyImported =>
+      'Ova je mapa već uvezena — provjera novih datoteka';
+
+  @override
+  String get rescanCompleted => 'Ponovno skeniranje biblioteke dovršeno';
+
+  @override
+  String rescanFailed(String error) {
+    return 'Neuspjelo ponovno skeniranje mape: $error';
+  }
+
+  @override
+  String get importedFolderFallback => 'Uvezena mapa';
 }

@@ -1,0 +1,442 @@
+[
+  {
+    "file": "media_sync_pause_test.dart",
+    "test": "selection prepares while stopped and foreground resume dispatches current video",
+    "classification": "Fixture wiring",
+    "root_cause": "MediaKit instantiated without the fake YouTube controller; use injected IframeYoutubePlaybackEngine and its lifecycle flag.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "media_sync_pause_test.dart",
+    "test": "retry prepares while stopped and foreground resume dispatches current video",
+    "classification": "Fixture wiring",
+    "root_cause": "MediaKit instantiated without the fake YouTube controller; use injected IframeYoutubePlaybackEngine and its lifecycle flag.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "media_sync_pause_test.dart",
+    "test": "queue prepares while stopped and foreground resume dispatches current video",
+    "classification": "Fixture wiring",
+    "root_cause": "MediaKit instantiated without the fake YouTube controller; use injected IframeYoutubePlaybackEngine and its lifecycle flag.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "media_sync_pause_test.dart",
+    "test": "restore prepares while stopped and foreground resume dispatches current video",
+    "classification": "Fixture wiring",
+    "root_cause": "MediaKit instantiated without the fake YouTube controller; use injected IframeYoutubePlaybackEngine and its lifecycle flag.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "media_sync_pause_test.dart",
+    "test": "engine pause propagates through player and handler while bridge is pending; stale states cannot restore playing",
+    "classification": "Fixture wiring",
+    "root_cause": "MediaKit instantiated without the fake YouTube controller; use injected IframeYoutubePlaybackEngine and its lifecycle flag.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "ios_media_commands_test.dart",
+    "test": "system pause sets paused intent and late renderer events cannot replay",
+    "classification": "Fixture wiring",
+    "root_cause": "Native engine was used for YouTube; additionally system-pause-video is not an 11-character video ID.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "hybrid_playback_engine_test.dart",
+    "test": "5. Home with PiP disabled \u2192 background handoff occurs normally",
+    "classification": "Production lifecycle",
+    "root_cause": "Activity handoffs were disabled while PiP handoffs remained active; explicit policy and safe legacy handoff cleanup replace the conflict.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "hybrid_playback_engine_test.dart",
+    "test": "Track changes during handoff: new track wins on background",
+    "classification": "Production lifecycle",
+    "root_cause": "Activity handoffs were disabled while PiP handoffs remained active; explicit policy and safe legacy handoff cleanup replace the conflict.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "hybrid_playback_engine_test.dart",
+    "test": "Source pause confirmed before destination starts",
+    "classification": "Production lifecycle",
+    "root_cause": "Activity handoffs were disabled while PiP handoffs remained active; explicit policy and safe legacy handoff cleanup replace the conflict.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "hybrid_playback_engine_test.dart",
+    "test": "Containment: inactive engine emitting playing gets paused",
+    "classification": "Production lifecycle",
+    "root_cause": "Activity handoffs were disabled while PiP handoffs remained active; explicit policy and safe legacy handoff cleanup replace the conflict.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_view_test.dart",
+    "test": "PlaybackView renders YoutubePlayer when in IFrame mode",
+    "classification": "Fixture contract",
+    "root_cause": "PlaybackView renders a Widget renderer; the mock supplied status but no renderer.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "iOS pause recovery stale paused callback leaves live playback untouched",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "iOS pause recovery duplicate pauses issue one correction without restoring volume",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "iOS pause recovery confirmed iOS pause stays paused until renderer acknowledges play",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "iOS pause recovery missing playing acknowledgement permits retry after cooldown",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "iOS pause recovery playing invalidates a pending state check",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "iOS pause recovery buffering invalidates a pending state check",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "iOS pause recovery pause invalidates a pending state check",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "iOS pause recovery replacement invalidates a pending state check",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "iOS pause recovery dispose invalidates a pending state check",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "iOS pause recovery explicit resume restores volume and invalidates recovery",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "iOS pause recovery state query timeout does not restart playback and allows retry",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "iOS position polling matching metadata duration avoids a duration bridge query",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "iOS position polling metadata from another video cannot supply the track duration",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "iOS position polling live duration stays current through bridge queries",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "iOS position polling unknown duration stays current through bridge queries",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "iOS position polling a slow poll skips the next tick until both queries complete",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "non-iOS unexpected pause retains immediate volume and play",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "loading timeout: one recovery cue and one terminal failure",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "playback start timeout has one shared recovery and one failure",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "replacement and stop invalidate old watchdogs",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "stopped activity cues without play or start timeout; foreground resume plays once",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "superseded asynchronous preparation cannot play",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "pause is prompt; timeout and late completion never fail or end playback",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "resume wins pending pause; late renderer pause reconciles only once",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "user pause respects intent despite late playing/buffering",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "audio-focus-loss pause respects intent despite late playing/buffering",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "stop during pending pause and dispatch prevents stale restart",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "seek completion cannot replay after pause",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "duplicate ambiguous errors terminate a single attempt once",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "acknowledged pause leaves no replay credit for later focus pause",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "resumed pause stays paused across duplicate and stale events",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "pause intent does not disable recovery for a new track",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "paused seek prepares an offset without implicit playback",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "pause failure after resume preserves current state",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "disposal during volume preparation cancels watchdog and prevents play",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "superseded cleanup cannot cue its old track",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "repeated readiness events do not postpone start timeout",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "watchdog recovery uses confirmed position after playback has progressed",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "watchdog recovery falls back to startSeconds when no playing was observed",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "pause with failOnTimeout throws on timeout instead of emitting paused",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "iframe_youtube_playback_engine_test.dart",
+    "test": "session isolation (production engine) preparing local audio clears the preceding video preview",
+    "classification": "Fixture wiring and ignored injection seam",
+    "root_cause": "Tests instantiated MediaKit rather than the extracted iframe engine; the iframe engine also ignored its declared controller factory.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "engine_error_test.dart",
+    "test": "Engine ignores stale errors for different video IDs but accepts legitimate errors",
+    "classification": "Fixture wiring and invalid source IDs",
+    "root_cause": "Wrong engine, disconnected fake, and invalid vid_1/vid_2 fixtures; valid IDs restore real stale-error assertions.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "engine_error_test.dart",
+    "test": "Engine accepts errors with missing video IDs",
+    "classification": "Fixture wiring and invalid source IDs",
+    "root_cause": "Wrong engine, disconnected fake, and invalid vid_1/vid_2 fixtures; valid IDs restore real stale-error assertions.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  },
+  {
+    "file": "engine_error_test.dart",
+    "test": "Engine behavior on same-video retry with stale error",
+    "classification": "Fixture wiring and invalid source IDs",
+    "root_cause": "Wrong engine, disconnected fake, and invalid vid_1/vid_2 fixtures; valid IDs restore real stale-error assertions.",
+    "status": "PASS in final full regression suite",
+    "device_certification": false
+  }
+]

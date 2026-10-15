@@ -29,7 +29,8 @@ class MockPlaybackController implements PlaybackController {
     hasVideo: false,
   );
   @override
-  dynamic get renderer => null;  @override
+  dynamic get renderer => null;
+  @override
   bool get supportsSpeed => false;
   @override
   bool get supportsTrackSelection => false;

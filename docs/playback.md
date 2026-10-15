@@ -3,7 +3,7 @@
 For playback-library wiring, source usage and platform providers, see
 [native media integration](native_media.md).
 
-These instructions describe the development tree as of October 2, 2026. The new iOS functionality has physical-device checks, but iOS is not yet publicly available and this document does not announce a release.
+These instructions describe the development tree as of October 14, 2026. The new iOS functionality has physical-device checks, but iOS is not yet publicly available and this document does not announce a release.
 
 ## Import and reopen local music
 
@@ -48,6 +48,20 @@ Secondary actions are grouped in an options menu: shuffle, repeat, autoplay, sub
 Local audio uses the track's artwork or audio fallback. It must not inherit `activeVideoId` or a video surface from an earlier YouTube track. Local audio is not classified as video solely because embedded artwork has image dimensions.
 
 Image consumers use `PPImage` / `PPImageProvider`. Network image loading receives only valid HTTP(S) image URLs. File images use decoded file paths. Bookmarks are file-access locators, not image URLs, and do not receive special handling inside `CachedNetworkImageProvider`.
+
+## Android background playback
+
+YouTube playback should continue after Home, minimize and screen-off. The same
+Chromium player stays active; a support foreground service keeps the process
+eligible for background playback and AudioService provides system controls.
+Local files and direct streams use MediaKit. Explicit pause in the player or
+system media controls must remain paused until an explicit play request.
+
+If playback stops, record whether the source is YouTube, local media or a direct
+stream, whether PiP was enabled, and whether Home or screen lock triggered it.
+Use the [Android acceptance runner](../README_ANDROID.md) to collect lifecycle
+and playback evidence. Force-stop ends the app; it is not a minimize operation.
+Physical-device battery/OEM behavior and audible output require device checks.
 
 ## iPhone lock screen, Control Center, and background playback
 

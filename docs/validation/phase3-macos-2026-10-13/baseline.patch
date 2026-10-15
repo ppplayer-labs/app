@@ -1,0 +1,3095 @@
+diff --git a/.gitignore b/.gitignore
+index 991f389..3f07ccd 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -75,3 +75,6 @@ settings.lock
+ # Generated Android Kotlin cache
+ .kotlin/
+ dist/
++
++# Developer-only dependency overrides
++/pubspec_overrides.yaml
+diff --git a/analysis_options.yaml b/analysis_options.yaml
+index 8878d9e..5a623aa 100644
+--- a/analysis_options.yaml
++++ b/analysis_options.yaml
+@@ -2,6 +2,8 @@ include: package:flutter_lints/flutter.yaml
+ 
+ analyzer:
+   exclude:
++    # Archived pre-refactor source; its relative imports target the old location.
++    - refactor_mk_original.dart
+     - build/**
+     - .dart_tool/**
+     - android/**
+diff --git a/android/app/src/main/kotlin/com/ppplayer/app/CustomWebViewService.kt b/android/app/src/main/kotlin/com/ppplayer/app/CustomWebViewService.kt
+index 779adf1..84ffa76 100644
+--- a/android/app/src/main/kotlin/com/ppplayer/app/CustomWebViewService.kt
++++ b/android/app/src/main/kotlin/com/ppplayer/app/CustomWebViewService.kt
+@@ -57,7 +57,18 @@ class CustomWebViewService : Service() {
+             stopSelf()
+             return START_NOT_STICKY
+         }
+-        chromiumPlayer = intent?.getBooleanExtra(EXTRA_CHROMIUM_PLAYER, false) == true
++        if (intent == null) {
++            stopForeground(true)
++            stopSelf()
++            return START_NOT_STICKY
++        }
++        val requestedChromium = intent.getBooleanExtra(EXTRA_CHROMIUM_PLAYER, false)
++        // The service cannot switch from a live legacy WebView to Chromium.
++        if ((ownsWebView && requestedChromium) || (chromiumPlayer && !requestedChromium)) {
++            Log.e(TAG, "Rejecting competing Chromium ownership")
++            return START_NOT_STICKY
++        }
++        chromiumPlayer = requestedChromium
+         if (!chromiumPlayer && webView == null) initWebView()
+         return START_NOT_STICKY
+     }
+@@ -198,10 +209,11 @@ class CustomWebViewService : Service() {
+                             // Pre-warm cue. Rejects if id !== currentCommandId
+                             // (a play() already claimed a newer id).
+                             function cueVideo(videoId, startSeconds, id) {
+-                                if (id !== currentCommandId) {
++                                if (id < currentCommandId) {
+                                     NativeLog.log('cueVideo REJECTED stale id=' + id + ' current=' + currentCommandId);
+                                     return;
+                                 }
++                                currentCommandId = id;
+                                 if (player && player.cueVideoById) {
+                                     player.cueVideoById({videoId: videoId, startSeconds: startSeconds});
+                                 }
+@@ -282,9 +294,10 @@ class CustomWebViewService : Service() {
+ 
+     private fun createNotification(): Notification {
+         return NotificationCompat.Builder(this, CHANNEL_ID)
+-            .setContentTitle("PPPlayer Headless Engine")
+-            .setContentText("Running YouTube engine in background")
++            .setContentTitle("PPPlayer playback")
++            .setContentText("YouTube playback active")
+             .setSmallIcon(android.R.drawable.ic_media_play)
++            .setOngoing(true)
+             .setPriority(NotificationCompat.PRIORITY_LOW)
+             .build()
+     }
+diff --git a/android/app/src/main/kotlin/com/ppplayer/app/WebViewPlugin.kt b/android/app/src/main/kotlin/com/ppplayer/app/WebViewPlugin.kt
+index 57c6deb..99aff55 100644
+--- a/android/app/src/main/kotlin/com/ppplayer/app/WebViewPlugin.kt
++++ b/android/app/src/main/kotlin/com/ppplayer/app/WebViewPlugin.kt
+@@ -51,7 +51,9 @@ class WebViewPlugin : FlutterPlugin, MethodCallHandler {
+     }
+ 
+     private var context: Context? = null
+-    private var ownsChromiumService = false
++    private enum class ServiceOwner { NONE, CHROMIUM, LEGACY }
++    // Reserve before startForegroundService: onStartCommand runs asynchronously.
++    private var serviceOwner = ServiceOwner.NONE
+ 
+     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+         context = binding.applicationContext
+@@ -62,27 +64,31 @@ class WebViewPlugin : FlutterPlugin, MethodCallHandler {
+     override fun onMethodCall(call: MethodCall, result: Result) {
+         when (call.method) {
+             "startChromiumService" -> {
+-                if (CustomWebViewService.instance?.ownsWebView == true) {
++                if (serviceOwner == ServiceOwner.LEGACY || CustomWebViewService.instance?.ownsWebView == true) {
+                     result.error("BUSY", "Legacy playback service already owns a WebView", null)
+                     return
+                 }
+-                val intent = Intent(context, CustomWebViewService::class.java).apply {
++                if (serviceOwner == ServiceOwner.CHROMIUM) { result.success(null); return }
++                val appContext = context ?: return result.error("DETACHED", "Engine detached", null)
++                serviceOwner = ServiceOwner.CHROMIUM
++                val intent = Intent(appContext, CustomWebViewService::class.java).apply {
+                     putExtra(CustomWebViewService.EXTRA_CHROMIUM_PLAYER, true)
+                 }
+                 try {
+                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O)
+                         context?.startForegroundService(intent)
+                     else context?.startService(intent)
+-                    ownsChromiumService = true
+-                    result.success(null)
++                    awaitChromiumService(result, appContext)
+                 } catch (e: Exception) {
++                    serviceOwner = ServiceOwner.NONE
+                     result.error("SERVICE_START_FAILED", e.message, null)
+                 }
+             }
+             "stopChromiumService" -> {
+-                if (ownsChromiumService && CustomWebViewService.instance?.ownsWebView != true)
++                if (serviceOwner == ServiceOwner.CHROMIUM) {
+                     context?.stopService(Intent(context, CustomWebViewService::class.java))
+-                ownsChromiumService = false
++                    serviceOwner = ServiceOwner.NONE
++                }
+                 result.success(null)
+             }
+             "chromiumServiceState" -> {
+@@ -92,23 +98,29 @@ class WebViewPlugin : FlutterPlugin, MethodCallHandler {
+                     "ownsWebView" to (CustomWebViewService.instance?.ownsWebView == true)))
+             }
+             "startService" -> {
+-                if (ownsChromiumService) {
++                if (serviceOwner == ServiceOwner.CHROMIUM) {
+                     result.error("BUSY", "Chromium playback already owns the service", null)
+                     return
+                 }
+-                val intent = Intent(context, CustomWebViewService::class.java)
+-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+-                    context?.startForegroundService(intent)
+-                } else {
+-                    context?.startService(intent)
++                if (serviceOwner == ServiceOwner.LEGACY) { result.success(null); return }
++                val appContext = context ?: return result.error("DETACHED", "Engine detached", null)
++                serviceOwner = ServiceOwner.LEGACY
++                try {
++                    val intent = Intent(appContext, CustomWebViewService::class.java)
++                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O)
++                        appContext.startForegroundService(intent)
++                    else appContext.startService(intent)
++                    result.success(null)
++                } catch (e: Exception) {
++                    serviceOwner = ServiceOwner.NONE
++                    result.error("SERVICE_START_FAILED", e.message, null)
+                 }
+-                result.success(null)
+             }
+             "stopService" -> {
+-                val intent = Intent(context, CustomWebViewService::class.java).apply {
+-                    action = CustomWebViewService.ACTION_STOP_SERVICE
++                if (serviceOwner == ServiceOwner.LEGACY) {
++                    context?.stopService(Intent(context, CustomWebViewService::class.java))
++                    serviceOwner = ServiceOwner.NONE
+                 }
+-                context?.startService(intent)
+                 result.success(null)
+             }
+             "prepareVideo" -> {
+@@ -150,9 +162,28 @@ class WebViewPlugin : FlutterPlugin, MethodCallHandler {
+         }
+     }
+ 
++    private fun awaitChromiumService(result: Result, appContext: Context, attempts: Int = 20) {
++        if (serviceOwner != ServiceOwner.CHROMIUM) {
++            result.error("SERVICE_STOPPED", "Service ownership invalidated", null)
++            return
++        }
++        val service = CustomWebViewService.instance
++        if (service?.chromiumPlayer == true && !service.ownsWebView) {
++            result.success(null)
++            return
++        }
++        if (attempts == 0) {
++            appContext.stopService(Intent(appContext, CustomWebViewService::class.java))
++            serviceOwner = ServiceOwner.NONE
++            result.error("SERVICE_START_TIMEOUT", "Chromium service did not become ready", null)
++            return
++        }
++        mainHandler.postDelayed({ awaitChromiumService(result, appContext, attempts - 1) }, 250)
++    }
++
+     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+-        if (ownsChromiumService) context?.stopService(Intent(context, CustomWebViewService::class.java))
+-        ownsChromiumService = false
++        if (serviceOwner != ServiceOwner.NONE) context?.stopService(Intent(context, CustomWebViewService::class.java))
++        serviceOwner = ServiceOwner.NONE
+         methodChannel?.setMethodCallHandler(null)
+         methodChannel = null
+         context = null
+diff --git a/lib/core/playback/chromium_media_service.dart b/lib/core/playback/chromium_media_service.dart
+index b96f0b8..b66ec75 100644
+--- a/lib/core/playback/chromium_media_service.dart
++++ b/lib/core/playback/chromium_media_service.dart
+@@ -1,10 +1,26 @@
+ import 'package:flutter/services.dart';
+ 
+-/// Keeps the Flutter-owned, audio-only Chromium player backed by the app service.
++/// A serialized service lease for the single Flutter-owned Android WebView.
++/// AudioService owns media controls; this service never creates another player.
+ class ChromiumMediaService {
+   static const channel = MethodChannel('com.ppplayer.app/headless_webview');
+-  static Future<void> start() =>
+-      channel.invokeMethod<void>('startChromiumService');
+-  static Future<void> stop() =>
+-      channel.invokeMethod<void>('stopChromiumService');
++  static Future<void> _pending = Future.value();
++  static bool _running = false;
++
++  static Future<void> _enqueue(Future<void> Function() action) {
++    final operation = _pending.then((_) => action());
++    _pending = operation.catchError((Object _) {});
++    return operation;
++  }
++
++  static Future<void> start() => _enqueue(() async {
++    if (_running) return;
++    await channel.invokeMethod<void>('startChromiumService');
++    _running = true;
++  });
++  static Future<void> stop() => _enqueue(() async {
++    if (!_running) return;
++    await channel.invokeMethod<void>('stopChromiumService');
++    _running = false;
++  });
+ }
+diff --git a/lib/core/playback/chromium_playback_engine.dart b/lib/core/playback/chromium_playback_engine.dart
+index 6fd5797..0a3fa48 100644
+--- a/lib/core/playback/chromium_playback_engine.dart
++++ b/lib/core/playback/chromium_playback_engine.dart
+@@ -1,11 +1,11 @@
+ import 'dart:async';
+ import 'dart:convert';
++import 'package:flutter/services.dart';
+ 
+ import 'package:flutter_chromium_webview/chromium_youtube_player.dart';
+ import 'package:flutter_chromium_webview/flutter_chromium_webview.dart';
+ import 'package:pp_playback_engine/pp_playback_engine.dart';
+ 
+-
+ /// Opt-in YouTube path; delegates other sources to [fallback].
+ class ChromiumPlaybackEngine implements PlaybackController {
+   ChromiumPlaybackEngine({
+@@ -15,6 +15,7 @@ class ChromiumPlaybackEngine implements PlaybackController {
+     this.startPlaybackService,
+     this.stopPlaybackService,
+     this.showBrowser = true,
++    this.youtubeEnabled = true,
+   }) {
+     _subscriptions.add(
+       fallback.statusStream.listen((status) {
+@@ -34,6 +35,7 @@ class ChromiumPlaybackEngine implements PlaybackController {
+   final Future<void> Function()? startPlaybackService;
+   final Future<void> Function()? stopPlaybackService;
+   final bool showBrowser;
++  final bool youtubeEnabled;
+   final _statuses = StreamController<PlaybackStatus>.broadcast();
+   final _events = StreamController<PlaybackEvent>.broadcast();
+   final _subscriptions = <StreamSubscription<dynamic>>[];
+@@ -100,6 +102,9 @@ class ChromiumPlaybackEngine implements PlaybackController {
+     _checkOpen();
+     if (startAt.isNegative) throw ArgumentError.value(startAt, 'startAt');
+     final online = track.sourceType == PlaybackSourceType.online;
++    if (online && !youtubeEnabled) {
++      return _rejectYoutube(track, startAt);
++    }
+     final generation = ++_generation;
+     _durationRequest = null;
+     _durationAttempt = null;
+@@ -123,7 +128,36 @@ class ChromiumPlaybackEngine implements PlaybackController {
+         isSeekable: track.liveStatus != PlaybackLiveStatus.live,
+       ),
+     );
+-    return _opening = _open(track, startAt, online, generation);
++    // Serialize native/browser replacement. A superseded initialization must
++    // finish before its successor creates another browser or native session.
++    final previousOpening = _opening;
++    return _opening = () async {
++      try {
++        await previousOpening;
++      } catch (_) {
++        // A failed older generation does not prevent an explicit new request.
++      }
++      if (!_valid(generation)) return;
++      await _open(track, startAt, online, generation);
++    }();
++  }
++
++  Future<void> _rejectYoutube(PlaybackTrack track, Duration position) async {
++    final generation = _generation + 1;
++    await stop();
++    if (!_valid(generation)) return;
++    const message =
++        'YouTube requires an enabled YouTube engine; MediaKit cannot play online IDs';
++    _publish(
++      _status.copyWith(
++        track: track,
++        position: position,
++        state: PlaybackState.error,
++        error: message,
++      ),
++    );
++    _event(PlaybackEventType.playbackError, message: message);
++    throw UnsupportedError(message);
+   }
+ 
+   Future<void> _open(
+@@ -149,38 +183,93 @@ class ChromiumPlaybackEngine implements PlaybackController {
+       }
+       await fallback.stop();
+       if (!_valid(generation)) return;
+-      await startPlaybackService?.call();
++      if (_wantsPlaying) await startPlaybackService?.call();
+       if (!_valid(generation)) return;
+-      await (_cef ??= initializeCef());
+-      if (!_valid(generation)) return;
+-      final player = _player = createPlayer();
+-      _playerSubscription = player.events.listen(
+-        (event) => _receive(event, generation, player),
+-      );
+-      await player.initialize();
+-      if (!_valid(generation)) return;
+-      await player.setVolume((_status.volume * 100).round());
+-      if (!_valid(generation)) return;
+-      final seconds = start.inMicroseconds / Duration.microsecondsPerSecond;
+-      if (_wantsPlaying) {
+-        if (track.youtubeSourceType == YoutubeSourceType.playlist) {
+-          await player.loadPlaylist(playlistId: track.id, startSeconds: seconds);
+-        } else {
+-          await player.loadVideoById(videoId: track.id, startSeconds: seconds);
+-        }
+-      } else {
+-        if (track.youtubeSourceType == YoutubeSourceType.playlist) {
+-          await player.cuePlaylist(playlistId: track.id, startSeconds: seconds);
+-        } else {
+-          await player.cueVideoById(videoId: track.id, startSeconds: seconds);
++      int retries = 0;
++      ChromiumYoutubePlayerController? player;
++      while (true) {
++        try {
++          try {
++            await (_cef ??= initializeCef());
++          } catch (e) {
++            _cef = null;
++            rethrow;
++          }
++          if (!_valid(generation)) return;
++          player = _player = createPlayer();
++          _playerSubscription = player.events.listen(
++            (event) => _receive(event, generation, player!),
++          );
++          await player.initialize();
++          if (!_valid(generation)) return;
++          await player.setVolume((_status.volume * 100).round());
++          if (!_valid(generation)) return;
++          final seconds = start.inMicroseconds / Duration.microsecondsPerSecond;
++          if (_wantsPlaying) {
++            if (track.youtubeSourceType == YoutubeSourceType.playlist) {
++              await player.loadPlaylist(
++                playlistId: track.id,
++                startSeconds: seconds,
++              );
++            } else {
++              await player.loadVideoById(
++                videoId: track.id,
++                startSeconds: seconds,
++              );
++            }
++          } else {
++            if (track.youtubeSourceType == YoutubeSourceType.playlist) {
++              await player.cuePlaylist(
++                playlistId: track.id,
++                startSeconds: seconds,
++              );
++            } else {
++              await player.cueVideoById(
++                videoId: track.id,
++                startSeconds: seconds,
++              );
++            }
++          }
++          if (_valid(generation)) {
++            if (!_wantsPlaying) await player.pauseVideo();
++            await _readDuration(player, generation);
++          }
++          break;
++        } catch (e) {
++          final isCrash = e is StateError && e.message == 'Browser crashed';
++          final isPlatformFail =
++              e is PlatformException &&
++              const {
++                'INIT_FAILED',
++                'HOST_FAILED',
++                'INIT_TIMEOUT',
++                'NOT_READY',
++              }.contains(e.code);
++          if ((isCrash || isPlatformFail) && retries < 10) {
++            _cef = null;
++            retries++;
++            await _playerSubscription?.cancel();
++            _playerSubscription = null;
++            await player?.dispose();
++            _player = null;
++            await Future.delayed(const Duration(milliseconds: 500));
++            if (!_valid(generation)) return;
++            continue;
++          }
++          _cef = null;
++          rethrow;
+         }
+       }
+-      if (_valid(generation)) {
+-        if (!_wantsPlaying) await player.pauseVideo();
+-        await _readDuration(player, generation);
+-      }
+     } catch (error) {
+       if (!_valid(generation)) return;
++      final failedPlayer = _player;
++      _player = null;
++      await _playerSubscription?.cancel();
++      _playerSubscription = null;
++      await failedPlayer?.dispose();
++      await stopPlaybackService?.call();
++      if (!_valid(generation)) return;
++      // Report the original track/position without replaying through MediaKit.
+       _fail(error, generation);
+       rethrow;
+     }
+@@ -225,6 +314,29 @@ class ChromiumPlaybackEngine implements PlaybackController {
+     ChromiumYoutubePlayerController player,
+   ) {
+     if (!_valid(generation) || !identical(player, _player)) return;
++    if (event['BrowserCrashed'] == true) {
++      final subscription = _playerSubscription;
++      _playerSubscription = null;
++      _player = null;
++      // Serialize cleanup before a user or PlayerNotifier recovery opens a new
++      // browser. Stale events from the dead browser must no longer be accepted.
++      _opening = () async {
++        await subscription?.cancel();
++        await player.dispose();
++        await stopPlaybackService?.call();
++      }();
++      unawaited(
++        _opening!.catchError((Object error) {
++          if (!_closed) _fail(error, _generation);
++        }),
++      );
++      _fail(
++        StateError('Browser crashed; retry through the playback coordinator'),
++        generation,
++      );
++      ++_generation;
++      return;
++    }
+     if (event['PlayerError'] != null || event['AutoplayBlocked'] == true) {
+       _fail(
+         StateError(
+@@ -248,16 +360,23 @@ class ChromiumPlaybackEngine implements PlaybackController {
+         _ => null,
+       };
+       if (mapped != null) {
+-        if (state == 0 && _status.track?.youtubeSourceType == YoutubeSourceType.playlist) {
++        if (state == 0 &&
++            _status.track?.youtubeSourceType == YoutubeSourceType.playlist) {
+           unawaited(() async {
+             try {
+               final index = await player.getPlaylistIndex();
+               final playlist = await player.getPlaylist();
+               if (!_valid(generation) || !identical(player, _player)) return;
+               if (index == playlist.length - 1) {
+-                _publish(_status.copyWith(state: PlaybackState.ended, clearError: true));
++                _publish(
++                  _status.copyWith(
++                    state: PlaybackState.ended,
++                    clearError: true,
++                  ),
++                );
+                 if (_started && !_ended) {
+                   _ended = true;
++                  _releaseService(generation);
+                   _event(PlaybackEventType.trackEnded);
+                 }
+               }
+@@ -290,6 +409,7 @@ class ChromiumPlaybackEngine implements PlaybackController {
+           _event(PlaybackEventType.playbackPaused);
+         } else if (state == 0 && _started && !_ended) {
+           _ended = true;
++          _releaseService(generation);
+           _event(PlaybackEventType.trackEnded);
+         }
+         if (state == 3 && previous != mapped)
+@@ -323,6 +443,16 @@ class ChromiumPlaybackEngine implements PlaybackController {
+     }
+   }
+ 
++  void _releaseService(int generation) {
++    unawaited(
++      (stopPlaybackService?.call() ?? Future<void>.value()).catchError((
++        Object error,
++      ) {
++        _fail(error, generation);
++      }),
++    );
++  }
++
+   Future<ChromiumYoutubePlayerController?> _active() async {
+     final generation = _generation;
+     await _opening;
+@@ -360,6 +490,8 @@ class ChromiumPlaybackEngine implements PlaybackController {
+       );
+     await player.pauseVideo();
+     await acknowledgment;
++    // Paused playback does not require a second service to remain foreground.
++    if (!_wantsPlaying) await stopPlaybackService?.call();
+   }
+ 
+   @override
+@@ -367,7 +499,17 @@ class ChromiumPlaybackEngine implements PlaybackController {
+     _checkOpen();
+     _wantsPlaying = true;
+     if (!_chromium) return fallback.resume();
+-    await (await _active())?.playVideo();
++    final generation = _generation;
++    final player = await _active();
++    if (!_valid(generation) || !_wantsPlaying) return;
++    if (player == null) {
++      final track = _status.track;
++      if (track != null) await play(track, startAt: _status.position);
++      return;
++    }
++    await startPlaybackService?.call();
++    if (!_valid(generation) || !_wantsPlaying) return;
++    await player.playVideo();
+   }
+ 
+   @override
+diff --git a/lib/core/playback/hybrid_playback_engine.dart b/lib/core/playback/hybrid_playback_engine.dart
+index 4013ef2..4ba09ce 100644
+--- a/lib/core/playback/hybrid_playback_engine.dart
++++ b/lib/core/playback/hybrid_playback_engine.dart
+@@ -6,19 +6,21 @@ import 'pip_handler.dart';
+ 
+ enum EngineOwner { foreground, background }
+ 
++/// Chromium remains the owner in Android background/PiP. The legacy handoff
++/// policy is retained only for explicitly selected service-backed controllers.
++enum PlaybackOwnershipPolicy { nativeHandoff, persistentForeground }
++
+ class HybridPlaybackEngine implements PlaybackController {
+   final PlaybackController _foregroundEngine;
+   final PlaybackController _backgroundEngine;
++  final PlaybackOwnershipPolicy ownershipPolicy;
++  final Duration handoffTimeout;
++  final _subscriptions = <StreamSubscription<dynamic>>[];
+ 
+   EngineOwner _owner = EngineOwner.foreground;
+   bool _isTransferring = false;
+   int _handoffGeneration = 0;
+ 
+-  // True when a background handoff was requested but deferred because the app
+-  // was entering or already in PiP. Flushed when PiP exits while the activity
+-  // remains stopped.
+-  bool _backgroundHandoffDeferred = false;
+-
+   final _statusController = StreamController<PlaybackStatus>.broadcast();
+   final _eventController = StreamController<PlaybackEvent>.broadcast();
+ 
+@@ -38,23 +40,33 @@ class HybridPlaybackEngine implements PlaybackController {
+   HybridPlaybackEngine({
+     PlaybackController? foregroundEngine,
+     PlaybackController? backgroundEngine,
++    this.ownershipPolicy = PlaybackOwnershipPolicy.nativeHandoff,
++    this.handoffTimeout = const Duration(seconds: 5),
+   }) : _foregroundEngine = foregroundEngine ?? MediaKitPlaybackEngine(),
+        _backgroundEngine = backgroundEngine ?? NativeServicePlaybackEngine() {
+-    _foregroundEngine.statusStream.listen((status) {
+-      _handleSubStatus(EngineOwner.foreground, status);
+-    });
++    _subscriptions.add(
++      _foregroundEngine.statusStream.listen((status) {
++        _handleSubStatus(EngineOwner.foreground, status);
++      }),
++    );
+ 
+-    _foregroundEngine.eventStream.listen((event) {
+-      _handleSubEvent(EngineOwner.foreground, event);
+-    });
++    _subscriptions.add(
++      _foregroundEngine.eventStream.listen((event) {
++        _handleSubEvent(EngineOwner.foreground, event);
++      }),
++    );
+ 
+-    _backgroundEngine.statusStream.listen((status) {
+-      _handleSubStatus(EngineOwner.background, status);
+-    });
++    _subscriptions.add(
++      _backgroundEngine.statusStream.listen((status) {
++        _handleSubStatus(EngineOwner.background, status);
++      }),
++    );
+ 
+-    _backgroundEngine.eventStream.listen((event) {
+-      _handleSubEvent(EngineOwner.background, event);
+-    });
++    _subscriptions.add(
++      _backgroundEngine.eventStream.listen((event) {
++        _handleSubEvent(EngineOwner.background, event);
++      }),
++    );
+ 
+     PipHandler.addActivityStoppedListener(_onActivityStopped);
+     PipHandler.addActivityStartedListener(_onActivityStarted);
+@@ -67,12 +79,14 @@ class HybridPlaybackEngine implements PlaybackController {
+   // ---------------------------------------------------------------------------
+ 
+   void _onActivityStopped() {
++    if (_disposed ||
++        ownershipPolicy == PlaybackOwnershipPolicy.persistentForeground)
++      return;
+     // Guard against the ordering race:
+     //   onActivityStopped fires BEFORE onPipModeChanged(true)
+     // Both isPipRequestPending (set before the native call) and isInPipMode
+     // (confirmed by Android) can protect this window.
+     if (PipHandler.isPipRequestPending || PipHandler.isInPipMode) {
+-      _backgroundHandoffDeferred = true;
+       _log(
+         'Background handoff deferred: '
+         'pipRequestPending=${PipHandler.isPipRequestPending} '
+@@ -85,7 +99,10 @@ class HybridPlaybackEngine implements PlaybackController {
+   }
+ 
+   void _onActivityStarted() {
+-    _backgroundHandoffDeferred = false;
++    if (_disposed ||
++        ownershipPolicy == PlaybackOwnershipPolicy.persistentForeground)
++      return;
++
+     // Only initiate if we are not already on foreground and not already
+     // mid-transfer toward foreground, to avoid redundant handoffs.
+     if (_owner == EngineOwner.foreground && !_isTransferring) return;
+@@ -96,10 +113,13 @@ class HybridPlaybackEngine implements PlaybackController {
+   // PiP is active. It also recovers from the race where onActivityStopped
+   // arrived before this event and a background handoff slipped through.
+   void _onPipModeChanged(bool inPip) {
++    if (_disposed ||
++        ownershipPolicy == PlaybackOwnershipPolicy.persistentForeground)
++      return;
+     if (inPip) {
+       // PiP is now confirmed active. Clear the deferred flag (already on
+       // foreground, or about to recover to it).
+-      _backgroundHandoffDeferred = false;
++
+       if (_owner != EngineOwner.foreground) {
+         _log(
+           'SAFETY NET: PiP confirmed active but owner=$_owner; '
+@@ -121,7 +141,6 @@ class HybridPlaybackEngine implements PlaybackController {
+       // Snapshot isActivityStopped before clearing the deferred flag so the
+       // decision is based on current state rather than a potentially stale bool.
+       final shouldBackground = PipHandler.isActivityStopped;
+-      _backgroundHandoffDeferred = false;
+ 
+       if (shouldBackground) {
+         _log(
+@@ -138,7 +157,10 @@ class HybridPlaybackEngine implements PlaybackController {
+   // PiP entry failed — clear deferred flag and, if the activity is already
+   // stopped, do the background handoff that was deferred unnecessarily.
+   void _onPipEntryFailed() {
+-    _backgroundHandoffDeferred = false;
++    if (_disposed ||
++        ownershipPolicy == PlaybackOwnershipPolicy.persistentForeground)
++      return;
++
+     _log('PiP entry failed. activityStopped=${PipHandler.isActivityStopped}');
+     if (PipHandler.isActivityStopped) {
+       _initiateHandoff(EngineOwner.background);
+@@ -152,6 +174,7 @@ class HybridPlaybackEngine implements PlaybackController {
+   }
+ 
+   void _handleSubStatus(EngineOwner source, PlaybackStatus status) {
++    if (_disposed) return;
+     if (source != _owner) {
+       if (status.state == PlaybackState.playing) {
+         _log(
+@@ -165,6 +188,11 @@ class HybridPlaybackEngine implements PlaybackController {
+       return;
+     }
+     if (_isTransferring) return;
++    if (_intendedState != PlaybackState.playing &&
++        status.state == PlaybackState.playing) {
++      unawaited(_activeEngine.pause(caller: 'intent_containment'));
++      return;
++    }
+     // Route completion through unified handler; don't let raw 'ended' propagate.
+     if (status.state == PlaybackState.ended) {
+       _handleTrackCompletion(source, status.track, status.generation);
+@@ -250,135 +278,86 @@ class HybridPlaybackEngine implements PlaybackController {
+   int? _activeBackgroundGeneration;
+ 
+   Future<void> _initiateHandoff(EngineOwner targetOwner) async {
+-    if (_owner == targetOwner) return;
+-    if (_disposed) return;
+-    if (_currentTrack == null) return;
+-    if (_currentTrack!.isLocal) return;
+-
+-    _handoffGeneration++;
+-    final myGen = _handoffGeneration;
+-    final myPlayGen = _playGeneration;
+-    final myTrackId = _currentTrack!.id;
+-
+-    _log(
+-      'event=handoff_requested '
+-      'target=$targetOwner ownerBefore=$_owner '
+-      'inPip=${PipHandler.isInPipMode} '
+-      'pipRequestPending=${PipHandler.isPipRequestPending} '
+-      'activityStopped=${PipHandler.isActivityStopped} '
+-      'deferred=$_backgroundHandoffDeferred '
+-      'gen=$_handoffGeneration '
+-      'fg=${_foregroundEngine.currentStatus.state.name} '
+-      'bg=${_backgroundEngine.currentStatus.state.name} '
+-      'pos=${_activeEngine.currentStatus.position.inMilliseconds}ms',
+-    );
+-
++    if (_disposed ||
++        ownershipPolicy == PlaybackOwnershipPolicy.persistentForeground ||
++        _owner == targetOwner ||
++        _currentTrack?.sourceType != PlaybackSourceType.online)
++      return;
++    final sourceOwner = _owner;
++    final source = _activeEngine;
++    final destination = _inactiveEngine;
++    final track = _currentTrack!;
++    final generation = ++_handoffGeneration;
++    bool current() =>
++        !_disposed &&
++        generation == _handoffGeneration &&
++        _currentTrack?.id == track.id;
+     _isTransferring = true;
+     _owner = targetOwner;
+-
+-    final sourceEngine = _inactiveEngine;
+-    final destEngine = _activeEngine;
+-
++    StreamSubscription<PlaybackStatus>? acknowledgment;
+     try {
+-      // Step 1: Pause source and wait for CONFIRMED acknowledgment.
+-      // failOnTimeout=true: a timeout throws instead of silently faking paused state.
+-      // If source cannot confirm silence, we cannot safely start the destination.
+-      try {
+-        await sourceEngine.pause(caller: 'handoff', failOnTimeout: true);
+-      } on TimeoutException catch (e) {
+-        _log('Handoff ABORTED: source pause unconfirmed — $e');
+-        // Roll back owner; destination was never started, so no audio overlap.
+-        _owner = targetOwner == EngineOwner.foreground
+-            ? EngineOwner.background
+-            : EngineOwner.foreground;
+-        _isTransferring = false;
+-        return;
+-      }
+-
+-      if (_disposed || _handoffGeneration != myGen) return;
+-
+-      // Step 2: Capture position AFTER source confirms pause — this is the
+-      // exact timestamp at which audio stopped, giving the tightest position.
+-      final pos = sourceEngine.currentStatus.position;
+-      _prewarmedTrack = null;
+-
+-      // Step 3: Re-validate generation, track identity, and user intent.
+-      // A newer play() or track-change during the pause await must win.
+-      if (_currentTrack?.id != myTrackId) {
+-        _log('Handoff ABORTED: track changed during pause wait');
+-        _isTransferring = false;
+-        return;
+-      }
+-
++      await source
++          .pause(caller: 'handoff', failOnTimeout: true)
++          .timeout(handoffTimeout);
++      if (!current()) return;
++      final position = source.currentStatus.position;
++      await destination.setVolume(_currentStatus.volume);
++      if (!current()) return;
+       if (_intendedState == PlaybackState.playing) {
+-        _log('Handoff: play(startAt: $pos) on $targetOwner');
+-
+-        // Step 4: Register the "destination playing" listener BEFORE issuing
+-        // play() to avoid missing a fast state-change event.
+-        final playingFuture = destEngine.statusStream
+-            .firstWhere((s) => s.state == PlaybackState.playing)
+-            .timeout(const Duration(seconds: 5))
+-            .catchError((_) => const PlaybackStatus());
+-
+-        await destEngine.play(_currentTrack!, startAt: pos);
+-
+-        if (_disposed || _handoffGeneration != myGen) return;
+-        await destEngine.setVolume(_currentStatus.volume);
+-
+-        // Step 5: Wait for destination confirmation via the pre-registered future.
+-        if (destEngine.currentStatus.state != PlaybackState.playing) {
+-          try {
+-            final status = await playingFuture;
+-            if (status.state == PlaybackState.playing) {
+-              if (targetOwner == EngineOwner.foreground) {
+-                _activeForegroundGeneration = status.generation;
+-              } else {
+-                _activeBackgroundGeneration = status.generation;
+-              }
+-            }
+-          } catch (_) {
+-            _log('Timeout waiting for destination to play');
+-            if (_handoffGeneration == myGen) {
+-              _handoffGeneration++;
+-              _isTransferring = false;
+-              // Guard rollback — only update intent if this specific
+-              // failed transfer is still current (no newer command arrived).
+-              if (_playGeneration == myPlayGen &&
+-                  _intendedState == PlaybackState.playing) {
+-                _intendedState = PlaybackState.paused;
+-                _updateStatus(
+-                  _currentStatus.copyWith(state: PlaybackState.paused),
+-                );
+-              }
+-            }
+-            try {
+-              await destEngine
+-                  .pause(caller: 'timeout_cleanup')
+-                  .timeout(const Duration(seconds: 2));
+-            } catch (_) {
+-              _log('Failed to pause destination during timeout cleanup');
+-            }
+-            return;
+-          }
++        final playing = Completer<PlaybackStatus>();
++        acknowledgment = destination.statusStream.listen((status) {
++          if (status.state == PlaybackState.playing && !playing.isCompleted)
++            playing.complete(status);
++        });
++        final results = await Future.wait<dynamic>([
++          destination.play(track, startAt: position).timeout(handoffTimeout),
++          playing.future.timeout(handoffTimeout),
++        ], eagerError: true);
++        if (!current()) return;
++        final confirmed = results[1] as PlaybackStatus;
++        if (targetOwner == EngineOwner.foreground) {
++          _activeForegroundGeneration = confirmed.generation;
+         } else {
+-          if (targetOwner == EngineOwner.foreground) {
+-            _activeForegroundGeneration = destEngine.currentStatus.generation;
+-          } else {
+-            _activeBackgroundGeneration = destEngine.currentStatus.generation;
+-          }
++          _activeBackgroundGeneration = confirmed.generation;
+         }
++        // A pause received while the destination opened must still win.
++        if (_intendedState != PlaybackState.playing)
++          await destination.pause(caller: 'handoff_intent');
+       } else {
+-        // User paused/stopped — source is already paused; set volume on destination.
+-        await destEngine.setVolume(_currentStatus.volume);
++        await destination
++            .play(track, startAt: position, play: false)
++            .timeout(handoffTimeout);
+       }
+-    } catch (e) {
+-      _log('Handoff failed unexpectedly: $e');
++      if (!current()) return;
++      _isTransferring = false;
++      _updateStatus(destination.currentStatus);
++    } catch (error) {
++      if (!current()) return;
++      // Invalidate outstanding acknowledgments before cleanup. Never restart the
++      // source automatically: failed pause/initialization cannot grant autoplay.
++      ++_handoffGeneration;
++      try {
++        await destination.stop().timeout(handoffTimeout);
++      } catch (_) {}
++      if (_disposed || _handoffGeneration != generation + 1) return;
++      _owner = sourceOwner;
++      _isTransferring = false;
++      _intendedState = PlaybackState.paused;
++      _updateStatus(
++        _currentStatus.copyWith(
++          state: PlaybackState.error,
++          error: 'Playback handoff failed: $error',
++        ),
++      );
++      _eventController.add(
++        PlaybackEvent(
++          type: PlaybackEventType.playbackError,
++          track: track,
++          message: 'Playback handoff failed: $error',
++        ),
++      );
+     } finally {
+-      if (_handoffGeneration == myGen) {
+-        _isTransferring = false;
+-        _log('Handoff complete');
+-        _updateStatus(destEngine.currentStatus);
+-      }
++      await acknowledgment?.cancel();
+     }
+   }
+ 
+@@ -396,6 +375,8 @@ class HybridPlaybackEngine implements PlaybackController {
+   @override
+   Future<void> prepare(PlaybackTrack track, {Duration? position}) async {
+     _playGeneration++;
++    ++_handoffGeneration;
++    _isTransferring = false;
+     _currentTrack = track;
+     _intendedState = PlaybackState.paused;
+     await _activeEngine.prepare(track, position: position);
+@@ -414,14 +395,19 @@ class HybridPlaybackEngine implements PlaybackController {
+     _currentTrack = track;
+     _prewarmedTrack = null; // new track supersedes any prior pre-warm
+     _intendedState = play ? PlaybackState.playing : PlaybackState.paused;
+-    _inactiveEngine.stop();
++    final generation = _playGeneration;
++    final active = _activeEngine;
++    if (ownershipPolicy == PlaybackOwnershipPolicy.nativeHandoff)
++      await _inactiveEngine.stop();
++    if (_disposed || generation != _playGeneration) return;
+ 
+     final playingFuture = _activeEngine.statusStream
+         .firstWhere((s) => s.state == PlaybackState.playing)
+         .timeout(const Duration(seconds: 5))
+         .catchError((_) => const PlaybackStatus());
+ 
+-    await _activeEngine.play(track, startAt: startAt, play: play);
++    await active.play(track, startAt: startAt, play: play);
++    if (_disposed || generation != _playGeneration) return;
+ 
+     if (_activeEngine.currentStatus.state == PlaybackState.playing) {
+       if (_owner == EngineOwner.foreground) {
+@@ -431,7 +417,9 @@ class HybridPlaybackEngine implements PlaybackController {
+       }
+     } else {
+       playingFuture.then((status) {
+-        if (status.state == PlaybackState.playing) {
++        if (!_disposed &&
++            generation == _playGeneration &&
++            status.state == PlaybackState.playing) {
+           if (_owner == EngineOwner.foreground) {
+             _activeForegroundGeneration = status.generation;
+           } else {
+@@ -449,7 +437,9 @@ class HybridPlaybackEngine implements PlaybackController {
+   /// Silently cues the given track on the inactive engine so it is ready
+   /// to take over on the next handoff without a full prepare round-trip.
+   void _prewarmInactiveEngine(PlaybackTrack track) {
+-    if (track.isLocal) return;
++    if (ownershipPolicy == PlaybackOwnershipPolicy.persistentForeground ||
++        track.sourceType != PlaybackSourceType.online)
++      return;
+     final inactive = _inactiveEngine;
+     _prewarmedTrack = track;
+     // Use position=0 for pre-warm; actual position is seeked on handoff.
+@@ -503,7 +493,8 @@ class HybridPlaybackEngine implements PlaybackController {
+   Future<void> setVolume(double volume) async {
+     _updateStatus(_currentStatus.copyWith(volume: volume));
+     await _foregroundEngine.setVolume(volume);
+-    await _backgroundEngine.setVolume(volume);
++    if (ownershipPolicy == PlaybackOwnershipPolicy.nativeHandoff)
++      await _backgroundEngine.setVolume(volume);
+   }
+ 
+   @override
+@@ -566,7 +557,13 @@ class HybridPlaybackEngine implements PlaybackController {
+ 
+   @override
+   Future<void> dispose() async {
++    if (_disposed) return;
+     _disposed = true;
++    ++_playGeneration;
++    ++_handoffGeneration;
++    for (final subscription in _subscriptions) {
++      await subscription.cancel();
++    }
+     PipHandler.removeActivityStoppedListener(_onActivityStopped);
+     PipHandler.removeActivityStartedListener(_onActivityStarted);
+     PipHandler.removePipModeListener(_onPipModeChanged);
+diff --git a/lib/core/playback/media_handler.dart b/lib/core/playback/media_handler.dart
+index db7a19a..0d43d18 100644
+--- a/lib/core/playback/media_handler.dart
++++ b/lib/core/playback/media_handler.dart
+@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
+ import 'package:flutter/services.dart';
+ import 'package:flutter_riverpod/flutter_riverpod.dart';
+ import '../player/player_provider.dart';
++import 'playback_providers.dart' show playbackControllerProvider;
+ import '../services/favorites_provider.dart';
+ 
+ /// An [AudioHandler] that bridges the Flutter player state with the system media controls.
+@@ -13,7 +14,14 @@ class PpPlayerAudioHandler extends BaseAudioHandler with QueueHandler {
+   static const _iosControlsChannel = MethodChannel(
+     'com.ppplayer.app/ios_media_controls',
+   );
+-  PpPlayerAudioHandler(this._containerProvider, {bool? enableIosCommands}) {
++  PpPlayerAudioHandler(
++    this._containerProvider, {
++    bool? enableIosCommands,
++    bool? enableAndroidLifecycle,
++  }) {
++    _androidLifecycleEnabled =
++        enableAndroidLifecycle ??
++        (!kIsWeb && defaultTargetPlatform == TargetPlatform.android);
+     _iosCommandsEnabled = enableIosCommands ?? (!kIsWeb && Platform.isIOS);
+     if (_iosCommandsEnabled) {
+       _iosControlsChannel.setMethodCallHandler((call) async {
+@@ -72,6 +80,7 @@ class PpPlayerAudioHandler extends BaseAudioHandler with QueueHandler {
+ 
+   final ProviderContainer Function() _containerProvider;
+   late final bool _iosCommandsEnabled;
++  late final bool _androidLifecycleEnabled;
+   ProviderContainer get _container => _containerProvider();
+ 
+   Future<void> _publishIosNowPlaying() async {
+@@ -324,9 +333,18 @@ class PpPlayerAudioHandler extends BaseAudioHandler with QueueHandler {
+     await _container.read(playerProvider.notifier).seekTo(position);
+   }
+ 
++  @override
++  Future<void> onTaskRemoved() async {
++    // A removed Android task must not leave an Activity-backed WebView orphaned.
++    // Queue persistence survives, but restarting the process never grants autoplay.
++    if (_androidLifecycleEnabled) await stop();
++  }
++
+   @override
+   Future<void> stop() async {
+     await _container.read(playerProvider.notifier).pause();
++    if (_androidLifecycleEnabled)
++      await _container.read(playbackControllerProvider).stop();
+     playbackState.add(
+       playbackState.value.copyWith(
+         playing: false,
+diff --git a/lib/core/playback/packages/pp_playback_engine/lib/src/engine/iframe_youtube_playback_engine.dart b/lib/core/playback/packages/pp_playback_engine/lib/src/engine/iframe_youtube_playback_engine.dart
+index 915d933..3b83dba 100644
+--- a/lib/core/playback/packages/pp_playback_engine/lib/src/engine/iframe_youtube_playback_engine.dart
++++ b/lib/core/playback/packages/pp_playback_engine/lib/src/engine/iframe_youtube_playback_engine.dart
+@@ -34,7 +34,6 @@ void _diag(String msg) =>
+ // MediaKitPlaybackEngine
+ // ---------------------------------------------------------------------------
+ 
+-
+ class IframeYoutubePlaybackEngine implements YoutubePlaybackEngine {
+   final PlaybackController fallback;
+ 
+@@ -148,7 +147,8 @@ class IframeYoutubePlaybackEngine implements YoutubePlaybackEngine {
+     );
+   }
+ 
+-  yt.YoutubePlayerController? get youtubeController => _isYoutube ? _youtubeController : null;
++  yt.YoutubePlayerController? get youtubeController =>
++      _isYoutube ? _youtubeController : null;
+ 
+   // ---------------------------------------------------------------------------
+   // prepare()
+@@ -157,7 +157,9 @@ class IframeYoutubePlaybackEngine implements YoutubePlaybackEngine {
+   @override
+   Future<void> prepare(PlaybackTrack track, {Duration? position}) async {
+     if (_disposed) return;
+-    final isOnline = track.sourceType == PlaybackSourceType.online && RegExp(r'^[A-Za-z0-9_-]{11}$').hasMatch(track.id);
++    final isOnline =
++        track.sourceType == PlaybackSourceType.online &&
++        RegExp(r'^[A-Za-z0-9_-]{11}$').hasMatch(track.id);
+     if (!isOnline) {
+       _isYoutube = false;
+       return fallback.prepare(track, position: position);
+@@ -226,7 +228,9 @@ class IframeYoutubePlaybackEngine implements YoutubePlaybackEngine {
+     bool play = true,
+   }) async {
+     if (_disposed) return;
+-    final isOnline = track.sourceType == PlaybackSourceType.online && RegExp(r'^[A-Za-z0-9_-]{11}$').hasMatch(track.id);
++    final isOnline =
++        track.sourceType == PlaybackSourceType.online &&
++        RegExp(r'^[A-Za-z0-9_-]{11}$').hasMatch(track.id);
+     if (!isOnline) {
+       _isYoutube = false;
+       return fallback.play(track, startAt: startAt, play: play);
+@@ -314,11 +318,7 @@ class IframeYoutubePlaybackEngine implements YoutubePlaybackEngine {
+               ? _confirmedPlaybackPosition!.inMilliseconds / 1000.0
+               : _currentStartSeconds;
+       unawaited(
+-        _load(
+-          generation,
+-          _currentStatus.track!,
+-          startSeconds: recoveryStart,
+-        ),
++        _load(generation, _currentStatus.track!, startSeconds: recoveryStart),
+       );
+     });
+   }
+@@ -333,17 +333,18 @@ class IframeYoutubePlaybackEngine implements YoutubePlaybackEngine {
+         'MediaKitPlaybackEngine: [INIT] Creating YoutubePlayerController (persistent singleton)',
+       );
+ 
+-      _youtubeController = yt.YoutubePlayerController(
+-        params: const yt.YoutubePlayerParams(
+-          showControls: false,
+-          showFullscreenButton: false,
+-          mute: false,
+-          loop: false,
+-          strictRelatedVideos: true,
+-          origin: 'https://ppplayer.com',
+-          pointerEvents: yt.PointerEvents.none,
+-        ),
++      const params = yt.YoutubePlayerParams(
++        showControls: false,
++        showFullscreenButton: false,
++        mute: false,
++        loop: false,
++        strictRelatedVideos: true,
++        origin: 'https://ppplayer.com',
++        pointerEvents: yt.PointerEvents.none,
+       );
++      _youtubeController =
++          youtubeControllerFactory?.call(track.id, params) ??
++          yt.YoutubePlayerController(params: params);
+ 
+       // ignore: invalid_use_of_internal_member
+       _youtubeController!.webViewController.addJavaScriptChannel(
+@@ -596,7 +597,8 @@ class IframeYoutubePlaybackEngine implements YoutubePlaybackEngine {
+     String caller = 'user',
+     bool failOnTimeout = false,
+   }) async {
+-    if (!_isYoutube) return fallback.pause(caller: caller, failOnTimeout: failOnTimeout);
++    if (!_isYoutube)
++      return fallback.pause(caller: caller, failOnTimeout: failOnTimeout);
+     if ((_currentStatus.state == PlaybackState.paused ||
+             _currentStatus.state == PlaybackState.idle) &&
+         _intendedState != PlaybackState.playing) {
+@@ -926,20 +928,16 @@ class IframeYoutubePlaybackEngine implements YoutubePlaybackEngine {
+   }
+ 
+   @override
+-  bool get supportsTrackSelection =>
+-      fallback.supportsTrackSelection;
++  bool get supportsTrackSelection => fallback.supportsTrackSelection;
+ 
+   @override
+-  bool get supportsExternalSubtitles =>
+-      fallback.supportsExternalSubtitles;
++  bool get supportsExternalSubtitles => fallback.supportsExternalSubtitles;
+ 
+   @override
+-  bool get supportsSubtitleDelay =>
+-      fallback.supportsSubtitleDelay;
++  bool get supportsSubtitleDelay => fallback.supportsSubtitleDelay;
+ 
+   @override
+-  bool get supportsSubtitleTextSize =>
+-      fallback.supportsSubtitleTextSize;
++  bool get supportsSubtitleTextSize => fallback.supportsSubtitleTextSize;
+ 
+   @override
+   bool get supportsSubtitleBackgroundStyling =>
+@@ -955,7 +953,11 @@ class IframeYoutubePlaybackEngine implements YoutubePlaybackEngine {
+     double? textSize,
+     int? backgroundColor,
+   }) async {
+-    if (!_isYoutube) return fallback.setSubtitleAppearance(textSize: textSize, backgroundColor: backgroundColor);
++    if (!_isYoutube)
++      return fallback.setSubtitleAppearance(
++        textSize: textSize,
++        backgroundColor: backgroundColor,
++      );
+   }
+   // ---------------------------------------------------------------------------
+   // Status update + IFrame position polling
+diff --git a/lib/core/playback/packages/pp_playback_engine/lib/src/engine/media_kit_playback_engine.dart b/lib/core/playback/packages/pp_playback_engine/lib/src/engine/media_kit_playback_engine.dart
+index 60aefb7..5f998c3 100644
+--- a/lib/core/playback/packages/pp_playback_engine/lib/src/engine/media_kit_playback_engine.dart
++++ b/lib/core/playback/packages/pp_playback_engine/lib/src/engine/media_kit_playback_engine.dart
+@@ -304,7 +304,6 @@ class NativePlaybackSession {
+ // ---------------------------------------------------------------------------
+ 
+ class MediaKitPlaybackEngine implements PlaybackController {
+-
+   /// Factory for native player adapters.
+   ///
+   /// Defaults to creating a [MediaKitPlayerAdapter] (production).
+@@ -312,10 +311,7 @@ class MediaKitPlaybackEngine implements PlaybackController {
+   /// lifecycle logic without a real media_kit player.
+   final INativePlayerAdapter Function()? nativeAdapterFactory;
+ 
+-  MediaKitPlaybackEngine({
+-    
+-    this.nativeAdapterFactory,
+-  }) {
++  MediaKitPlaybackEngine({this.nativeAdapterFactory}) {
+     _initMediaKit();
+   }
+ 
+@@ -802,7 +798,10 @@ class MediaKitPlaybackEngine implements PlaybackController {
+   }
+ 
+   @override
+-  Future<void> pause({String caller = 'user', bool failOnTimeout = false}) async {
++  Future<void> pause({
++    String caller = 'user',
++    bool failOnTimeout = false,
++  }) async {
+     if (_disposed) return;
+     if (_currentStatus.state == PlaybackState.paused ||
+         _currentStatus.state == PlaybackState.idle) {
+diff --git a/lib/core/playback/packages/pp_playback_engine/lib/src/engine/native_service_playback_engine.dart b/lib/core/playback/packages/pp_playback_engine/lib/src/engine/native_service_playback_engine.dart
+index 8045a01..91c1913 100644
+--- a/lib/core/playback/packages/pp_playback_engine/lib/src/engine/native_service_playback_engine.dart
++++ b/lib/core/playback/packages/pp_playback_engine/lib/src/engine/native_service_playback_engine.dart
+@@ -19,6 +19,7 @@ class NativeServicePlaybackEngine implements PlaybackController {
+   /// Monotonically increasing command ID. Incremented by every play() call.
+   /// Passed to the JS layer so stale cueVideo calls from pre-warms are rejected.
+   int _commandId = 0;
++  bool _wantsPlaying = false;
+ 
+   Future<void>? _service;
+   NativeServicePlaybackEngine({bool startAutomatically = true}) {
+@@ -30,11 +31,13 @@ class NativeServicePlaybackEngine implements PlaybackController {
+     try {
+       await _channel.invokeMethod('startService');
+     } catch (e) {
+-      debugPrint('NativeServicePlaybackEngine: Error starting service: $e');
++      _service = null;
++      rethrow;
+     }
+   }
+ 
+   Future<dynamic> _handleMethodCall(MethodCall call) async {
++    if (_disposed) return;
+     switch (call.method) {
+       case 'onReady':
+         debugPrint('NativeServicePlaybackEngine: Headless WebView Ready');
+@@ -43,6 +46,11 @@ class NativeServicePlaybackEngine implements PlaybackController {
+         final args = call.arguments as Map<dynamic, dynamic>;
+         final state = args['state'] as int;
+         final commandId = args['commandId'] as int;
++        if (commandId != _commandId || _currentStatus.track == null) return;
++        if (state == 1 && !_wantsPlaying) {
++          await _channel.invokeMethod('pauseVideo');
++          return;
++        }
+         final newState = _mapYtState(state);
+         _updateStatus(
+           _currentStatus.copyWith(state: newState, generation: commandId),
+@@ -115,10 +123,11 @@ class NativeServicePlaybackEngine implements PlaybackController {
+ 
+   @override
+   Future<void> prepare(PlaybackTrack track, {Duration? position}) async {
++    if (_disposed) return;
++    _wantsPlaying = false;
++    final id = ++_commandId;
+     await (_service ??= _startService());
+-    // Capture commandId before awaiting — pre-warm uses current value.
+-    // When play() later increments commandId, the JS-side cueVideo is rejected.
+-    final id = _commandId;
++    if (_disposed || id != _commandId) return;
+     _updateStatus(
+       _currentStatus.copyWith(
+         track: track,
+@@ -144,9 +153,11 @@ class NativeServicePlaybackEngine implements PlaybackController {
+     Duration startAt = Duration.zero,
+     bool play = true,
+   }) async {
+-    await (_service ??= _startService());
+-    // Increment commandId BEFORE dispatching — invalidates any pending pre-warm cue.
++    if (_disposed) return;
++    _wantsPlaying = play;
+     final id = ++_commandId;
++    await (_service ??= _startService());
++    if (_disposed || id != _commandId) return;
+     _updateStatus(
+       _currentStatus.copyWith(
+         track: track,
+@@ -155,7 +166,7 @@ class NativeServicePlaybackEngine implements PlaybackController {
+       ),
+     );
+     try {
+-      await _channel.invokeMethod('loadVideo', {
++      await _channel.invokeMethod(play ? 'loadVideo' : 'prepareVideo', {
+         'videoId': track.id,
+         'startSeconds': startAt.inMilliseconds / 1000.0,
+         'commandId': id,
+@@ -174,6 +185,8 @@ class NativeServicePlaybackEngine implements PlaybackController {
+     String caller = 'user',
+     bool failOnTimeout = false,
+   }) async {
++    _wantsPlaying = false;
++    if (_disposed || _service == null) return;
+     if (_currentStatus.state == PlaybackState.paused ||
+         _currentStatus.state == PlaybackState.idle) {
+       return;
+@@ -226,6 +239,8 @@ class NativeServicePlaybackEngine implements PlaybackController {
+   Future<void> resume() async {
+     // Do NOT emit playing optimistically — state must come from WebView onStateChange.
+     // The handoff coordinator's firstWhere(playing) requires real WebView confirmation.
++    if (_disposed || _service == null || _currentStatus.track == null) return;
++    _wantsPlaying = true;
+     try {
+       await _channel.invokeMethod('playVideo');
+     } catch (e) {
+@@ -235,9 +250,12 @@ class NativeServicePlaybackEngine implements PlaybackController {
+ 
+   @override
+   Future<void> stop() async {
++    ++_commandId;
++    _wantsPlaying = false;
+     _updateStatus(
+       _currentStatus.copyWith(state: PlaybackState.idle, track: null),
+     );
++    if (_disposed || _service == null) return;
+     try {
+       await _channel.invokeMethod('pauseVideo');
+     } catch (e) {
+diff --git a/lib/core/playback/packages/pp_playback_engine/lib/src/engine/youtube_playback_engine.dart b/lib/core/playback/packages/pp_playback_engine/lib/src/engine/youtube_playback_engine.dart
+index 9a139e5..8e0f52c 100644
+--- a/lib/core/playback/packages/pp_playback_engine/lib/src/engine/youtube_playback_engine.dart
++++ b/lib/core/playback/packages/pp_playback_engine/lib/src/engine/youtube_playback_engine.dart
+@@ -1,5 +1,4 @@
+ import 'playback_controller.dart';
+ 
+ /// An engine dedicated to handling YouTube playback.
+-abstract class YoutubePlaybackEngine implements PlaybackController {
+-}
++abstract class YoutubePlaybackEngine implements PlaybackController {}
+diff --git a/lib/core/playback/packages/pp_playback_engine/lib/src/ui/playback_view.dart b/lib/core/playback/packages/pp_playback_engine/lib/src/ui/playback_view.dart
+index 700fe70..473c732 100644
+--- a/lib/core/playback/packages/pp_playback_engine/lib/src/ui/playback_view.dart
++++ b/lib/core/playback/packages/pp_playback_engine/lib/src/ui/playback_view.dart
+@@ -93,10 +93,11 @@ class _PlaybackViewState extends State<PlaybackView> {
+     return mk.Video(
+       key: ObjectKey(renderer),
+       controller: renderer,
+-      // iOS background audio and explicit pause belong to the playback
++      // Mobile background audio and explicit pause belong to the playback
+       // controller, including when this surface renders an audio-only file.
+       pauseUponEnteringBackgroundMode:
+-          defaultTargetPlatform != TargetPlatform.iOS,
++          defaultTargetPlatform != TargetPlatform.iOS &&
++          defaultTargetPlatform != TargetPlatform.android,
+       resumeUponEnteringForegroundMode: false,
+       controls:
+           widget.showControls ? mk.MaterialVideoControls : mk.NoVideoControls,
+diff --git a/lib/core/playback/packages/pp_playback_engine/test/engine_error_test.dart b/lib/core/playback/packages/pp_playback_engine/test/engine_error_test.dart
+index 547f652..09dc278 100644
+--- a/lib/core/playback/packages/pp_playback_engine/test/engine_error_test.dart
++++ b/lib/core/playback/packages/pp_playback_engine/test/engine_error_test.dart
+@@ -9,8 +9,9 @@ void main() {
+     (tester) async {
+       final fakeController = FakeYoutubeController();
+ 
+-      final engine = MediaKitPlaybackEngine(
+-
++      final engine = IframeYoutubePlaybackEngine(
++        fallback: MediaKitPlaybackEngine(),
++        youtubeControllerFactory: (_, __) => fakeController,
+       );
+ 
+       addTearDown(engine.dispose);
+@@ -19,13 +20,13 @@ void main() {
+       addTearDown(subscription.cancel);
+ 
+       final track1 = const PlaybackTrack(
+-        id: 'vid_1',
++        id: 'videoAAAAAA',
+         title: 'T1',
+         artist: 'A',
+         duration: Duration.zero,
+       );
+       final track2 = const PlaybackTrack(
+-        id: 'vid_2',
++        id: 'videoBBBBBB',
+         title: 'T2',
+         artist: 'A',
+         duration: Duration.zero,
+@@ -37,19 +38,19 @@ void main() {
+       // 2. Play track 2 (simulating a rapid skip)
+       await engine.play(track2);
+ 
+-      // We are now waiting for track 2 ('vid_2') to load.
+-      // The previous track ('vid_1') suddenly emits a delayed network error.
+-      fakeController.emitError('vid_1', yt.YoutubeError.videoNotFound);
++      // We are now waiting for track 2 ('videoBBBBBB') to load.
++      // The previous track ('videoAAAAAA') suddenly emits a delayed network error.
++      fakeController.emitError('videoAAAAAA', yt.YoutubeError.videoNotFound);
+ 
+       await tester.pump();
+ 
+       // The engine should STILL be in preparing state for track 2, ignoring the stale error.
+       expect(statuses.last.state, PlaybackState.preparing);
+-      expect(statuses.last.track?.id, 'vid_2');
++      expect(statuses.last.track?.id, 'videoBBBBBB');
+       expect(statuses.last.error, isNull);
+ 
+       // Now track 2 legitimately fails.
+-      fakeController.emitError('vid_2', yt.YoutubeError.videoNotFound);
++      fakeController.emitError('videoBBBBBB', yt.YoutubeError.videoNotFound);
+ 
+       await tester.pump();
+ 
+@@ -61,8 +62,9 @@ void main() {
+ 
+   testWidgets('Engine accepts errors with missing video IDs', (tester) async {
+     final fakeController = FakeYoutubeController();
+-    final engine = MediaKitPlaybackEngine(
+-
++    final engine = IframeYoutubePlaybackEngine(
++      fallback: MediaKitPlaybackEngine(),
++      youtubeControllerFactory: (_, __) => fakeController,
+     );
+     addTearDown(engine.dispose);
+     final statuses = <PlaybackStatus>[];
+@@ -71,7 +73,7 @@ void main() {
+ 
+     await engine.play(
+       const PlaybackTrack(
+-        id: 'vid_1',
++        id: 'videoAAAAAA',
+         title: 'T1',
+         artist: 'A',
+         duration: Duration.zero,
+@@ -91,8 +93,9 @@ void main() {
+     tester,
+   ) async {
+     final fakeController = FakeYoutubeController();
+-    final engine = MediaKitPlaybackEngine(
+-
++    final engine = IframeYoutubePlaybackEngine(
++      fallback: MediaKitPlaybackEngine(),
++      youtubeControllerFactory: (_, __) => fakeController,
+     );
+     addTearDown(engine.dispose);
+     final statuses = <PlaybackStatus>[];
+@@ -100,7 +103,7 @@ void main() {
+     addTearDown(subscription.cancel);
+ 
+     final track = const PlaybackTrack(
+-      id: 'vid_1',
++      id: 'videoAAAAAA',
+       title: 'T1',
+       artist: 'A',
+       duration: Duration.zero,
+@@ -113,7 +116,7 @@ void main() {
+     await engine.play(track);
+ 
+     // 3. A stale error from the first attempt arrives
+-    fakeController.emitError('vid_1', yt.YoutubeError.cannotFindVideo);
++    fakeController.emitError('videoAAAAAA', yt.YoutubeError.cannotFindVideo);
+     await tester.pump();
+ 
+     // Currently, the engine accepts it because the videoId matches the current track.
+diff --git a/lib/core/playback/packages/pp_playback_engine/test/iframe_view_test.dart b/lib/core/playback/packages/pp_playback_engine/test/iframe_view_test.dart
+index 047301b..88a48a4 100644
+--- a/lib/core/playback/packages/pp_playback_engine/test/iframe_view_test.dart
++++ b/lib/core/playback/packages/pp_playback_engine/test/iframe_view_test.dart
+@@ -75,6 +75,9 @@ void main() {
+       () => mockController.statusStream,
+     ).thenAnswer((_) => Stream.value(status));
+ 
++    when(
++      () => mockController.renderer,
++    ).thenReturn(yt.YoutubePlayer(controller: ytController));
+ 
+     // 2. Build the widget
+     await tester.pumpWidget(
+diff --git a/lib/core/playback/packages/pp_playback_engine/test/iframe_youtube_playback_engine_test.dart b/lib/core/playback/packages/pp_playback_engine/test/iframe_youtube_playback_engine_test.dart
+index b1ad5ab..9ba5129 100644
+--- a/lib/core/playback/packages/pp_playback_engine/test/iframe_youtube_playback_engine_test.dart
++++ b/lib/core/playback/packages/pp_playback_engine/test/iframe_youtube_playback_engine_test.dart
+@@ -160,14 +160,15 @@ const other = PlaybackTrack(id: 'videoBBBBBB', title: 'B');
+ 
+ void main() {
+   late FakeYoutubeController controller;
+-  late MediaKitPlaybackEngine engine;
++  late PlaybackController engine;
+   late List<PlaybackStatus> statuses;
+   late StreamSubscription<PlaybackStatus> subscription;
+   setUp(() {
+-    MediaKitPlaybackEngine.isActivityStopped = false;
++    IframeYoutubePlaybackEngine.isActivityStopped = false;
+     controller = FakeYoutubeController();
+-    engine = MediaKitPlaybackEngine(
+-
++    engine = IframeYoutubePlaybackEngine(
++      fallback: MediaKitPlaybackEngine(),
++      youtubeControllerFactory: (_, __) => controller,
+     );
+     statuses = [];
+     subscription = engine.statusStream.listen(statuses.add);
+@@ -175,7 +176,7 @@ void main() {
+   tearDown(() async {
+     engine.dispose();
+     await subscription.cancel();
+-    MediaKitPlaybackEngine.isActivityStopped = false;
++    IframeYoutubePlaybackEngine.isActivityStopped = false;
+   });
+   void engineTest(String name, Future<void> Function(WidgetTester) body) {
+     testWidgets(name, (tester) async {
+@@ -566,14 +567,14 @@ void main() {
+     'stopped activity cues without play or start timeout; foreground resume plays once',
+     (tester) async {
+       addTearDown(engine.dispose);
+-      MediaKitPlaybackEngine.isActivityStopped = true;
++      IframeYoutubePlaybackEngine.isActivityStopped = true;
+       await ready(tester);
+       expect(controller.commands, isEmpty);
+       expect(controller.count('load'), 0);
+       expect(controller.count('play'), 0);
+       await tester.pump(const Duration(minutes: 1));
+       expect(engine.currentStatus.error, isNull);
+-      MediaKitPlaybackEngine.isActivityStopped = false;
++      IframeYoutubePlaybackEngine.isActivityStopped = false;
+       await engine.resume();
+       controller.emitState(track.id, yt.PlayerState.cued);
+       controller.emitState(track.id, yt.PlayerState.cued);
+@@ -602,7 +603,7 @@ void main() {
+       addTearDown(engine.dispose);
+       controller.volumeCompletion = Completer<void>();
+       await ready(tester);
+-      MediaKitPlaybackEngine.isActivityStopped = true;
++      IframeYoutubePlaybackEngine.isActivityStopped = true;
+       controller.volumeCompletion!.complete();
+       await tester.pump();
+       expect(controller.count('play'), 0);
+@@ -964,7 +965,7 @@ void main() {
+           return createdAdapter!;
+         },
+       );
+-      MediaKitPlaybackEngine.isActivityStopped = true;
++      IframeYoutubePlaybackEngine.isActivityStopped = true;
+ 
+       await engine.resume();
+ 
+@@ -992,13 +993,15 @@ void main() {
+     setUp(() {
+       adapters = [];
+       engine.dispose();
+-      engine = MediaKitPlaybackEngine(
+-
+-        nativeAdapterFactory: () {
+-          final a = FakeNativeAdapter();
+-          adapters.add(a);
+-          return a;
+-        },
++      engine = IframeYoutubePlaybackEngine(
++        youtubeControllerFactory: (_, __) => controller,
++        fallback: MediaKitPlaybackEngine(
++          nativeAdapterFactory: () {
++            final a = FakeNativeAdapter();
++            adapters.add(a);
++            return a;
++          },
++        ),
+       );
+       subscription.cancel();
+       statuses = [];
+diff --git a/lib/core/playback/packages/pp_playback_engine/test/ios_background_view_test.dart b/lib/core/playback/packages/pp_playback_engine/test/ios_background_view_test.dart
+index 411bbfe..1226966 100644
+--- a/lib/core/playback/packages/pp_playback_engine/test/ios_background_view_test.dart
++++ b/lib/core/playback/packages/pp_playback_engine/test/ios_background_view_test.dart
+@@ -15,7 +15,7 @@ class _VideoController extends Mock implements video.VideoController {}
+ 
+ void main() {
+   testWidgets(
+-    'iOS native surface does not pause on background or replay on return',
++    'mobile native surface does not pause on background or replay on return',
+     (tester) async {
+       final player = _Player();
+       final streams = _Streams();
+@@ -59,6 +59,9 @@ void main() {
+       expect(tester.takeException(), isNull);
+       await tester.pumpWidget(const SizedBox.shrink());
+     },
+-    variant: TargetPlatformVariant({TargetPlatform.iOS}),
++    variant: TargetPlatformVariant({
++      TargetPlatform.iOS,
++      TargetPlatform.android,
++    }),
+   );
+ }
+diff --git a/lib/core/playback/packages/pp_playback_engine/test/media_kit_playback_engine_test.dart b/lib/core/playback/packages/pp_playback_engine/test/media_kit_playback_engine_test.dart
+index ad032e0..ce8badd 100644
+--- a/lib/core/playback/packages/pp_playback_engine/test/media_kit_playback_engine_test.dart
++++ b/lib/core/playback/packages/pp_playback_engine/test/media_kit_playback_engine_test.dart
+@@ -184,7 +184,6 @@ void main() {
+       adapters = [];
+       engine.dispose();
+       engine = MediaKitPlaybackEngine(
+-
+         nativeAdapterFactory: () {
+           final a = FakeNativeAdapter();
+           adapters.add(a);
+@@ -293,7 +292,13 @@ void main() {
+     });
+ 
+     test('preparing local audio clears the preceding video preview', () async {
+-      const video = PlaybackTrack(id: 'local-video', title: 'Video', localMediaUri: 'file:///local/video.mp4', sourceType: PlaybackSourceType.local, isVideo: true);
++      const video = PlaybackTrack(
++        id: 'local-video',
++        title: 'Video',
++        localMediaUri: 'file:///local/video.mp4',
++        sourceType: PlaybackSourceType.local,
++        isVideo: true,
++      );
+       await engine.play(video);
+       expect(engine.currentStatus.activeVideoId, video.id);
+       await engine.prepare(localTrack);
+diff --git a/lib/core/playback/playback_providers.dart b/lib/core/playback/playback_providers.dart
+index daa467f..278aff2 100644
+--- a/lib/core/playback/playback_providers.dart
++++ b/lib/core/playback/playback_providers.dart
+@@ -7,6 +7,8 @@ import 'package:flutter_chromium_webview/flutter_chromium_webview.dart';
+ import 'package:path_provider/path_provider.dart';
+ 
+ import 'chromium_playback_engine.dart';
++import 'chromium_media_service.dart';
++import 'playback_selection.dart';
+ import '../models/track.dart';
+ import 'hybrid_playback_engine.dart';
+ import 'local_file_playback_controller.dart';
+@@ -25,6 +27,11 @@ extension TrackToPlayback on Track {
+           'Cannot create PlaybackTrack: youtubeVideoId is null for online track',
+         );
+       }
++      final id = youtubeVideoId!;
++      final playlist = RegExp(r'^(PL|RD|LL)[a-zA-Z0-9_-]+$').hasMatch(id);
++      if (!playlist && !RegExp(r'^[a-zA-Z0-9_-]{11}$').hasMatch(id)) {
++        throw StateError('Invalid YouTube source ID "$id"');
++      }
+       if (youtubeVideoId!.contains('http')) {
+         throw StateError(
+           'Cannot create PlaybackTrack: Invalid online source ID "$youtubeVideoId"',
+@@ -89,7 +96,10 @@ extension TrackToPlayback on Track {
+       case TrackSourceType.online:
+         playbackSource = PlaybackSourceType.online;
+         finalId = youtubeVideoId!;
+-        if (finalId.length > 11 && (finalId.startsWith('PL') || finalId.startsWith('RD') || finalId.startsWith('LL'))) {
++        if (finalId.length > 11 &&
++            (finalId.startsWith('PL') ||
++                finalId.startsWith('RD') ||
++                finalId.startsWith('LL'))) {
+           youtubeSourceType = YoutubeSourceType.playlist;
+         } else {
+           youtubeSourceType = YoutubeSourceType.video;
+@@ -124,45 +134,46 @@ final localPlaybackControllerProvider = Provider<PlaybackController>((ref) {
+     'PPPLAYER_CHROMIUM',
+     defaultValue: true,
+   );
++  final selection = PlaybackSelection(
++    platform: defaultTargetPlatform,
++    chromiumEnabled: chromiumEnabled && !kIsWeb,
++  );
+   final chromiumAndroid =
+-      chromiumEnabled &&
+-      !kIsWeb &&
+-      defaultTargetPlatform == TargetPlatform.android;
++      selection.usesChromium && defaultTargetPlatform == TargetPlatform.android;
+ 
+   if (defaultTargetPlatform == TargetPlatform.android) {
+     final mediaKit = MediaKitPlaybackEngine();
+-    final foregroundEngine = chromiumAndroid
+-        ? ChromiumPlaybackEngine(
+-            fallback: mediaKit,
+-            startPlaybackService: null,
+-            stopPlaybackService: null,
+-            initializeCef: () async {
+-              final directory = await getApplicationSupportDirectory();
+-              if (!await ChromiumWebViewController.initialize(
+-                cachePath: directory.path,
+-              )) {
+-                throw StateError('CEF initialization failed');
+-              }
+-            },
+-            createPlayer: () => ChromiumYoutubePlayerController(
+-              documentUrl: const String.fromEnvironment(
+-                'PPPLAYER_CHROMIUM_DOCUMENT_URL',
+-                defaultValue: 'https://ppplayer.com/chromium/player.html',
+-              ),
+-              profileName: 'ppplayer_youtube_session',
+-            ),
+-          )
+-        : mediaKit;
++    final foregroundEngine = ChromiumPlaybackEngine(
++      youtubeEnabled: chromiumAndroid,
++      fallback: mediaKit,
++      startPlaybackService: ChromiumMediaService.start,
++      stopPlaybackService: ChromiumMediaService.stop,
++      initializeCef: () async {
++        final directory = await getApplicationSupportDirectory();
++        if (!await ChromiumWebViewController.initialize(
++          cachePath: directory.path,
++        )) {
++          throw StateError('CEF initialization failed');
++        }
++      },
++      createPlayer: () => ChromiumYoutubePlayerController(
++        recoverAutomatically: false,
++        documentUrl: const String.fromEnvironment(
++          'PPPLAYER_CHROMIUM_DOCUMENT_URL',
++          defaultValue: 'https://ppplayer.com/chromium/player.html',
++        ),
++        profileName: 'ppplayer_youtube_session',
++      ),
++    );
+ 
+     engine = HybridPlaybackEngine(
++      ownershipPolicy: PlaybackOwnershipPolicy.persistentForeground,
+       foregroundEngine: foregroundEngine,
+-      backgroundEngine: chromiumAndroid
+-          ? NativeServicePlaybackEngine(startAutomatically: false)
+-          : null,
++      backgroundEngine: NativeServicePlaybackEngine(startAutomatically: false),
+     );
+   } else {
+     final mediaKit = MediaKitPlaybackEngine();
+-    engine = defaultTargetPlatform == TargetPlatform.iOS
++    engine = selection.usesWebKit
+         ? IframeYoutubePlaybackEngine(
+             fallback: LocalFilePlaybackController(
+               mediaKit,
+@@ -170,7 +181,7 @@ final localPlaybackControllerProvider = Provider<PlaybackController>((ref) {
+             ),
+           )
+         : mediaKit;
+-    if (chromiumEnabled &&
++    if (!selection.usesWebKit &&
+         !kIsWeb &&
+         {
+           TargetPlatform.windows,
+@@ -178,6 +189,7 @@ final localPlaybackControllerProvider = Provider<PlaybackController>((ref) {
+           TargetPlatform.macOS,
+         }.contains(defaultTargetPlatform)) {
+       engine = ChromiumPlaybackEngine(
++        youtubeEnabled: selection.usesChromium,
+         fallback: engine,
+         startPlaybackService: null,
+         stopPlaybackService: null,
+diff --git a/lib/features/search/search_screen.dart b/lib/features/search/search_screen.dart
+index 3815b93..713a266 100644
+--- a/lib/features/search/search_screen.dart
++++ b/lib/features/search/search_screen.dart
+@@ -1,6 +1,7 @@
+ import 'dart:async';
+ import 'package:flutter/material.dart';
+ import '../../shared/widgets/pp_image.dart';
++import '../../shared/layout/responsive_navigation.dart';
+ 
+ import 'package:flutter_riverpod/flutter_riverpod.dart';
+ import 'package:go_router/go_router.dart';
+@@ -80,7 +81,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
+     final query = ref.watch(searchQueryProvider);
+     final results = ref.watch(searchResultsProvider(query));
+     final colorScheme = Theme.of(context).colorScheme;
+-    final isDesktop = MediaQuery.sizeOf(context).width >= 600;
++    final isDesktop = usesWideNavigation(context);
+ 
+     ref.listen<String>(searchQueryProvider, (prev, next) {
+       if (_ctrl.text != next) {
+diff --git a/lib/l10n/app_localizations_ar.dart b/lib/l10n/app_localizations_ar.dart
+index 1260be1..319a779 100644
+--- a/lib/l10n/app_localizations_ar.dart
++++ b/lib/l10n/app_localizations_ar.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_bn.dart b/lib/l10n/app_localizations_bn.dart
+index f8f0d97..872e491 100644
+--- a/lib/l10n/app_localizations_bn.dart
++++ b/lib/l10n/app_localizations_bn.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_cs.dart b/lib/l10n/app_localizations_cs.dart
+index beb2759..f6615f6 100644
+--- a/lib/l10n/app_localizations_cs.dart
++++ b/lib/l10n/app_localizations_cs.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_da.dart b/lib/l10n/app_localizations_da.dart
+index 5b9eb79..cdb5bfd 100644
+--- a/lib/l10n/app_localizations_da.dart
++++ b/lib/l10n/app_localizations_da.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_de.dart b/lib/l10n/app_localizations_de.dart
+index 79de754..347ae08 100644
+--- a/lib/l10n/app_localizations_de.dart
++++ b/lib/l10n/app_localizations_de.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_en.dart b/lib/l10n/app_localizations_en.dart
+index e81aaa9..8db581f 100644
+--- a/lib/l10n/app_localizations_en.dart
++++ b/lib/l10n/app_localizations_en.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_es.dart b/lib/l10n/app_localizations_es.dart
+index fae3429..36f07f4 100644
+--- a/lib/l10n/app_localizations_es.dart
++++ b/lib/l10n/app_localizations_es.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_et.dart b/lib/l10n/app_localizations_et.dart
+index 51a4b35..a299469 100644
+--- a/lib/l10n/app_localizations_et.dart
++++ b/lib/l10n/app_localizations_et.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_fa.dart b/lib/l10n/app_localizations_fa.dart
+index c93b665..8e6c270 100644
+--- a/lib/l10n/app_localizations_fa.dart
++++ b/lib/l10n/app_localizations_fa.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_fil.dart b/lib/l10n/app_localizations_fil.dart
+index d0b07ff..d9c11d4 100644
+--- a/lib/l10n/app_localizations_fil.dart
++++ b/lib/l10n/app_localizations_fil.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_fr.dart b/lib/l10n/app_localizations_fr.dart
+index 4bcdfc7..dfccc96 100644
+--- a/lib/l10n/app_localizations_fr.dart
++++ b/lib/l10n/app_localizations_fr.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_gn.dart b/lib/l10n/app_localizations_gn.dart
+index e490397..9285792 100644
+--- a/lib/l10n/app_localizations_gn.dart
++++ b/lib/l10n/app_localizations_gn.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_hi.dart b/lib/l10n/app_localizations_hi.dart
+index 0051a84..a164ffc 100644
+--- a/lib/l10n/app_localizations_hi.dart
++++ b/lib/l10n/app_localizations_hi.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_hr.dart b/lib/l10n/app_localizations_hr.dart
+index 3e6c0dd..a177eb8 100644
+--- a/lib/l10n/app_localizations_hr.dart
++++ b/lib/l10n/app_localizations_hr.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_hu.dart b/lib/l10n/app_localizations_hu.dart
+index 1f33b9d..aeb375a 100644
+--- a/lib/l10n/app_localizations_hu.dart
++++ b/lib/l10n/app_localizations_hu.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_id.dart b/lib/l10n/app_localizations_id.dart
+index bc5b8b8..1a362aa 100644
+--- a/lib/l10n/app_localizations_id.dart
++++ b/lib/l10n/app_localizations_id.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_it.dart b/lib/l10n/app_localizations_it.dart
+index dbcd17c..aad77be 100644
+--- a/lib/l10n/app_localizations_it.dart
++++ b/lib/l10n/app_localizations_it.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_ja.dart b/lib/l10n/app_localizations_ja.dart
+index 62e74ca..45ae624 100644
+--- a/lib/l10n/app_localizations_ja.dart
++++ b/lib/l10n/app_localizations_ja.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_ka.dart b/lib/l10n/app_localizations_ka.dart
+index 69b82f5..372d335 100644
+--- a/lib/l10n/app_localizations_ka.dart
++++ b/lib/l10n/app_localizations_ka.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_kk.dart b/lib/l10n/app_localizations_kk.dart
+index 4f61dc8..fcc4648 100644
+--- a/lib/l10n/app_localizations_kk.dart
++++ b/lib/l10n/app_localizations_kk.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_ko.dart b/lib/l10n/app_localizations_ko.dart
+index 06c28fd..86e7768 100644
+--- a/lib/l10n/app_localizations_ko.dart
++++ b/lib/l10n/app_localizations_ko.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_lv.dart b/lib/l10n/app_localizations_lv.dart
+index e086b96..deebc60 100644
+--- a/lib/l10n/app_localizations_lv.dart
++++ b/lib/l10n/app_localizations_lv.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_ms.dart b/lib/l10n/app_localizations_ms.dart
+index 69769f3..b5f05be 100644
+--- a/lib/l10n/app_localizations_ms.dart
++++ b/lib/l10n/app_localizations_ms.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_my.dart b/lib/l10n/app_localizations_my.dart
+index 6754829..963e38b 100644
+--- a/lib/l10n/app_localizations_my.dart
++++ b/lib/l10n/app_localizations_my.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_nl.dart b/lib/l10n/app_localizations_nl.dart
+index a6258e1..e22ceb5 100644
+--- a/lib/l10n/app_localizations_nl.dart
++++ b/lib/l10n/app_localizations_nl.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_pcm.dart b/lib/l10n/app_localizations_pcm.dart
+index 7791b67..7fe3454 100644
+--- a/lib/l10n/app_localizations_pcm.dart
++++ b/lib/l10n/app_localizations_pcm.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_pl.dart b/lib/l10n/app_localizations_pl.dart
+index 1f640a1..015e605 100644
+--- a/lib/l10n/app_localizations_pl.dart
++++ b/lib/l10n/app_localizations_pl.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_pt.dart b/lib/l10n/app_localizations_pt.dart
+index a2536e4..4f0faff 100644
+--- a/lib/l10n/app_localizations_pt.dart
++++ b/lib/l10n/app_localizations_pt.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_ro.dart b/lib/l10n/app_localizations_ro.dart
+index 17fb14c..66c1c8f 100644
+--- a/lib/l10n/app_localizations_ro.dart
++++ b/lib/l10n/app_localizations_ro.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_ru.dart b/lib/l10n/app_localizations_ru.dart
+index 6edfb09..37ada52 100644
+--- a/lib/l10n/app_localizations_ru.dart
++++ b/lib/l10n/app_localizations_ru.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_sv.dart b/lib/l10n/app_localizations_sv.dart
+index ca39c35..b4361ae 100644
+--- a/lib/l10n/app_localizations_sv.dart
++++ b/lib/l10n/app_localizations_sv.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_th.dart b/lib/l10n/app_localizations_th.dart
+index ffc7713..85d361b 100644
+--- a/lib/l10n/app_localizations_th.dart
++++ b/lib/l10n/app_localizations_th.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_tr.dart b/lib/l10n/app_localizations_tr.dart
+index 062f3f3..60d5940 100644
+--- a/lib/l10n/app_localizations_tr.dart
++++ b/lib/l10n/app_localizations_tr.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_uk.dart b/lib/l10n/app_localizations_uk.dart
+index 04234f7..6d0de29 100644
+--- a/lib/l10n/app_localizations_uk.dart
++++ b/lib/l10n/app_localizations_uk.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_ur.dart b/lib/l10n/app_localizations_ur.dart
+index 1f18512..f173624 100644
+--- a/lib/l10n/app_localizations_ur.dart
++++ b/lib/l10n/app_localizations_ur.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_uz.dart b/lib/l10n/app_localizations_uz.dart
+index 0ddd05b..44725ee 100644
+--- a/lib/l10n/app_localizations_uz.dart
++++ b/lib/l10n/app_localizations_uz.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_vi.dart b/lib/l10n/app_localizations_vi.dart
+index f8f6b13..07c651f 100644
+--- a/lib/l10n/app_localizations_vi.dart
++++ b/lib/l10n/app_localizations_vi.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/l10n/app_localizations_zh.dart b/lib/l10n/app_localizations_zh.dart
+index 9699981..e0be0f0 100644
+--- a/lib/l10n/app_localizations_zh.dart
++++ b/lib/l10n/app_localizations_zh.dart
+@@ -1,6 +1,5 @@
+ // ignore: unused_import
+ import 'package:intl/intl.dart' as intl;
+-
+ import 'app_localizations.dart';
+ 
+ // ignore_for_file: type=lint
+diff --git a/lib/shared/widgets/scaffold_with_nav.dart b/lib/shared/widgets/scaffold_with_nav.dart
+index 392b857..2dd0d5c 100644
+--- a/lib/shared/widgets/scaffold_with_nav.dart
++++ b/lib/shared/widgets/scaffold_with_nav.dart
+@@ -34,6 +34,8 @@ import 'package:fullscreen_window/fullscreen_window.dart';
+ import '../../core/network_outputs/network_output_providers.dart';
+ import '../../features/network_outputs/output_picker.dart';
+ import 'compact_desktop_navigation.dart';
++import '../layout/responsive_navigation.dart';
++import '../layout/safe_area_padding.dart';
+ 
+ class ScaffoldWithNav extends ConsumerStatefulWidget {
+   const ScaffoldWithNav({
+@@ -51,11 +53,6 @@ class ScaffoldWithNav extends ConsumerStatefulWidget {
+ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
+   final GlobalKey _stackKey = GlobalKey();
+ 
+-  double _stableSafeTop = 0.0;
+-  double _stableSafeBottom = 0.0;
+-  double _stableSafeLeft = 0.0;
+-  double _stableSafeRight = 0.0;
+-
+   @override
+   Widget build(BuildContext context) {
+     final playbackEngine = ref.watch(playbackControllerProvider);
+@@ -101,25 +98,12 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
+         ? BoxFit.contain
+         : BoxFit.cover;
+ 
+-    final rawPadding = MediaQuery.paddingOf(context);
+-    if (rawPadding.top > 0) _stableSafeTop = rawPadding.top;
+-    if (rawPadding.bottom > 0) _stableSafeBottom = rawPadding.bottom;
+-    if (rawPadding.left > 0) _stableSafeLeft = rawPadding.left;
+-    if (rawPadding.right > 0) _stableSafeRight = rawPadding.right;
+-
+-    final stablePadding = EdgeInsets.only(
+-      top: (rawPadding.top == 0.0 && Platform.isIOS)
+-          ? _stableSafeTop
+-          : rawPadding.top,
+-      bottom: (rawPadding.bottom == 0.0 && Platform.isIOS)
+-          ? _stableSafeBottom
+-          : rawPadding.bottom,
+-      left: (rawPadding.left == 0.0 && Platform.isIOS)
+-          ? _stableSafeLeft
+-          : rawPadding.left,
+-      right: (rawPadding.right == 0.0 && Platform.isIOS)
+-          ? _stableSafeRight
+-          : rawPadding.right,
++    // viewPadding follows the current orientation and remains available when
++    // system UI temporarily removes padding. Never retain another orientation's
++    // notch or home-indicator insets.
++    final stablePadding = currentSafeAreaPadding(
++      MediaQuery.of(context),
++      preserveViewPadding: !kIsWeb && Platform.isIOS,
+     );
+ 
+     final screenSize = MediaQuery.sizeOf(context);
+@@ -156,7 +140,7 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
+     final pipPresentation =
+         isPipMode ||
+         ref.watch(playerProvider.select((s) => s.isPipRequestPending));
+-    final isDesktop = screenSize.width >= 600;
++    final isDesktop = usesWideNavigation(context);
+ 
+     Rect? normalBounds;
+     bool showShadow = false;
+@@ -168,7 +152,7 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
+         : (isDesktop
+               ? 90.0
+               : (68.0 +
+-                    _stableSafeBottom +
++                    stablePadding.bottom +
+                     72.0)); // 68 (nav) + 72 (miniplayer)
+ 
+     if (isPlayerScreen) {
+diff --git a/macos/Podfile b/macos/Podfile
+index d9cc56e..fc463ef 100644
+--- a/macos/Podfile
++++ b/macos/Podfile
+@@ -1,4 +1,4 @@
+-platform :osx, '12.0'
++platform :osx, '13.0'
+ 
+ # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
+ ENV['COCOAPODS_DISABLE_STATS'] = 'true'
+@@ -30,6 +30,11 @@ target 'Runner' do
+   use_frameworks!
+ 
+   flutter_install_all_macos_pods File.dirname(File.realpath(__FILE__))
++
++  cef_plugin = File.join(__dir__, 'Flutter/ephemeral/.symlinks/plugins/flutter_chromium_webview/macos')
++  cef_arch = ENV.fetch('CHROMIUM_WEBVIEW_MACOS_ARCH') { `uname -m`.strip }
++  raise 'CEF preparation failed' unless system('python3', File.join(cef_plugin, 'scripts/prepare_cef.py'), '--arch', cef_arch)
++
+   target 'RunnerTests' do
+     inherit! :search_paths
+   end
+@@ -39,7 +44,9 @@ post_install do |installer|
+   installer.pods_project.targets.each do |target|
+     flutter_additional_macos_build_settings(target)
+     target.build_configurations.each do |config|
+-      config.build_settings['MACOSX_DEPLOYMENT_TARGET'] = '12.0'
++      config.build_settings['MACOSX_DEPLOYMENT_TARGET'] = '13.0'
++      cef_arch_val = ENV.fetch('CHROMIUM_WEBVIEW_MACOS_ARCH') { `uname -m`.strip }
++      config.build_settings['ARCHS'] = cef_arch_val
+       if config.build_settings['GCC_PREPROCESSOR_DEFINITIONS']
+         if config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'].is_a?(Array)
+           config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'].map! do |val|
+diff --git a/macos/Podfile.lock b/macos/Podfile.lock
+index 521161b..88a5c73 100644
+--- a/macos/Podfile.lock
++++ b/macos/Podfile.lock
+@@ -11,6 +11,8 @@ PODS:
+     - FlutterMacOS
+   - file_selector_macos (0.0.1):
+     - FlutterMacOS
++  - flutter_chromium_webview (0.1.0):
++    - FlutterMacOS
+   - flutter_secure_storage_darwin (10.0.0):
+     - Flutter
+     - FlutterMacOS
+@@ -42,6 +44,7 @@ DEPENDENCIES:
+   - connectivity_plus (from `Flutter/ephemeral/.symlinks/plugins/connectivity_plus/macos`)
+   - file_picker_darwin (from `Flutter/ephemeral/.symlinks/plugins/file_picker_darwin/darwin`)
+   - file_selector_macos (from `Flutter/ephemeral/.symlinks/plugins/file_selector_macos/macos`)
++  - flutter_chromium_webview (from `Flutter/ephemeral/.symlinks/plugins/flutter_chromium_webview/macos`)
+   - flutter_secure_storage_darwin (from `Flutter/ephemeral/.symlinks/plugins/flutter_secure_storage_darwin/darwin`)
+   - FlutterMacOS (from `Flutter/ephemeral`)
+   - macos_file_open_handler (from `Flutter/ephemeral/.symlinks/plugins/macos_file_open_handler/macos`)
+@@ -65,6 +68,8 @@ EXTERNAL SOURCES:
+     :path: Flutter/ephemeral/.symlinks/plugins/file_picker_darwin/darwin
+   file_selector_macos:
+     :path: Flutter/ephemeral/.symlinks/plugins/file_selector_macos/macos
++  flutter_chromium_webview:
++    :path: Flutter/ephemeral/.symlinks/plugins/flutter_chromium_webview/macos
+   flutter_secure_storage_darwin:
+     :path: Flutter/ephemeral/.symlinks/plugins/flutter_secure_storage_darwin/darwin
+   FlutterMacOS:
+@@ -94,6 +99,7 @@ SPEC CHECKSUMS:
+   connectivity_plus: 4adf20a405e25b42b9c9f87feff8f4b6fde18a4e
+   file_picker_darwin: 4c2b9a50ea44cb3b071381ea0cf48591bdd80251
+   file_selector_macos: 9e9e068e90ebee155097d00e89ae91edb2374db7
++  flutter_chromium_webview: 233739f26ebc70afdc6e9383bc24372dafdd06ef
+   flutter_secure_storage_darwin: 46e401699982ee74142909676535e0f6a7321e58
+   FlutterMacOS: d0db08ddef1a9af05a5ec4b724367152bb0500b1
+   macos_file_open_handler: a0ab1237d6bb2f8a7032f302018fd268a5802b1f
+@@ -106,6 +112,6 @@ SPEC CHECKSUMS:
+   wakelock_plus: 917609be14d812ddd9e9528876538b2263aaa03b
+   webview_flutter_wkwebview: 8ebf4fded22593026f7dbff1fbff31ea98573c8d
+ 
+-PODFILE CHECKSUM: 101c448110a4f5bfe9eac8950e4449dfad028a03
++PODFILE CHECKSUM: 758dd2e0a7f2e52856ec2153c1c16f4803b623f3
+ 
+ COCOAPODS: 1.16.2
+diff --git a/macos/Runner.xcodeproj/project.pbxproj b/macos/Runner.xcodeproj/project.pbxproj
+index 0e3f234..d5d90db 100644
+--- a/macos/Runner.xcodeproj/project.pbxproj
++++ b/macos/Runner.xcodeproj/project.pbxproj
+@@ -244,6 +244,7 @@
+ 				33CC110E2044A8840003C045 /* Bundle Framework */,
+ 				3399D490228B24CF009A79C7 /* Thin Binary */,
+ 				EA6537D4A1AFC2197FE9A4A6 /* [CP] Embed Pods Frameworks */,
++				EFD860FD56EE528B4AF35A25 /* Embed CEF Framework */,
+ 			);
+ 			buildRules = (
+ 			);
+@@ -470,6 +471,24 @@
+ 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks.sh\"\n";
+ 			showEnvVarsInLog = 0;
+ 		};
++		EFD860FD56EE528B4AF35A25 /* Embed CEF Framework */ = {
++			isa = PBXShellScriptBuildPhase;
++			buildActionMask = 2147483647;
++			files = (
++			);
++			inputFileListPaths = (
++			);
++			inputPaths = (
++			);
++			name = "Embed CEF Framework";
++			outputFileListPaths = (
++			);
++			outputPaths = (
++			);
++			runOnlyForDeploymentPostprocessing = 0;
++			shellPath = /bin/sh;
++			shellScript = "python3 \"$PROJECT_DIR/Flutter/ephemeral/.symlinks/plugins/flutter_chromium_webview/macos/scripts/embed_cef.py\"";
++		};
+ /* End PBXShellScriptBuildPhase section */
+ 
+ /* Begin PBXSourcesBuildPhase section */
+@@ -529,7 +548,7 @@
+ 				CURRENT_PROJECT_VERSION = 1;
+ 				DEVELOPMENT_TEAM = PCW3792YL2;
+ 				GENERATE_INFOPLIST_FILE = YES;
+-				MACOSX_DEPLOYMENT_TARGET = 12.0;
++				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
+ 				MARKETING_VERSION = 1.0;
+ 				PRODUCT_BUNDLE_IDENTIFIER = com.ppplayer.app.RunnerTests;
+ 				PRODUCT_NAME = "$(TARGET_NAME)";
+@@ -549,7 +568,7 @@
+ 				CURRENT_PROJECT_VERSION = 1;
+ 				DEVELOPMENT_TEAM = PCW3792YL2;
+ 				GENERATE_INFOPLIST_FILE = YES;
+-				MACOSX_DEPLOYMENT_TARGET = 12.0;
++				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
+ 				MARKETING_VERSION = 1.0;
+ 				PRODUCT_BUNDLE_IDENTIFIER = com.ppplayer.app.RunnerTests;
+ 				PRODUCT_NAME = "$(TARGET_NAME)";
+@@ -569,7 +588,7 @@
+ 				CURRENT_PROJECT_VERSION = 1;
+ 				DEVELOPMENT_TEAM = PCW3792YL2;
+ 				GENERATE_INFOPLIST_FILE = YES;
+-				MACOSX_DEPLOYMENT_TARGET = 12.0;
++				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
+ 				MARKETING_VERSION = 1.0;
+ 				PRODUCT_BUNDLE_IDENTIFIER = com.ppplayer.app.RunnerTests;
+ 				PRODUCT_NAME = "$(TARGET_NAME)";
+@@ -621,7 +640,7 @@
+ 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+ 				GCC_WARN_UNUSED_FUNCTION = YES;
+ 				GCC_WARN_UNUSED_VARIABLE = YES;
+-				MACOSX_DEPLOYMENT_TARGET = 12.0;
++				MACOSX_DEPLOYMENT_TARGET = 13.0;
+ 				MTL_ENABLE_DEBUG_INFO = NO;
+ 				SDKROOT = macosx;
+ 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+@@ -649,7 +668,7 @@
+ 					"$(inherited)",
+ 					"@executable_path/../Frameworks",
+ 				);
+-				MACOSX_DEPLOYMENT_TARGET = 12.0;
++				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
+ 				MARKETING_VERSION = "$(FLUTTER_BUILD_NAME)";
+ 				PROVISIONING_PROFILE_SPECIFIER = "";
+ 				SWIFT_VERSION = 5.0;
+@@ -660,7 +679,7 @@
+ 			isa = XCBuildConfiguration;
+ 			buildSettings = {
+ 				CODE_SIGN_STYLE = Manual;
+-				MACOSX_DEPLOYMENT_TARGET = 12.0;
++				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
+ 				PRODUCT_NAME = "$(TARGET_NAME)";
+ 			};
+ 			name = Profile;
+@@ -713,7 +732,7 @@
+ 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+ 				GCC_WARN_UNUSED_FUNCTION = YES;
+ 				GCC_WARN_UNUSED_VARIABLE = YES;
+-				MACOSX_DEPLOYMENT_TARGET = 12.0;
++				MACOSX_DEPLOYMENT_TARGET = 13.0;
+ 				MTL_ENABLE_DEBUG_INFO = YES;
+ 				ONLY_ACTIVE_ARCH = YES;
+ 				SDKROOT = macosx;
+@@ -765,7 +784,7 @@
+ 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+ 				GCC_WARN_UNUSED_FUNCTION = YES;
+ 				GCC_WARN_UNUSED_VARIABLE = YES;
+-				MACOSX_DEPLOYMENT_TARGET = 12.0;
++				MACOSX_DEPLOYMENT_TARGET = 13.0;
+ 				MTL_ENABLE_DEBUG_INFO = NO;
+ 				SDKROOT = macosx;
+ 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+@@ -793,7 +812,7 @@
+ 					"$(inherited)",
+ 					"@executable_path/../Frameworks",
+ 				);
+-				MACOSX_DEPLOYMENT_TARGET = 12.0;
++				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
+ 				MARKETING_VERSION = "$(FLUTTER_BUILD_NAME)";
+ 				PROVISIONING_PROFILE_SPECIFIER = "";
+ 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+@@ -820,7 +839,7 @@
+ 					"$(inherited)",
+ 					"@executable_path/../Frameworks",
+ 				);
+-				MACOSX_DEPLOYMENT_TARGET = 12.0;
++				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
+ 				MARKETING_VERSION = "$(FLUTTER_BUILD_NAME)";
+ 				PROVISIONING_PROFILE_SPECIFIER = "";
+ 				SWIFT_VERSION = 5.0;
+@@ -831,7 +850,7 @@
+ 			isa = XCBuildConfiguration;
+ 			buildSettings = {
+ 				CODE_SIGN_STYLE = Manual;
+-				MACOSX_DEPLOYMENT_TARGET = 12.0;
++				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
+ 				PRODUCT_NAME = "$(TARGET_NAME)";
+ 			};
+ 			name = Debug;
+@@ -840,7 +859,7 @@
+ 			isa = XCBuildConfiguration;
+ 			buildSettings = {
+ 				CODE_SIGN_STYLE = Automatic;
+-				MACOSX_DEPLOYMENT_TARGET = 12.0;
++				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
+ 				PRODUCT_NAME = "$(TARGET_NAME)";
+ 			};
+ 			name = Release;
+diff --git a/macos/Runner/Configs/AppInfo.xcconfig b/macos/Runner/Configs/AppInfo.xcconfig
+index d56815d..3a400c0 100644
+--- a/macos/Runner/Configs/AppInfo.xcconfig
++++ b/macos/Runner/Configs/AppInfo.xcconfig
+@@ -12,3 +12,6 @@ PRODUCT_BUNDLE_IDENTIFIER = com.ppplayer.app
+ 
+ // The copyright displayed in application information
+ PRODUCT_COPYRIGHT = Copyright © 2026 PPPlayer. All rights reserved.
++#include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"
++#include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"
++#include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"
+diff --git a/macos/Runner/DebugProfile.entitlements b/macos/Runner/DebugProfile.entitlements
+index ce7f919..d920ea0 100644
+--- a/macos/Runner/DebugProfile.entitlements
++++ b/macos/Runner/DebugProfile.entitlements
+@@ -2,19 +2,11 @@
+ <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+ <plist version="1.0">
+ <dict>
+-	<key>com.apple.security.app-sandbox</key>
+-	<true/>
+ 	<key>com.apple.security.cs.allow-jit</key>
+ 	<true/>
+-	<key>com.apple.security.network.client</key>
+-	<true/>
+ 	<key>com.apple.security.network.server</key>
+ 	<true/>
+-	<key>com.apple.security.files.user-selected.read-write</key>
+-	<true/>
+-	<key>com.apple.security.assets.music.read-only</key>
+-	<true/>
+-	<key>com.apple.security.files.downloads.read-only</key>
++	<key>com.apple.security.network.client</key>
+ 	<true/>
+ </dict>
+ </plist>
+diff --git a/macos/Runner/Info.plist b/macos/Runner/Info.plist
+index 0a30f29..8f319cf 100644
+--- a/macos/Runner/Info.plist
++++ b/macos/Runner/Info.plist
+@@ -68,7 +68,7 @@
+ 	<key>NSMainNibFile</key>
+ 	<string>MainMenu</string>
+ 	<key>NSPrincipalClass</key>
+-	<string>NSApplication</string>
++	<string>ChromiumWebViewApplication</string>
+ 	<key>NSLocalNetworkUsageDescription</key>
+ 	<string>PPPlayer discovers Chromecast and other playback devices on your local network.</string>
+ 	<key>NSBonjourServices</key>
+diff --git a/macos/Runner/Release.entitlements b/macos/Runner/Release.entitlements
+index 822812c..5d82b3d 100644
+--- a/macos/Runner/Release.entitlements
++++ b/macos/Runner/Release.entitlements
+@@ -2,17 +2,11 @@
+ <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+ <plist version="1.0">
+ <dict>
+-	<key>com.apple.security.app-sandbox</key>
++	<key>com.apple.security.cs.allow-jit</key>
+ 	<true/>
+ 	<key>com.apple.security.network.client</key>
+ 	<true/>
+ 	<key>com.apple.security.network.server</key>
+ 	<true/>
+-	<key>com.apple.security.files.user-selected.read-write</key>
+-	<true/>
+-	<key>com.apple.security.assets.music.read-only</key>
+-	<true/>
+-	<key>com.apple.security.files.downloads.read-only</key>
+-	<true/>
+ </dict>
+ </plist>
+diff --git a/pubspec.yaml b/pubspec.yaml
+index 3fcb042..6ce3738 100644
+--- a/pubspec.yaml
++++ b/pubspec.yaml
+@@ -8,10 +8,7 @@ environment:
+ 
+ dependencies:
+   flutter_chromium_webview:
+-    git:
+-      url: https://github.com/devflier/flutter_chromium_webview.git
+-      path: packages/flutter_chromium_webview
+-      ref: v0.5.0
++    path: third_party/chromium/packages/flutter_chromium_webview
+   audio_service: ^0.18.18
+   audio_session: ^0.2.3
+   cached_network_image: ^4.0.0
+@@ -145,6 +142,8 @@ dependency_overrides:
+     path: lib/core/playback/packages/metadata_god
+   freezed_annotation: ^3.1.0
+   flutter_rust_bridge: 2.11.1
++  flutter_chromium_webview_platform_interface:
++    path: third_party/chromium/packages/flutter_chromium_webview_platform_interface
+ 
+ msix_config:
+   display_name: PPPlayer
+diff --git a/test/core/playback/chromium_playback_engine_test.dart b/test/core/playback/chromium_playback_engine_test.dart
+index aeb5f60..3410732 100644
+--- a/test/core/playback/chromium_playback_engine_test.dart
++++ b/test/core/playback/chromium_playback_engine_test.dart
+@@ -67,6 +67,7 @@ class YoutubeFixture extends Fake implements ChromiumYoutubePlayerController {
+   final controller = ChromiumWebViewController();
+   Completer<void>? gate;
+   bool fail = false;
++  bool crashOnInitialize = false;
+   bool durationReady = true;
+   @override
+   Stream<Map<String, Object?>> get events => messages.stream;
+@@ -75,6 +76,7 @@ class YoutubeFixture extends Fake implements ChromiumYoutubePlayerController {
+   @override
+   Future<void> initialize() async {
+     await gate?.future;
++    if (crashOnInitialize) throw StateError('Browser crashed');
+   }
+ 
+   @override
+@@ -360,4 +362,214 @@ void main() {
+       expect(() => engine.play(video), throwsStateError);
+     },
+   );
++  test(
++    'initialization failure preserves track and position without online fallback',
++    () async {
++      await engine.dispose();
++      native = NativeFallback();
++      engine = ChromiumPlaybackEngine(
++        fallback: native,
++        initializeCef: () async => throw StateError('CEF unavailable'),
++        createPlayer: () => throw StateError('must not create'),
++      );
++      await expectLater(
++        engine.play(video, startAt: const Duration(seconds: 9), play: false),
++        throwsStateError,
++      );
++      expect(engine.currentStatus.state, PlaybackState.error);
++      expect(engine.currentStatus.track, video);
++      expect(engine.currentStatus.position, const Duration(seconds: 9));
++      expect(native.calls.where((call) => call.startsWith('play:')), isEmpty);
++    },
++  );
++  test(
++    'replacement waits for initialization and preserves latest pause intent',
++    () async {
++      final gate = Completer<void>();
++      await engine.dispose();
++      native = NativeFallback();
++      engine = ChromiumPlaybackEngine(
++        fallback: native,
++        initializeCef: () async {},
++        createPlayer: () {
++          final player = YoutubeFixture();
++          if (players.isEmpty) player.gate = gate;
++          players.add(player);
++          return player;
++        },
++      );
++      final first = engine.play(video);
++      await Future<void>.delayed(Duration.zero);
++      const next = PlaybackTrack(id: 'dQw4w9WgXcQ', title: 'Next');
++      final second = engine.play(
++        next,
++        startAt: const Duration(seconds: 3),
++        play: false,
++      );
++      expect(players, hasLength(1));
++      gate.complete();
++      await Future.wait([first, second]);
++      expect(players, hasLength(2));
++      expect(players.first.calls, contains('dispose'));
++      expect(players.last.calls, contains('cue:dQw4w9WgXcQ:3.0'));
++      expect(
++        players
++            .expand((player) => player.calls)
++            .where((call) => call.startsWith('load:')),
++        isEmpty,
++      );
++      players.first.messages.add({'StateChange': 1});
++      expect(engine.currentStatus.track, next);
++      expect(engine.currentStatus.state, isNot(PlaybackState.playing));
++    },
++  );
++
++  test(
++    'disabled YouTube reports unsupported without initializing or delegating online',
++    () async {
++      await engine.dispose();
++      native = NativeFallback();
++      engine = ChromiumPlaybackEngine(
++        youtubeEnabled: false,
++        fallback: native,
++        initializeCef: () async => throw StateError('must not initialize'),
++        createPlayer: () => throw StateError('must not create'),
++      );
++      await expectLater(
++        engine.play(video, startAt: const Duration(seconds: 4), play: false),
++        throwsUnsupportedError,
++      );
++      expect(engine.currentStatus.track, video);
++      expect(engine.currentStatus.position, const Duration(seconds: 4));
++      expect(engine.currentStatus.state, PlaybackState.error);
++      expect(native.calls.where((call) => call.startsWith('play:')), isEmpty);
++      await engine.play(
++        const PlaybackTrack(
++          id: 'file',
++          title: 'File',
++          sourceType: PlaybackSourceType.local,
++        ),
++      );
++      expect(native.calls, contains('play:file:true'));
++    },
++  );
++  for (final source in [
++    PlaybackSourceType.local,
++    PlaybackSourceType.networkStream,
++  ]) {
++    for (final video in [false, true]) {
++      test(
++        '$source video=$video delegates to native without a browser',
++        () async {
++          await engine.play(
++            PlaybackTrack(
++              id: 'native',
++              title: 'Native',
++              sourceType: source,
++              isVideo: video,
++              liveStatus: source == PlaybackSourceType.networkStream
++                  ? PlaybackLiveStatus.live
++                  : PlaybackLiveStatus.unknown,
++            ),
++          );
++          expect(players, isEmpty);
++          expect(native.calls, contains('play:native:true'));
++        },
++      );
++    }
++  }
++  test(
++    'initialization retry preserves a user pause and disposes failed browser',
++    () async {
++      await engine.dispose();
++      native = NativeFallback();
++      engine = ChromiumPlaybackEngine(
++        fallback: native,
++        initializeCef: () async {},
++        createPlayer: () {
++          final player = YoutubeFixture()..crashOnInitialize = players.isEmpty;
++          players.add(player);
++          return player;
++        },
++      );
++      final opening = engine.play(video, startAt: const Duration(seconds: 8));
++      await Future<void>.delayed(Duration.zero);
++      final pause = engine.pause();
++      await Future.wait([opening, pause]);
++      expect(players, hasLength(2));
++      expect(players.first.calls, contains('dispose'));
++      expect(players.last.calls, contains('cue:M7lc1UVf-VE:8.0'));
++      expect(
++        players
++            .expand((player) => player.calls)
++            .where((call) => call.startsWith('load:')),
++        isEmpty,
++      );
++      players.first.messages.add({'StateChange': 1});
++      expect(engine.currentStatus.state, isNot(PlaybackState.playing));
++    },
++  );
++  test(
++    'host-coordinated crash rejects late state and explicit retry preserves position',
++    () async {
++      await engine.play(
++        video,
++        startAt: const Duration(seconds: 6),
++        play: false,
++      );
++      final old = players.single;
++      old.messages.add({'BrowserCrashed': true});
++      old.messages.add({'StateChange': 1});
++      expect(engine.currentStatus.state, PlaybackState.error);
++      await engine.pause();
++      expect(players, hasLength(1));
++      await engine.resume();
++      expect(players, hasLength(2));
++      expect(old.calls, contains('dispose'));
++      expect(players.last.calls, contains('load:M7lc1UVf-VE:6.0'));
++      expect(engine.currentStatus.track, video);
++    },
++  );
++  test(
++    'paused process restoration does not start a foreground service',
++    () async {
++      await engine.dispose();
++      native = NativeFallback();
++      final serviceCalls = <String>[];
++      engine = ChromiumPlaybackEngine(
++        fallback: native,
++        initializeCef: () async {},
++        createPlayer: () {
++          final player = YoutubeFixture();
++          players.add(player);
++          return player;
++        },
++        startPlaybackService: () async => serviceCalls.add('start'),
++        stopPlaybackService: () async => serviceCalls.add('stop'),
++      );
++      await engine.prepare(video, position: const Duration(seconds: 5));
++      expect(serviceCalls, isEmpty);
++      expect(players.single.calls, contains('cue:M7lc1UVf-VE:5.0'));
++      await engine.resume();
++      expect(serviceCalls, ['start']);
++      await engine.pause();
++      expect(serviceCalls, ['start', 'stop']);
++      await engine.stop();
++      expect(players.single.calls, contains('dispose'));
++    },
++  );
++  test('service startup failure cannot autoplay a browser', () async {
++    await engine.dispose();
++    native = NativeFallback();
++    engine = ChromiumPlaybackEngine(
++      fallback: native,
++      initializeCef: () async {},
++      createPlayer: () => throw StateError('must not create'),
++      startPlaybackService: () async =>
++          throw StateError('service start rejected'),
++    );
++    await expectLater(engine.play(video), throwsStateError);
++    expect(engine.currentStatus.state, PlaybackState.error);
++    expect(players, isEmpty);
++  });
+ }
+diff --git a/test/core/playback/hybrid_playback_engine_test.dart b/test/core/playback/hybrid_playback_engine_test.dart
+index 775581f..ce70b05 100644
+--- a/test/core/playback/hybrid_playback_engine_test.dart
++++ b/test/core/playback/hybrid_playback_engine_test.dart
+@@ -117,7 +117,8 @@ class FakeEngine implements PlaybackController {
+   }
+ 
+   @override
+-  dynamic get renderer => null;  @override
++  dynamic get renderer => null;
++  @override
+   Future<void> setSubtitleTrack(String? uri) async {}
+ 
+   @override
+@@ -778,4 +779,74 @@ void main() {
+     expect(fg.callLog, contains('setSpeed(1.5)'));
+     expect(bg.callLog, contains('setSpeed(1.5)'));
+   });
++  test(
++    'persistent Chromium owner never prewarms or hands off on any PiP/activity path',
++    () async {
++      await engine.dispose();
++      fg = FakeEngine('persistent');
++      bg = FakeEngine('unused');
++      engine = HybridPlaybackEngine(
++        foregroundEngine: fg,
++        backgroundEngine: bg,
++        ownershipPolicy: PlaybackOwnershipPolicy.persistentForeground,
++      );
++      await engine.play(_track);
++      PipHandler.simulateActivityStopped();
++      PipHandler.simulatePipEntryFailed();
++      PipHandler.simulatePipModeChanged(true);
++      PipHandler.simulatePipModeChanged(false);
++      PipHandler.simulateActivityStarted();
++      await pump();
++      expect(engine.owner, EngineOwner.foreground);
++      expect(bg.callLog, isEmpty);
++      expect(fg.playCalls, 1);
++      await engine.pause();
++      PipHandler.simulateActivityStopped();
++      PipHandler.simulateActivityStarted();
++      await pump();
++      expect(fg.resumeCalls, 0);
++      expect(engine.currentStatus.state, PlaybackState.paused);
++    },
++  );
++  test(
++    'handoff destination timeout reports error and never restarts source',
++    () async {
++      await engine.dispose();
++      fg = FakeEngine('fg');
++      bg = FakeEngine('bg');
++      engine = HybridPlaybackEngine(
++        foregroundEngine: fg,
++        backgroundEngine: bg,
++        handoffTimeout: const Duration(milliseconds: 25),
++      );
++      await engine.play(_track);
++      bg.playCompleter = Completer<void>();
++      PipHandler.simulateActivityStopped();
++      await pump(75);
++      expect(engine.currentStatus.state, PlaybackState.error);
++      expect(engine.owner, EngineOwner.foreground);
++      expect(fg.resumeCalls, 0);
++      expect(bg.callLog, contains('stop()'));
++      bg.playCompleter!.complete();
++      await pump();
++      expect(engine.currentStatus.state, PlaybackState.error);
++    },
++  );
++  test('persistent pause contains late foreground playing events', () async {
++    await engine.dispose();
++    fg = FakeEngine('fg');
++    bg = FakeEngine('bg');
++    engine = HybridPlaybackEngine(
++      foregroundEngine: fg,
++      backgroundEngine: bg,
++      ownershipPolicy: PlaybackOwnershipPolicy.persistentForeground,
++    );
++    await engine.play(_track);
++    await engine.pause();
++    fg.emit(const PlaybackStatus(state: PlaybackState.playing));
++    await pump();
++    expect(fg.callLog, contains('pause(caller: intent_containment)'));
++    expect(engine.currentStatus.state, PlaybackState.paused);
++    expect(bg.callLog, isEmpty);
++  });
+ }
+diff --git a/test/core/playback/ios_media_commands_test.dart b/test/core/playback/ios_media_commands_test.dart
+index 2fb296b..6fac0a4 100644
+--- a/test/core/playback/ios_media_commands_test.dart
++++ b/test/core/playback/ios_media_commands_test.dart
+@@ -1,4 +1,5 @@
+ import 'dart:async';
++import 'chromium_playback_engine_test.dart' show NativeFallback;
+ import 'package:flutter/services.dart';
+ import 'package:flutter_riverpod/flutter_riverpod.dart';
+ import 'package:flutter_test/flutter_test.dart';
+@@ -166,8 +167,10 @@ void main() {
+     'system pause sets paused intent and late renderer events cannot replay',
+     () async {
+       final youtube = FakeYoutubeController();
+-      final engine = MediaKitPlaybackEngine(
+-              );
++      final engine = IframeYoutubePlaybackEngine(
++        fallback: MediaKitPlaybackEngine(),
++        youtubeControllerFactory: (id, params) => youtube,
++      );
+       final player = _Player(engine);
+       final container = ProviderContainer(
+         overrides: [playerProvider.overrideWith(() => player)],
+@@ -186,7 +189,7 @@ void main() {
+           });
+       try {
+         handler.updateMetadata(
+-          id: 'system-pause-video',
++          id: 'videoAAAAAA',
+           title: 'Test',
+           artist: 'Artist',
+           duration: const Duration(minutes: 3),
+@@ -201,7 +204,7 @@ void main() {
+         expect(nativeUpdates.last, containsPair('durationMs', 180000));
+         expect(nativeUpdates.last, containsPair('positionMs', 12000));
+         expect(nativeUpdates.last, containsPair('playing', true));
+-        const track = PlaybackTrack(id: 'system-pause-video', title: 'Test');
++        const track = PlaybackTrack(id: 'videoAAAAAA', title: 'Test');
+         await engine.play(track);
+         youtube.emitState(track.id, yt.PlayerState.cued);
+         await Future<void>.delayed(Duration.zero);
+@@ -250,4 +253,29 @@ void main() {
+       }
+     },
+   );
++  test(
++    'Android task removal clears intent and stops the actual playback controller',
++    () async {
++      final native = NativeFallback();
++      final player = _Player(native);
++      final container = ProviderContainer(
++        overrides: [
++          playerProvider.overrideWith(() => player),
++          playbackControllerProvider.overrideWithValue(native),
++        ],
++      );
++      final handler = PpPlayerAudioHandler(
++        () => container,
++        enableIosCommands: false,
++        enableAndroidLifecycle: true,
++      );
++      await handler.onTaskRemoved();
++      expect(player.calls, ['pause']);
++      expect(native.calls, ['pause:user:false', 'stop']);
++      expect(handler.playbackState.value.playing, false);
++      expect(container.read(playerProvider).isPlaying, false);
++      container.dispose();
++      await native.dispose();
++    },
++  );
+ }
+diff --git a/test/core/playback/media_sync_pause_test.dart b/test/core/playback/media_sync_pause_test.dart
+index 89d6a46..bbb9540 100644
+--- a/test/core/playback/media_sync_pause_test.dart
++++ b/test/core/playback/media_sync_pause_test.dart
+@@ -61,8 +61,10 @@ void main() {
+           await box.put('positionMs', 5000);
+         }
+         final renderer = FakeYoutubeController();
+-        final engine = MediaKitPlaybackEngine(
+-                  );
++        final engine = IframeYoutubePlaybackEngine(
++          fallback: MediaKitPlaybackEngine(),
++          youtubeControllerFactory: (id, params) => renderer,
++        );
+         final container = ProviderContainer(
+           overrides: [
+             playbackControllerProvider.overrideWithValue(engine),
+@@ -72,7 +74,7 @@ void main() {
+         );
+         final subscription = container.listen(playerProvider, (_, _) {});
+         final notifier = container.read(playerProvider.notifier);
+-        MediaKitPlaybackEngine.isActivityStopped = true;
++        IframeYoutubePlaybackEngine.isActivityStopped = true;
+         try {
+           await notifier.persistenceSettled;
+           if (entry == 'restore') {
+@@ -105,7 +107,7 @@ void main() {
+           expect(renderer.count('load'), 0);
+           expect(renderer.count('play'), 0);
+ 
+-          MediaKitPlaybackEngine.isActivityStopped = false;
++          IframeYoutubePlaybackEngine.isActivityStopped = false;
+           notifier.resume();
+           await pump();
+ 
+@@ -129,7 +131,7 @@ void main() {
+           container.dispose();
+           await notifier.persistenceSettled;
+           engine.dispose();
+-          MediaKitPlaybackEngine.isActivityStopped = false;
++          IframeYoutubePlaybackEngine.isActivityStopped = false;
+           await Hive.close();
+           await directory.delete(recursive: true);
+         }
+@@ -144,8 +146,10 @@ void main() {
+       Hive.init(directory.path);
+       await Hive.openBox('player_state');
+       final renderer = FakeYoutubeController();
+-      final engine = MediaKitPlaybackEngine(
+-              );
++      final engine = IframeYoutubePlaybackEngine(
++        fallback: MediaKitPlaybackEngine(),
++        youtubeControllerFactory: (id, params) => renderer,
++      );
+       late ProviderContainer container;
+       final handler = PpPlayerAudioHandler(() => container);
+       container = ProviderContainer(
+diff --git a/test/core/playback/native_service_lifecycle_test.dart b/test/core/playback/native_service_lifecycle_test.dart
+index 6d7c761..6ac7aaf 100644
+--- a/test/core/playback/native_service_lifecycle_test.dart
++++ b/test/core/playback/native_service_lifecycle_test.dart
+@@ -1,3 +1,4 @@
++import 'dart:async';
+ import 'package:flutter/services.dart';
+ import 'package:flutter_test/flutter_test.dart';
+ import 'package:pp_playback_engine/pp_playback_engine.dart';
+@@ -38,4 +39,41 @@ void main() {
+     expect(calls.where((call) => call == 'startService'), hasLength(1));
+     expect(calls.last, 'stopService');
+   });
++  test('stop invalidates playback waiting for service creation', () async {
++    final ready = Completer<void>();
++    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
++        .setMockMethodCallHandler(channel, (call) async {
++          calls.add(call.method);
++          if (call.method == 'startService') await ready.future;
++          return null;
++        });
++    final engine = NativeServicePlaybackEngine(startAutomatically: false);
++    final playing = engine.play(
++      const PlaybackTrack(id: 'M7lc1UVf-VE', title: 'Probe'),
++    );
++    await Future<void>.delayed(Duration.zero);
++    await engine.stop();
++    ready.complete();
++    await playing;
++    expect(calls, isNot(contains('loadVideo')));
++    expect(engine.currentStatus.state, PlaybackState.idle);
++    await engine.dispose();
++  });
++  test(
++    'service creation failure propagates instead of silently loading',
++    () async {
++      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
++          .setMockMethodCallHandler(channel, (call) async {
++            calls.add(call.method);
++            throw PlatformException(code: 'SERVICE_START_FAILED');
++          });
++      final engine = NativeServicePlaybackEngine(startAutomatically: false);
++      await expectLater(
++        engine.play(const PlaybackTrack(id: 'M7lc1UVf-VE', title: 'Probe')),
++        throwsA(isA<PlatformException>()),
++      );
++      expect(calls, ['startService']);
++      await engine.dispose();
++    },
++  );
+ }
+diff --git a/test/core/player/player_notifier_playback_speed_test.dart b/test/core/player/player_notifier_playback_speed_test.dart
+index 383ae61..7fcf411 100644
+--- a/test/core/player/player_notifier_playback_speed_test.dart
++++ b/test/core/player/player_notifier_playback_speed_test.dart
+@@ -7,7 +7,6 @@ import 'package:ppplayer/core/models/track.dart';
+ import 'package:ppplayer/core/player/player_provider.dart';
+ import 'package:ppplayer/core/models/resolved_video_candidate.dart';
+ import 'package:ppplayer/core/playback/playback_providers.dart';
+-import 'package:youtube_player_iframe/youtube_player_iframe.dart' as yt;
+ import 'package:ppplayer/core/services/settings_provider.dart';
+ 
+ class FakeSettingsNotifier extends SettingsNotifier {

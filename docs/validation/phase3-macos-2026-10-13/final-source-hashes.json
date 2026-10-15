@@ -1,0 +1,9 @@
+{
+  "app/pubspec.lock": "ff6d621b732f0209574efed1efc4584eb8771865a4c0a41095ca745e6dfe3f1c",
+  "app/third_party/chromium/SOURCE_MANIFEST.json": "2b3f290a7cc47a8acba57c3ee73b6a435ac663a8f584240248c449211c02a6f2",
+  "app/lib/core/playback/media_handler.dart": "bf82b95c3eac9040fbf23e4360a16e47dac0a6621e0c95b12fab89d6a39bdbb2",
+  "app/macos/Runner/AppDelegate.swift": "f72c43de1abae05150e23b15cc36ad360ca4ea3180bd0212a304b6e6d5804d9f",
+  "app/macos/Runner/Configs/AppInfo.xcconfig": "0a17b39893dab0b2105c19adeddfba9327119086472709d74061d7bb1c031d9c",
+  "app/macos/Runner.xcodeproj/project.pbxproj": "d00f9bee6a4c42d592cc1e94d1f85386c2c27198b5a13b110717980719c5e480",
+  "app/integration_test/chromium_texture_resize_test.dart": "e03b8db22e2eb0e73f2c4b8a39dceb05c2c2d0dee8c8b962f4729994a99142c3"
+}

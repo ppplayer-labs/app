@@ -2,6 +2,86 @@ import Cocoa
 import FlutterMacOS
 import WebKit
 import CoreAudio
+import MediaPlayer
+
+// macOS AudioService is intentionally bypassed; publish one native session and
+// route every command through Flutter's authoritative PlayerNotifier intent.
+private final class PPMacOSMediaControls {
+  private let channel: FlutterMethodChannel
+  private var targets: [(MPRemoteCommand, Any)] = []
+  private var artworkPath: String?
+  private var artwork: MPMediaItemArtwork?
+
+  init(messenger: FlutterBinaryMessenger) {
+    channel = FlutterMethodChannel(name: "com.ppplayer.app/macos_media_controls", binaryMessenger: messenger)
+    let commands = MPRemoteCommandCenter.shared()
+    bind(commands.playCommand, "play")
+    bind(commands.pauseCommand, "pause")
+    bind(commands.togglePlayPauseCommand, "togglePlayPause")
+    bind(commands.nextTrackCommand, "next")
+    bind(commands.previousTrackCommand, "previous")
+    bind(commands.stopCommand, "stop")
+    commands.changePlaybackPositionCommand.isEnabled = true
+    let seek = commands.changePlaybackPositionCommand.addTarget { [weak self] event in
+      guard let event = event as? MPChangePlaybackPositionCommandEvent,
+            event.positionTime.isFinite, event.positionTime >= 0 else { return .commandFailed }
+      self?.send("seek", arguments: ["positionMs": event.positionTime * 1000])
+      return self == nil ? .commandFailed : .success
+    }
+    targets.append((commands.changePlaybackPositionCommand, seek))
+    channel.setMethodCallHandler { [weak self] call, result in
+      guard let self = self else { result(nil); return }
+      guard call.method == "updateNowPlaying", let args = call.arguments as? [String: Any] else {
+        result(FlutterMethodNotImplemented); return
+      }
+      self.publish(args)
+      result(nil)
+    }
+  }
+
+  private func bind(_ command: MPRemoteCommand, _ method: String) {
+    command.isEnabled = true
+    let target = command.addTarget { [weak self] _ in
+      self?.send(method)
+      return self == nil ? .commandFailed : .success
+    }
+    targets.append((command, target))
+  }
+  private func send(_ method: String, arguments: [String: Any] = [:]) {
+    DispatchQueue.main.async { [weak self] in
+      self?.channel.invokeMethod(method, arguments: arguments)
+    }
+  }
+  private func publish(_ args: [String: Any]) {
+    var info: [String: Any] = [:]
+    info[MPMediaItemPropertyTitle] = args["title"] as? String
+    info[MPMediaItemPropertyArtist] = args["artist"] as? String
+    info[MPMediaItemPropertyAlbumTitle] = args["album"] as? String
+    if let duration = args["durationMs"] as? NSNumber {
+      info[MPMediaItemPropertyPlaybackDuration] = max(0, duration.doubleValue / 1000)
+    }
+    if let position = args["positionMs"] as? NSNumber {
+      info[MPNowPlayingInfoPropertyElapsedPlaybackTime] = max(0, position.doubleValue / 1000)
+    }
+    let playing = args["playing"] as? Bool ?? false
+    info[MPNowPlayingInfoPropertyPlaybackRate] = playing ? (args["speed"] as? Double ?? 1) : 0
+    let path = args["artCacheFile"] as? String
+    if path != artworkPath {
+      artworkPath = path
+      artwork = nil
+      if let path = path, let image = NSImage(contentsOfFile: path) {
+        artwork = MPMediaItemArtwork(boundsSize: image.size) { _ in image }
+      }
+    }
+    info[MPMediaItemPropertyArtwork] = artwork
+    MPNowPlayingInfoCenter.default().nowPlayingInfo = info
+    MPNowPlayingInfoCenter.default().playbackState = playing ? .playing : .paused
+  }
+  deinit {
+    for (command, target) in targets { command.removeTarget(target) }
+    channel.setMethodCallHandler(nil)
+  }
+}
 
 // Use the system Bonjour browser in the sandbox instead of raw multicast UDP.
 private final class PPMacOSCastDiscovery: NSObject, FlutterStreamHandler, NetServiceBrowserDelegate, NetServiceDelegate {
@@ -92,6 +172,7 @@ class AppDelegate: FlutterAppDelegate {
   private var localFilesHost: PPLocalFilesHost?
   private var audioRoutes: PPMacOSAudioRoutes?
   private var castDiscovery: PPMacOSCastDiscovery?
+  private var mediaControls: PPMacOSMediaControls?
   
   private var isPlaying = false
   private var isShuffle = false
@@ -111,6 +192,7 @@ class AppDelegate: FlutterAppDelegate {
       localFilesHost = PPLocalFilesHost(messenger: controller.engine.binaryMessenger)
       audioRoutes = PPMacOSAudioRoutes(messenger: controller.engine.binaryMessenger)
       castDiscovery = PPMacOSCastDiscovery(messenger: controller.engine.binaryMessenger)
+      mediaControls = PPMacOSMediaControls(messenger: controller.engine.binaryMessenger)
       methodChannel = FlutterMethodChannel(name: "com.ppplayer/dock_menu", binaryMessenger: controller.engine.binaryMessenger)
       
       methodChannel?.setMethodCallHandler { [weak self] (call: FlutterMethodCall, result: @escaping FlutterResult) in

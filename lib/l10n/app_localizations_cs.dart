@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -338,6 +337,21 @@ class AppLocalizationsCs extends AppLocalizations {
   String get copyLink => 'Kopírovat odkaz';
 
   @override
+  String get copySpotifyLink => 'Kopírovat odkaz Spotify';
+
+  @override
+  String get copyYouTubeLink => 'Kopírovat odkaz YouTube';
+
+  @override
+  String get copySpotifyId => 'Kopírovat ID Spotify';
+
+  @override
+  String get copyYouTubeId => 'Kopírovat ID YouTube';
+
+  @override
+  String get idCopied => 'ID zkopírováno';
+
+  @override
   String get discover => 'Objevit';
 
   @override
@@ -395,10 +409,10 @@ class AppLocalizationsCs extends AppLocalizations {
   String get queue1 => 'Fronta';
 
   @override
-  String get queueNowPlaying => 'Now playing';
+  String get queueNowPlaying => 'Právě hraje';
 
   @override
-  String get queueUpNext => 'Up next';
+  String get queueUpNext => 'Další na řadě';
 
   @override
   String get recentlyPlayed => 'Nedávno přehrané';
@@ -1095,4 +1109,55 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get loadFailed => 'Obsah se nepodařilo načíst. Zkuste to znovu.';
+
+  @override
+  String get removeFolder => 'Odebrat složku';
+
+  @override
+  String get removeFolderConfirmTitle => 'Odebrat složku?';
+
+  @override
+  String removeFolderConfirmMessage(String name) {
+    return 'Odebrat „$name“ a jeho média z knihovny? Soubory na disku nebudou smazány.';
+  }
+
+  @override
+  String fileMissingOnDisk(String name) {
+    return '„$name“ již nelze na disku najít';
+  }
+
+  @override
+  String get folderUnavailable =>
+      'Složka není dostupná. Zkontrolujte, zda je disk připojen.';
+
+  @override
+  String fileAlreadyImported(String name) {
+    return '„$name“ již máte v knihovně';
+  }
+
+  @override
+  String filesAlreadyImported(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count souborů již bylo v knihovně',
+      one: '1 soubor již byl v knihovně',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get folderAlreadyImported =>
+      'Tato složka je již importována – hledají se nové soubory';
+
+  @override
+  String get rescanCompleted => 'Znovunačtení knihovny dokončeno';
+
+  @override
+  String rescanFailed(String error) {
+    return 'Opětovné prověření složky selhalo: $error';
+  }
+
+  @override
+  String get importedFolderFallback => 'Importovaná složka';
 }

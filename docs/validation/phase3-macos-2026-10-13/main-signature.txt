@@ -1,0 +1,29 @@
+Executable=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/MacOS/PPPlayer
+Identifier=com.ppplayer.app
+Format=app bundle with Mach-O thin (arm64)
+CodeDirectory v=20400 size=852 flags=0x0(none) hashes=16+7 location=embedded
+VersionPlatform=1
+VersionMin=851968
+VersionSDK=1769472
+Hash type=sha256 size=32
+CandidateCDHash sha256=9ae873387e5fcc3ff0dccfb1e6ae14b6a50fa42d
+CandidateCDHashFull sha256=9ae873387e5fcc3ff0dccfb1e6ae14b6a50fa42d9688a29bf84e5fddec1f4e7e
+Hash choices=sha256
+CMSDigest=9ae873387e5fcc3ff0dccfb1e6ae14b6a50fa42d9688a29bf84e5fddec1f4e7e
+CMSDigestType=2
+Executable Segment base=0
+Executable Segment limit=114688
+Executable Segment flags=0x1
+Page size=16384
+CDHash=9ae873387e5fcc3ff0dccfb1e6ae14b6a50fa42d
+Signature size=4815
+Authority=Apple Development: Lucas Coelho de Oliveira Lima (WS2A38D6XV)
+Authority=Apple Worldwide Developer Relations Certification Authority
+Authority=Apple Root CA
+Signed Time=Oct 13, 2026 at 1:46:27 PM
+Info.plist entries=30
+TeamIdentifier=PCW3792YL2
+Sealed Resources version=2 rules=13 files=42
+Internal requirements count=1 size=196
+Total signatures=1
+Chosen signature=1

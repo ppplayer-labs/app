@@ -246,6 +246,7 @@ class PpPlayerApp extends ConsumerWidget {
     return MaterialApp.router(
       title: 'PPPlayer',
       debugShowCheckedModeBanner: false,
+      scaffoldMessengerKey: LocalLibraryService.messengerKey,
       theme: AppTheme.dark(primaryColor: themeColor),
       scrollBehavior: const AppScrollBehavior(),
       localizationsDelegates: appLocalizationDelegates,

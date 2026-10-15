@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -336,6 +335,21 @@ class AppLocalizationsNl extends AppLocalizations {
   String get copyLink => 'Link kopiëren';
 
   @override
+  String get copySpotifyLink => 'Spotify-link kopiëren';
+
+  @override
+  String get copyYouTubeLink => 'YouTube-link kopiëren';
+
+  @override
+  String get copySpotifyId => 'Spotify-id kopiëren';
+
+  @override
+  String get copyYouTubeId => 'YouTube-id kopiëren';
+
+  @override
+  String get idCopied => 'ID gekopieerd';
+
+  @override
   String get discover => 'Ontdekken';
 
   @override
@@ -393,10 +407,10 @@ class AppLocalizationsNl extends AppLocalizations {
   String get queue1 => 'Wachtrij';
 
   @override
-  String get queueNowPlaying => 'Now playing';
+  String get queueNowPlaying => 'Nu aan het afspelen';
 
   @override
-  String get queueUpNext => 'Up next';
+  String get queueUpNext => 'Hierna';
 
   @override
   String get recentlyPlayed => 'Recent afgespeeld';
@@ -1098,4 +1112,55 @@ class AppLocalizationsNl extends AppLocalizations {
   @override
   String get loadFailed =>
       'De inhoud kon niet worden geladen. Probeer opnieuw.';
+
+  @override
+  String get removeFolder => 'Map verwijderen';
+
+  @override
+  String get removeFolderConfirmTitle => 'Map verwijderen?';
+
+  @override
+  String removeFolderConfirmMessage(String name) {
+    return '„$name” en media verwijderen uit je bibliotheek? Bestanden op de schijf worden niet verwijderd.';
+  }
+
+  @override
+  String fileMissingOnDisk(String name) {
+    return '„$name” is niet meer te vinden op de schijf';
+  }
+
+  @override
+  String get folderUnavailable =>
+      'Map niet beschikbaar. Controleer of het station is aangesloten.';
+
+  @override
+  String fileAlreadyImported(String name) {
+    return '„$name” bevindt zich al in je bibliotheek';
+  }
+
+  @override
+  String filesAlreadyImported(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count bestanden stonden al in je bibliotheek',
+      one: '1 bestand stond al in je bibliotheek',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get folderAlreadyImported =>
+      'Deze map is al geïmporteerd — controleren op nieuwe bestanden';
+
+  @override
+  String get rescanCompleted => 'Bibliotheek opnieuw scannen voltooid';
+
+  @override
+  String rescanFailed(String error) {
+    return 'Kan map niet opnieuw scannen: $error';
+  }
+
+  @override
+  String get importedFolderFallback => 'Geïmporteerde map';
 }

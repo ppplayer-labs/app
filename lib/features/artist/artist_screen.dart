@@ -916,7 +916,7 @@ class _ArtistAlbumCardState extends ConsumerState<_ArtistAlbumCard> {
                         if (isCurrentAlbum) ...[
                           Padding(
                             padding: const EdgeInsets.only(right: 6),
-                            child: AnimatedEqualizer(
+                            child: PlaybackIndicator(
                               color: colorScheme.primary,
                               size: 14,
                             ),

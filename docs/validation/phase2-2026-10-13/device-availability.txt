@@ -1,0 +1,5 @@
+ADB 37.0.1-15733141
+adb devices -l: List of devices attached (empty)
+Physical Android acceptance: BLOCKED — no attached device.
+Bluetooth/headset hardware checks: BLOCKED.
+No emulator substituted for physical acceptance.

@@ -39,6 +39,7 @@ Future<void> pump() async {
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   for (final entry in ['selection', 'retry', 'queue', 'restore']) {
     test(
       '$entry prepares while stopped and foreground resume dispatches current video',
@@ -61,8 +62,10 @@ void main() {
           await box.put('positionMs', 5000);
         }
         final renderer = FakeYoutubeController();
-        final engine = MediaKitPlaybackEngine(
-                  );
+        final engine = IframeYoutubePlaybackEngine(
+          fallback: MediaKitPlaybackEngine(),
+          youtubeControllerFactory: (id, params) => renderer,
+        );
         final container = ProviderContainer(
           overrides: [
             playbackControllerProvider.overrideWithValue(engine),
@@ -72,7 +75,7 @@ void main() {
         );
         final subscription = container.listen(playerProvider, (_, _) {});
         final notifier = container.read(playerProvider.notifier);
-        MediaKitPlaybackEngine.isActivityStopped = true;
+        IframeYoutubePlaybackEngine.isActivityStopped = true;
         try {
           await notifier.persistenceSettled;
           if (entry == 'restore') {
@@ -105,7 +108,7 @@ void main() {
           expect(renderer.count('load'), 0);
           expect(renderer.count('play'), 0);
 
-          MediaKitPlaybackEngine.isActivityStopped = false;
+          IframeYoutubePlaybackEngine.isActivityStopped = false;
           notifier.resume();
           await pump();
 
@@ -129,7 +132,7 @@ void main() {
           container.dispose();
           await notifier.persistenceSettled;
           engine.dispose();
-          MediaKitPlaybackEngine.isActivityStopped = false;
+          IframeYoutubePlaybackEngine.isActivityStopped = false;
           await Hive.close();
           await directory.delete(recursive: true);
         }
@@ -144,8 +147,10 @@ void main() {
       Hive.init(directory.path);
       await Hive.openBox('player_state');
       final renderer = FakeYoutubeController();
-      final engine = MediaKitPlaybackEngine(
-              );
+      final engine = IframeYoutubePlaybackEngine(
+        fallback: MediaKitPlaybackEngine(),
+        youtubeControllerFactory: (id, params) => renderer,
+      );
       late ProviderContainer container;
       final handler = PpPlayerAudioHandler(() => container);
       container = ProviderContainer(

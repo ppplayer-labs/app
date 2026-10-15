@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -339,6 +338,21 @@ class AppLocalizationsRo extends AppLocalizations {
   String get copyLink => 'Copiază linkul';
 
   @override
+  String get copySpotifyLink => 'Copiază linkul Spotify';
+
+  @override
+  String get copyYouTubeLink => 'Copiază linkul YouTube';
+
+  @override
+  String get copySpotifyId => 'Copiază ID-ul Spotify';
+
+  @override
+  String get copyYouTubeId => 'Copiază ID-ul YouTube';
+
+  @override
+  String get idCopied => 'ID copiat';
+
+  @override
   String get discover => 'Descoperă';
 
   @override
@@ -396,10 +410,10 @@ class AppLocalizationsRo extends AppLocalizations {
   String get queue1 => 'Coadă';
 
   @override
-  String get queueNowPlaying => 'Now playing';
+  String get queueNowPlaying => 'În redare acum';
 
   @override
-  String get queueUpNext => 'Up next';
+  String get queueUpNext => 'Urmează';
 
   @override
   String get recentlyPlayed => 'Ascultate recent';
@@ -1101,4 +1115,55 @@ class AppLocalizationsRo extends AppLocalizations {
   @override
   String get loadFailed =>
       'Conținutul nu a putut fi încărcat. Încearcă din nou.';
+
+  @override
+  String get removeFolder => 'Elimină dosarul';
+
+  @override
+  String get removeFolderConfirmTitle => 'Elimini dosarul?';
+
+  @override
+  String removeFolderConfirmMessage(String name) {
+    return 'Elimini „$name” și conținutul său media din bibliotecă? Fișierele de pe disc nu vor fi șterse.';
+  }
+
+  @override
+  String fileMissingOnDisk(String name) {
+    return '„$name” nu mai poate fi găsit pe disc';
+  }
+
+  @override
+  String get folderUnavailable =>
+      'Dosarul este indisponibil. Verificați dacă unitatea este conectată.';
+
+  @override
+  String fileAlreadyImported(String name) {
+    return '„$name” este deja în bibliotecă';
+  }
+
+  @override
+  String filesAlreadyImported(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count fișiere erau deja în bibliotecă',
+      one: '1 fișier era deja în bibliotecă',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get folderAlreadyImported =>
+      'Acest dosar este deja importat — se verifică fișiere noi';
+
+  @override
+  String get rescanCompleted => 'Rescanarea bibliotecii a fost finalizată';
+
+  @override
+  String rescanFailed(String error) {
+    return 'Rescanarea dosarului a eșuat: $error';
+  }
+
+  @override
+  String get importedFolderFallback => 'Dosar importat';
 }

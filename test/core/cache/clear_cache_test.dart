@@ -8,6 +8,8 @@ import 'package:ppplayer/core/cache/clear_cache_helper.dart';
 import 'package:ppplayer/core/services/settings_provider.dart';
 import 'package:ppplayer/features/home/home_screen.dart';
 import 'package:hive_ce/hive.dart';
+import 'package:drift/drift.dart' show DatabaseConnection;
+import 'package:drift/native.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -26,7 +28,13 @@ void main() {
       'CatalogCacheRepository.clearAll() clears L1 and L2 and providers are invalidated',
       () async {
         // 1. Setup Data Layer
-        final db = AppDatabase(null);
+        // In-memory database: AppDatabase(null) opens ./ppplayer_db.sqlite via the
+        // mocked path_provider, a file shared by every concurrently running test
+        // isolate (and persisted between runs), which made this test order/timing
+        // dependent.
+        final db = AppDatabase.forTesting(
+          DatabaseConnection(NativeDatabase.memory()),
+        );
         final metrics = CacheMetrics();
         final repo = CatalogCacheRepository(db, metrics);
 

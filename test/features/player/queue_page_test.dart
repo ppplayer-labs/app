@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ppplayer/core/player/player_provider.dart';
 import 'package:ppplayer/core/services/settings_provider.dart';
 import 'package:ppplayer/features/player/queue_page.dart';
+import 'package:ppplayer/shared/widgets/animated_equalizer.dart';
 import 'package:ppplayer/l10n/app_localizations.dart';
 
 class _Player extends PlayerNotifier {
@@ -97,6 +98,9 @@ void main() {
       expect(tester.takeException(), isNull);
       await tester.tap(find.text('Next song'));
       expect(player.selected, 2);
+      expect(find.byType(PlaybackIndicator), findsOneWidget);
+      await tester.tap(find.text('Current song'));
+      expect(player.selected, 1);
 
       // Reorder only the upcoming segment; keep current/history in place.
       final list = tester.widget<SliverReorderableList>(

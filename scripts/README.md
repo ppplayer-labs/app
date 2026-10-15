@@ -2,6 +2,27 @@
 
 This directory contains the pipeline for building, signing, and notarizing the macOS release of PPPlayer.
 
+## Candidate checks before packaging
+
+From the app root:
+
+```bash
+python3 scripts/verify_chromium_snapshot.py
+python3 -m unittest discover -s scripts -p 'test_*.py'
+python3 scripts/test_chromium_android.py --device emulator-5554
+```
+
+The Python Android runner requires Flutter, ADB and a booted test device. It
+installs an integration host under the app ID; reinstall the regular app after
+testing. Its log defaults to `build/validation/chromium-android-live.log`.
+Do not run Flutter builds/tests concurrently in one checkout. The current
+[validation report](../docs/validation/pre-release-2026-10-14/REPORT.md) records
+actual results and remaining platform/distribution gates.
+
+Linux packaging is `packaging/linux/scripts/build_linux.sh`, run from the app
+root on a Linux host. It resolves dependencies, builds the release bundle, then
+produces AppImage, DEB, tarball and checksums. A failed build stops packaging.
+
 ## Prerequisites
 
 - **create-dmg**: Required for building the `.dmg` file.

@@ -83,7 +83,7 @@ class MediaKitPlayerAdapter implements INativePlayerAdapter {
     _sharedVideoController ??= VideoController(_sharedPlayer!);
     _player = _sharedPlayer!;
     _videoController = _sharedVideoController!;
-    _player.stream.log.listen(
+    _logSubscription = _player.stream.log.listen(
       (event) =>
           print('MPV_LOG: ${event.level} - ${event.prefix}: ${event.text}'),
     );
@@ -111,6 +111,7 @@ class MediaKitPlayerAdapter implements INativePlayerAdapter {
 
   late final Player _player;
   late final VideoController _videoController;
+  StreamSubscription<PlayerLog>? _logSubscription;
   bool _disposed = false;
 
   @override
@@ -161,12 +162,14 @@ class MediaKitPlayerAdapter implements INativePlayerAdapter {
     Map<String, String>? httpHeaders,
   }) async {
     await (_cacheReady ??= _configureCacheDirectory());
+    final scheme =
+        kIsWeb ? '' : (Uri.tryParse(uri)?.scheme.toLowerCase() ?? '');
+    final local =
+        !kIsWeb &&
+        (scheme.isEmpty ||
+            const {'asset', 'file', 'content'}.contains(scheme) ||
+            RegExp(r'^[A-Za-z]:[\\/]').hasMatch(uri));
     if (!kIsWeb) {
-      final scheme = Uri.tryParse(uri)?.scheme.toLowerCase() ?? '';
-      final local =
-          scheme.isEmpty ||
-          const {'asset', 'file', 'content'}.contains(scheme) ||
-          RegExp(r'^[A-Za-z]:[\\/]').hasMatch(uri);
       // Local files need precise seeks even when the target is between keyframes.
       // Keep keyframe seeking for network streams to avoid expensive HLS decoding.
       await (_player.platform as dynamic).setProperty(
@@ -174,14 +177,25 @@ class MediaKitPlayerAdapter implements INativePlayerAdapter {
         local ? 'yes' : 'no',
       );
     }
-    final headers = <String, String>{};
-    headers['User-Agent'] =
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
-    headers['Accept'] = '*/*';
-    if (httpHeaders != null) {
-      headers.addAll(httpHeaders);
+    // Bug fix: do NOT inject HTTP headers for local-scheme URIs (file://, content://,
+    // asset://). libmpv ignores them for local sources, but on Android passing a header
+    // map with a content:// URI can trigger an HTTP-resource code path and cause
+    // access-denied failures.
+    Map<String, String> headers;
+    if (local) {
+      headers = httpHeaders ?? const {};
+    } else {
+      headers = <String, String>{
+        'User-Agent':
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
+            ' (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': '*/*',
+      };
+      if (httpHeaders != null) {
+        headers.addAll(httpHeaders);
+      }
     }
-    _currentMedia = Media(uri, httpHeaders: headers);
+    _currentMedia = Media(uri, httpHeaders: headers.isEmpty ? null : headers);
     return _player.open(_currentMedia!, play: play);
   }
 
@@ -257,6 +271,8 @@ class MediaKitPlayerAdapter implements INativePlayerAdapter {
   Future<void> dispose() async {
     if (_disposed) return;
     _disposed = true;
+    await _logSubscription?.cancel();
+    _logSubscription = null;
     // We do NOT dispose the shared player to avoid native FFI crashes.
   }
 }
@@ -304,7 +320,6 @@ class NativePlaybackSession {
 // ---------------------------------------------------------------------------
 
 class MediaKitPlaybackEngine implements PlaybackController {
-
   /// Factory for native player adapters.
   ///
   /// Defaults to creating a [MediaKitPlayerAdapter] (production).
@@ -312,10 +327,7 @@ class MediaKitPlaybackEngine implements PlaybackController {
   /// lifecycle logic without a real media_kit player.
   final INativePlayerAdapter Function()? nativeAdapterFactory;
 
-  MediaKitPlaybackEngine({
-    
-    this.nativeAdapterFactory,
-  }) {
+  MediaKitPlaybackEngine({this.nativeAdapterFactory}) {
     _initMediaKit();
   }
 
@@ -509,6 +521,8 @@ class MediaKitPlaybackEngine implements PlaybackController {
 
         // If the track is statically known to be a video, don't let a transient 0x0
         // size param hide the view, which breaks native macOS texture binding.
+        // Local audio with embedded cover art reports video dimensions too, so a
+        // local track only shows video when it was classified isVideo at import.
         final hasVideo =
             (_currentStatus.track?.isVideo == true) ||
             (_currentStatus.track?.isLocal != true && hasDimensions);
@@ -761,8 +775,12 @@ class MediaKitPlaybackEngine implements PlaybackController {
         if (_disposed || _activeSession != session) return;
 
         // Apply user settings AFTER open() to prevent Android deadlocks.
+        // Bug fix: guard each async call so a concurrent stop()/play() that
+        // replaces _activeSession does not apply settings to a stale player.
         await session.adapter.setVolume(_currentStatus.volume * 100);
+        if (_disposed || _activeSession != session) return;
         await session.adapter.setRate(_currentStatus.speed);
+        if (_disposed || _activeSession != session) return;
 
         if (startAt > Duration.zero) {
           await session.adapter.seek(startAt);
@@ -802,7 +820,10 @@ class MediaKitPlaybackEngine implements PlaybackController {
   }
 
   @override
-  Future<void> pause({String caller = 'user', bool failOnTimeout = false}) async {
+  Future<void> pause({
+    String caller = 'user',
+    bool failOnTimeout = false,
+  }) async {
     if (_disposed) return;
     if (_currentStatus.state == PlaybackState.paused ||
         _currentStatus.state == PlaybackState.idle) {

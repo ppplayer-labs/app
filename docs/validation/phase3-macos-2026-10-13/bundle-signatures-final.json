@@ -1,0 +1,259 @@
+[
+  {
+    "path": "PPPlayer.app",
+    "exit": 0,
+    "output": "--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/wakelock_plus.framework/Versions/Current/.\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/wakelock_plus.framework/Versions/Current/.\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Avformat.framework/Versions/Current/.\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Avformat.framework/Versions/Current/.\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Avfilter.framework/Versions/Current/.\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Avfilter.framework/Versions/Current/.\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Png16.framework/Versions/Current/.\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Png16.framework/Versions/Current/.\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/media_kit_libs_macos_video.framework/Versions/Current/.\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/media_kit_libs_macos_video.framework/Versions/Current/.\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Dav1d.framework/Versions/Current/.\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Dav1d.framework/Versions/Current/.\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/macos_file_open_handler.framework/Versions/Current/.\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/macos_file_open_handler.framework/Versions/Current/.\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/objective_c.framework/Versions/Current/.\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/objective_c.framework/Versions/Current/.\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/FlutterMacOS.framework/Versions/Current/.\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/FlutterMacOS.framework/Versions/Current/.\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/sqlite3.framework/Versions/Current/.\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/sqlite3.framework/Versions/Current/.\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Mbedcrypto.framework/Versions/Current/.\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Mbedcrypto.framework/Versions/Current/.\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/audio_service.framework/Versions/Current/.\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/audio_service.framework/Versions/Current/.\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Freetype.framework/Versions/Current/.\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Freetype.framework/Versions/Current/.\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Ass.framework/Versions/Current/.\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Ass.framework/Versions/Current/.\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Swresample.framework/Versions/Current/.\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Swresample.framework/Versions/Current/.\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Avcodec.framework/Versions/Current/.\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Avcodec.framework/Versions/Current/.\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/media_kit_video.framework/Versions/Current/.\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/media_kit_video.framework/Versions/Current/.\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Mpv.framework/Versions/Current/.\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Mpv.framework/Versions/Current/.\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/flutter_secure_storage_darwin.framework/Versions/Current/.\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/flutter_secure_storage_darwin.framework/Versions/Current/.\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Harfbuzz.framework/Versions/Current/.\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Harfbuzz.framework/Versions/Current/.\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Mbedtls.framework/Versions/Current/.\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Mbedtls.framework/Versions/Current/.\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Fribidi.framework/Versions/Current/.\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Fribidi.framework/Versions/Current/.\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/App.framework/Versions/Current/.\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/App.framework/Versions/Current/.\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Avutil.framework/Versions/Current/.\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Avutil.framework/Versions/Current/.\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/package_info_plus.framework/Versions/Current/.\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/package_info_plus.framework/Versions/Current/.\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/file_picker_darwin.framework/Versions/Current/.\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/file_picker_darwin.framework/Versions/Current/.\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/sqflite_darwin.framework/Versions/Current/.\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/sqflite_darwin.framework/Versions/Current/.\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Swscale.framework/Versions/Current/.\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Swscale.framework/Versions/Current/.\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/flutter_chromium_webview.framework/Versions/Current/.\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/flutter_chromium_webview.framework/Versions/Current/.\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Mbedx509.framework/Versions/Current/.\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Mbedx509.framework/Versions/Current/.\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Uchardet.framework/Versions/Current/.\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Uchardet.framework/Versions/Current/.\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/audio_session.framework/Versions/Current/.\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/audio_session.framework/Versions/Current/.\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/connectivity_plus.framework/Versions/Current/.\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/connectivity_plus.framework/Versions/Current/.\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/file_selector_macos.framework/Versions/Current/.\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/file_selector_macos.framework/Versions/Current/.\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/webview_flutter_wkwebview.framework/Versions/Current/.\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/webview_flutter_wkwebview.framework/Versions/Current/.\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Xml2.framework/Versions/Current/.\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Xml2.framework/Versions/Current/.\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/url_launcher_macos.framework/Versions/Current/.\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/url_launcher_macos.framework/Versions/Current/.\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/metadata_god.framework/Versions/Current/.\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/metadata_god.framework/Versions/Current/.\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/wakelock_plus.framework",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/wakelock_plus.framework: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/wakelock_plus.framework: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/Avfilter.framework",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Avfilter.framework: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Avfilter.framework: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/objective_c.framework",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/objective_c.framework: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/objective_c.framework: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/FlutterMacOS.framework",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/FlutterMacOS.framework: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/FlutterMacOS.framework: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/Avformat.framework",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Avformat.framework: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Avformat.framework: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/Png16.framework",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Png16.framework: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Png16.framework: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/sqlite3.framework",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/sqlite3.framework: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/sqlite3.framework: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/media_kit_libs_macos_video.framework",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/media_kit_libs_macos_video.framework: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/media_kit_libs_macos_video.framework: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/macos_file_open_handler.framework",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/macos_file_open_handler.framework: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/macos_file_open_handler.framework: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/Dav1d.framework",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Dav1d.framework: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Dav1d.framework: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/Mbedcrypto.framework",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Mbedcrypto.framework: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Mbedcrypto.framework: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/audio_service.framework",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/audio_service.framework: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/audio_service.framework: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/Freetype.framework",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Freetype.framework: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Freetype.framework: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/Ass.framework",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Ass.framework: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Ass.framework: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/Swresample.framework",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Swresample.framework: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Swresample.framework: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/Harfbuzz.framework",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Harfbuzz.framework: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Harfbuzz.framework: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/flutter_secure_storage_darwin.framework",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/flutter_secure_storage_darwin.framework: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/flutter_secure_storage_darwin.framework: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/media_kit_video.framework",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/media_kit_video.framework: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/media_kit_video.framework: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/Mpv.framework",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Mpv.framework: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Mpv.framework: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/App.framework",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/App.framework: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/App.framework: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/Mbedtls.framework",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Mbedtls.framework: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Mbedtls.framework: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/Avcodec.framework",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Avcodec.framework: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Avcodec.framework: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/Fribidi.framework",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Fribidi.framework: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Fribidi.framework: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/file_picker_darwin.framework",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/file_picker_darwin.framework: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/file_picker_darwin.framework: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/sqflite_darwin.framework",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/sqflite_darwin.framework: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/sqflite_darwin.framework: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/Avutil.framework",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Avutil.framework: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Avutil.framework: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/flutter_chromium_webview.framework",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/flutter_chromium_webview.framework: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/flutter_chromium_webview.framework: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/Swscale.framework",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Swscale.framework: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Swscale.framework: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/package_info_plus.framework",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/package_info_plus.framework: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/package_info_plus.framework: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/audio_session.framework",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/audio_session.framework: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/audio_session.framework: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/Uchardet.framework",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Uchardet.framework: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Uchardet.framework: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/Mbedx509.framework",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Mbedx509.framework: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Mbedx509.framework: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/file_selector_macos.framework",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/file_selector_macos.framework: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/file_selector_macos.framework: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/webview_flutter_wkwebview.framework",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/webview_flutter_wkwebview.framework: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/webview_flutter_wkwebview.framework: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/Xml2.framework",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Xml2.framework: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/Xml2.framework: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/connectivity_plus.framework",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/connectivity_plus.framework: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/connectivity_plus.framework: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/metadata_god.framework",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/metadata_god.framework: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/metadata_god.framework: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/url_launcher_macos.framework",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/url_launcher_macos.framework: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/url_launcher_macos.framework: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app",
+    "exit": 0,
+    "output": "--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper.app\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper.app\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper (Renderer).app\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper (Renderer).app\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper (Alerts).app\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper (Alerts).app\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework/Versions/Current/.\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework/Versions/Current/.\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper (GPU).app\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper (GPU).app\n--prepared:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper (Plugin).app\n--validated:/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper (Plugin).app\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper.app",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper.app: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper.app: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper (GPU).app",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper (GPU).app: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper (GPU).app: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper (Renderer).app",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper (Renderer).app: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper (Renderer).app: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper (Alerts).app",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper (Alerts).app: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper (Alerts).app: satisfies its Designated Requirement\n"
+  },
+  {
+    "path": "PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper (Plugin).app",
+    "exit": 0,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper (Plugin).app: valid on disk\n/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper (Plugin).app: satisfies its Designated Requirement\n"
+  },
+  {
+    "command": [
+      "codesign",
+      "-dv",
+      "--verbose=4",
+      "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app"
+    ],
+    "exit": 0,
+    "output": "Executable=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/MacOS/PPPlayer\nIdentifier=com.ppplayer.app\nFormat=app bundle with Mach-O thin (arm64)\nCodeDirectory v=20400 size=852 flags=0x0(none) hashes=16+7 location=embedded\nVersionPlatform=1\nVersionMin=851968\nVersionSDK=1769472\nHash type=sha256 size=32\nCandidateCDHash sha256=0afa90427e58127c213ac3de978345a99ba115a9\nCandidateCDHashFull sha256=0afa90427e58127c213ac3de978345a99ba115a982a5cdefce8ea217e9a87428\nHash choices=sha256\nCMSDigest=0afa90427e58127c213ac3de978345a99ba115a982a5cdefce8ea217e9a87428\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=114688\nExecutable Segment flags=0x1\nPage size=16384\nCDHash=0afa90427e58127c213ac3de978345a99ba115a9\nSignature size=4815\nAuthority=Apple Development: Lucas Coelho de Oliveira Lima (WS2A38D6XV)\nAuthority=Apple Worldwide Developer Relations Certification Authority\nAuthority=Apple Root CA\nSigned Time=Oct 13, 2026 at 1:52:07\u202fPM\nInfo.plist entries=30\nTeamIdentifier=PCW3792YL2\nSealed Resources version=2 rules=13 files=42\nInternal requirements count=1 size=196\nTotal signatures=1\nChosen signature=1\n"
+  },
+  {
+    "command": [
+      "xcrun",
+      "stapler",
+      "validate",
+      "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app"
+    ],
+    "exit": 65,
+    "output": "Processing: /private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app\nPPPlayer.app does not have a ticket stapled to it.\n"
+  },
+  {
+    "command": [
+      "spctl",
+      "--assess",
+      "--type",
+      "execute",
+      "--verbose=4",
+      "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app"
+    ],
+    "exit": 3,
+    "output": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app: rejected\n"
+  }
+]

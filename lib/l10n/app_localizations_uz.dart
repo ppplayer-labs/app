@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -339,6 +338,21 @@ class AppLocalizationsUz extends AppLocalizations {
   String get copyLink => 'Havolani nusxalash';
 
   @override
+  String get copySpotifyLink => 'Spotify havolasidan nusxa olish';
+
+  @override
+  String get copyYouTubeLink => 'YouTube havolasidan nusxa olish';
+
+  @override
+  String get copySpotifyId => 'Spotify ID\'sidan nusxa olish';
+
+  @override
+  String get copyYouTubeId => 'YouTube ID\'sidan nusxa olish';
+
+  @override
+  String get idCopied => 'ID nusxalandi';
+
+  @override
   String get discover => 'Kashf etish';
 
   @override
@@ -396,10 +410,10 @@ class AppLocalizationsUz extends AppLocalizations {
   String get queue1 => 'Navbat';
 
   @override
-  String get queueNowPlaying => 'Now playing';
+  String get queueNowPlaying => 'Hozir ijro etilmoqda';
 
   @override
-  String get queueUpNext => 'Up next';
+  String get queueUpNext => 'Keyingi';
 
   @override
   String get recentlyPlayed => 'Yaqinda ijro etilgan';
@@ -1097,4 +1111,55 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get loadFailed => 'Kontentni yuklab bo‘lmadi. Qayta urinib ko‘ring.';
+
+  @override
+  String get removeFolder => 'Jildni olib tashlash';
+
+  @override
+  String get removeFolderConfirmTitle => 'Jild olib tashlansinmi?';
+
+  @override
+  String removeFolderConfirmMessage(String name) {
+    return '\"$name\" va uning medialari kutubxonangizdan olib tashlansinmi? Diskdagi fayllar o‘chirilmaydi.';
+  }
+
+  @override
+  String fileMissingOnDisk(String name) {
+    return '\"$name\" diskda topilmadi';
+  }
+
+  @override
+  String get folderUnavailable =>
+      'Jild mavjud emas. Drayv ulanganligini tekshiring.';
+
+  @override
+  String fileAlreadyImported(String name) {
+    return '\"$name\" allaqachon kutubxonangizda mavjud';
+  }
+
+  @override
+  String filesAlreadyImported(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ta fayl allaqachon kutubxonangizda bor edi',
+      one: '1 ta fayl allaqachon kutubxonangizda bor edi',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get folderAlreadyImported =>
+      'Ushbu jild allaqachon import qilingan — yangi fayllar tekshirilmoqda';
+
+  @override
+  String get rescanCompleted => 'Kutubxonani qayta tekshirish yakunlandi';
+
+  @override
+  String rescanFailed(String error) {
+    return 'Jildni qayta tekshirish amalga oshmadi: $error';
+  }
+
+  @override
+  String get importedFolderFallback => 'Import qilingan jild';
 }

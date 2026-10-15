@@ -160,14 +160,15 @@ const other = PlaybackTrack(id: 'videoBBBBBB', title: 'B');
 
 void main() {
   late FakeYoutubeController controller;
-  late MediaKitPlaybackEngine engine;
+  late PlaybackController engine;
   late List<PlaybackStatus> statuses;
   late StreamSubscription<PlaybackStatus> subscription;
   setUp(() {
-    MediaKitPlaybackEngine.isActivityStopped = false;
+    IframeYoutubePlaybackEngine.isActivityStopped = false;
     controller = FakeYoutubeController();
-    engine = MediaKitPlaybackEngine(
-
+    engine = IframeYoutubePlaybackEngine(
+      fallback: MediaKitPlaybackEngine(),
+      youtubeControllerFactory: (_, __) => controller,
     );
     statuses = [];
     subscription = engine.statusStream.listen(statuses.add);
@@ -175,7 +176,7 @@ void main() {
   tearDown(() async {
     engine.dispose();
     await subscription.cancel();
-    MediaKitPlaybackEngine.isActivityStopped = false;
+    IframeYoutubePlaybackEngine.isActivityStopped = false;
   });
   void engineTest(String name, Future<void> Function(WidgetTester) body) {
     testWidgets(name, (tester) async {
@@ -566,14 +567,14 @@ void main() {
     'stopped activity cues without play or start timeout; foreground resume plays once',
     (tester) async {
       addTearDown(engine.dispose);
-      MediaKitPlaybackEngine.isActivityStopped = true;
+      IframeYoutubePlaybackEngine.isActivityStopped = true;
       await ready(tester);
       expect(controller.commands, isEmpty);
       expect(controller.count('load'), 0);
       expect(controller.count('play'), 0);
       await tester.pump(const Duration(minutes: 1));
       expect(engine.currentStatus.error, isNull);
-      MediaKitPlaybackEngine.isActivityStopped = false;
+      IframeYoutubePlaybackEngine.isActivityStopped = false;
       await engine.resume();
       controller.emitState(track.id, yt.PlayerState.cued);
       controller.emitState(track.id, yt.PlayerState.cued);
@@ -602,7 +603,7 @@ void main() {
       addTearDown(engine.dispose);
       controller.volumeCompletion = Completer<void>();
       await ready(tester);
-      MediaKitPlaybackEngine.isActivityStopped = true;
+      IframeYoutubePlaybackEngine.isActivityStopped = true;
       controller.volumeCompletion!.complete();
       await tester.pump();
       expect(controller.count('play'), 0);
@@ -964,7 +965,7 @@ void main() {
           return createdAdapter!;
         },
       );
-      MediaKitPlaybackEngine.isActivityStopped = true;
+      IframeYoutubePlaybackEngine.isActivityStopped = true;
 
       await engine.resume();
 
@@ -992,13 +993,15 @@ void main() {
     setUp(() {
       adapters = [];
       engine.dispose();
-      engine = MediaKitPlaybackEngine(
-
-        nativeAdapterFactory: () {
-          final a = FakeNativeAdapter();
-          adapters.add(a);
-          return a;
-        },
+      engine = IframeYoutubePlaybackEngine(
+        youtubeControllerFactory: (_, __) => controller,
+        fallback: MediaKitPlaybackEngine(
+          nativeAdapterFactory: () {
+            final a = FakeNativeAdapter();
+            adapters.add(a);
+            return a;
+          },
+        ),
       );
       subscription.cancel();
       statuses = [];

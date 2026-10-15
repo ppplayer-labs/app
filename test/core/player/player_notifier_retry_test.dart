@@ -58,6 +58,9 @@ class FakePlaybackService implements PlaybackService {
   Future<void> cacheYoutubeId(String spotifyId, String? youtubeId) async {}
 
   @override
+  Future<String?> getCachedYoutubeId(String spotifyId) async => null;
+
+  @override
   Future<void> recordPlay(Track track) async {}
 
   @override
@@ -613,6 +616,9 @@ class _DelayedFakeService implements PlaybackService {
 
   @override
   Future<void> cacheYoutubeId(String spotifyId, String? youtubeId) async {}
+
+  @override
+  Future<String?> getCachedYoutubeId(String spotifyId) async => null;
 
   @override
   Future<void> recordPlay(Track track) async {}

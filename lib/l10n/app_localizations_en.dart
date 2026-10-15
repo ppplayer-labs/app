@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -333,6 +332,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get copyLink => 'Copy link';
+
+  @override
+  String get copySpotifyLink => 'Copy Spotify link';
+
+  @override
+  String get copyYouTubeLink => 'Copy YouTube link';
+
+  @override
+  String get copySpotifyId => 'Copy Spotify ID';
+
+  @override
+  String get copyYouTubeId => 'Copy YouTube ID';
+
+  @override
+  String get idCopied => 'ID copied';
 
   @override
   String get discover => 'Discover';
@@ -1092,4 +1106,55 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loadFailed => 'Could not load content. Please try again.';
+
+  @override
+  String get removeFolder => 'Remove folder';
+
+  @override
+  String get removeFolderConfirmTitle => 'Remove folder?';
+
+  @override
+  String removeFolderConfirmMessage(String name) {
+    return 'Remove \"$name\" and its media from your library? Files on disk will not be deleted.';
+  }
+
+  @override
+  String fileMissingOnDisk(String name) {
+    return '\"$name\" can no longer be found on disk';
+  }
+
+  @override
+  String get folderUnavailable =>
+      'Folder is unavailable. Please check that the drive is connected.';
+
+  @override
+  String fileAlreadyImported(String name) {
+    return '\"$name\" is already in your library';
+  }
+
+  @override
+  String filesAlreadyImported(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count files were already in your library',
+      one: '1 file was already in your library',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get folderAlreadyImported =>
+      'This folder is already imported — checking for new files';
+
+  @override
+  String get rescanCompleted => 'Library rescan completed';
+
+  @override
+  String rescanFailed(String error) {
+    return 'Failed to rescan folder: $error';
+  }
+
+  @override
+  String get importedFolderFallback => 'Imported Folder';
 }

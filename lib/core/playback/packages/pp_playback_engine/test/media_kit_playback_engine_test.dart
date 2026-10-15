@@ -184,7 +184,6 @@ void main() {
       adapters = [];
       engine.dispose();
       engine = MediaKitPlaybackEngine(
-
         nativeAdapterFactory: () {
           final a = FakeNativeAdapter();
           adapters.add(a);
@@ -293,7 +292,13 @@ void main() {
     });
 
     test('preparing local audio clears the preceding video preview', () async {
-      const video = PlaybackTrack(id: 'local-video', title: 'Video', localMediaUri: 'file:///local/video.mp4', sourceType: PlaybackSourceType.local, isVideo: true);
+      const video = PlaybackTrack(
+        id: 'local-video',
+        title: 'Video',
+        localMediaUri: 'file:///local/video.mp4',
+        sourceType: PlaybackSourceType.local,
+        isVideo: true,
+      );
       await engine.play(video);
       expect(engine.currentStatus.activeVideoId, video.id);
       await engine.prepare(localTrack);

@@ -1,0 +1,1 @@
+Non-fat file: /private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/MacOS/PPPlayer is architecture: arm64

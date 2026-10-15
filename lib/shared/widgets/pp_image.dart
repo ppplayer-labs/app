@@ -13,6 +13,7 @@ class PPImage extends StatelessWidget {
   final Widget? placeholder;
   final Widget? errorWidget;
   final BorderRadius? borderRadius;
+  final IconData? fallbackIcon;
 
   const PPImage({
     super.key,
@@ -25,12 +26,17 @@ class PPImage extends StatelessWidget {
     this.placeholder,
     this.errorWidget,
     this.borderRadius,
+    this.fallbackIcon,
   });
 
   @override
   Widget build(BuildContext context) {
     if (imageUrl == null || imageUrl!.isEmpty) {
-      return _buildErrorWidget(context);
+      final fallback = errorWidget ?? _buildErrorWidget(context);
+      if (borderRadius != null) {
+        return ClipRRect(borderRadius: borderRadius!, child: fallback);
+      }
+      return fallback;
     }
 
     Widget image;
@@ -44,7 +50,7 @@ class PPImage extends StatelessWidget {
         repeat: repeat,
         color: color,
         errorBuilder: (context, error, stackTrace) =>
-            _buildErrorWidget(context),
+            errorWidget ?? _buildErrorWidget(context),
       );
     } else if (imageUrl!.startsWith('/') || imageUrl!.startsWith('file://')) {
       final path = imageUrl!.startsWith('file://')
@@ -58,7 +64,7 @@ class PPImage extends StatelessWidget {
         repeat: repeat,
         color: color,
         errorBuilder: (context, error, stackTrace) =>
-            _buildErrorWidget(context),
+            errorWidget ?? _buildErrorWidget(context),
       );
     } else if (_isHttp(imageUrl!)) {
       image = CachedNetworkImage(
@@ -75,7 +81,7 @@ class PPImage extends StatelessWidget {
             errorWidget ?? _buildErrorWidget(context),
       );
     } else {
-      image = _buildErrorWidget(context);
+      image = errorWidget ?? _buildErrorWidget(context);
     }
 
     if (borderRadius != null) {
@@ -103,7 +109,7 @@ class PPImage extends StatelessWidget {
         context,
       ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.1),
       child: Icon(
-        Icons.music_note_rounded,
+        fallbackIcon ?? Icons.music_note_rounded,
         color: Theme.of(
           context,
         ).colorScheme.onSurfaceVariant.withValues(alpha: 0.2),

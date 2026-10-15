@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -338,6 +337,21 @@ class AppLocalizationsKk extends AppLocalizations {
   String get copyLink => 'Сілтемені көшіру';
 
   @override
+  String get copySpotifyLink => 'Spotify сілтемесін көшіру';
+
+  @override
+  String get copyYouTubeLink => 'YouTube сілтемесін көшіру';
+
+  @override
+  String get copySpotifyId => 'Spotify ID көшіру';
+
+  @override
+  String get copyYouTubeId => 'YouTube ID көшіру';
+
+  @override
+  String get idCopied => 'ID көшірілді';
+
+  @override
   String get discover => 'Ашу';
 
   @override
@@ -395,10 +409,10 @@ class AppLocalizationsKk extends AppLocalizations {
   String get queue1 => 'Кезек';
 
   @override
-  String get queueNowPlaying => 'Now playing';
+  String get queueNowPlaying => 'Қазір ойналуда';
 
   @override
-  String get queueUpNext => 'Up next';
+  String get queueUpNext => 'Келесі';
 
   @override
   String get recentlyPlayed => 'Жақында ойнатылған';
@@ -1097,4 +1111,55 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get loadFailed => 'Мазмұнды жүктеу мүмкін болмады. Қайталап көріңіз.';
+
+  @override
+  String get removeFolder => 'Қалтаны өшіру';
+
+  @override
+  String get removeFolderConfirmTitle => 'Қалтаны өшіру керек пе?';
+
+  @override
+  String removeFolderConfirmMessage(String name) {
+    return '\"$name\" қалтасын және оның медиасын кітапханадан өшіру керек пе? Дискідегі файлдар жойылмайды.';
+  }
+
+  @override
+  String fileMissingOnDisk(String name) {
+    return '\"$name\" дискіде табылмады';
+  }
+
+  @override
+  String get folderUnavailable =>
+      'Қалта қолжетімсіз. Дискінің қосылғанын тексеріңіз.';
+
+  @override
+  String fileAlreadyImported(String name) {
+    return '\"$name\" кітапханаңызда бар';
+  }
+
+  @override
+  String filesAlreadyImported(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count файл кітапханаңызда бұрыннан бар',
+      one: '1 файл кітапханаңызда бұрыннан бар',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get folderAlreadyImported =>
+      'Бұл қалта импортталған — жаңа файлдар тексерілуде';
+
+  @override
+  String get rescanCompleted => 'Кітапхананы қайта сканерлеу аяқталды';
+
+  @override
+  String rescanFailed(String error) {
+    return 'Қалтаны қайта сканерлеу сәтсіз аяқталды: $error';
+  }
+
+  @override
+  String get importedFolderFallback => 'Импортталған қалта';
 }

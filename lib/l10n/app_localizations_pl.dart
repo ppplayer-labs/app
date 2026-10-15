@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -337,6 +336,21 @@ class AppLocalizationsPl extends AppLocalizations {
   String get copyLink => 'Kopiuj link';
 
   @override
+  String get copySpotifyLink => 'Kopiuj link do Spotify';
+
+  @override
+  String get copyYouTubeLink => 'Kopiuj link do YouTube';
+
+  @override
+  String get copySpotifyId => 'Kopiuj identyfikator Spotify';
+
+  @override
+  String get copyYouTubeId => 'Kopiuj identyfikator YouTube';
+
+  @override
+  String get idCopied => 'Skopiowano identyfikator';
+
+  @override
   String get discover => 'Odkrywaj';
 
   @override
@@ -394,10 +408,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get queue1 => 'Kolejka';
 
   @override
-  String get queueNowPlaying => 'Now playing';
+  String get queueNowPlaying => 'Teraz odtwarzane';
 
   @override
-  String get queueUpNext => 'Up next';
+  String get queueUpNext => 'Następne';
 
   @override
   String get recentlyPlayed => 'Ostatnio odtwarzane';
@@ -1098,4 +1112,55 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get loadFailed =>
       'Nie udało się wczytać zawartości. Spróbuj ponownie.';
+
+  @override
+  String get removeFolder => 'Usuń folder';
+
+  @override
+  String get removeFolderConfirmTitle => 'Usunąć folder?';
+
+  @override
+  String removeFolderConfirmMessage(String name) {
+    return 'Usunąć „$name” i powiązane multimedia z biblioteki? Pliki na dysku nie zostaną usunięte.';
+  }
+
+  @override
+  String fileMissingOnDisk(String name) {
+    return 'Plik „$name” nie został znaleziony na dysku';
+  }
+
+  @override
+  String get folderUnavailable =>
+      'Folder jest niedostępny. Upewnij się, że dysk jest podłączony.';
+
+  @override
+  String fileAlreadyImported(String name) {
+    return '„$name” znajduje się już w bibliotece';
+  }
+
+  @override
+  String filesAlreadyImported(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count plików było już w bibliotece',
+      one: '1 plik był już w bibliotece',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get folderAlreadyImported =>
+      'Ten folder został już zaimportowany — sprawdzanie nowych plików';
+
+  @override
+  String get rescanCompleted => 'Zakończono ponowne skanowanie biblioteki';
+
+  @override
+  String rescanFailed(String error) {
+    return 'Nie udało się ponownie przeskanować folderu: $error';
+  }
+
+  @override
+  String get importedFolderFallback => 'Zaimportowany folder';
 }

@@ -14,6 +14,19 @@ final localFolderContentsProvider =
       return ref.watch(appDatabaseProvider).getFolderAppTracks(rootLocator);
     });
 
+/// Human-readable root path for an import root (the locator itself may be an
+/// opaque security-scoped bookmark).
+final localFolderRootPathProvider = FutureProvider.family<String, String>((
+  ref,
+  rootLocator,
+) async {
+  final roots = await ref.watch(appDatabaseProvider).getAllImportRoots();
+  for (final r in roots) {
+    if (r.rootLocator == rootLocator) return r.displayPath;
+  }
+  return rootLocator;
+});
+
 class LocalFolderDetailScreen extends ConsumerWidget {
   final String rootLocator;
   final String currentPath;
@@ -30,10 +43,25 @@ class LocalFolderDetailScreen extends ConsumerWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
-    final folderUri = Uri.tryParse(currentPath) ?? Uri.file(currentPath);
-    final folderName = folderUri.pathSegments.isNotEmpty
-        ? folderUri.pathSegments.last
-        : currentPath;
+    final rootPath =
+        ref.watch(localFolderRootPathProvider(rootLocator)).value ??
+        rootLocator;
+    final effectivePath = currentPath == rootLocator ? rootPath : currentPath;
+    final l10n = AppLocalizations.of(context)!;
+    String folderName;
+    if (rootLocator == 'imported') {
+      folderName = l10n.importedFiles;
+    } else {
+      final lastSeg = effectivePath
+          .split(RegExp(r'[\\/]'))
+          .where((s) => s.isNotEmpty)
+          .lastOrNull;
+      if (lastSeg == null || lastSeg.isEmpty || lastSeg.length > 64) {
+        folderName = l10n.importedFolderFallback;
+      } else {
+        folderName = lastSeg;
+      }
+    }
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -70,32 +98,44 @@ class LocalFolderDetailScreen extends ConsumerWidget {
                   final Set<String> subfolders = {};
                   final List<model.Track> directTracks = [];
 
-                  for (final track in tracks) {
-                    final filePath = track.localFilePath; // absolute path
-                    if (filePath == null) continue;
+                  if (rootLocator == 'imported') {
+                    directTracks.addAll(tracks);
+                  } else {
+                    for (final track in tracks) {
+                      final filePath = track.localFilePath; // absolute path
+                      if (filePath == null) continue;
 
-                    if (filePath.startsWith(currentPath)) {
-                      final relativePath = filePath.substring(
-                        currentPath.length,
-                      );
-                      // Remove leading slash if any
-                      final cleanRelative =
-                          relativePath.startsWith('/') ||
-                              relativePath.startsWith(Platform.pathSeparator)
-                          ? relativePath.substring(1)
-                          : relativePath;
+                      if (filePath.startsWith(effectivePath)) {
+                        final relativePath = filePath.substring(
+                          effectivePath.length,
+                        );
+                        // Remove leading slash if any
+                        final cleanRelative =
+                            relativePath.startsWith('/') ||
+                                relativePath.startsWith(Platform.pathSeparator)
+                            ? relativePath.substring(1)
+                            : relativePath;
 
-                      final segments = cleanRelative.split(
-                        Platform.pathSeparator,
-                      );
+                        final segments = cleanRelative.split(
+                          Platform.pathSeparator,
+                        );
 
-                      if (segments.length == 1) {
-                        // Direct file
-                        directTracks.add(track);
-                      } else {
-                        // In a subfolder
-                        subfolders.add(segments.first);
+                        if (segments.length == 1) {
+                          // Direct file
+                          directTracks.add(track);
+                        } else {
+                          // In a subfolder
+                          subfolders.add(segments.first);
+                        }
                       }
+                    }
+
+                    // Fallback safeguard: if path prefix didn't match but folder has tracks,
+                    // show all tracks directly so user never sees a blank screen.
+                    if (subfolders.isEmpty &&
+                        directTracks.isEmpty &&
+                        tracks.isNotEmpty) {
+                      directTracks.addAll(tracks);
                     }
                   }
 
@@ -109,7 +149,7 @@ class LocalFolderDetailScreen extends ConsumerWidget {
                       if (index < subfolderList.length) {
                         final subfolderName = subfolderList[index];
                         final subfolderPath =
-                            '$currentPath${Platform.pathSeparator}$subfolderName';
+                            '$effectivePath${Platform.pathSeparator}$subfolderName';
                         return ListTile(
                           leading: Icon(
                             Icons.folder_outlined,

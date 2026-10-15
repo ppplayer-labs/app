@@ -34,7 +34,6 @@ void _diag(String msg) =>
 // MediaKitPlaybackEngine
 // ---------------------------------------------------------------------------
 
-
 class IframeYoutubePlaybackEngine implements YoutubePlaybackEngine {
   final PlaybackController fallback;
 
@@ -148,7 +147,8 @@ class IframeYoutubePlaybackEngine implements YoutubePlaybackEngine {
     );
   }
 
-  yt.YoutubePlayerController? get youtubeController => _isYoutube ? _youtubeController : null;
+  yt.YoutubePlayerController? get youtubeController =>
+      _isYoutube ? _youtubeController : null;
 
   // ---------------------------------------------------------------------------
   // prepare()
@@ -157,7 +157,9 @@ class IframeYoutubePlaybackEngine implements YoutubePlaybackEngine {
   @override
   Future<void> prepare(PlaybackTrack track, {Duration? position}) async {
     if (_disposed) return;
-    final isOnline = track.sourceType == PlaybackSourceType.online && RegExp(r'^[A-Za-z0-9_-]{11}$').hasMatch(track.id);
+    final isOnline =
+        track.sourceType == PlaybackSourceType.online &&
+        RegExp(r'^[A-Za-z0-9_-]{11}$').hasMatch(track.id);
     if (!isOnline) {
       _isYoutube = false;
       return fallback.prepare(track, position: position);
@@ -226,7 +228,9 @@ class IframeYoutubePlaybackEngine implements YoutubePlaybackEngine {
     bool play = true,
   }) async {
     if (_disposed) return;
-    final isOnline = track.sourceType == PlaybackSourceType.online && RegExp(r'^[A-Za-z0-9_-]{11}$').hasMatch(track.id);
+    final isOnline =
+        track.sourceType == PlaybackSourceType.online &&
+        RegExp(r'^[A-Za-z0-9_-]{11}$').hasMatch(track.id);
     if (!isOnline) {
       _isYoutube = false;
       return fallback.play(track, startAt: startAt, play: play);
@@ -314,11 +318,7 @@ class IframeYoutubePlaybackEngine implements YoutubePlaybackEngine {
               ? _confirmedPlaybackPosition!.inMilliseconds / 1000.0
               : _currentStartSeconds;
       unawaited(
-        _load(
-          generation,
-          _currentStatus.track!,
-          startSeconds: recoveryStart,
-        ),
+        _load(generation, _currentStatus.track!, startSeconds: recoveryStart),
       );
     });
   }
@@ -333,17 +333,18 @@ class IframeYoutubePlaybackEngine implements YoutubePlaybackEngine {
         'MediaKitPlaybackEngine: [INIT] Creating YoutubePlayerController (persistent singleton)',
       );
 
-      _youtubeController = yt.YoutubePlayerController(
-        params: const yt.YoutubePlayerParams(
-          showControls: false,
-          showFullscreenButton: false,
-          mute: false,
-          loop: false,
-          strictRelatedVideos: true,
-          origin: 'https://ppplayer.com',
-          pointerEvents: yt.PointerEvents.none,
-        ),
+      const params = yt.YoutubePlayerParams(
+        showControls: false,
+        showFullscreenButton: false,
+        mute: false,
+        loop: false,
+        strictRelatedVideos: true,
+        origin: 'https://ppplayer.com',
+        pointerEvents: yt.PointerEvents.none,
       );
+      _youtubeController =
+          youtubeControllerFactory?.call(track.id, params) ??
+          yt.YoutubePlayerController(params: params);
 
       // ignore: invalid_use_of_internal_member
       _youtubeController!.webViewController.addJavaScriptChannel(
@@ -596,7 +597,8 @@ class IframeYoutubePlaybackEngine implements YoutubePlaybackEngine {
     String caller = 'user',
     bool failOnTimeout = false,
   }) async {
-    if (!_isYoutube) return fallback.pause(caller: caller, failOnTimeout: failOnTimeout);
+    if (!_isYoutube)
+      return fallback.pause(caller: caller, failOnTimeout: failOnTimeout);
     if ((_currentStatus.state == PlaybackState.paused ||
             _currentStatus.state == PlaybackState.idle) &&
         _intendedState != PlaybackState.playing) {
@@ -926,20 +928,16 @@ class IframeYoutubePlaybackEngine implements YoutubePlaybackEngine {
   }
 
   @override
-  bool get supportsTrackSelection =>
-      fallback.supportsTrackSelection;
+  bool get supportsTrackSelection => fallback.supportsTrackSelection;
 
   @override
-  bool get supportsExternalSubtitles =>
-      fallback.supportsExternalSubtitles;
+  bool get supportsExternalSubtitles => fallback.supportsExternalSubtitles;
 
   @override
-  bool get supportsSubtitleDelay =>
-      fallback.supportsSubtitleDelay;
+  bool get supportsSubtitleDelay => fallback.supportsSubtitleDelay;
 
   @override
-  bool get supportsSubtitleTextSize =>
-      fallback.supportsSubtitleTextSize;
+  bool get supportsSubtitleTextSize => fallback.supportsSubtitleTextSize;
 
   @override
   bool get supportsSubtitleBackgroundStyling =>
@@ -955,7 +953,11 @@ class IframeYoutubePlaybackEngine implements YoutubePlaybackEngine {
     double? textSize,
     int? backgroundColor,
   }) async {
-    if (!_isYoutube) return fallback.setSubtitleAppearance(textSize: textSize, backgroundColor: backgroundColor);
+    if (!_isYoutube)
+      return fallback.setSubtitleAppearance(
+        textSize: textSize,
+        backgroundColor: backgroundColor,
+      );
   }
   // ---------------------------------------------------------------------------
   // Status update + IFrame position polling

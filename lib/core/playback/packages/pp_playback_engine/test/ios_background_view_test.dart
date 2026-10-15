@@ -15,7 +15,7 @@ class _VideoController extends Mock implements video.VideoController {}
 
 void main() {
   testWidgets(
-    'iOS native surface does not pause on background or replay on return',
+    'mobile native surface does not pause on background or replay on return',
     (tester) async {
       final player = _Player();
       final streams = _Streams();
@@ -59,6 +59,9 @@ void main() {
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox.shrink());
     },
-    variant: TargetPlatformVariant({TargetPlatform.iOS}),
+    variant: TargetPlatformVariant({
+      TargetPlatform.iOS,
+      TargetPlatform.android,
+    }),
   );
 }

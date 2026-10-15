@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -336,6 +335,21 @@ class AppLocalizationsFa extends AppLocalizations {
   String get copyLink => 'کپی لینک';
 
   @override
+  String get copySpotifyLink => 'کپی پیوند Spotify';
+
+  @override
+  String get copyYouTubeLink => 'کپی پیوند YouTube';
+
+  @override
+  String get copySpotifyId => 'کپی شناسه Spotify';
+
+  @override
+  String get copyYouTubeId => 'کپی شناسه YouTube';
+
+  @override
+  String get idCopied => 'شناسه کپی شد';
+
+  @override
   String get discover => 'کشف';
 
   @override
@@ -393,10 +407,10 @@ class AppLocalizationsFa extends AppLocalizations {
   String get queue1 => 'صف';
 
   @override
-  String get queueNowPlaying => 'Now playing';
+  String get queueNowPlaying => 'در حال پخش';
 
   @override
-  String get queueUpNext => 'Up next';
+  String get queueUpNext => 'بعدی';
 
   @override
   String get recentlyPlayed => 'اخیراً پخش شده';
@@ -1092,4 +1106,55 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get loadFailed => 'محتوا بارگیری نشد. دوباره تلاش کنید.';
+
+  @override
+  String get removeFolder => 'حذف پوشه';
+
+  @override
+  String get removeFolderConfirmTitle => 'پوشه حذف شود؟';
+
+  @override
+  String removeFolderConfirmMessage(String name) {
+    return 'آیا «$name» و رسانه‌های آن از کتابخانه شما حذف شوند؟ پرونده‌های روی دیسک حذف نخواهند شد.';
+  }
+
+  @override
+  String fileMissingOnDisk(String name) {
+    return '«$name» دیگر روی دیسک پیدا نمی‌شود';
+  }
+
+  @override
+  String get folderUnavailable =>
+      'پوشه در دسترس نیست. لطفاً اتصال دیسک را بررسی کنید.';
+
+  @override
+  String fileAlreadyImported(String name) {
+    return '«$name» از قبل در کتابخانه شما وجود دارد';
+  }
+
+  @override
+  String filesAlreadyImported(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count پرونده از قبل در کتابخانه شما بودند',
+      one: '۱ پرونده از قبل در کتابخانه شما بود',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get folderAlreadyImported =>
+      'این پوشه قبلاً وارد شده است — در حال بررسی پرونده‌های جدید';
+
+  @override
+  String get rescanCompleted => 'اسکن مجدد کتابخانه به پایان رسید';
+
+  @override
+  String rescanFailed(String error) {
+    return 'اسکن مجدد پوشه ناموفق بود: $error';
+  }
+
+  @override
+  String get importedFolderFallback => 'پوشه وارد شده';
 }

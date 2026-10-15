@@ -31,6 +31,11 @@ import 'package:ppplayer/shared/widgets/tactile_buttons.dart';
 import '../test/core/player/player_notifier_playback_speed_test.dart'
     as fixtures;
 
+class _LiveSettingsNotifier extends fixtures.FakeSettingsNotifier {
+  @override
+  SettingsState build() => super.build().copyWith(continuePlaybackInPip: false);
+}
+
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   binding.framePolicy = LiveTestWidgetsFlutterBindingFramePolicy.onlyPumps;
@@ -58,13 +63,7 @@ void main() {
     }
 
     final engine = ChromiumPlaybackEngine(
-      fallback: android
-          ? HybridPlaybackEngine(
-              backgroundEngine: NativeServicePlaybackEngine(
-                startAutomatically: false,
-              ),
-            )
-          : MediaKitPlaybackEngine(),
+      fallback: MediaKitPlaybackEngine(),
       initializeCef: () async {
         if (!await ChromiumWebViewController.initialize(
           cachePath: Directory.systemTemp
@@ -78,6 +77,17 @@ void main() {
       startPlaybackService: android ? ChromiumMediaService.start : null,
       stopPlaybackService: android ? ChromiumMediaService.stop : null,
     );
+    // Match production ownership: the persistent hybrid wraps Chromium and
+    // its MediaKit fallback, rather than handing local media to a legacy host.
+    final PlaybackController controller = android
+        ? HybridPlaybackEngine(
+            ownershipPolicy: PlaybackOwnershipPolicy.persistentForeground,
+            foregroundEngine: engine,
+            backgroundEngine: NativeServicePlaybackEngine(
+              startAutomatically: false,
+            ),
+          )
+        : engine;
     final service = fixtures.FakePlaybackService()
       ..candidates = [
         const ResolvedVideoCandidate(
@@ -104,9 +114,9 @@ void main() {
       overrides: [
         db.appDatabaseProvider.overrideWithValue(database),
         audioHandlerProvider.overrideWithValue(handler),
-        settingsProvider.overrideWith(() => fixtures.FakeSettingsNotifier()),
+        settingsProvider.overrideWith(() => _LiveSettingsNotifier()),
         playbackServiceProvider.overrideWithValue(service),
-        playbackControllerProvider.overrideWithValue(engine),
+        playbackControllerProvider.overrideWithValue(controller),
       ],
     );
     if (android) container.read(mediaSyncServiceProvider);
@@ -156,6 +166,7 @@ void main() {
       );
     }
 
+    var bodyFailed = false;
     try {
       await tester.pumpWidget(
         UncontrolledProviderScope(
@@ -169,7 +180,7 @@ void main() {
                 fit: StackFit.expand,
                 children: [
                   PlaybackView(
-                    controller: engine,
+                    controller: controller,
                     status:
                         ref.watch(playbackStatusProvider).value ??
                         const PlaybackStatus(),
@@ -258,13 +269,18 @@ void main() {
           final before = await player.currentTime.timeout(
             const Duration(seconds: 8),
           );
-          await Future<void>.delayed(const Duration(seconds: 3));
+          await Future<void>.delayed(const Duration(seconds: 10));
           final after = await player.currentTime.timeout(
             const Duration(seconds: 8),
           );
-          expect(PipHandler.isActivityStopped, isTrue);
-          expect(after - before, greaterThan(0.5));
           print('CHROMIUM_BACKGROUND_PROGRESS before=$before after=$after');
+          expect(PipHandler.isActivityStopped, isTrue);
+          expect(
+            after - before,
+            greaterThan(5),
+            reason:
+                'Playback must sustain progress after Home, not just drain a short buffer',
+          );
           print('CHROMIUM_SCREEN_OFF_READY');
           await waitInBackground(
             () async => !await isInteractive(),
@@ -278,6 +294,9 @@ void main() {
           await Future<void>.delayed(const Duration(seconds: 20));
           final screenOffAfter = await player.currentTime.timeout(
             const Duration(seconds: 8),
+          );
+          print(
+            'CHROMIUM_SCREEN_OFF_MEASURED before=$screenOffBefore after=$screenOffAfter state=${engine.currentStatus.state}',
           );
           expect(PipHandler.isActivityStopped, isTrue);
           expect(screenOffAfter - screenOffBefore, greaterThan(10));
@@ -295,7 +314,7 @@ void main() {
           }
           expect(engine.currentStatus.state, PlaybackState.paused);
           final pausedPosition = await player.currentTime;
-          await Future<void>.delayed(const Duration(seconds: 1));
+          await Future<void>.delayed(const Duration(seconds: 10));
           expect((await player.currentTime) - pausedPosition, lessThan(0.5));
           print('CHROMIUM_MEDIA_PLAY_READY');
           final playDeadline = DateTime.now().add(const Duration(seconds: 10));
@@ -398,16 +417,25 @@ void main() {
       print(
         'PPPLAYER_LIVE_UI_PASS platform=${Platform.operatingSystem} volume=${await player.volume}',
       );
+    } catch (error, stack) {
+      bodyFailed = true;
+      print('PPPLAYER_LIVE_UI_FAILURE $error\n$stack');
+      rethrow;
     } finally {
       if (android && const bool.fromEnvironment('PPPLAYER_BACKGROUND_PROBE')) {
         // Restore the activity even when a background assertion fails, so
         // widget cleanup can receive frames and report the original failure.
         print('CHROMIUM_BACKGROUND_DONE');
         await Future<void>.delayed(const Duration(seconds: 2));
-        await waitInBackground(
-          () async => !PipHandler.isActivityStopped,
-          'Activity did not restore for cleanup',
-        );
+        try {
+          await waitInBackground(
+            () async => !PipHandler.isActivityStopped,
+            'Activity did not restore for cleanup',
+          );
+        } catch (error) {
+          if (!bodyFailed) rethrow;
+          print('Cleanup restoration failed after test failure: $error');
+        }
       }
       binding.framePolicy = LiveTestWidgetsFlutterBindingFramePolicy.onlyPumps;
       await tester.pumpWidget(const SizedBox());
@@ -416,7 +444,7 @@ void main() {
       for (final subscription in playerEvents) {
         await subscription.cancel();
       }
-      await engine.dispose();
+      await controller.dispose();
       await database.close();
       await Hive.close();
     }

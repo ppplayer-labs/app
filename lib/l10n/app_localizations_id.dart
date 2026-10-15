@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -337,6 +336,21 @@ class AppLocalizationsId extends AppLocalizations {
   String get copyLink => 'Salin tautan';
 
   @override
+  String get copySpotifyLink => 'Salin tautan Spotify';
+
+  @override
+  String get copyYouTubeLink => 'Salin tautan YouTube';
+
+  @override
+  String get copySpotifyId => 'Salin ID Spotify';
+
+  @override
+  String get copyYouTubeId => 'Salin ID YouTube';
+
+  @override
+  String get idCopied => 'ID disalin';
+
+  @override
   String get discover => 'Temukan';
 
   @override
@@ -394,10 +408,10 @@ class AppLocalizationsId extends AppLocalizations {
   String get queue1 => 'Antrean';
 
   @override
-  String get queueNowPlaying => 'Now playing';
+  String get queueNowPlaying => 'Sedang Diputar';
 
   @override
-  String get queueUpNext => 'Up next';
+  String get queueUpNext => 'Berikutnya';
 
   @override
   String get recentlyPlayed => 'Baru Diputar';
@@ -1095,4 +1109,55 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get loadFailed => 'Konten tidak dapat dimuat. Silakan coba lagi.';
+
+  @override
+  String get removeFolder => 'Hapus folder';
+
+  @override
+  String get removeFolderConfirmTitle => 'Hapus folder?';
+
+  @override
+  String removeFolderConfirmMessage(String name) {
+    return 'Hapus \"$name\" dan medianya dari pustaka Anda? Berkas di disk tidak akan dihapus.';
+  }
+
+  @override
+  String fileMissingOnDisk(String name) {
+    return '\"$name\" tidak lagi ditemukan di disk';
+  }
+
+  @override
+  String get folderUnavailable =>
+      'Folder tidak tersedia. Pastikan drive terhubung.';
+
+  @override
+  String fileAlreadyImported(String name) {
+    return '\"$name\" sudah ada di pustaka Anda';
+  }
+
+  @override
+  String filesAlreadyImported(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count file sudah ada di pustaka Anda',
+      one: '1 file sudah ada di pustaka Anda',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get folderAlreadyImported =>
+      'Folder ini sudah diimpor — memeriksa berkas baru';
+
+  @override
+  String get rescanCompleted => 'Pemindaian ulang pustaka selesai';
+
+  @override
+  String rescanFailed(String error) {
+    return 'Gagal memindai ulang folder: $error';
+  }
+
+  @override
+  String get importedFolderFallback => 'Folder yang Diimpor';
 }

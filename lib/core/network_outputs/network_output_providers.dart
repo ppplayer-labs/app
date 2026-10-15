@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:io';
+import 'package:path/path.dart' as p;
 import 'dart:convert';
 
 import '../playback/playback_providers.dart';
@@ -131,8 +132,9 @@ final networkOutputSnapshotProvider = Provider<NetworkOutputState>((ref) {
 /// On non-bookmark inputs (file:// URIs, absolute paths) no native call is
 /// needed and [onRelease] is null.
 Future<AuthorizedFileLease> acquireAppleOutputFileLease(
-  PlaybackTrack track,
-) async {
+  PlaybackTrack track, {
+  Future<String?> Function(String path)? rootLocatorFor,
+}) async {
   final locator = track.localMediaUri ?? '';
   if (locator.isEmpty) {
     throw UnsupportedError(
@@ -147,19 +149,46 @@ Future<AuthorizedFileLease> acquireAppleOutputFileLease(
     );
   }
 
-  // ── Already a file:// URI ────────────────────────────────────────────────
+  // ── Plain path or file:// URI (folder children / managed copies) ─────────
+  // Folder imports persist children as plain paths plus the bookmark of their
+  // root. In a sandboxed build the plain path is unreadable after restart, so
+  // on macOS first re-acquire the root bookmark and hold it for the lease's
+  // lifetime. Unsandboxed builds (or a stale root) fall back to the path.
   final uri = Uri.tryParse(locator);
-  if (uri != null && uri.scheme == 'file') {
+  final plainPath = (uri != null && uri.scheme == 'file')
+      ? File.fromUri(uri).path
+      : (locator.startsWith('/') ? locator : null);
+  if (plainPath != null) {
+    if (Platform.isMacOS && rootLocatorFor != null) {
+      final rootLocator = await rootLocatorFor(plainPath);
+      if (rootLocator != null) {
+        final rootPath = await resolveSecurityScopedBookmark(rootLocator);
+        if (rootPath != null) {
+          try {
+            final canonicalRoot = await Directory(
+              rootPath,
+            ).resolveSymbolicLinks();
+            final canonicalPath = await File(plainPath).resolveSymbolicLinks();
+            if (p.isWithin(canonicalRoot, canonicalPath)) {
+              debugPrint('[Output] file_lease.root_bookmark access=active');
+              return AuthorizedFileLease(
+                canonicalPath: canonicalPath,
+                onRelease: () async {
+                  await stopAccessingSecurityScopedBookmark(rootLocator);
+                  debugPrint('[Output] file_lease.released access=stopped');
+                },
+              );
+            }
+          } catch (_) {
+            // Fall through to the plain-path attempt below after releasing.
+          }
+          await stopAccessingSecurityScopedBookmark(rootLocator);
+        }
+      }
+    }
     return AuthorizedFileLease(
-      canonicalPath: await File.fromUri(uri).resolveSymbolicLinks(),
+      canonicalPath: await File(plainPath).resolveSymbolicLinks(),
       // No security-scoped resource; no release action needed.
-    );
-  }
-
-  // ── Absolute path without scheme (e.g. managed copy on macOS) ───────────
-  if (locator.startsWith('/')) {
-    return AuthorizedFileLease(
-      canonicalPath: await File(locator).resolveSymbolicLinks(),
     );
   }
 

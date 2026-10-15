@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -330,6 +329,21 @@ class AppLocalizationsJa extends AppLocalizations {
   String get copyLink => 'リンクをコピー';
 
   @override
+  String get copySpotifyLink => 'Spotifyリンクをコピー';
+
+  @override
+  String get copyYouTubeLink => 'YouTubeリンクをコピー';
+
+  @override
+  String get copySpotifyId => 'Spotify IDをコピー';
+
+  @override
+  String get copyYouTubeId => 'YouTube IDをコピー';
+
+  @override
+  String get idCopied => 'IDをコピーしました';
+
+  @override
   String get discover => '見つける';
 
   @override
@@ -387,10 +401,10 @@ class AppLocalizationsJa extends AppLocalizations {
   String get queue1 => 'キュー';
 
   @override
-  String get queueNowPlaying => 'Now playing';
+  String get queueNowPlaying => '再生中';
 
   @override
-  String get queueUpNext => 'Up next';
+  String get queueUpNext => '次に再生';
 
   @override
   String get recentlyPlayed => '最近再生した項目';
@@ -1077,4 +1091,52 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get loadFailed => 'コンテンツを読み込めませんでした。もう一度お試しください。';
+
+  @override
+  String get removeFolder => 'フォルダを削除';
+
+  @override
+  String get removeFolderConfirmTitle => 'フォルダを削除しますか？';
+
+  @override
+  String removeFolderConfirmMessage(String name) {
+    return 'ライブラリから「$name」とそのメディアを削除しますか？ディスク上のファイルは削除されません。';
+  }
+
+  @override
+  String fileMissingOnDisk(String name) {
+    return '「$name」はディスク上に見つかりません';
+  }
+
+  @override
+  String get folderUnavailable => 'フォルダが利用できません。ドライブが接続されていることを確認してください。';
+
+  @override
+  String fileAlreadyImported(String name) {
+    return '「$name」は既にライブラリに存在します';
+  }
+
+  @override
+  String filesAlreadyImported(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count個のファイルは既にライブラリにありました',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get folderAlreadyImported => 'このフォルダは既にインポートされています — 新しいファイルを確認中';
+
+  @override
+  String get rescanCompleted => 'ライブラリの再スキャンが完了しました';
+
+  @override
+  String rescanFailed(String error) {
+    return 'フォルダの再スキャンに失敗しました: $error';
+  }
+
+  @override
+  String get importedFolderFallback => 'インポート済みフォルダ';
 }

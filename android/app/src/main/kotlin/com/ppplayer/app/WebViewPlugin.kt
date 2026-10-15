@@ -51,7 +51,9 @@ class WebViewPlugin : FlutterPlugin, MethodCallHandler {
     }
 
     private var context: Context? = null
-    private var ownsChromiumService = false
+    private enum class ServiceOwner { NONE, CHROMIUM, LEGACY }
+    // Reserve before startForegroundService: onStartCommand runs asynchronously.
+    private var serviceOwner = ServiceOwner.NONE
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         context = binding.applicationContext
@@ -62,27 +64,31 @@ class WebViewPlugin : FlutterPlugin, MethodCallHandler {
     override fun onMethodCall(call: MethodCall, result: Result) {
         when (call.method) {
             "startChromiumService" -> {
-                if (CustomWebViewService.instance?.ownsWebView == true) {
+                if (serviceOwner == ServiceOwner.LEGACY || CustomWebViewService.instance?.ownsWebView == true) {
                     result.error("BUSY", "Legacy playback service already owns a WebView", null)
                     return
                 }
-                val intent = Intent(context, CustomWebViewService::class.java).apply {
+                if (serviceOwner == ServiceOwner.CHROMIUM) { result.success(null); return }
+                val appContext = context ?: return result.error("DETACHED", "Engine detached", null)
+                serviceOwner = ServiceOwner.CHROMIUM
+                val intent = Intent(appContext, CustomWebViewService::class.java).apply {
                     putExtra(CustomWebViewService.EXTRA_CHROMIUM_PLAYER, true)
                 }
                 try {
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O)
                         context?.startForegroundService(intent)
                     else context?.startService(intent)
-                    ownsChromiumService = true
-                    result.success(null)
+                    awaitChromiumService(result, appContext)
                 } catch (e: Exception) {
+                    serviceOwner = ServiceOwner.NONE
                     result.error("SERVICE_START_FAILED", e.message, null)
                 }
             }
             "stopChromiumService" -> {
-                if (ownsChromiumService && CustomWebViewService.instance?.ownsWebView != true)
+                if (serviceOwner == ServiceOwner.CHROMIUM) {
                     context?.stopService(Intent(context, CustomWebViewService::class.java))
-                ownsChromiumService = false
+                    serviceOwner = ServiceOwner.NONE
+                }
                 result.success(null)
             }
             "chromiumServiceState" -> {
@@ -92,23 +98,29 @@ class WebViewPlugin : FlutterPlugin, MethodCallHandler {
                     "ownsWebView" to (CustomWebViewService.instance?.ownsWebView == true)))
             }
             "startService" -> {
-                if (ownsChromiumService) {
+                if (serviceOwner == ServiceOwner.CHROMIUM) {
                     result.error("BUSY", "Chromium playback already owns the service", null)
                     return
                 }
-                val intent = Intent(context, CustomWebViewService::class.java)
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                    context?.startForegroundService(intent)
-                } else {
-                    context?.startService(intent)
+                if (serviceOwner == ServiceOwner.LEGACY) { result.success(null); return }
+                val appContext = context ?: return result.error("DETACHED", "Engine detached", null)
+                serviceOwner = ServiceOwner.LEGACY
+                try {
+                    val intent = Intent(appContext, CustomWebViewService::class.java)
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O)
+                        appContext.startForegroundService(intent)
+                    else appContext.startService(intent)
+                    result.success(null)
+                } catch (e: Exception) {
+                    serviceOwner = ServiceOwner.NONE
+                    result.error("SERVICE_START_FAILED", e.message, null)
                 }
-                result.success(null)
             }
             "stopService" -> {
-                val intent = Intent(context, CustomWebViewService::class.java).apply {
-                    action = CustomWebViewService.ACTION_STOP_SERVICE
+                if (serviceOwner == ServiceOwner.LEGACY) {
+                    context?.stopService(Intent(context, CustomWebViewService::class.java))
+                    serviceOwner = ServiceOwner.NONE
                 }
-                context?.startService(intent)
                 result.success(null)
             }
             "prepareVideo" -> {
@@ -150,9 +162,28 @@ class WebViewPlugin : FlutterPlugin, MethodCallHandler {
         }
     }
 
+    private fun awaitChromiumService(result: Result, appContext: Context, attempts: Int = 20) {
+        if (serviceOwner != ServiceOwner.CHROMIUM) {
+            result.error("SERVICE_STOPPED", "Service ownership invalidated", null)
+            return
+        }
+        val service = CustomWebViewService.instance
+        if (service?.chromiumPlayer == true && !service.ownsWebView) {
+            result.success(null)
+            return
+        }
+        if (attempts == 0) {
+            appContext.stopService(Intent(appContext, CustomWebViewService::class.java))
+            serviceOwner = ServiceOwner.NONE
+            result.error("SERVICE_START_TIMEOUT", "Chromium service did not become ready", null)
+            return
+        }
+        mainHandler.postDelayed({ awaitChromiumService(result, appContext, attempts - 1) }, 250)
+    }
+
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
-        if (ownsChromiumService) context?.stopService(Intent(context, CustomWebViewService::class.java))
-        ownsChromiumService = false
+        if (serviceOwner != ServiceOwner.NONE) context?.stopService(Intent(context, CustomWebViewService::class.java))
+        serviceOwner = ServiceOwner.NONE
         methodChannel?.setMethodCallHandler(null)
         methodChannel = null
         context = null

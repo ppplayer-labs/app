@@ -384,7 +384,16 @@ class _TrackTileState extends ConsumerState<TrackTile> {
         onExit: (_) => setState(() => _isHovered = false),
         cursor: SystemMouseCursors.click,
         child: TactileTap(
-          onTap: widget.onTap,
+          onTap: () {
+            // Current track: resume / no-op via the playback state instead of
+            // restarting it. Anything else goes through the caller's onTap.
+            if (ref
+                .read(playerProvider.notifier)
+                .handleTapOnCurrentTrack(widget.track)) {
+              return;
+            }
+            widget.onTap();
+          },
           scaleDown: 0.98,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
@@ -418,7 +427,7 @@ class _TrackTileState extends ConsumerState<TrackTile> {
                     width: 32,
                     child: effectiveIsActive
                         ? Center(
-                            child: AnimatedEqualizer(
+                            child: PlaybackIndicator(
                               color: colorScheme.primary,
                             ),
                           )
@@ -450,17 +459,40 @@ class _TrackTileState extends ConsumerState<TrackTile> {
                                 width: 46,
                                 height: 46,
                                 fit: BoxFit.cover,
+                                fallbackIcon: widget.track.isVideoFile
+                                    ? Icons.videocam_rounded
+                                    : Icons.music_note_rounded,
                               )
                             : Container(
                                 width: 46,
                                 height: 46,
                                 color: colorScheme.surfaceContainerHighest,
                                 child: Icon(
-                                  Icons.music_note,
+                                  widget.track.isVideoFile
+                                      ? Icons.videocam_rounded
+                                      : Icons.music_note,
                                   color: colorScheme.onSurfaceVariant,
                                 ),
                               ),
                       ),
+                      if (widget.track.isVideoFile &&
+                          widget.track.albumImage != null)
+                        Positioned(
+                          right: 2,
+                          bottom: 2,
+                          child: Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.65),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Icon(
+                              Icons.videocam_rounded,
+                              size: 10,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
                       if (widget.index == null && effectiveIsActive)
                         Positioned.fill(
                           child: Container(
@@ -469,7 +501,7 @@ class _TrackTileState extends ConsumerState<TrackTile> {
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Center(
-                              child: AnimatedEqualizer(
+                              child: PlaybackIndicator(
                                 color: colorScheme.primary,
                               ),
                             ),

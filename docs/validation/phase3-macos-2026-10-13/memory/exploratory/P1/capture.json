@@ -1,0 +1,1138 @@
+{
+  "phase": "P1",
+  "mode": "measurement",
+  "startedUtc": "2026-10-13T16:53:42.722855+00:00",
+  "collectorChildCpuSeconds": 1.7782550000000001,
+  "endedUtc": "2026-10-13T16:53:43.780488+00:00",
+  "durationSeconds": 1.0576427919440903,
+  "appPid": 8397,
+  "hostPid": 8403,
+  "hostGenerationProvenance": "single observed host identity; restart is an error",
+  "processes": [
+    {
+      "pid": 8397,
+      "ppid": 55899,
+      "startLocal": "Tue Oct 13 13:52:19 2026",
+      "rssKiB": 242688,
+      "command": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/MacOS/PPPlayer",
+      "role": "host",
+      "utilitySubtype": null,
+      "processRole": "flutter_application",
+      "executablePath": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/MacOS/PPPlayer",
+      "numericFileDescriptors": 29
+    },
+    {
+      "pid": 8403,
+      "ppid": 8397,
+      "startLocal": "Tue Oct 13 13:52:22 2026",
+      "rssKiB": 155072,
+      "command": "/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/MacOS/ChromiumWebViewHost --ipc-socket=/tmp/f_cef_8397_E3F72181/ipc.sock --ipc-token=<redacted> --parent-pid=8397",
+      "role": "host",
+      "utilitySubtype": null,
+      "processRole": "cef_host",
+      "executablePath": "/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/MacOS/ChromiumWebViewHost",
+      "numericFileDescriptors": 99
+    },
+    {
+      "pid": 8410,
+      "ppid": 8403,
+      "startLocal": "Tue Oct 13 13:52:24 2026",
+      "rssKiB": 99088,
+      "command": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper.app/Contents/MacOS/ChromiumWebView Helper --type=gpu-process --disable-breakpad --start-stack-profiler --user-data-dir=/private/var/folders/81/ycpgyt397wvdx03d5kwdmpwr0000gn/T/cef_cache_8403 --framework-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework --main-bundle-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app --locales-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework/Versions/A/Resources --log-severity=verbose --resources-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework/Versions/A/Resources --gpu-preferences=SAAAAAAAAAAgAQAMAAAAAAAAAAAAAGAAAwAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAQAAAAAAAAABAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=1752395122,r,16290014865007059697,15680232570582310249,262144 --field-trial-handle=1718379636,r,5303064507175538489,5236561676144267242,262144 --disable-features=Accessibility --variations-seed-version --pseudonymization-salt-handle=1935764596,r,7342654117540506372,14522146421634244782,4 --trace-process-track-uuid=3190708988185955192 --log-file=/private/tmp/ppplayer-phase3-video-fix-cef.log --seatbelt-client=28",
+      "role": "gpu-process",
+      "utilitySubtype": null,
+      "processRole": "gpu-process",
+      "executablePath": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper.app/Contents/MacOS/ChromiumWebView Helper",
+      "numericFileDescriptors": 20
+    },
+    {
+      "pid": 8411,
+      "ppid": 8403,
+      "startLocal": "Tue Oct 13 13:52:24 2026",
+      "rssKiB": 75408,
+      "command": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper.app/Contents/MacOS/ChromiumWebView Helper --type=utility --utility-sub-type=network.mojom.NetworkService --lang=en-US --service-sandbox-type=network --start-stack-profiler --user-data-dir=/private/var/folders/81/ycpgyt397wvdx03d5kwdmpwr0000gn/T/cef_cache_8403 --framework-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework --main-bundle-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app --locales-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework/Versions/A/Resources --log-severity=verbose --resources-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework/Versions/A/Resources --shared-files --metrics-shmem-handle=1752395122,r,1686515552301118840,2088944257008906900,524288 --field-trial-handle=1718379636,r,5303064507175538489,5236561676144267242,262144 --disable-features=Accessibility --variations-seed-version --pseudonymization-salt-handle=1935764596,r,7342654117540506372,14522146421634244782,4 --trace-process-track-uuid=3190708989122997041 --log-file=/private/tmp/ppplayer-phase3-video-fix-cef.log --seatbelt-client=25",
+      "role": "utility",
+      "utilitySubtype": "network.mojom.NetworkService",
+      "processRole": "network.mojom.NetworkService",
+      "executablePath": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper.app/Contents/MacOS/ChromiumWebView Helper",
+      "numericFileDescriptors": 37
+    },
+    {
+      "pid": 8412,
+      "ppid": 8403,
+      "startLocal": "Tue Oct 13 13:52:24 2026",
+      "rssKiB": 57600,
+      "command": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper.app/Contents/MacOS/ChromiumWebView Helper --type=utility --utility-sub-type=storage.mojom.StorageService --lang=en-US --service-sandbox-type=service --user-data-dir=/private/var/folders/81/ycpgyt397wvdx03d5kwdmpwr0000gn/T/cef_cache_8403 --framework-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework --main-bundle-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app --locales-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework/Versions/A/Resources --log-severity=verbose --resources-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework/Versions/A/Resources --shared-files --metrics-shmem-handle=1752395122,r,2637858416439133238,2609592150656016029,524288 --field-trial-handle=1718379636,r,5303064507175538489,5236561676144267242,262144 --disable-features=Accessibility --variations-seed-version --pseudonymization-salt-handle=1935764596,r,7342654117540506372,14522146421634244782,4 --trace-process-track-uuid=3190708990060038890 --log-file=/private/tmp/ppplayer-phase3-video-fix-cef.log --seatbelt-client=40",
+      "role": "utility",
+      "utilitySubtype": "storage.mojom.StorageService",
+      "processRole": "storage.mojom.StorageService",
+      "executablePath": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper.app/Contents/MacOS/ChromiumWebView Helper",
+      "numericFileDescriptors": 17
+    },
+    {
+      "pid": 8414,
+      "ppid": 8403,
+      "startLocal": "Tue Oct 13 13:52:24 2026",
+      "rssKiB": 235232,
+      "command": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper (Renderer).app/Contents/MacOS/ChromiumWebView Helper (Renderer) --type=renderer --start-stack-profiler --user-data-dir=/private/var/folders/81/ycpgyt397wvdx03d5kwdmpwr0000gn/T/cef_cache_8403 --framework-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework --main-bundle-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app --locales-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework/Versions/A/Resources --log-severity=verbose --resources-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework/Versions/A/Resources --lang=en-US --num-raster-threads=4 --enable-zero-copy --enable-gpu-memory-buffer-compositor-resources --enable-main-frame-before-activation --renderer-client-id=7 --time-ticks-at-unix-epoch=-1791483264952839 --launch-time-ticks=427079345874 --shared-files --metrics-shmem-handle=1752395122,r,18380861170472786582,11306869054741618955,2097152 --field-trial-handle=1718379636,r,5303064507175538489,5236561676144267242,262144 --disable-features=Accessibility --variations-seed-version --pseudonymization-salt-handle=1935764596,r,7342654117540506372,14522146421634244782,4 --trace-process-track-uuid=3190708992871164437 --log-file=/private/tmp/ppplayer-phase3-video-fix-cef.log --seatbelt-client=74",
+      "role": "renderer",
+      "utilitySubtype": null,
+      "processRole": "renderer",
+      "executablePath": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper (Renderer).app/Contents/MacOS/ChromiumWebView Helper (Renderer)",
+      "numericFileDescriptors": 17
+    },
+    {
+      "pid": 8415,
+      "ppid": 8403,
+      "startLocal": "Tue Oct 13 13:52:24 2026",
+      "rssKiB": 123104,
+      "command": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper (Renderer).app/Contents/MacOS/ChromiumWebView Helper (Renderer) --type=renderer --user-data-dir=/private/var/folders/81/ycpgyt397wvdx03d5kwdmpwr0000gn/T/cef_cache_8403 --framework-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework --main-bundle-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app --locales-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework/Versions/A/Resources --log-severity=verbose --resources-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework/Versions/A/Resources --lang=en-US --num-raster-threads=4 --enable-zero-copy --enable-gpu-memory-buffer-compositor-resources --enable-main-frame-before-activation --renderer-client-id=6 --time-ticks-at-unix-epoch=-1791483264952839 --launch-time-ticks=427079360125 --shared-files --metrics-shmem-handle=1752395122,r,13218713939440792144,7423331145980752924,2097152 --field-trial-handle=1718379636,r,5303064507175538489,5236561676144267242,262144 --disable-features=Accessibility --variations-seed-version --pseudonymization-salt-handle=1935764596,r,7342654117540506372,14522146421634244782,4 --trace-process-track-uuid=3190708991934122588 --log-file=/private/tmp/ppplayer-phase3-video-fix-cef.log --seatbelt-client=74",
+      "role": "renderer",
+      "utilitySubtype": null,
+      "processRole": "renderer",
+      "executablePath": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper (Renderer).app/Contents/MacOS/ChromiumWebView Helper (Renderer)",
+      "numericFileDescriptors": 16
+    },
+    {
+      "pid": 8416,
+      "ppid": 8403,
+      "startLocal": "Tue Oct 13 13:52:24 2026",
+      "rssKiB": 72976,
+      "command": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper (Renderer).app/Contents/MacOS/ChromiumWebView Helper (Renderer) --type=renderer --user-data-dir=/private/var/folders/81/ycpgyt397wvdx03d5kwdmpwr0000gn/T/cef_cache_8403 --framework-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework --main-bundle-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app --locales-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework/Versions/A/Resources --log-severity=verbose --resources-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework/Versions/A/Resources --lang=en-US --num-raster-threads=4 --enable-zero-copy --enable-gpu-memory-buffer-compositor-resources --enable-main-frame-before-activation --renderer-client-id=8 --time-ticks-at-unix-epoch=-1791483264952839 --launch-time-ticks=427079891051 --shared-files --metrics-shmem-handle=1752395122,r,8542724856254701793,12308703767115300414,2097152 --field-trial-handle=1718379636,r,5303064507175538489,5236561676144267242,262144 --disable-features=Accessibility --variations-seed-version --pseudonymization-salt-handle=1935764596,r,7342654117540506372,14522146421634244782,4 --trace-process-track-uuid=3190708993808206286 --log-file=/private/tmp/ppplayer-phase3-video-fix-cef.log --seatbelt-client=78",
+      "role": "renderer",
+      "utilitySubtype": null,
+      "processRole": "renderer",
+      "executablePath": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper (Renderer).app/Contents/MacOS/ChromiumWebView Helper (Renderer)",
+      "numericFileDescriptors": 16
+    },
+    {
+      "pid": 8418,
+      "ppid": 8403,
+      "startLocal": "Tue Oct 13 13:52:25 2026",
+      "rssKiB": 62576,
+      "command": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper.app/Contents/MacOS/ChromiumWebView Helper --type=utility --utility-sub-type=audio.mojom.AudioService --lang=en-US --service-sandbox-type=audio --message-loop-type-ui --user-data-dir=/private/var/folders/81/ycpgyt397wvdx03d5kwdmpwr0000gn/T/cef_cache_8403 --framework-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework --main-bundle-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app --locales-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework/Versions/A/Resources --log-severity=verbose --resources-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework/Versions/A/Resources --shared-files --metrics-shmem-handle=1752395122,r,14658359473347668475,5425317529070575341,524288 --field-trial-handle=1718379636,r,5303064507175538489,5236561676144267242,262144 --disable-features=Accessibility --variations-seed-version --pseudonymization-salt-handle=1935764596,r,7342654117540506372,14522146421634244782,4 --trace-process-track-uuid=3190708994745248135 --log-file=/private/tmp/ppplayer-phase3-video-fix-cef.log --seatbelt-client=78",
+      "role": "utility",
+      "utilitySubtype": "audio.mojom.AudioService",
+      "processRole": "audio.mojom.AudioService",
+      "executablePath": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper.app/Contents/MacOS/ChromiumWebView Helper",
+      "numericFileDescriptors": 15
+    },
+    {
+      "pid": 8419,
+      "ppid": 8403,
+      "startLocal": "Tue Oct 13 13:52:25 2026",
+      "rssKiB": 75104,
+      "command": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper.app/Contents/MacOS/ChromiumWebView Helper --type=utility --utility-sub-type=video_capture.mojom.VideoCaptureService --lang=en-US --service-sandbox-type=none --message-loop-type-ui --user-data-dir=/private/var/folders/81/ycpgyt397wvdx03d5kwdmpwr0000gn/T/cef_cache_8403 --framework-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework --main-bundle-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app --locales-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework/Versions/A/Resources --log-severity=verbose --resources-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework/Versions/A/Resources --shared-files --metrics-shmem-handle=1752395122,r,13698732194215683921,13361954969405052718,524288 --field-trial-handle=1718379636,r,5303064507175538489,5236561676144267242,262144 --disable-features=Accessibility --variations-seed-version --pseudonymization-salt-handle=1935764596,r,7342654117540506372,14522146421634244782,4 --trace-process-track-uuid=3190708995682289984 --log-file=/private/tmp/ppplayer-phase3-video-fix-cef.log",
+      "role": "utility",
+      "utilitySubtype": "video_capture.mojom.VideoCaptureService",
+      "processRole": "video_capture.mojom.VideoCaptureService",
+      "executablePath": "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper.app/Contents/MacOS/ChromiumWebView Helper",
+      "numericFileDescriptors": 13
+    }
+  ],
+  "events": [
+    {
+      "event": "created",
+      "identity": [
+        8397,
+        "Tue Oct 13 13:52:19 2026",
+        "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/MacOS/PPPlayer"
+      ],
+      "ppid": 55899
+    },
+    {
+      "event": "created",
+      "identity": [
+        8403,
+        "Tue Oct 13 13:52:22 2026",
+        "/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/MacOS/ChromiumWebViewHost --ipc-socket=/tmp/f_cef_8397_E3F72181/ipc.sock --ipc-token=<redacted> --parent-pid=8397"
+      ],
+      "ppid": 8397
+    },
+    {
+      "event": "created",
+      "identity": [
+        8410,
+        "Tue Oct 13 13:52:24 2026",
+        "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper.app/Contents/MacOS/ChromiumWebView Helper --type=gpu-process --disable-breakpad --start-stack-profiler --user-data-dir=/private/var/folders/81/ycpgyt397wvdx03d5kwdmpwr0000gn/T/cef_cache_8403 --framework-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework --main-bundle-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app --locales-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework/Versions/A/Resources --log-severity=verbose --resources-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework/Versions/A/Resources --gpu-preferences=SAAAAAAAAAAgAQAMAAAAAAAAAAAAAGAAAwAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAQAAAAAAAAABAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --metrics-shmem-handle=1752395122,r,16290014865007059697,15680232570582310249,262144 --field-trial-handle=1718379636,r,5303064507175538489,5236561676144267242,262144 --disable-features=Accessibility --variations-seed-version --pseudonymization-salt-handle=1935764596,r,7342654117540506372,14522146421634244782,4 --trace-process-track-uuid=3190708988185955192 --log-file=/private/tmp/ppplayer-phase3-video-fix-cef.log --seatbelt-client=28"
+      ],
+      "ppid": 8403
+    },
+    {
+      "event": "created",
+      "identity": [
+        8411,
+        "Tue Oct 13 13:52:24 2026",
+        "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper.app/Contents/MacOS/ChromiumWebView Helper --type=utility --utility-sub-type=network.mojom.NetworkService --lang=en-US --service-sandbox-type=network --start-stack-profiler --user-data-dir=/private/var/folders/81/ycpgyt397wvdx03d5kwdmpwr0000gn/T/cef_cache_8403 --framework-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework --main-bundle-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app --locales-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework/Versions/A/Resources --log-severity=verbose --resources-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework/Versions/A/Resources --shared-files --metrics-shmem-handle=1752395122,r,1686515552301118840,2088944257008906900,524288 --field-trial-handle=1718379636,r,5303064507175538489,5236561676144267242,262144 --disable-features=Accessibility --variations-seed-version --pseudonymization-salt-handle=1935764596,r,7342654117540506372,14522146421634244782,4 --trace-process-track-uuid=3190708989122997041 --log-file=/private/tmp/ppplayer-phase3-video-fix-cef.log --seatbelt-client=25"
+      ],
+      "ppid": 8403
+    },
+    {
+      "event": "created",
+      "identity": [
+        8412,
+        "Tue Oct 13 13:52:24 2026",
+        "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper.app/Contents/MacOS/ChromiumWebView Helper --type=utility --utility-sub-type=storage.mojom.StorageService --lang=en-US --service-sandbox-type=service --user-data-dir=/private/var/folders/81/ycpgyt397wvdx03d5kwdmpwr0000gn/T/cef_cache_8403 --framework-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework --main-bundle-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app --locales-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework/Versions/A/Resources --log-severity=verbose --resources-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework/Versions/A/Resources --shared-files --metrics-shmem-handle=1752395122,r,2637858416439133238,2609592150656016029,524288 --field-trial-handle=1718379636,r,5303064507175538489,5236561676144267242,262144 --disable-features=Accessibility --variations-seed-version --pseudonymization-salt-handle=1935764596,r,7342654117540506372,14522146421634244782,4 --trace-process-track-uuid=3190708990060038890 --log-file=/private/tmp/ppplayer-phase3-video-fix-cef.log --seatbelt-client=40"
+      ],
+      "ppid": 8403
+    },
+    {
+      "event": "created",
+      "identity": [
+        8414,
+        "Tue Oct 13 13:52:24 2026",
+        "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper (Renderer).app/Contents/MacOS/ChromiumWebView Helper (Renderer) --type=renderer --start-stack-profiler --user-data-dir=/private/var/folders/81/ycpgyt397wvdx03d5kwdmpwr0000gn/T/cef_cache_8403 --framework-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework --main-bundle-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app --locales-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework/Versions/A/Resources --log-severity=verbose --resources-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework/Versions/A/Resources --lang=en-US --num-raster-threads=4 --enable-zero-copy --enable-gpu-memory-buffer-compositor-resources --enable-main-frame-before-activation --renderer-client-id=7 --time-ticks-at-unix-epoch=-1791483264952839 --launch-time-ticks=427079345874 --shared-files --metrics-shmem-handle=1752395122,r,18380861170472786582,11306869054741618955,2097152 --field-trial-handle=1718379636,r,5303064507175538489,5236561676144267242,262144 --disable-features=Accessibility --variations-seed-version --pseudonymization-salt-handle=1935764596,r,7342654117540506372,14522146421634244782,4 --trace-process-track-uuid=3190708992871164437 --log-file=/private/tmp/ppplayer-phase3-video-fix-cef.log --seatbelt-client=74"
+      ],
+      "ppid": 8403
+    },
+    {
+      "event": "created",
+      "identity": [
+        8415,
+        "Tue Oct 13 13:52:24 2026",
+        "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper (Renderer).app/Contents/MacOS/ChromiumWebView Helper (Renderer) --type=renderer --user-data-dir=/private/var/folders/81/ycpgyt397wvdx03d5kwdmpwr0000gn/T/cef_cache_8403 --framework-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework --main-bundle-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app --locales-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework/Versions/A/Resources --log-severity=verbose --resources-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework/Versions/A/Resources --lang=en-US --num-raster-threads=4 --enable-zero-copy --enable-gpu-memory-buffer-compositor-resources --enable-main-frame-before-activation --renderer-client-id=6 --time-ticks-at-unix-epoch=-1791483264952839 --launch-time-ticks=427079360125 --shared-files --metrics-shmem-handle=1752395122,r,13218713939440792144,7423331145980752924,2097152 --field-trial-handle=1718379636,r,5303064507175538489,5236561676144267242,262144 --disable-features=Accessibility --variations-seed-version --pseudonymization-salt-handle=1935764596,r,7342654117540506372,14522146421634244782,4 --trace-process-track-uuid=3190708991934122588 --log-file=/private/tmp/ppplayer-phase3-video-fix-cef.log --seatbelt-client=74"
+      ],
+      "ppid": 8403
+    },
+    {
+      "event": "created",
+      "identity": [
+        8416,
+        "Tue Oct 13 13:52:24 2026",
+        "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper (Renderer).app/Contents/MacOS/ChromiumWebView Helper (Renderer) --type=renderer --user-data-dir=/private/var/folders/81/ycpgyt397wvdx03d5kwdmpwr0000gn/T/cef_cache_8403 --framework-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework --main-bundle-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app --locales-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework/Versions/A/Resources --log-severity=verbose --resources-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework/Versions/A/Resources --lang=en-US --num-raster-threads=4 --enable-zero-copy --enable-gpu-memory-buffer-compositor-resources --enable-main-frame-before-activation --renderer-client-id=8 --time-ticks-at-unix-epoch=-1791483264952839 --launch-time-ticks=427079891051 --shared-files --metrics-shmem-handle=1752395122,r,8542724856254701793,12308703767115300414,2097152 --field-trial-handle=1718379636,r,5303064507175538489,5236561676144267242,262144 --disable-features=Accessibility --variations-seed-version --pseudonymization-salt-handle=1935764596,r,7342654117540506372,14522146421634244782,4 --trace-process-track-uuid=3190708993808206286 --log-file=/private/tmp/ppplayer-phase3-video-fix-cef.log --seatbelt-client=78"
+      ],
+      "ppid": 8403
+    },
+    {
+      "event": "created",
+      "identity": [
+        8418,
+        "Tue Oct 13 13:52:25 2026",
+        "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper.app/Contents/MacOS/ChromiumWebView Helper --type=utility --utility-sub-type=audio.mojom.AudioService --lang=en-US --service-sandbox-type=audio --message-loop-type-ui --user-data-dir=/private/var/folders/81/ycpgyt397wvdx03d5kwdmpwr0000gn/T/cef_cache_8403 --framework-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework --main-bundle-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app --locales-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework/Versions/A/Resources --log-severity=verbose --resources-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework/Versions/A/Resources --shared-files --metrics-shmem-handle=1752395122,r,14658359473347668475,5425317529070575341,524288 --field-trial-handle=1718379636,r,5303064507175538489,5236561676144267242,262144 --disable-features=Accessibility --variations-seed-version --pseudonymization-salt-handle=1935764596,r,7342654117540506372,14522146421634244782,4 --trace-process-track-uuid=3190708994745248135 --log-file=/private/tmp/ppplayer-phase3-video-fix-cef.log --seatbelt-client=78"
+      ],
+      "ppid": 8403
+    },
+    {
+      "event": "created",
+      "identity": [
+        8419,
+        "Tue Oct 13 13:52:25 2026",
+        "/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/ChromiumWebView Helper.app/Contents/MacOS/ChromiumWebView Helper --type=utility --utility-sub-type=video_capture.mojom.VideoCaptureService --lang=en-US --service-sandbox-type=none --message-loop-type-ui --user-data-dir=/private/var/folders/81/ycpgyt397wvdx03d5kwdmpwr0000gn/T/cef_cache_8403 --framework-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework --main-bundle-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app --locales-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework/Versions/A/Resources --log-severity=verbose --resources-dir-path=/private/tmp/ppplayer-phase3-macos/build/macos/Build/Products/Release/PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app/Contents/Frameworks/Chromium Embedded Framework.framework/Versions/A/Resources --shared-files --metrics-shmem-handle=1752395122,r,13698732194215683921,13361954969405052718,524288 --field-trial-handle=1718379636,r,5303064507175538489,5236561676144267242,262144 --disable-features=Accessibility --variations-seed-version --pseudonymization-salt-handle=1935764596,r,7342654117540506372,14522146421634244782,4 --trace-process-track-uuid=3190708995682289984 --log-file=/private/tmp/ppplayer-phase3-video-fix-cef.log"
+      ],
+      "ppid": 8403
+    }
+  ],
+  "scopes": {
+    "wholeApplication": {
+      "processCount": 10,
+      "summedRssKiB": 1198848,
+      "footprint": {
+        "groupChargedBytes": 931804264,
+        "groupMetrics": {
+          "dirty": 931804264,
+          "swapped": 396574720,
+          "clean": 317292544,
+          "reclaimable": 7471104,
+          "wired": 77460584,
+          "regions": 132832
+        },
+        "categories": {
+          "Stack": {
+            "dirty": 5996544,
+            "swapped": 999424,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 370
+          },
+          "Malloc Small": {
+            "dirty": 99631104,
+            "swapped": 30507008,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 99
+          },
+          "__DATA": {
+            "dirty": 25310809,
+            "swapped": 12963598,
+            "clean": 131072,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 10703
+          },
+          "__OBJC_RW": {
+            "dirty": 496384,
+            "swapped": 96000,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 10
+          },
+          "Activity Tracing": {
+            "dirty": 360448,
+            "swapped": 114688,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 10
+          },
+          "IOAccelerator": {
+            "dirty": 212992,
+            "swapped": 0,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 212992,
+            "regions": 7
+          },
+          "Image IO": {
+            "dirty": 0,
+            "swapped": 0,
+            "clean": 0,
+            "reclaimable": 49152,
+            "wired": 0,
+            "regions": 6
+          },
+          "Malloc Tiny": {
+            "dirty": 1327104,
+            "swapped": 278528,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 10
+          },
+          "Deferred Reclaim": {
+            "dirty": 163840,
+            "swapped": 0,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 10
+          },
+          "__DATA_DIRTY": {
+            "dirty": 10327614,
+            "swapped": 3702072,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 9437
+          },
+          "__OBJC_RO": {
+            "dirty": 0,
+            "swapped": 0,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 10
+          },
+          "__AUTH": {
+            "dirty": 2158858,
+            "swapped": 1065639,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 6987
+          },
+          "__LINKEDIT": {
+            "dirty": 0,
+            "swapped": 0,
+            "clean": 1507328,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 83
+          },
+          "SQLite Page Cache": {
+            "dirty": 0,
+            "swapped": 0,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 2
+          },
+          "__FONT_DATA": {
+            "dirty": 0,
+            "swapped": 0,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 10
+          },
+          "page table": {
+            "dirty": 9335912,
+            "swapped": 0,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 9335912,
+            "regions": 10
+          },
+          "Untagged": {
+            "dirty": 39501824,
+            "swapped": 2670592,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 81920,
+            "regions": 791
+          },
+          "CoreUI Image Data": {
+            "dirty": 311296,
+            "swapped": 311296,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 5
+          },
+          "IOSurface": {
+            "dirty": 182861824,
+            "swapped": 164757504,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 10944512,
+            "regions": 150
+          },
+          "App-Specific Tag 16": {
+            "dirty": 34766848,
+            "swapped": 2342912,
+            "clean": 0,
+            "reclaimable": 1785856,
+            "wired": 0,
+            "regions": 33932
+          },
+          "Mach Message": {
+            "dirty": 1441792,
+            "swapped": 393216,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 44
+          },
+          "OS Alloc Once": {
+            "dirty": 163840,
+            "swapped": 32768,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 10
+          },
+          "PROTECTED_MEMORY": {
+            "dirty": 49152,
+            "swapped": 16384,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 9
+          },
+          "IOAccelerator (graphics)": {
+            "dirty": 16007168,
+            "swapped": 1114112,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 13828096,
+            "regions": 358
+          },
+          "mapped file": {
+            "dirty": 1114112,
+            "swapped": 32768,
+            "clean": 50790400,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 202
+          },
+          "Dispatch Continuations": {
+            "dirty": 2260992,
+            "swapped": 491520,
+            "clean": 0,
+            "reclaimable": 32768,
+            "wired": 0,
+            "regions": 10
+          },
+          "commpage (reserved)": {
+            "dirty": 0,
+            "swapped": 0,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 10
+          },
+          "Dyld Private Memory": {
+            "dirty": 81920,
+            "swapped": 0,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 1
+          },
+          "App-Specific Tag 2": {
+            "dirty": 163840,
+            "swapped": 98304,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 4
+          },
+          "Malloc Large": {
+            "dirty": 25853952,
+            "swapped": 3112960,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 6
+          },
+          "unused dyld shared cache area": {
+            "dirty": 2968079,
+            "swapped": 1840603,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 27733
+          },
+          "__DATA_CONST": {
+            "dirty": 93633912,
+            "swapped": 78895704,
+            "clean": 5619712,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 10707
+          },
+          "Foundation": {
+            "dirty": 163840,
+            "swapped": 16384,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 6
+          },
+          "App-Specific Tag 14": {
+            "dirty": 164216832,
+            "swapped": 32604160,
+            "clean": 0,
+            "reclaimable": 4554752,
+            "wired": 0,
+            "regions": 8385
+          },
+          "Owned physical footprint (unmapped) (graphics)": {
+            "dirty": 191512576,
+            "swapped": 52658176,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 34471936,
+            "regions": 184
+          },
+          "__CTF": {
+            "dirty": 0,
+            "swapped": 0,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 10
+          },
+          "__TEXT": {
+            "dirty": 0,
+            "swapped": 0,
+            "clean": 259244032,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 11590
+          },
+          "GPU Carveout (reserved)": {
+            "dirty": 0,
+            "swapped": 0,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 10
+          },
+          "Accelerate Framework": {
+            "dirty": 131072,
+            "swapped": 114688,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 1
+          },
+          "Malloc Metadata": {
+            "dirty": 7766016,
+            "swapped": 4456448,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 112
+          },
+          "__AUTH_CONST": {
+            "dirty": 1338024,
+            "swapped": 182752,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 10604
+          },
+          "ColorSync": {
+            "dirty": 81920,
+            "swapped": 65536,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 5
+          },
+          "CoreGraphics": {
+            "dirty": 32768,
+            "swapped": 0,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 6
+          },
+          "IOKit": {
+            "dirty": 147456,
+            "swapped": 0,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 180224,
+            "regions": 26
+          },
+          "CoreAnimation": {
+            "dirty": 507904,
+            "swapped": 425984,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 16384,
+            "regions": 31
+          },
+          "Owned physical footprint (unmapped)": {
+            "dirty": 8388608,
+            "swapped": 0,
+            "clean": 0,
+            "reclaimable": 1048576,
+            "wired": 8388608,
+            "regions": 86
+          },
+          "__TPRO_CONST": {
+            "dirty": 1015088,
+            "swapped": 212992,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 40
+          },
+          "total": {
+            "dirty": 931804264,
+            "swapped": 396574720,
+            "clean": 317292544,
+            "reclaimable": 7471104,
+            "wired": 77460584,
+            "regions": 132832
+          }
+        },
+        "perProcessChargedBytes": {
+          "8397": 362251488,
+          "8410": 234144992,
+          "8414": 121734896,
+          "8403": 49710808,
+          "8415": 38127008,
+          "8419": 29082872,
+          "8411": 29082776,
+          "8416": 25789736,
+          "8418": 24626256,
+          "8412": 20317240
+        }
+      },
+      "unavailableReason": null
+    },
+    "cefOnly": {
+      "processCount": 9,
+      "summedRssKiB": 956160,
+      "footprint": {
+        "groupChargedBytes": 569847688,
+        "groupMetrics": {
+          "dirty": 569847688,
+          "swapped": 328712192,
+          "clean": 263340032,
+          "reclaimable": 7094272,
+          "wired": 26767240,
+          "regions": 123088
+        },
+        "categories": {
+          "Stack": {
+            "dirty": 5177344,
+            "swapped": 901120,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 328
+          },
+          "Malloc Small": {
+            "dirty": 16908288,
+            "swapped": 13254656,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 67
+          },
+          "__DATA": {
+            "dirty": 22551202,
+            "swapped": 12119043,
+            "clean": 131072,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 9569
+          },
+          "__OBJC_RW": {
+            "dirty": 432000,
+            "swapped": 79616,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 9
+          },
+          "Activity Tracing": {
+            "dirty": 327680,
+            "swapped": 114688,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 9
+          },
+          "IOAccelerator": {
+            "dirty": 114688,
+            "swapped": 0,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 114688,
+            "regions": 4
+          },
+          "Image IO": {
+            "dirty": 0,
+            "swapped": 0,
+            "clean": 0,
+            "reclaimable": 32768,
+            "wired": 0,
+            "regions": 4
+          },
+          "Malloc Tiny": {
+            "dirty": 1048576,
+            "swapped": 278528,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 9
+          },
+          "Deferred Reclaim": {
+            "dirty": 147456,
+            "swapped": 0,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 9
+          },
+          "__DATA_DIRTY": {
+            "dirty": 7991105,
+            "swapped": 3390615,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 8459
+          },
+          "__OBJC_RO": {
+            "dirty": 0,
+            "swapped": 0,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 9
+          },
+          "__AUTH": {
+            "dirty": 1401172,
+            "swapped": 926702,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 6265
+          },
+          "__LINKEDIT": {
+            "dirty": 0,
+            "swapped": 0,
+            "clean": 688128,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 42
+          },
+          "__FONT_DATA": {
+            "dirty": 0,
+            "swapped": 0,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 9
+          },
+          "page table": {
+            "dirty": 8466312,
+            "swapped": 0,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 8466312,
+            "regions": 9
+          },
+          "Untagged": {
+            "dirty": 5292032,
+            "swapped": 2424832,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 81920,
+            "regions": 674
+          },
+          "IOSurface": {
+            "dirty": 177061888,
+            "swapped": 172032000,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 5144576,
+            "regions": 139
+          },
+          "App-Specific Tag 16": {
+            "dirty": 34848768,
+            "swapped": 2342912,
+            "clean": 0,
+            "reclaimable": 1638400,
+            "wired": 0,
+            "regions": 33932
+          },
+          "Mach Message": {
+            "dirty": 1441792,
+            "swapped": 393216,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 44
+          },
+          "OS Alloc Once": {
+            "dirty": 147456,
+            "swapped": 32768,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 9
+          },
+          "PROTECTED_MEMORY": {
+            "dirty": 49152,
+            "swapped": 16384,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 9
+          },
+          "IOAccelerator (graphics)": {
+            "dirty": 9830400,
+            "swapped": 753664,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 8847360,
+            "regions": 142
+          },
+          "mapped file": {
+            "dirty": 1114112,
+            "swapped": 32768,
+            "clean": 24690688,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 159
+          },
+          "Dispatch Continuations": {
+            "dirty": 1835008,
+            "swapped": 491520,
+            "clean": 0,
+            "reclaimable": 16384,
+            "wired": 0,
+            "regions": 9
+          },
+          "commpage (reserved)": {
+            "dirty": 0,
+            "swapped": 0,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 9
+          },
+          "App-Specific Tag 2": {
+            "dirty": 163840,
+            "swapped": 98304,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 4
+          },
+          "unused dyld shared cache area": {
+            "dirty": 2051665,
+            "swapped": 1601048,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 25111
+          },
+          "__DATA_CONST": {
+            "dirty": 92336512,
+            "swapped": 78007904,
+            "clean": 5324800,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 9553
+          },
+          "Foundation": {
+            "dirty": 32768,
+            "swapped": 16384,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 3
+          },
+          "App-Specific Tag 14": {
+            "dirty": 164233216,
+            "swapped": 32669696,
+            "clean": 0,
+            "reclaimable": 4358144,
+            "wired": 0,
+            "regions": 8385
+          },
+          "Owned physical footprint (unmapped) (graphics)": {
+            "dirty": 5406720,
+            "swapped": 2342912,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 1867776,
+            "regions": 50
+          },
+          "__CTF": {
+            "dirty": 0,
+            "swapped": 0,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 9
+          },
+          "__TEXT": {
+            "dirty": 0,
+            "swapped": 0,
+            "clean": 232505344,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 10346
+          },
+          "GPU Carveout (reserved)": {
+            "dirty": 0,
+            "swapped": 0,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 9
+          },
+          "Malloc Metadata": {
+            "dirty": 6258688,
+            "swapped": 4128768,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 98
+          },
+          "__AUTH_CONST": {
+            "dirty": 0,
+            "swapped": 0,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 9492
+          },
+          "ColorSync": {
+            "dirty": 65536,
+            "swapped": 49152,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 4
+          },
+          "CoreGraphics": {
+            "dirty": 16384,
+            "swapped": 0,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 4
+          },
+          "IOKit": {
+            "dirty": 114688,
+            "swapped": 0,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 147456,
+            "regions": 19
+          },
+          "Owned physical footprint (unmapped)": {
+            "dirty": 2097152,
+            "swapped": 0,
+            "clean": 0,
+            "reclaimable": 1048576,
+            "wired": 2097152,
+            "regions": 38
+          },
+          "__TPRO_CONST": {
+            "dirty": 884088,
+            "swapped": 212992,
+            "clean": 0,
+            "reclaimable": 0,
+            "wired": 0,
+            "regions": 36
+          },
+          "total": {
+            "dirty": 569847688,
+            "swapped": 328712192,
+            "clean": 263340032,
+            "reclaimable": 7094272,
+            "wired": 26767240,
+            "regions": 123088
+          }
+        },
+        "perProcessChargedBytes": {
+          "8410": 234161376,
+          "8414": 121800432,
+          "8403": 49743576,
+          "8415": 38143392,
+          "8419": 29082872,
+          "8411": 29082776,
+          "8416": 25789736,
+          "8418": 24626256,
+          "8412": 20317240
+        }
+      },
+      "unavailableReason": null
+    }
+  },
+  "commands": [
+    {
+      "command": [
+        "/usr/bin/footprint",
+        "--wide",
+        "--format",
+        "bytes",
+        "--json",
+        "/Users/veneno/Projects/Apps/ppplayer/app/docs/validation/phase3-macos-2026-10-13/memory/exploratory/P1/wholeApplication.json",
+        "-p",
+        "8397",
+        "-p",
+        "8403",
+        "-p",
+        "8410",
+        "-p",
+        "8411",
+        "-p",
+        "8412",
+        "-p",
+        "8414",
+        "-p",
+        "8415",
+        "-p",
+        "8416",
+        "-p",
+        "8418",
+        "-p",
+        "8419"
+      ],
+      "startedUtc": "2026-10-13T16:53:42.805971+00:00",
+      "exitStatus": 0,
+      "endedUtc": "2026-10-13T16:53:43.093560+00:00",
+      "durationSeconds": 0.28758600004948676,
+      "output": "wholeApplication.txt"
+    },
+    {
+      "command": [
+        "/usr/bin/footprint",
+        "--wide",
+        "--format",
+        "bytes",
+        "--json",
+        "/Users/veneno/Projects/Apps/ppplayer/app/docs/validation/phase3-macos-2026-10-13/memory/exploratory/P1/cefOnly.json",
+        "-p",
+        "8403",
+        "-p",
+        "8410",
+        "-p",
+        "8411",
+        "-p",
+        "8412",
+        "-p",
+        "8414",
+        "-p",
+        "8415",
+        "-p",
+        "8416",
+        "-p",
+        "8418",
+        "-p",
+        "8419"
+      ],
+      "startedUtc": "2026-10-13T16:53:43.139990+00:00",
+      "exitStatus": 0,
+      "endedUtc": "2026-10-13T16:53:43.483102+00:00",
+      "durationSeconds": 0.34310645901132375,
+      "output": "cefOnly.txt"
+    },
+    {
+      "command": [
+        "/usr/bin/memory_pressure",
+        "-Q"
+      ],
+      "startedUtc": "2026-10-13T16:53:43.530079+00:00",
+      "exitStatus": 0,
+      "endedUtc": "2026-10-13T16:53:43.549972+00:00",
+      "durationSeconds": 0.019887041009496897,
+      "output": "pressure.txt"
+    },
+    {
+      "command": [
+        "/usr/sbin/sysctl",
+        "vm.swapusage"
+      ],
+      "startedUtc": "2026-10-13T16:53:43.550073+00:00",
+      "exitStatus": 0,
+      "endedUtc": "2026-10-13T16:53:43.587841+00:00",
+      "durationSeconds": 0.037819791003130376,
+      "output": "swap.txt"
+    },
+    {
+      "command": [
+        "/usr/bin/vm_stat"
+      ],
+      "startedUtc": "2026-10-13T16:53:43.587958+00:00",
+      "exitStatus": 0,
+      "endedUtc": "2026-10-13T16:53:43.604682+00:00",
+      "durationSeconds": 0.01676929194945842,
+      "output": "vmstat.txt"
+    },
+    {
+      "command": [
+        "/bin/ps",
+        "-axo",
+        "pid=,pcpu=,rss=,comm="
+      ],
+      "startedUtc": "2026-10-13T16:53:43.604799+00:00",
+      "exitStatus": 0,
+      "endedUtc": "2026-10-13T16:53:43.676129+00:00",
+      "durationSeconds": 0.07138695899629965,
+      "output": "cpu.txt"
+    },
+    {
+      "command": [
+        "/usr/sbin/lsof",
+        "-nP",
+        "-p",
+        "8397,8403,8410,8411,8412,8414,8415,8416,8418,8419",
+        "-Fpf"
+      ],
+      "startedUtc": "2026-10-13T16:53:43.676272+00:00",
+      "exitStatus": 0,
+      "endedUtc": "2026-10-13T16:53:43.722084+00:00",
+      "durationSeconds": 0.04587154200999066,
+      "output": "fds.txt"
+    }
+  ],
+  "errors": [],
+  "passed": true,
+  "observerExclusion": "collector PID and descendants; not part of hosting workload",
+  "sequentialScopeCaptures": true
+}

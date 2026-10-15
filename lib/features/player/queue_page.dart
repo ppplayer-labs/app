@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/local_library/local_library_service.dart';
+import '../../shared/widgets/animated_equalizer.dart';
 import '../../core/player/player_provider.dart';
 import '../../core/services/settings_provider.dart';
 import '../../l10n/app_localizations.dart';
@@ -100,7 +101,6 @@ class QueuePage extends ConsumerWidget {
                       index: state.currentIndex,
                       position: 0,
                       current: true,
-                      playing: state.isPlaying,
                       wide: wide,
                     ),
                   ),
@@ -144,7 +144,6 @@ class QueuePage extends ConsumerWidget {
                       index: index,
                       position: position,
                       current: false,
-                      playing: false,
                       wide: wide,
                     );
                   },
@@ -177,14 +176,12 @@ class _QueueRow extends ConsumerWidget {
     required this.index,
     required this.position,
     required this.current,
-    required this.playing,
     required this.wide,
   });
   final Track track;
   final int index;
   final int position;
   final bool current;
-  final bool playing;
   final bool wide;
 
   @override
@@ -212,10 +209,11 @@ class _QueueRow extends ConsumerWidget {
                 SizedBox(
                   width: 28,
                   child: current
-                      ? Icon(
-                          playing ? Icons.equalizer : Icons.play_arrow,
-                          size: 18,
-                          color: colors.primary,
+                      ? Center(
+                          child: PlaybackIndicator(
+                            color: colors.primary,
+                            size: 18,
+                          ),
                         )
                       : Text(
                           '${position + 1}',
@@ -231,6 +229,9 @@ class _QueueRow extends ConsumerWidget {
                     width: 44,
                     height: 44,
                     fit: BoxFit.cover,
+                    fallbackIcon: track.isVideoFile
+                        ? Icons.videocam_rounded
+                        : Icons.music_note_rounded,
                   ),
                 ),
                 const SizedBox(width: 12),

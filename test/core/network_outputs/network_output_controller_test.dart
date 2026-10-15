@@ -140,7 +140,8 @@ class FakePlaybackController implements PlaybackController {
   @override
   bool get supportsVideoFitMode => false;
   @override
-  dynamic get renderer => null;  @override
+  dynamic get renderer => null;
+  @override
   Future<void> dispose() async {
     disposed = true;
     await _status.close();

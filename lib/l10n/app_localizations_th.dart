@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -334,6 +333,21 @@ class AppLocalizationsTh extends AppLocalizations {
   String get copyLink => 'คัดลอกลิงก์';
 
   @override
+  String get copySpotifyLink => 'คัดลอกลิงก์ Spotify';
+
+  @override
+  String get copyYouTubeLink => 'คัดลอกลิงก์ YouTube';
+
+  @override
+  String get copySpotifyId => 'คัดลอก ID Spotify';
+
+  @override
+  String get copyYouTubeId => 'คัดลอก ID YouTube';
+
+  @override
+  String get idCopied => 'คัดลอก ID แล้ว';
+
+  @override
   String get discover => 'ค้นพบ';
 
   @override
@@ -391,10 +405,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get queue1 => 'คิว';
 
   @override
-  String get queueNowPlaying => 'Now playing';
+  String get queueNowPlaying => 'กำลังเล่น';
 
   @override
-  String get queueUpNext => 'Up next';
+  String get queueUpNext => 'ถัดไป';
 
   @override
   String get recentlyPlayed => 'เพิ่งเล่น';
@@ -1088,4 +1102,54 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get loadFailed => 'โหลดเนื้อหาไม่ได้ โปรดลองอีกครั้ง';
+
+  @override
+  String get removeFolder => 'ลบโฟลเดอร์';
+
+  @override
+  String get removeFolderConfirmTitle => 'ลบโฟลเดอร์หรือไม่?';
+
+  @override
+  String removeFolderConfirmMessage(String name) {
+    return 'ลบ \"$name\" และสื่อออกจากคลังของคุณหรือไม่? ไฟล์ในดิสก์จะไม่ถูกลบ';
+  }
+
+  @override
+  String fileMissingOnDisk(String name) {
+    return 'ไม่พบ \"$name\" ในดิสก์อีกต่อไป';
+  }
+
+  @override
+  String get folderUnavailable =>
+      'โฟลเดอร์ไม่พร้อมใช้งาน โปรดตรวจสอบว่าไดรฟ์เชื่อมต่ออยู่';
+
+  @override
+  String fileAlreadyImported(String name) {
+    return '\"$name\" อยู่ในคลังของคุณแล้ว';
+  }
+
+  @override
+  String filesAlreadyImported(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ไฟล์อยู่ในคลังของคุณแล้ว',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get folderAlreadyImported =>
+      'โฟลเดอร์นี้ถูกนำเข้าแล้ว — กำลังตรวจสอบไฟล์ใหม่';
+
+  @override
+  String get rescanCompleted => 'สแกนคลังใหม่อีกครั้งเสร็จสิ้น';
+
+  @override
+  String rescanFailed(String error) {
+    return 'ไม่สามารถสแกนโฟลเดอร์ใหม่ได้: $error';
+  }
+
+  @override
+  String get importedFolderFallback => 'โฟลเดอร์ที่นำเข้า';
 }

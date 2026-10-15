@@ -1,0 +1,10 @@
+{
+  "result": "PASS",
+  "method": "flutter pub get --offline --enforce-lockfile",
+  "location": "/private/tmp/ppplayer-phase1-clean",
+  "uses_cached_hosted_packages": true,
+  "original_package_paths_present": false,
+  "lockfiles_identical": true,
+  "chromium": "0.5.2",
+  "platform_interface": "0.1.5"
+}

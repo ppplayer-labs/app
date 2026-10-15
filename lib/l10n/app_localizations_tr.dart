@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -338,6 +337,21 @@ class AppLocalizationsTr extends AppLocalizations {
   String get copyLink => 'Bağlantıyı Kopyala';
 
   @override
+  String get copySpotifyLink => 'Spotify bağlantısını kopyala';
+
+  @override
+  String get copyYouTubeLink => 'YouTube bağlantısını kopyala';
+
+  @override
+  String get copySpotifyId => 'Spotify kimliğini kopyala';
+
+  @override
+  String get copyYouTubeId => 'YouTube kimliğini kopyala';
+
+  @override
+  String get idCopied => 'Kimlik kopyalandı';
+
+  @override
   String get discover => 'Keşfet';
 
   @override
@@ -395,10 +409,10 @@ class AppLocalizationsTr extends AppLocalizations {
   String get queue1 => 'Kuyruk';
 
   @override
-  String get queueNowPlaying => 'Now playing';
+  String get queueNowPlaying => 'Şu An Çalıyor';
 
   @override
-  String get queueUpNext => 'Up next';
+  String get queueUpNext => 'Sıradaki';
 
   @override
   String get recentlyPlayed => 'Son Çalınanlar';
@@ -1095,4 +1109,55 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get loadFailed => 'İçerik yüklenemedi. Lütfen tekrar deneyin.';
+
+  @override
+  String get removeFolder => 'Klasörü kaldır';
+
+  @override
+  String get removeFolderConfirmTitle => 'Klasör kaldırılsın mı?';
+
+  @override
+  String removeFolderConfirmMessage(String name) {
+    return '\"$name\" ve medyaları kitaplığınızdan kaldırılsın mı? Diskteki dosyalar silinmeyecek.';
+  }
+
+  @override
+  String fileMissingOnDisk(String name) {
+    return '\"$name\" artık diskte bulunamıyor';
+  }
+
+  @override
+  String get folderUnavailable =>
+      'Klasör kullanılamıyor. Sürücünün bağlı olduğundan emin olun.';
+
+  @override
+  String fileAlreadyImported(String name) {
+    return '\"$name\" zaten kitaplığınızda';
+  }
+
+  @override
+  String filesAlreadyImported(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count dosya zaten kitaplığınızdaydı',
+      one: '1 dosya zaten kitaplığınızdaydı',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get folderAlreadyImported =>
+      'Bu klasör zaten içe aktarılmış — yeni dosyalar denetleniyor';
+
+  @override
+  String get rescanCompleted => 'Kitaplığı yeniden tarama tamamlandı';
+
+  @override
+  String rescanFailed(String error) {
+    return 'Klasör yeniden taranamadı: $error';
+  }
+
+  @override
+  String get importedFolderFallback => 'İçe Aktarılan Klasör';
 }

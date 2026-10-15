@@ -8,15 +8,13 @@ environment:
 
 dependencies:
   flutter_chromium_webview:
-    git:
-      url: https://github.com/devflier/flutter_chromium_webview.git
-      path: packages/flutter_chromium_webview
-      ref: v0.5.0
+    path: third_party/chromium/packages/flutter_chromium_webview
   audio_service: ^0.18.18
   audio_session: ^0.2.3
   cached_network_image: ^4.0.0
   flutter_cache_manager: ^3.4.1
   connectivity_plus: 6.1.5
+  cupertino_icons: ^1.0.9
   dio: ^5.9.2
   drift: ^2.22.0
   drift_flutter: ^0.3.1
@@ -145,6 +143,8 @@ dependency_overrides:
     path: lib/core/playback/packages/metadata_god
   freezed_annotation: ^3.1.0
   flutter_rust_bridge: 2.11.1
+  flutter_chromium_webview_platform_interface:
+    path: third_party/chromium/packages/flutter_chromium_webview_platform_interface
 
 msix_config:
   display_name: PPPlayer

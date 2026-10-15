@@ -10,7 +10,7 @@ PPPlayer is a Flutter media player for music discovery, local music and video li
 - A responsive video player with a dedicated **Queue** button and secondary playback options.
 - iPhone lock-screen and Control Center play/pause commands that respect explicit playback intent.
 - Correct local-audio artwork without stale video thumbnails; file and network images go through `PPImage`.
-- **Unified Chromium playback engine** across all platforms for a consistent media experience.
+- Chromium YouTube playback on Android, macOS, Windows and Linux; iOS retains WebKit. Local files and direct streams use MediaKit.
 - Redesigned queue interface with desktop panel and mobile sheet integration, and a refined fullscreen player layout.
 
 These describe the development tree, not availability in every published binary. iOS is not yet publicly available. Local AirPlay and system commands have been checked on a physical iPhone; physical Chromecast and DLNA receiver testing remain pending.
@@ -20,6 +20,8 @@ These describe the development tree, not availability in every published binary.
 - [Playback and local files](docs/playback.md): user flows, import persistence, queue, system controls and troubleshooting.
 - [Play On architecture and protocol support](docs/network_outputs.md): capabilities, file leases, serving lifetime and validation status.
 - [Changelog](CHANGELOG.md): upcoming and released changes.
+- [Pre-release validation](docs/validation/pre-release-2026-10-14/REPORT.md): current test evidence, fixes and remaining release gates.
+- [Next release notes](docs/RELEASE_NOTES_NEXT.md): draft notes to promote after platform acceptance.
 - [Android setup](README_ANDROID.md), [macOS release guide](MACOS_RELEASE_GUIDE.md), [Windows Store release guide](docs/WINDOWS_STORE_RELEASE.md).
 - [Historical architecture discovery](PPPLAYER_CONTEXT.md): September 2026 snapshot; use the current guides above for playback behavior.
 
@@ -55,6 +57,20 @@ flutter run
 flutter analyze
 flutter test
 ```
+
+The candidate vendors patched Chromium sources under `third_party/chromium`.
+Use the checked-in `pubspec.lock` and avoid developer path overrides during
+release validation. Verify the snapshot and run all package suites:
+
+```bash
+python3 scripts/verify_chromium_snapshot.py
+python3 -m unittest discover -s scripts -p 'test_*.py'
+flutter test --no-pub test lib/core/playback/packages/pp_playback_engine/test third_party/chromium/packages/flutter_chromium_webview/test third_party/chromium/packages/flutter_chromium_webview_platform_interface/test
+```
+
+Run Flutter builds and device tests sequentially in the same checkout.
+The current macOS candidate targets macOS 13+ on Apple Silicon; Intel and
+low-memory hardware support require separate validation.
 
 For the debug-only simulated Cast receiver:
 

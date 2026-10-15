@@ -23,8 +23,8 @@ echo "Building PPPlayer Version $VERSION (Debian: $DEB_VERSION)"
 
 # 1. Build Flutter Linux release
 echo "Building Flutter Linux release..."
-# flutter pub get
-# flutter build linux --release
+flutter pub get
+flutter build linux --release
 
 BUNDLE_DIR="build/linux/x64/release/bundle"
 if [ ! -d "$BUNDLE_DIR" ]; then

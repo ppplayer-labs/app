@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -338,6 +337,21 @@ class AppLocalizationsUr extends AppLocalizations {
   String get copyLink => 'لنک کاپی کریں';
 
   @override
+  String get copySpotifyLink => 'Spotify کا لنک کاپی کریں';
+
+  @override
+  String get copyYouTubeLink => 'YouTube کا لنک کاپی کریں';
+
+  @override
+  String get copySpotifyId => 'Spotify ID کاپی کریں';
+
+  @override
+  String get copyYouTubeId => 'YouTube ID کاپی کریں';
+
+  @override
+  String get idCopied => 'ID کاپی ہو گئی';
+
+  @override
   String get discover => 'دریافت کریں';
 
   @override
@@ -395,10 +409,10 @@ class AppLocalizationsUr extends AppLocalizations {
   String get queue1 => 'قطار';
 
   @override
-  String get queueNowPlaying => 'Now playing';
+  String get queueNowPlaying => 'اب چل رہا ہے';
 
   @override
-  String get queueUpNext => 'Up next';
+  String get queueUpNext => 'اگلا';
 
   @override
   String get recentlyPlayed => 'حال ہی میں چلایا گیا';
@@ -1097,4 +1111,55 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get loadFailed => 'مواد لوڈ نہیں ہو سکا۔ دوبارہ کوشش کریں۔';
+
+  @override
+  String get removeFolder => 'فولڈر ہٹائیں';
+
+  @override
+  String get removeFolderConfirmTitle => 'فولڈر ہٹائیں؟';
+
+  @override
+  String removeFolderConfirmMessage(String name) {
+    return '\"$name\" اور اس کا میڈیا اپنی لائبریری سے ہٹائیں؟ ڈسک پر موجود فائلیں حذف نہیں ہوں گی۔';
+  }
+
+  @override
+  String fileMissingOnDisk(String name) {
+    return '\"$name\" اب ڈسک پر نہیں مل رہا';
+  }
+
+  @override
+  String get folderUnavailable =>
+      'فولڈر دستیاب نہیں ہے۔ براہ کرم چیک کریں کہ ڈرائیو منسلک ہے۔';
+
+  @override
+  String fileAlreadyImported(String name) {
+    return '\"$name\" پہلے ہی آپ کی لائبریری میں ہے';
+  }
+
+  @override
+  String filesAlreadyImported(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count فائلیں پہلے ہی آپ کی لائبریری میں تھیں',
+      one: '1 فائل پہلے ہی آپ کی لائبریری میں تھی',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get folderAlreadyImported =>
+      'یہ فولڈر پہلے ہی درآمد شدہ ہے — نئی فائلوں کی جانچ ہو رہی ہے';
+
+  @override
+  String get rescanCompleted => 'لائبریری کی دوبارہ اسکیننگ مکمل ہوگئی';
+
+  @override
+  String rescanFailed(String error) {
+    return 'فولڈر کو دوبارہ اسکین کرنے میں ناکامی: $error';
+  }
+
+  @override
+  String get importedFolderFallback => 'درآمد شدہ فولڈر';
 }

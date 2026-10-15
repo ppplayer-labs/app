@@ -1,0 +1,7 @@
+{
+  "result": "PASS",
+  "isolated_app": "/private/tmp/ppplayer-phase2-release-smoke",
+  "uses_existing_hosted_cache": true,
+  "original_local_package_paths": false,
+  "lockfile_unchanged": true
+}

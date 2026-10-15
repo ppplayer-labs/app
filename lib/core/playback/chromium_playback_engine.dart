@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/services.dart';
 
 import 'package:flutter_chromium_webview/chromium_youtube_player.dart';
 import 'package:flutter_chromium_webview/flutter_chromium_webview.dart';
 import 'package:pp_playback_engine/pp_playback_engine.dart';
-
 
 /// Opt-in YouTube path; delegates other sources to [fallback].
 class ChromiumPlaybackEngine implements PlaybackController {
@@ -15,6 +15,7 @@ class ChromiumPlaybackEngine implements PlaybackController {
     this.startPlaybackService,
     this.stopPlaybackService,
     this.showBrowser = true,
+    this.youtubeEnabled = true,
   }) {
     _subscriptions.add(
       fallback.statusStream.listen((status) {
@@ -34,6 +35,7 @@ class ChromiumPlaybackEngine implements PlaybackController {
   final Future<void> Function()? startPlaybackService;
   final Future<void> Function()? stopPlaybackService;
   final bool showBrowser;
+  final bool youtubeEnabled;
   final _statuses = StreamController<PlaybackStatus>.broadcast();
   final _events = StreamController<PlaybackEvent>.broadcast();
   final _subscriptions = <StreamSubscription<dynamic>>[];
@@ -100,6 +102,9 @@ class ChromiumPlaybackEngine implements PlaybackController {
     _checkOpen();
     if (startAt.isNegative) throw ArgumentError.value(startAt, 'startAt');
     final online = track.sourceType == PlaybackSourceType.online;
+    if (online && !youtubeEnabled) {
+      return _rejectYoutube(track, startAt);
+    }
     final generation = ++_generation;
     _durationRequest = null;
     _durationAttempt = null;
@@ -123,7 +128,36 @@ class ChromiumPlaybackEngine implements PlaybackController {
         isSeekable: track.liveStatus != PlaybackLiveStatus.live,
       ),
     );
-    return _opening = _open(track, startAt, online, generation);
+    // Serialize native/browser replacement. A superseded initialization must
+    // finish before its successor creates another browser or native session.
+    final previousOpening = _opening;
+    return _opening = () async {
+      try {
+        await previousOpening;
+      } catch (_) {
+        // A failed older generation does not prevent an explicit new request.
+      }
+      if (!_valid(generation)) return;
+      await _open(track, startAt, online, generation);
+    }();
+  }
+
+  Future<void> _rejectYoutube(PlaybackTrack track, Duration position) async {
+    final generation = _generation + 1;
+    await stop();
+    if (!_valid(generation)) return;
+    const message =
+        'YouTube requires an enabled YouTube engine; MediaKit cannot play online IDs';
+    _publish(
+      _status.copyWith(
+        track: track,
+        position: position,
+        state: PlaybackState.error,
+        error: message,
+      ),
+    );
+    _event(PlaybackEventType.playbackError, message: message);
+    throw UnsupportedError(message);
   }
 
   Future<void> _open(
@@ -149,38 +183,93 @@ class ChromiumPlaybackEngine implements PlaybackController {
       }
       await fallback.stop();
       if (!_valid(generation)) return;
-      await startPlaybackService?.call();
+      if (_wantsPlaying) await startPlaybackService?.call();
       if (!_valid(generation)) return;
-      await (_cef ??= initializeCef());
-      if (!_valid(generation)) return;
-      final player = _player = createPlayer();
-      _playerSubscription = player.events.listen(
-        (event) => _receive(event, generation, player),
-      );
-      await player.initialize();
-      if (!_valid(generation)) return;
-      await player.setVolume((_status.volume * 100).round());
-      if (!_valid(generation)) return;
-      final seconds = start.inMicroseconds / Duration.microsecondsPerSecond;
-      if (_wantsPlaying) {
-        if (track.youtubeSourceType == YoutubeSourceType.playlist) {
-          await player.loadPlaylist(playlistId: track.id, startSeconds: seconds);
-        } else {
-          await player.loadVideoById(videoId: track.id, startSeconds: seconds);
+      int retries = 0;
+      ChromiumYoutubePlayerController? player;
+      while (true) {
+        try {
+          try {
+            await (_cef ??= initializeCef());
+          } catch (e) {
+            _cef = null;
+            rethrow;
+          }
+          if (!_valid(generation)) return;
+          player = _player = createPlayer();
+          _playerSubscription = player.events.listen(
+            (event) => _receive(event, generation, player!),
+          );
+          await player.initialize();
+          if (!_valid(generation)) return;
+          await player.setVolume((_status.volume * 100).round());
+          if (!_valid(generation)) return;
+          final seconds = start.inMicroseconds / Duration.microsecondsPerSecond;
+          if (_wantsPlaying) {
+            if (track.youtubeSourceType == YoutubeSourceType.playlist) {
+              await player.loadPlaylist(
+                playlistId: track.id,
+                startSeconds: seconds,
+              );
+            } else {
+              await player.loadVideoById(
+                videoId: track.id,
+                startSeconds: seconds,
+              );
+            }
+          } else {
+            if (track.youtubeSourceType == YoutubeSourceType.playlist) {
+              await player.cuePlaylist(
+                playlistId: track.id,
+                startSeconds: seconds,
+              );
+            } else {
+              await player.cueVideoById(
+                videoId: track.id,
+                startSeconds: seconds,
+              );
+            }
+          }
+          if (_valid(generation)) {
+            if (!_wantsPlaying) await player.pauseVideo();
+            await _readDuration(player, generation);
+          }
+          break;
+        } catch (e) {
+          final isCrash = e is StateError && e.message == 'Browser crashed';
+          final isPlatformFail =
+              e is PlatformException &&
+              const {
+                'INIT_FAILED',
+                'HOST_FAILED',
+                'INIT_TIMEOUT',
+                'NOT_READY',
+              }.contains(e.code);
+          if ((isCrash || isPlatformFail) && retries < 10) {
+            _cef = null;
+            retries++;
+            await _playerSubscription?.cancel();
+            _playerSubscription = null;
+            await player?.dispose();
+            _player = null;
+            await Future.delayed(const Duration(milliseconds: 500));
+            if (!_valid(generation)) return;
+            continue;
+          }
+          _cef = null;
+          rethrow;
         }
-      } else {
-        if (track.youtubeSourceType == YoutubeSourceType.playlist) {
-          await player.cuePlaylist(playlistId: track.id, startSeconds: seconds);
-        } else {
-          await player.cueVideoById(videoId: track.id, startSeconds: seconds);
-        }
-      }
-      if (_valid(generation)) {
-        if (!_wantsPlaying) await player.pauseVideo();
-        await _readDuration(player, generation);
       }
     } catch (error) {
       if (!_valid(generation)) return;
+      final failedPlayer = _player;
+      _player = null;
+      await _playerSubscription?.cancel();
+      _playerSubscription = null;
+      await failedPlayer?.dispose();
+      await stopPlaybackService?.call();
+      if (!_valid(generation)) return;
+      // Report the original track/position without replaying through MediaKit.
       _fail(error, generation);
       rethrow;
     }
@@ -225,6 +314,29 @@ class ChromiumPlaybackEngine implements PlaybackController {
     ChromiumYoutubePlayerController player,
   ) {
     if (!_valid(generation) || !identical(player, _player)) return;
+    if (event['BrowserCrashed'] == true) {
+      final subscription = _playerSubscription;
+      _playerSubscription = null;
+      _player = null;
+      // Serialize cleanup before a user or PlayerNotifier recovery opens a new
+      // browser. Stale events from the dead browser must no longer be accepted.
+      _opening = () async {
+        await subscription?.cancel();
+        await player.dispose();
+        await stopPlaybackService?.call();
+      }();
+      unawaited(
+        _opening!.catchError((Object error) {
+          if (!_closed) _fail(error, _generation);
+        }),
+      );
+      _fail(
+        StateError('Browser crashed; retry through the playback coordinator'),
+        generation,
+      );
+      ++_generation;
+      return;
+    }
     if (event['PlayerError'] != null || event['AutoplayBlocked'] == true) {
       _fail(
         StateError(
@@ -248,16 +360,23 @@ class ChromiumPlaybackEngine implements PlaybackController {
         _ => null,
       };
       if (mapped != null) {
-        if (state == 0 && _status.track?.youtubeSourceType == YoutubeSourceType.playlist) {
+        if (state == 0 &&
+            _status.track?.youtubeSourceType == YoutubeSourceType.playlist) {
           unawaited(() async {
             try {
               final index = await player.getPlaylistIndex();
               final playlist = await player.getPlaylist();
               if (!_valid(generation) || !identical(player, _player)) return;
               if (index == playlist.length - 1) {
-                _publish(_status.copyWith(state: PlaybackState.ended, clearError: true));
+                _publish(
+                  _status.copyWith(
+                    state: PlaybackState.ended,
+                    clearError: true,
+                  ),
+                );
                 if (_started && !_ended) {
                   _ended = true;
+                  _releaseService(generation);
                   _event(PlaybackEventType.trackEnded);
                 }
               }
@@ -290,6 +409,7 @@ class ChromiumPlaybackEngine implements PlaybackController {
           _event(PlaybackEventType.playbackPaused);
         } else if (state == 0 && _started && !_ended) {
           _ended = true;
+          _releaseService(generation);
           _event(PlaybackEventType.trackEnded);
         }
         if (state == 3 && previous != mapped)
@@ -321,6 +441,16 @@ class ChromiumPlaybackEngine implements PlaybackController {
           );
       }
     }
+  }
+
+  void _releaseService(int generation) {
+    unawaited(
+      (stopPlaybackService?.call() ?? Future<void>.value()).catchError((
+        Object error,
+      ) {
+        _fail(error, generation);
+      }),
+    );
   }
 
   Future<ChromiumYoutubePlayerController?> _active() async {
@@ -360,6 +490,8 @@ class ChromiumPlaybackEngine implements PlaybackController {
       );
     await player.pauseVideo();
     await acknowledgment;
+    // Paused playback does not require a second service to remain foreground.
+    if (!_wantsPlaying) await stopPlaybackService?.call();
   }
 
   @override
@@ -367,7 +499,17 @@ class ChromiumPlaybackEngine implements PlaybackController {
     _checkOpen();
     _wantsPlaying = true;
     if (!_chromium) return fallback.resume();
-    await (await _active())?.playVideo();
+    final generation = _generation;
+    final player = await _active();
+    if (!_valid(generation) || !_wantsPlaying) return;
+    if (player == null) {
+      final track = _status.track;
+      if (track != null) await play(track, startAt: _status.position);
+      return;
+    }
+    await startPlaybackService?.call();
+    if (!_valid(generation) || !_wantsPlaying) return;
+    await player.playVideo();
   }
 
   @override

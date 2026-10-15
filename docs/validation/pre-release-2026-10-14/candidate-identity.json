@@ -1,0 +1,9 @@
+{
+  "app_head": "8dc725f9c4e6c456b81c586f06880739bce815f2",
+  "working_tree": "modified; includes pre-existing candidate edits",
+  "files": {
+    "pubspec.yaml": "91245cfbb1c0c7ce239c7540fcab4d41deec27789fd8501c9739becff13207cd",
+    "pubspec.lock": "348a7bf473d7ed3c2d301d07bdce5a821a1ee504f54dfaf2f51adb7d29aaf6d1",
+    "third_party/chromium/SOURCE_MANIFEST.json": "b2391d14a53e86e9285c88d167f13ba404948c8244e00869451b18b5e9e53c2f"
+  }
+}

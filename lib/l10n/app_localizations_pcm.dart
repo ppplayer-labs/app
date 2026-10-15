@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -335,6 +334,21 @@ class AppLocalizationsPcm extends AppLocalizations {
   String get copyLink => 'Copy link';
 
   @override
+  String get copySpotifyLink => 'Copy Spotify link';
+
+  @override
+  String get copyYouTubeLink => 'Copy YouTube link';
+
+  @override
+  String get copySpotifyId => 'Copy Spotify ID';
+
+  @override
+  String get copyYouTubeId => 'Copy YouTube ID';
+
+  @override
+  String get idCopied => 'ID don copy';
+
+  @override
   String get discover => 'Find';
 
   @override
@@ -392,10 +406,10 @@ class AppLocalizationsPcm extends AppLocalizations {
   String get queue1 => 'Queue';
 
   @override
-  String get queueNowPlaying => 'Now playing';
+  String get queueNowPlaying => 'De play now';
 
   @override
-  String get queueUpNext => 'Up next';
+  String get queueUpNext => 'Next song';
 
   @override
   String get recentlyPlayed => 'Wetin I play last';
@@ -1086,4 +1100,55 @@ class AppLocalizationsPcm extends AppLocalizations {
 
   @override
   String get loadFailed => 'We no fit load the content. Try again.';
+
+  @override
+  String get removeFolder => 'Remove folder';
+
+  @override
+  String get removeFolderConfirmTitle => 'Remove folder?';
+
+  @override
+  String removeFolderConfirmMessage(String name) {
+    return 'Remove \"$name\" and di media from your library? Files for disk no go delete.';
+  }
+
+  @override
+  String fileMissingOnDisk(String name) {
+    return '\"$name\" no dey disk again';
+  }
+
+  @override
+  String get folderUnavailable =>
+      'Folder no dey. Make you check say drive dey connected.';
+
+  @override
+  String fileAlreadyImported(String name) {
+    return '\"$name\" already dey your library';
+  }
+
+  @override
+  String filesAlreadyImported(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count files already dey your library',
+      one: '1 file already dey your library',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get folderAlreadyImported =>
+      'Dis folder already import — dey check for new files';
+
+  @override
+  String get rescanCompleted => 'Library rescan complete';
+
+  @override
+  String rescanFailed(String error) {
+    return 'Rescan fail for folder: $error';
+  }
+
+  @override
+  String get importedFolderFallback => 'Imported Folder';
 }

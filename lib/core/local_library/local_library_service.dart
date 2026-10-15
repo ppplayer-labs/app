@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart'
+    show GlobalKey, ScaffoldMessengerState, SnackBar, Text;
 import 'package:crypto/crypto.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
@@ -10,7 +12,7 @@ import 'package:path_provider/path_provider.dart';
 
 import 'package:ppplayer/core/db/app_database.dart';
 import 'package:ppplayer/core/models/track.dart' show Track;
-import 'local_track_source.dart';
+import 'local_track_source.dart' hide ImportRoot;
 import 'metadata_extractor.dart';
 import 'local_file_resolver.dart';
 import 'managed_local_file_store.dart';
@@ -19,6 +21,23 @@ import 'video_probe_service.dart';
 import 'm3u_handler.dart';
 import 'package:path/path.dart' as p;
 import '../../features/library/video_thumbnail_generator.dart';
+import 'package:ppplayer/l10n/app_localizations.dart';
+
+String _canonicalPath(String rawPath) {
+  final clean = rawPath.trim();
+  if (clean.isEmpty) return clean;
+  try {
+    return Directory(clean).resolveSymbolicLinksSync();
+  } catch (_) {
+    return p.canonicalize(clean);
+  }
+}
+
+class _DirectoryScanResult {
+  final List<String> files;
+  final bool isComplete;
+  const _DirectoryScanResult(this.files, this.isComplete);
+}
 
 final localLibraryServiceProvider = Provider<LocalLibraryService>((ref) {
   return LocalLibraryService(ref.watch(appDatabaseProvider));
@@ -38,6 +57,52 @@ class LocalLibraryService {
   final ManagedLocalFileStore _managedStore;
   bool get _isIOS => _platform == TargetPlatform.iOS;
 
+  /// Root messenger used to surface import notices from non-UI code.
+  /// Attach to `MaterialApp.scaffoldMessengerKey`.
+  static final GlobalKey<ScaffoldMessengerState> messengerKey =
+      GlobalKey<ScaffoldMessengerState>();
+
+  static void showNotice(String message) {
+    messengerKey.currentState
+      ?..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  void _notify(String message) => showNotice(message);
+
+  /// True when a file at the raw [path] is already in the library (matches
+  /// individually imported files and children of imported folders).
+  Future<bool> _alreadyImported(String path) async =>
+      await _db.getLocalFileByDeduplicationKey(_hashLocator(path)) != null;
+
+  void _notifySkipped(List<String> names) {
+    if (names.isEmpty) return;
+    final context = messengerKey.currentContext;
+    final l10n = context != null ? AppLocalizations.of(context) : null;
+    if (l10n != null) {
+      _notify(
+        names.length == 1
+            ? l10n.fileAlreadyImported(names.first)
+            : l10n.filesAlreadyImported(names.length),
+      );
+    } else {
+      _notify(
+        names.length == 1
+            ? '"${names.first}" is already in your library'
+            : '${names.length} files were already in your library',
+      );
+    }
+  }
+
+  void _notifyFolderAlreadyImported() {
+    final context = messengerKey.currentContext;
+    final l10n = context != null ? AppLocalizations.of(context) : null;
+    _notify(
+      l10n?.folderAlreadyImported ??
+          'This folder is already imported — checking for new files',
+    );
+  }
+
   Future<List<Track>> importFiles() async {
     final result = await FilePicker.pickFiles(
       type: FileType.custom,
@@ -50,8 +115,13 @@ class LocalLibraryService {
     if (result.isEmpty) return [];
 
     final importedTracks = <Track>[];
+    final skipped = <String>[];
 
     for (final file in result) {
+      if (await _alreadyImported(file.path!)) {
+        skipped.add(file.name);
+        continue;
+      }
       String locator = file.path!;
       TrackSourceType mechanism = TrackSourceType.absolutePath;
 
@@ -83,6 +153,7 @@ class LocalLibraryService {
       }
     }
 
+    _notifySkipped(skipped);
     return importedTracks;
   }
 
@@ -99,7 +170,12 @@ class LocalLibraryService {
 
     if (result.isEmpty) return;
 
+    final skipped = <String>[];
     for (final file in result) {
+      if (await _alreadyImported(file.path!)) {
+        skipped.add(file.name);
+        continue;
+      }
       String locator = file.path!;
       TrackSourceType mechanism = TrackSourceType.absolutePath;
 
@@ -126,6 +202,7 @@ class LocalLibraryService {
         scopeHint: ImportMediaScope.video,
       );
     }
+    _notifySkipped(skipped);
   }
 
   /// Imports files from specific paths (e.g., via macOS Open File command).
@@ -138,7 +215,12 @@ class LocalLibraryService {
     ImportMediaScope scopeHint = ImportMediaScope.both,
   }) async {
     final importedTracks = <Track>[];
+    final skipped = <String>[];
     for (final path in paths) {
+      if (await _alreadyImported(path)) {
+        skipped.add(path.split('/').last);
+        continue;
+      }
       String locator = path;
       TrackSourceType mechanism = TrackSourceType.absolutePath;
 
@@ -180,6 +262,7 @@ class LocalLibraryService {
         importedTracks.add(track);
       }
     }
+    _notifySkipped(skipped);
     return importedTracks;
   }
 
@@ -202,7 +285,17 @@ class LocalLibraryService {
     );
     debugPrint('FilePicker returned: $rootPath');
     if (rootPath == null) return;
+    await importFolderAtPath(rootPath, scope: scope);
+  }
 
+  /// Imports a folder that has already been chosen (picker result, or a test
+  /// fixture directory). Creates the security-scoped root bookmark on
+  /// Apple platforms, persists the import root, and scans it.
+  @visibleForTesting
+  Future<void> importFolderAtPath(
+    String rootPath, {
+    ImportMediaScope scope = ImportMediaScope.audio,
+  }) async {
     final String rootId = _uuid.v4();
     TrackSourceType rootMechanism = TrackSourceType.absolutePath;
     String rootLocator = rootPath;
@@ -219,14 +312,38 @@ class LocalLibraryService {
     }
 
     // Check for an existing root at this path to avoid duplicate library records.
-    // If one already exists with a different scope, promote it to 'both'.
-    final existing = await _db
-        .select(_db.importRoots)
-        .get()
-        .then(
-          (roots) =>
-              roots.where((r) => r.rootLocator == rootLocator).firstOrNull,
+    // Ensure duplicate detection uses the resolved canonical folder identity
+    // rather than comparing different bookmark strings.
+    final targetCanonical = _canonicalPath(rootPath);
+    final allRoots = await _db.select(_db.importRoots).get();
+    ImportRoot? existing;
+    for (final r in allRoots) {
+      if (r.rootLocator == rootLocator) {
+        existing = r;
+        break;
+      }
+      final display = r.displayPath.trim();
+      if (display.isNotEmpty && _canonicalPath(display) == targetCanonical) {
+        existing = r;
+        break;
+      }
+    }
+
+    if (existing != null) {
+      _notifyFolderAlreadyImported();
+      if (rootMechanism == TrackSourceType.iOsSecurityBookmark &&
+          existing.rootLocator != rootLocator) {
+        final oldLocator = existing.rootLocator;
+        await (_db.update(
+          _db.localFiles,
+        )..where((f) => f.importRootLocator.equals(oldLocator))).write(
+          LocalFilesCompanion(importRootLocator: drift.Value(rootLocator)),
         );
+      } else {
+        rootLocator = existing.rootLocator;
+        rootMechanism = TrackSourceType.values.byName(existing.mechanism);
+      }
+    }
 
     final String effectiveRootId;
     final ImportMediaScope effectiveScope;
@@ -427,60 +544,114 @@ class LocalLibraryService {
   }
 
   Future<void> rescanLibrary({void Function(String?)? onProgress}) async {
-    final existingRoots = await _db.select(_db.importRoots).get();
-    final existingFiles = await _db.select(_db.localFiles).get();
+    try {
+      final existingRoots = await _db.select(_db.importRoots).get();
+      final existingFiles = await _db.select(_db.localFiles).get();
 
-    for (final root in existingRoots) {
-      onProgress?.call('Scanning folder: ${root.displayPath}...');
-      final mechanism = TrackSourceType.values.byName(root.mechanism);
-      // Restore persisted scope — never re-infer from extensions.
-      final scope = ImportMediaScope.values.byName(root.mediaScope);
-      await _scanRoot(
-        id: root.id,
-        mechanism: mechanism,
-        locator: root.rootLocator,
-        scope: scope,
-      );
-    }
-
-    // Verify standalone files
-    int verified = 0;
-    for (final file in existingFiles) {
-      if (file.importRootLocator != null) continue; // Handled by folder scan
-
-      onProgress?.call(
-        'Verifying standalone files ($verified/${existingFiles.length})...',
-      );
-      final mechanism = TrackSourceType.values.byName(file.mechanism);
-
-      final source = LocalTrackSource(
-        libraryId: file.libraryId,
-        locator: file.locator,
-        displayPath: file.displayPath,
-        mechanism: mechanism,
-        deduplicationKey: file.deduplicationKey,
-        lastScannedAt: file.lastScannedAt,
-        availabilityStatus: TrackAvailabilityStatus.values.firstWhere(
-          (e) => e.name == file.availabilityStatus,
-          orElse: () => TrackAvailabilityStatus.available,
-        ),
-        importRootLocator: file.importRootLocator,
-      );
-      final resolver = LocalFileResolver.forSource(source);
-      final status = await resolver.checkAccess(source);
-
-      if (status != TrackAvailabilityStatus.available) {
-        await _db
-            .update(_db.localFiles)
-            .replace(file.copyWith(availabilityStatus: status.name));
-      } else {
-        await _db
-            .update(_db.localFiles)
-            .replace(file.copyWith(availabilityStatus: 'available'));
+      for (final root in existingRoots) {
+        onProgress?.call('Scanning folder: ${root.displayPath}...');
+        final mechanism = TrackSourceType.values.byName(root.mechanism);
+        // Restore persisted scope — never re-infer from extensions.
+        final scope = ImportMediaScope.values.byName(root.mediaScope);
+        await _scanRoot(
+          id: root.id,
+          mechanism: mechanism,
+          locator: root.rootLocator,
+          scope: scope,
+        );
       }
-      verified++;
+
+      // Verify standalone files
+      int verified = 0;
+      for (final file in existingFiles) {
+        if (file.importRootLocator != null) continue; // Handled by folder scan
+
+        onProgress?.call(
+          'Verifying standalone files ($verified/${existingFiles.length})...',
+        );
+        final mechanism = TrackSourceType.values.byName(file.mechanism);
+
+        final source = LocalTrackSource(
+          libraryId: file.libraryId,
+          locator: file.locator,
+          displayPath: file.displayPath,
+          mechanism: mechanism,
+          deduplicationKey: file.deduplicationKey,
+          lastScannedAt: file.lastScannedAt,
+          availabilityStatus: TrackAvailabilityStatus.values.firstWhere(
+            (e) => e.name == file.availabilityStatus,
+            orElse: () => TrackAvailabilityStatus.available,
+          ),
+          importRootLocator: file.importRootLocator,
+        );
+        final resolver = LocalFileResolver.forSource(source);
+        final status = await resolver.checkAccess(source);
+
+        if (status != TrackAvailabilityStatus.available) {
+          if (status == TrackAvailabilityStatus.missing) {
+            // Check if parent directory exists to distinguish deleted file from disconnected drive
+            bool parentExists = false;
+            try {
+              final uri = Uri.tryParse(file.locator);
+              final rawPath = (uri != null && uri.scheme == 'file')
+                  ? File.fromUri(uri).path
+                  : file.locator;
+              if (rawPath.startsWith('/')) {
+                parentExists = await Directory(p.dirname(rawPath)).exists();
+              }
+            } catch (_) {}
+
+            if (parentExists) {
+              if (file.availabilityStatus == 'missing') {
+                // Confirmed missing on second scan -> prune transactionally
+                await _db.deleteLocalFile(file.libraryId);
+              } else {
+                // First scan missing -> mark as missing
+                await _db.updateLocalFileStatus(
+                  file.libraryId,
+                  'missing',
+                  DateTime.now(),
+                );
+              }
+            } else {
+              // Disconnected drive / parent unreachable: preserve record
+              if (file.availabilityStatus != 'missing') {
+                await _db.updateLocalFileStatus(
+                  file.libraryId,
+                  'missing',
+                  DateTime.now(),
+                );
+              }
+            }
+          } else {
+            await _db.updateLocalFileStatus(
+              file.libraryId,
+              status.name,
+              DateTime.now(),
+            );
+          }
+        } else {
+          // Available: restore
+          await _db.updateLocalFileStatus(
+            file.libraryId,
+            'available',
+            DateTime.now(),
+          );
+        }
+        verified++;
+      }
+      onProgress?.call(null);
+    } catch (e) {
+      onProgress?.call(null);
+      final context = messengerKey.currentContext;
+      final l10n = (context != null && context.mounted)
+          ? AppLocalizations.of(context)
+          : null;
+      _notify(
+        l10n?.rescanFailed(e.toString()) ?? 'Failed to rescan folder: $e',
+      );
+      rethrow;
     }
-    onProgress?.call(null);
   }
 
   Future<String?> _moveToManagedCopy(String tempPath, String name) async {
@@ -510,57 +681,172 @@ class LocalLibraryService {
     List<String> files = [];
 
     if (mechanism == TrackSourceType.androidContentUri) {
-      // Android: listAudioFilesInDocumentTree already filters by audio extensions.
-      // For video scope we'd need a separate call — for now, audio only on Android
-      // content URIs (video import via content:// is an edge case).
-      files = await listAudioFilesInDocumentTree(locator, recursive: true);
-    } else {
-      String pathToScan = locator;
-      if (mechanism == TrackSourceType.iOsSecurityBookmark) {
-        // We'd resolve the bookmark to get the absolute path to scan.
-        // For simplicity assuming LocalFileResolver provides a public way, or we just
-        // use a platform channel. But for now we only support macOS/Windows/Linux root scanning.
+      try {
+        files = await listAudioFilesInDocumentTree(locator, recursive: true);
+        debugPrint('Found ${files.length} media files (scope: ${scope.name})');
+        await _importScannedFiles(
+          files,
+          mechanism: mechanism,
+          locator: locator,
+        );
+        await _pruneStaleFilesInRoot(locator: locator, discoveredFiles: files);
+      } catch (e) {
+        debugPrint('Android document tree scan failed: $e');
       }
+      return;
+    }
+
+    String pathToScan = locator;
+    var bookmarkAccessStarted = false;
+    if (mechanism == TrackSourceType.iOsSecurityBookmark) {
+      // The persisted root locator is a base64 bookmark, not a path. Resolve
+      // it (which also starts security-scoped access) before enumerating.
+      final resolved = await resolveSecurityScopedBookmark(locator);
+      if (resolved == null) {
+        debugPrint('[LocalLibrary] scan.root_unresolvable bookmark=true');
+        // Folder bookmark resolution failed (drive disconnected or permission issue).
+        // NEVER prune records when bookmark resolution fails!
+        return;
+      }
+      bookmarkAccessStarted = true;
+      pathToScan = resolved;
+    }
+    try {
       final dir = Directory(pathToScan);
-      debugPrint(
-        'Scanning directory: $pathToScan, exists: ${await dir.exists()} scope: ${scope.name}',
-      );
-      if (await dir.exists()) {
-        final List<Directory> dirsToScan = [dir];
-        while (dirsToScan.isNotEmpty) {
-          final currentDir = dirsToScan.removeLast();
-          try {
-            await for (final entity in currentDir.list(
-              recursive: false,
-              followLinks: false,
-            )) {
-              if (entity is Directory) {
-                dirsToScan.add(entity);
-              } else if (entity is File) {
-                final ext = AudioFormatRegistry.extensionOf(entity.path);
-                final isAudioExt =
-                    AudioFormatRegistry.isRecognizedImportCandidate(ext);
-                final isVideoExt = AudioFormatRegistry.isVideoFormatCandidate(
-                  ext,
-                );
-                final include =
-                    (scope.includesAudio && isAudioExt) ||
-                    (scope.includesVideo && isVideoExt);
-                if (include) {
-                  files.add(entity.path);
-                }
-              }
-            }
-          } catch (e) {
-            debugPrint(
-              'Skipping inaccessible directory ${currentDir.path}: $e',
-            );
-          }
+      if (!await dir.exists()) {
+        debugPrint(
+          '[LocalLibrary] Root directory does not exist: $pathToScan (drive unplugged/moved). Preserving records.',
+        );
+        return;
+      }
+
+      final scanResult = await _enumerateDirectory(pathToScan, scope);
+      files = scanResult.files;
+      debugPrint('Found ${files.length} media files (scope: ${scope.name})');
+      await _importScannedFiles(files, mechanism: mechanism, locator: locator);
+
+      // Safe stale-file pruning only after a confirmed, complete scan
+      if (scanResult.isComplete) {
+        await _pruneStaleFilesInRoot(locator: locator, discoveredFiles: files);
+      } else {
+        debugPrint(
+          '[LocalLibrary] Skipping prune for $locator: scan encountered directory errors and was incomplete',
+        );
+      }
+    } finally {
+      if (bookmarkAccessStarted) {
+        await stopAccessingSecurityScopedBookmark(locator);
+      }
+    }
+  }
+
+  Future<void> _pruneStaleFilesInRoot({
+    required String locator,
+    required List<String> discoveredFiles,
+  }) async {
+    final roots = await _db.select(_db.importRoots).get();
+    final targetRoot = roots.where((r) => r.rootLocator == locator).firstOrNull;
+    final locators = <String>{locator};
+    if (targetRoot != null && targetRoot.displayPath.trim().isNotEmpty) {
+      final targetCanonical = _canonicalPath(targetRoot.displayPath);
+      for (final r in roots) {
+        if (r.displayPath.trim().isNotEmpty &&
+            _canonicalPath(r.displayPath) == targetCanonical) {
+          locators.add(r.rootLocator);
         }
       }
     }
 
-    debugPrint('Found ${files.length} media files (scope: ${scope.name})');
+    final existingInDb = <LocalFile>[];
+    for (final loc in locators) {
+      existingInDb.addAll(await _db.getLocalFilesByImportRoot(loc));
+    }
+    if (existingInDb.isEmpty) return;
+
+    final discoveredSet = discoveredFiles.toSet();
+    final now = DateTime.now();
+
+    for (final file in existingInDb) {
+      if (discoveredSet.contains(file.locator)) {
+        continue;
+      }
+
+      bool existsOnDisk = false;
+      try {
+        existsOnDisk = await File(file.locator).exists();
+      } catch (_) {}
+
+      if (existsOnDisk) {
+        // Still exists on disk; preserve
+        continue;
+      }
+
+      // Safe two-phase policy:
+      if (file.availabilityStatus == 'missing') {
+        // Phase 2: Confirmed missing across multiple scans -> prune transactionally from library
+        debugPrint(
+          '[LocalLibrary] Pruning confirmed deleted file: ${file.displayPath}',
+        );
+        await _db.deleteLocalFile(file.libraryId);
+      } else {
+        // Phase 1: Mark as missing on first complete scan
+        debugPrint('[LocalLibrary] Marking missing file: ${file.displayPath}');
+        await _db.updateLocalFileStatus(file.libraryId, 'missing', now);
+      }
+    }
+  }
+
+  Future<_DirectoryScanResult> _enumerateDirectory(
+    String pathToScan,
+    ImportMediaScope scope,
+  ) async {
+    final files = <String>[];
+    bool isComplete = true;
+    final dir = Directory(pathToScan);
+    debugPrint(
+      'Scanning directory: $pathToScan, exists: ${await dir.exists()} scope: ${scope.name}',
+    );
+    if (!await dir.exists()) {
+      return const _DirectoryScanResult([], false);
+    }
+
+    final List<Directory> dirsToScan = [dir];
+    while (dirsToScan.isNotEmpty) {
+      final currentDir = dirsToScan.removeLast();
+      try {
+        await for (final entity in currentDir.list(
+          recursive: false,
+          followLinks: false,
+        )) {
+          if (entity is Directory) {
+            dirsToScan.add(entity);
+          } else if (entity is File) {
+            final ext = AudioFormatRegistry.extensionOf(entity.path);
+            final isAudioExt = AudioFormatRegistry.isRecognizedImportCandidate(
+              ext,
+            );
+            final isVideoExt = AudioFormatRegistry.isVideoFormatCandidate(ext);
+            final include =
+                (scope.includesAudio && isAudioExt) ||
+                (scope.includesVideo && isVideoExt);
+            if (include) {
+              files.add(entity.path);
+            }
+          }
+        }
+      } catch (e) {
+        debugPrint('Skipping inaccessible directory ${currentDir.path}: $e');
+        isComplete = false;
+      }
+    }
+    return _DirectoryScanResult(files, isComplete);
+  }
+
+  Future<void> _importScannedFiles(
+    List<String> files, {
+    required TrackSourceType mechanism,
+    required String locator,
+  }) async {
     for (final f in files) {
       final fileMechanism = mechanism == TrackSourceType.androidContentUri
           ? TrackSourceType.androidContentUri

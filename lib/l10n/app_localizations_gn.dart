@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -336,6 +335,21 @@ class AppLocalizationsGn extends AppLocalizations {
   String get copyLink => 'Kopia Ñandutiresẽ';
 
   @override
+  String get copySpotifyLink => 'Embohasa Spotify joajuha';
+
+  @override
+  String get copyYouTubeLink => 'Embohasa YouTube joajuha';
+
+  @override
+  String get copySpotifyId => 'Embohasa Spotify ID';
+
+  @override
+  String get copyYouTubeId => 'Embohasa YouTube ID';
+
+  @override
+  String get idCopied => 'ID oñembosa\'i';
+
+  @override
   String get discover => 'Ejuhu';
 
   @override
@@ -393,10 +407,10 @@ class AppLocalizationsGn extends AppLocalizations {
   String get queue1 => 'Tysýi';
 
   @override
-  String get queueNowPlaying => 'Now playing';
+  String get queueNowPlaying => 'Oñembopúva ko\'áĝa';
 
   @override
-  String get queueUpNext => 'Up next';
+  String get queueUpNext => 'Upe riregua';
 
   @override
   String get recentlyPlayed => 'Oñembopu Va\'ekue';
@@ -1092,4 +1106,55 @@ class AppLocalizationsGn extends AppLocalizations {
 
   @override
   String get loadFailed => 'Ndaikatúi ojehechauka ipypegua. Eñeha\'ã jey.';
+
+  @override
+  String get removeFolder => 'Nohẽ ñongatuha';
+
+  @override
+  String get removeFolderConfirmTitle => 'Enohẽse piko ñongatuha?';
+
+  @override
+  String removeFolderConfirmMessage(String name) {
+    return 'Enohẽse piko \"$name\" ha imba\'epukuéra ne purahéi atýgui? Ñongatupy disco-pe ndoñemboguetéi chéne.';
+  }
+
+  @override
+  String fileMissingOnDisk(String name) {
+    return '\"$name\" ndojekuaavéi disco-pe';
+  }
+
+  @override
+  String get folderUnavailable =>
+      'Ñongatuha ndojeporukuaái. Ehechami oñembojoaju porãpa disco.';
+
+  @override
+  String fileAlreadyImported(String name) {
+    return '\"$name\" oĩma ne purahéi atýpe';
+  }
+
+  @override
+  String filesAlreadyImported(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count marandukuéra oĩma kuri ne purahéi atýpe',
+      one: '1 marandu oĩma kuri ne purahéi atýpe',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get folderAlreadyImported =>
+      'Ko ñongatuha oñegueruma kuri — ojeheka marandu pyahu';
+
+  @override
+  String get rescanCompleted => 'Omohu\'ã jey jeheka purahéi atýpe';
+
+  @override
+  String rescanFailed(String error) {
+    return 'Oiko jejavy ñongatuha jeheka jeýpe: $error';
+  }
+
+  @override
+  String get importedFolderFallback => 'Ñongatuha oñegueruva\'ekue';
 }

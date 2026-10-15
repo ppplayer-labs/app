@@ -3,6 +3,10 @@ import 'package:flutter/foundation.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:hive_ce/hive_ce.dart';
+import 'dart:io' show File, Platform;
+import '../local_library/local_file_resolver.dart'
+    show resolveSecurityScopedBookmark, stopAccessingSecurityScopedBookmark;
+import '../local_library/local_library_service.dart' show LocalLibraryService;
 import '../models/track.dart';
 import '../models/playback_queue.dart';
 import '../models/resolved_video_candidate.dart';
@@ -11,8 +15,10 @@ import '../playback/pip_handler.dart';
 import '../api/spotify_repository.dart';
 import '../services/settings_provider.dart';
 import '../network_streams/network_stream_service.dart';
+import '../db/app_database.dart' show appDatabaseProvider;
+import 'package:ppplayer/l10n/app_localizations.dart';
 
-export '../models/track.dart' show Track;
+export '../models/track.dart' show Track, TrackSourceX;
 export '../models/playback_queue.dart' show PlaybackQueue, RepeatMode;
 
 class PlayerState {
@@ -111,6 +117,7 @@ class PlayerNotifier extends Notifier<PlayerState> {
   SeekRequest? _pendingSeek;
   int _seekGeneration = 0;
   bool _userIntentPlay = false;
+  DateTime? _startRequestedAt;
 
   // Actual progress tracking
   DateTime? _lastProgressTime;
@@ -121,7 +128,10 @@ class PlayerNotifier extends Notifier<PlayerState> {
   List<ResolvedVideoCandidate> _currentCandidates = [];
   int _currentCandidateIndex = 0;
   bool _isRecovering = false;
-  bool _skipDebounce = false;
+  // Identifies the playback whose `ended` event already advanced the queue, so
+  // duplicate ended emissions don't skip twice, while a genuinely new (even very
+  // short) track that ends right after still advances.
+  String? _lastAdvancedEndedKey;
   bool _lastPipEnabled = false;
   Timer? _saveTimer;
   bool _disposed = false;
@@ -167,13 +177,10 @@ class PlayerNotifier extends Notifier<PlayerState> {
       if (next is AsyncData<PlaybackStatus>) {
         final status = next.value;
         if (status.state == PlaybackState.ended) {
-          if (!_skipDebounce) {
-            _skipDebounce = true;
+          final endedKey = '${status.generation}:${status.track?.id}';
+          if (_lastAdvancedEndedKey != endedKey) {
+            _lastAdvancedEndedKey = endedKey;
             skipNext();
-            Future.delayed(
-              const Duration(milliseconds: 1000),
-              () => _skipDebounce = false,
-            );
           }
         }
         _syncFromStatus(status);
@@ -410,6 +417,50 @@ class PlayerNotifier extends Notifier<PlayerState> {
     if (!_disposed && generation == _playbackGeneration) _isRecovering = false;
   }
 
+  /// True when [track] is a local file whose backing file no longer exists.
+  /// Conservative: returns false whenever existence can't be determined.
+  Future<bool> _isLocalFileMissing(Track track) async {
+    if (!track.isLocal) return false;
+    final path = track.localFilePath;
+    if (path == null || path.isEmpty) return false;
+    try {
+      if (path.startsWith('/') || RegExp(r'^[A-Za-z]:[\\/]').hasMatch(path)) {
+        // iOS sandbox paths can't be probed without a security-scoped lease.
+        if (Platform.isIOS) return false;
+        if (Platform.isMacOS) {
+          final db = ref.read(appDatabaseProvider);
+          final rootLocator = await db.importRootLocatorForPath(path);
+          if (rootLocator != null) {
+            final rootPath = await resolveSecurityScopedBookmark(rootLocator);
+            if (rootPath == null) {
+              // The folder bookmark could not be resolved (e.g. drive unplugged).
+              // Conservative: return false so we don't treat temporarily inaccessible drives as deleted.
+              return false;
+            }
+            try {
+              return !await File(path).exists();
+            } finally {
+              await stopAccessingSecurityScopedBookmark(rootLocator);
+            }
+          }
+        }
+        return !await File(path).exists();
+      }
+      if (path.contains('://')) return false; // pp-local://, content://, etc.
+      if (Platform.isIOS || Platform.isMacOS) {
+        // Bare string => base64 security-scoped bookmark.
+        final resolved = await resolveSecurityScopedBookmark(path);
+        if (resolved == null) return false;
+        try {
+          return !await File(resolved).exists();
+        } finally {
+          await stopAccessingSecurityScopedBookmark(path);
+        }
+      }
+    } catch (_) {}
+    return false;
+  }
+
   void _handleLogicalTrackFailure([String? specificError]) {
     _consecutiveTrackFailures++;
 
@@ -605,6 +656,11 @@ class PlayerNotifier extends Notifier<PlayerState> {
         _autoplaySeenTrackIds.clear();
       }
       _consecutiveTrackFailures = 0;
+      // A user-initiated play always means "start audible playback"; without
+      // this local/network tracks would load paused if the user never pressed
+      // play before.
+      _userIntentPlay = true;
+      _startRequestedAt = DateTime.now();
     }
     _playbackGeneration++;
     final myGen = _playbackGeneration;
@@ -674,6 +730,22 @@ class PlayerNotifier extends Notifier<PlayerState> {
             );
             resolvedHeaders = extracted.httpHeaders;
           }
+        }
+
+        if (await _isLocalFileMissing(resolvedTrack)) {
+          if (_disposed || myGen != _playbackGeneration) return;
+          await _controller.stop();
+          if (_disposed || myGen != _playbackGeneration) return;
+          final context = LocalLibraryService.messengerKey.currentContext;
+          final l10n = (context != null && context.mounted)
+              ? AppLocalizations.of(context)
+              : null;
+          final msg =
+              l10n?.fileMissingOnDisk(resolvedTrack.name) ??
+              '"${resolvedTrack.name}" can no longer be found on disk';
+          LocalLibraryService.showNotice(msg);
+          _handleLogicalTrackFailure(msg);
+          return;
         }
 
         await _controller.stop();
@@ -869,6 +941,7 @@ class PlayerNotifier extends Notifier<PlayerState> {
 
   Future<void> pause() async {
     _userIntentPlay = false;
+    _startRequestedAt = null;
     await _controller.pause();
   }
 
@@ -963,8 +1036,42 @@ class PlayerNotifier extends Notifier<PlayerState> {
     );
   }
 
+  /// Handles a tap on a track row. Returns true if [track] is the current
+  /// track and the tap was fully handled here (resume if paused, no-op if
+  /// already playing/starting); false if the caller should start the track.
+  /// Uses engine-synced state only.
+  bool handleTapOnCurrentTrack(Track track) {
+    final current = state.currentTrack;
+    if (current == null || !_isSameTrack(current, track)) return false;
+    // Errored track: let the caller restart it fully.
+    if (state.loadError != null) return false;
+    if (state.isPlaying) return true;
+    final startedAt = _startRequestedAt;
+    final startPending =
+        startedAt != null &&
+        DateTime.now().difference(startedAt) < const Duration(seconds: 2);
+    if (state.isLoadingVideo || startPending) return true;
+    _clearRestoreGuard();
+    resume();
+    return true;
+  }
+
+  static bool _isSameTrack(Track a, Track b) {
+    if (a.queueItemId != null &&
+        b.queueItemId != null &&
+        a.queueItemId == b.queueItemId) {
+      return true;
+    }
+    if (a.spotifyId.isEmpty || b.spotifyId.isEmpty) return false;
+    return a.spotifyId == b.spotifyId;
+  }
+
   void skipTo(int index) {
     if (index >= 0 && index < state.playbackQueue.tracks.length) {
+      if (index == state.playbackQueue.currentIndex &&
+          handleTapOnCurrentTrack(state.playbackQueue.tracks[index])) {
+        return;
+      }
       playTrack(
         state.playbackQueue.tracks[index],
         queue: state.playbackQueue.tracks,

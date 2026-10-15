@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ppplayer/core/models/track.dart';
 import 'package:ppplayer/core/playback/playback_providers.dart';
@@ -7,6 +8,37 @@ import 'package:ppplayer/core/playback/hybrid_playback_engine.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  test('macOS resolves imported bookmarks before opening native media', () async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+    addTearDown(() => debugDefaultTargetPlatformOverride = null);
+    const channel = MethodChannel('com.ppplayer.app/local_files');
+    final calls = <String>[];
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (call) async {
+          calls.add(call.method);
+          expect(call.arguments['bookmark'], 'Ym9va21hcms=');
+          return null; // Revoked access must fail before libmpv opens anything.
+        });
+    addTearDown(
+      () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, null),
+    );
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    final engine = container.read(localPlaybackControllerProvider);
+    await expectLater(
+      engine.play(
+        const PlaybackTrack(
+          id: 'local:bookmark',
+          title: 'Imported macOS file',
+          sourceType: PlaybackSourceType.local,
+          localMediaUri: 'Ym9va21hcms=',
+        ),
+      ),
+      throwsUnsupportedError,
+    );
+    expect(calls, ['resolveBookmark']);
+  });
   test('Android uses HybridPlaybackEngine with Chromium frontend', () {
     debugDefaultTargetPlatformOverride = TargetPlatform.android;
     addTearDown(() => debugDefaultTargetPlatformOverride = null);

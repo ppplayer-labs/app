@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -339,6 +338,21 @@ class AppLocalizationsHu extends AppLocalizations {
   String get copyLink => 'Hivatkozás másolása';
 
   @override
+  String get copySpotifyLink => 'Spotify hivatkozás másolása';
+
+  @override
+  String get copyYouTubeLink => 'YouTube hivatkozás másolása';
+
+  @override
+  String get copySpotifyId => 'Spotify azonosító másolása';
+
+  @override
+  String get copyYouTubeId => 'YouTube azonosító másolása';
+
+  @override
+  String get idCopied => 'Azonosító másolva';
+
+  @override
   String get discover => 'Felfedezés';
 
   @override
@@ -396,10 +410,10 @@ class AppLocalizationsHu extends AppLocalizations {
   String get queue1 => 'Várólista';
 
   @override
-  String get queueNowPlaying => 'Now playing';
+  String get queueNowPlaying => 'Most játszott';
 
   @override
-  String get queueUpNext => 'Up next';
+  String get queueUpNext => 'Következő';
 
   @override
   String get recentlyPlayed => 'Nemrég játszott';
@@ -1100,4 +1114,55 @@ class AppLocalizationsHu extends AppLocalizations {
 
   @override
   String get loadFailed => 'A tartalom nem tölthető be. Próbáld újra.';
+
+  @override
+  String get removeFolder => 'Mappa eltávolítása';
+
+  @override
+  String get removeFolderConfirmTitle => 'Mappa eltávolítása?';
+
+  @override
+  String removeFolderConfirmMessage(String name) {
+    return 'Eltávolítod a(z) „$name” mappát és a tartalmát a könyvtárból? A lemezen lévő fájlok nem törlődnek.';
+  }
+
+  @override
+  String fileMissingOnDisk(String name) {
+    return '„$name” már nem található a lemezen';
+  }
+
+  @override
+  String get folderUnavailable =>
+      'A mappa nem érhető el. Kérjük, ellenőrizd, hogy a meghajtó csatlakoztatva van-e.';
+
+  @override
+  String fileAlreadyImported(String name) {
+    return '„$name” már szerepel a könyvtáradban';
+  }
+
+  @override
+  String filesAlreadyImported(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count fájl már a könyvtáradban volt',
+      one: '1 fájl már a könyvtáradban volt',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get folderAlreadyImported =>
+      'Ez a mappa már importálva van — új fájlok keresése';
+
+  @override
+  String get rescanCompleted => 'Könyvtár újraolvasása kész';
+
+  @override
+  String rescanFailed(String error) {
+    return 'Mappa újraolvasása sikertelen: $error';
+  }
+
+  @override
+  String get importedFolderFallback => 'Importált mappa';
 }

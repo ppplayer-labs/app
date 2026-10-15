@@ -942,7 +942,8 @@ class NetworkOutputController implements PlaybackController {
   @override
   PlaybackStatus get currentStatus => _status;
   @override
-  dynamic get renderer => _local.renderer;  @override
+  dynamic get renderer => _local.renderer;
+  @override
   bool get supportsSpeed => _remote == null && _local.supportsSpeed;
   @override
   bool get supportsTrackSelection =>

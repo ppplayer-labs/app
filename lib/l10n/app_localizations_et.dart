@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -336,6 +335,21 @@ class AppLocalizationsEt extends AppLocalizations {
   String get copyLink => 'Kopeeri link';
 
   @override
+  String get copySpotifyLink => 'Kopeeri Spotify link';
+
+  @override
+  String get copyYouTubeLink => 'Kopeeri YouTube\'i link';
+
+  @override
+  String get copySpotifyId => 'Kopeeri Spotify ID';
+
+  @override
+  String get copyYouTubeId => 'Kopeeri YouTube\'i ID';
+
+  @override
+  String get idCopied => 'ID kopeeritud';
+
+  @override
   String get discover => 'Avasta';
 
   @override
@@ -393,10 +407,10 @@ class AppLocalizationsEt extends AppLocalizations {
   String get queue1 => 'Järjekord';
 
   @override
-  String get queueNowPlaying => 'Now playing';
+  String get queueNowPlaying => 'Praegu mängib';
 
   @override
-  String get queueUpNext => 'Up next';
+  String get queueUpNext => 'Järgmisena';
 
   @override
   String get recentlyPlayed => 'Hiljuti mängitud';
@@ -1091,4 +1105,55 @@ class AppLocalizationsEt extends AppLocalizations {
 
   @override
   String get loadFailed => 'Sisu ei õnnestunud laadida. Proovi uuesti.';
+
+  @override
+  String get removeFolder => 'Eemalda kaust';
+
+  @override
+  String get removeFolderConfirmTitle => 'Kas eemaldada kaust?';
+
+  @override
+  String removeFolderConfirmMessage(String name) {
+    return 'Kas eemaldada \"$name\" ja selle meedia teegist? Kettal olevaid faile ei kustutata.';
+  }
+
+  @override
+  String fileMissingOnDisk(String name) {
+    return '\"$name\" pole enam kettalt leitav';
+  }
+
+  @override
+  String get folderUnavailable =>
+      'Kaust pole saadaval. Kontrollige, kas ketas on ühendatud.';
+
+  @override
+  String fileAlreadyImported(String name) {
+    return '\"$name\" on juba sinu teegis';
+  }
+
+  @override
+  String filesAlreadyImported(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count faili oli juba teegis',
+      one: '1 fail oli juba teegis',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get folderAlreadyImported =>
+      'See kaust on juba imporditud — kontrollitakse uusi faile';
+
+  @override
+  String get rescanCompleted => 'Teegi uuesti skannimine lõpetatud';
+
+  @override
+  String rescanFailed(String error) {
+    return 'Kausta uuesti skannimine ebaõnnestus: $error';
+  }
+
+  @override
+  String get importedFolderFallback => 'Imporditud kaust';
 }

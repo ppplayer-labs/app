@@ -1,4 +1,5 @@
 import '../../shared/widgets/pp_image.dart';
+import '../../shared/widgets/animated_equalizer.dart';
 import 'dart:io';
 import 'dart:ui' show lerpDouble;
 import 'package:flutter/foundation.dart';
@@ -1103,8 +1104,7 @@ class _QueueView extends ConsumerWidget {
                                                   color: colorScheme.shadow
                                                       .withValues(alpha: 0.3),
                                                   child: Center(
-                                                    child: Icon(
-                                                      Icons.equalizer,
+                                                    child: PlaybackIndicator(
                                                       color: Theme.of(
                                                         context,
                                                       ).colorScheme.primary,

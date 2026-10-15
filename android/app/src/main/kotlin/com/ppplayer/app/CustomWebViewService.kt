@@ -57,7 +57,18 @@ class CustomWebViewService : Service() {
             stopSelf()
             return START_NOT_STICKY
         }
-        chromiumPlayer = intent?.getBooleanExtra(EXTRA_CHROMIUM_PLAYER, false) == true
+        if (intent == null) {
+            stopForeground(true)
+            stopSelf()
+            return START_NOT_STICKY
+        }
+        val requestedChromium = intent.getBooleanExtra(EXTRA_CHROMIUM_PLAYER, false)
+        // The service cannot switch from a live legacy WebView to Chromium.
+        if ((ownsWebView && requestedChromium) || (chromiumPlayer && !requestedChromium)) {
+            Log.e(TAG, "Rejecting competing Chromium ownership")
+            return START_NOT_STICKY
+        }
+        chromiumPlayer = requestedChromium
         if (!chromiumPlayer && webView == null) initWebView()
         return START_NOT_STICKY
     }
@@ -198,10 +209,11 @@ class CustomWebViewService : Service() {
                             // Pre-warm cue. Rejects if id !== currentCommandId
                             // (a play() already claimed a newer id).
                             function cueVideo(videoId, startSeconds, id) {
-                                if (id !== currentCommandId) {
+                                if (id < currentCommandId) {
                                     NativeLog.log('cueVideo REJECTED stale id=' + id + ' current=' + currentCommandId);
                                     return;
                                 }
+                                currentCommandId = id;
                                 if (player && player.cueVideoById) {
                                     player.cueVideoById({videoId: videoId, startSeconds: startSeconds});
                                 }
@@ -282,9 +294,10 @@ class CustomWebViewService : Service() {
 
     private fun createNotification(): Notification {
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("PPPlayer Headless Engine")
-            .setContentText("Running YouTube engine in background")
+            .setContentTitle("PPPlayer playback")
+            .setContentText("YouTube playback active")
             .setSmallIcon(android.R.drawable.ic_media_play)
+            .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()
     }

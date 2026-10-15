@@ -42,7 +42,9 @@ void showLocalTrackContextMenu(
               child: Row(
                 children: [
                   Icon(
-                    Icons.audio_file_outlined,
+                    track.isVideoFile
+                        ? Icons.video_file_outlined
+                        : Icons.audio_file_outlined,
                     size: 48,
                     color: colorScheme.primary,
                   ),
@@ -144,6 +146,22 @@ void showLocalTrackContextMenu(
                   );
                 },
               ),
+            ListTile(
+              leading: Icon(
+                Icons.delete_outline_rounded,
+                color: colorScheme.error,
+              ),
+              title: Text(
+                AppLocalizations.of(context)!.removeFromLibrary,
+                style: TextStyle(color: colorScheme.error),
+              ),
+              onTap: () async {
+                Navigator.pop(context);
+                await ref
+                    .read(db.appDatabaseProvider)
+                    .deleteLocalFile(track.spotifyId);
+              },
+            ),
             const SizedBox(height: 16),
           ],
         ),

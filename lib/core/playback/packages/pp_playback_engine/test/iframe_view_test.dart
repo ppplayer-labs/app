@@ -75,6 +75,9 @@ void main() {
       () => mockController.statusStream,
     ).thenAnswer((_) => Stream.value(status));
 
+    when(
+      () => mockController.renderer,
+    ).thenReturn(yt.YoutubePlayer(controller: ytController));
 
     // 2. Build the widget
     await tester.pumpWidget(

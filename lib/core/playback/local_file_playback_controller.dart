@@ -138,4 +138,5 @@ class LocalFilePlaybackController implements PlaybackController {
   @override
   bool get supportsVideoFitMode => _engine.supportsVideoFitMode;
   @override
-  dynamic get renderer => _engine.renderer;}
+  dynamic get renderer => _engine.renderer;
+}

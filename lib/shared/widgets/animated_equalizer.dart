@@ -1,11 +1,21 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/player/player_provider.dart';
 
+/// Equalizer bars. Animates only while [animating] is true; otherwise the bars
+/// are frozen in a fixed, static pose.
 class AnimatedEqualizer extends StatefulWidget {
   final Color color;
   final double size;
+  final bool animating;
 
-  const AnimatedEqualizer({super.key, required this.color, this.size = 16.0});
+  const AnimatedEqualizer({
+    super.key,
+    required this.color,
+    this.size = 16.0,
+    this.animating = true,
+  });
 
   @override
   State<AnimatedEqualizer> createState() => _AnimatedEqualizerState();
@@ -13,6 +23,7 @@ class AnimatedEqualizer extends StatefulWidget {
 
 class _AnimatedEqualizerState extends State<AnimatedEqualizer>
     with SingleTickerProviderStateMixin {
+  static const double _staticValue = 0.3;
   late AnimationController _controller;
 
   @override
@@ -21,7 +32,23 @@ class _AnimatedEqualizerState extends State<AnimatedEqualizer>
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
-    )..repeat();
+    );
+    _sync();
+  }
+
+  @override
+  void didUpdateWidget(covariant AnimatedEqualizer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.animating != widget.animating) _sync();
+  }
+
+  void _sync() {
+    if (widget.animating) {
+      _controller.repeat();
+    } else {
+      _controller.stop();
+      _controller.value = _staticValue;
+    }
   }
 
   @override
@@ -45,6 +72,22 @@ class _AnimatedEqualizerState extends State<AnimatedEqualizer>
         ],
       ),
     );
+  }
+}
+
+/// Shared "currently active track" indicator. Its animation follows the real
+/// playback state ([PlayerState.isPlaying], synced from the playback engine)
+/// and only this small widget rebuilds when that flag changes.
+class PlaybackIndicator extends ConsumerWidget {
+  const PlaybackIndicator({super.key, required this.color, this.size = 16.0});
+
+  final Color color;
+  final double size;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final playing = ref.watch(playerProvider.select((s) => s.isPlaying));
+    return AnimatedEqualizer(color: color, size: size, animating: playing);
   }
 }
 

@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -336,6 +335,21 @@ class AppLocalizationsDa extends AppLocalizations {
   String get copyLink => 'Kopier link';
 
   @override
+  String get copySpotifyLink => 'Kopier Spotify-link';
+
+  @override
+  String get copyYouTubeLink => 'Kopier YouTube-link';
+
+  @override
+  String get copySpotifyId => 'Kopier Spotify-id';
+
+  @override
+  String get copyYouTubeId => 'Kopier YouTube-id';
+
+  @override
+  String get idCopied => 'Id kopieret';
+
+  @override
   String get discover => 'Opdag';
 
   @override
@@ -393,10 +407,10 @@ class AppLocalizationsDa extends AppLocalizations {
   String get queue1 => 'Kø';
 
   @override
-  String get queueNowPlaying => 'Now playing';
+  String get queueNowPlaying => 'Afspilles nu';
 
   @override
-  String get queueUpNext => 'Up next';
+  String get queueUpNext => 'Næste';
 
   @override
   String get recentlyPlayed => 'Nyligt afspillet';
@@ -1093,4 +1107,55 @@ class AppLocalizationsDa extends AppLocalizations {
 
   @override
   String get loadFailed => 'Indholdet kunne ikke indlæses. Prøv igen.';
+
+  @override
+  String get removeFolder => 'Fjern mappe';
+
+  @override
+  String get removeFolderConfirmTitle => 'Fjern mappe?';
+
+  @override
+  String removeFolderConfirmMessage(String name) {
+    return 'Fjern \"$name\" og dens medier fra dit bibliotek? Filer på disken slettes ikke.';
+  }
+
+  @override
+  String fileMissingOnDisk(String name) {
+    return '\"$name\" kan ikke længere findes på disken';
+  }
+
+  @override
+  String get folderUnavailable =>
+      'Mappen er utilgængelig. Kontroller, at drevet er tilsluttet.';
+
+  @override
+  String fileAlreadyImported(String name) {
+    return '\"$name\" er allerede i dit bibliotek';
+  }
+
+  @override
+  String filesAlreadyImported(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count filer var allerede i dit bibliotek',
+      one: '1 fil var allerede i dit bibliotek',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get folderAlreadyImported =>
+      'Denne mappe er allerede importeret – søger efter nye filer';
+
+  @override
+  String get rescanCompleted => 'Genscanning af bibliotek fuldført';
+
+  @override
+  String rescanFailed(String error) {
+    return 'Kunne ikke genscanne mappe: $error';
+  }
+
+  @override
+  String get importedFolderFallback => 'Importeret mappe';
 }

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'chromium_playback_engine_test.dart' show NativeFallback;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -166,8 +167,10 @@ void main() {
     'system pause sets paused intent and late renderer events cannot replay',
     () async {
       final youtube = FakeYoutubeController();
-      final engine = MediaKitPlaybackEngine(
-              );
+      final engine = IframeYoutubePlaybackEngine(
+        fallback: MediaKitPlaybackEngine(),
+        youtubeControllerFactory: (id, params) => youtube,
+      );
       final player = _Player(engine);
       final container = ProviderContainer(
         overrides: [playerProvider.overrideWith(() => player)],
@@ -186,7 +189,7 @@ void main() {
           });
       try {
         handler.updateMetadata(
-          id: 'system-pause-video',
+          id: 'videoAAAAAA',
           title: 'Test',
           artist: 'Artist',
           duration: const Duration(minutes: 3),
@@ -201,7 +204,7 @@ void main() {
         expect(nativeUpdates.last, containsPair('durationMs', 180000));
         expect(nativeUpdates.last, containsPair('positionMs', 12000));
         expect(nativeUpdates.last, containsPair('playing', true));
-        const track = PlaybackTrack(id: 'system-pause-video', title: 'Test');
+        const track = PlaybackTrack(id: 'videoAAAAAA', title: 'Test');
         await engine.play(track);
         youtube.emitState(track.id, yt.PlayerState.cued);
         await Future<void>.delayed(Duration.zero);
@@ -248,6 +251,31 @@ void main() {
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
             .setMockMethodCallHandler(channel, null);
       }
+    },
+  );
+  test(
+    'Android task removal clears intent and stops the actual playback controller',
+    () async {
+      final native = NativeFallback();
+      final player = _Player(native);
+      final container = ProviderContainer(
+        overrides: [
+          playerProvider.overrideWith(() => player),
+          playbackControllerProvider.overrideWithValue(native),
+        ],
+      );
+      final handler = PpPlayerAudioHandler(
+        () => container,
+        enableIosCommands: false,
+        enableAndroidLifecycle: true,
+      );
+      await handler.onTaskRemoved();
+      expect(player.calls, ['pause']);
+      expect(native.calls, ['pause:user:false', 'stop']);
+      expect(handler.playbackState.value.playing, false);
+      expect(container.read(playerProvider).isPlaying, false);
+      container.dispose();
+      await native.dispose();
     },
   );
 }

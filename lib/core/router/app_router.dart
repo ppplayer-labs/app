@@ -20,6 +20,7 @@ import '../../features/network_streams/stream_playlist_detail_screen.dart';
 import '../../features/local_library/local_library_screen.dart';
 import '../../features/local_library/local_video_library_screen.dart';
 import '../../shared/widgets/scaffold_with_nav.dart';
+import '../../shared/widgets/player_route_transition.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -95,19 +96,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/player',
             pageBuilder: (context, state) => CustomTransitionPage(
+              transitionDuration: playerTransitionDuration,
+              reverseTransitionDuration: playerTransitionDuration,
               child: PlayerScreen(
                 startFullscreen:
                     state.uri.queryParameters['fullscreen'] == 'true',
               ),
               transitionsBuilder:
                   (context, animation, secondaryAnimation, child) {
-                    return SlideTransition(
-                      position: animation.drive(
-                        Tween(
-                          begin: const Offset(0, 1),
-                          end: Offset.zero,
-                        ).chain(CurveTween(curve: Curves.easeOutQuart)),
-                      ),
+                    return PlayerRouteTransitionBoundary(
+                      animation: animation,
                       child: child,
                     );
                   },

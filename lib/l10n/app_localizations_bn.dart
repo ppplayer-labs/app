@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -338,6 +337,21 @@ class AppLocalizationsBn extends AppLocalizations {
   String get copyLink => 'লিঙ্ক কপি করুন';
 
   @override
+  String get copySpotifyLink => 'Spotify লিঙ্ক কপি করুন';
+
+  @override
+  String get copyYouTubeLink => 'YouTube লিঙ্ক কপি করুন';
+
+  @override
+  String get copySpotifyId => 'Spotify আইডি কপি করুন';
+
+  @override
+  String get copyYouTubeId => 'YouTube আইডি কপি করুন';
+
+  @override
+  String get idCopied => 'আইডি কপি করা হয়েছে';
+
+  @override
   String get discover => 'আবিষ্কার করুন';
 
   @override
@@ -395,10 +409,10 @@ class AppLocalizationsBn extends AppLocalizations {
   String get queue1 => 'সারি';
 
   @override
-  String get queueNowPlaying => 'Now playing';
+  String get queueNowPlaying => 'এখন বাজছে';
 
   @override
-  String get queueUpNext => 'Up next';
+  String get queueUpNext => 'পরবর্তী';
 
   @override
   String get recentlyPlayed => 'সম্প্রতি বাজানো';
@@ -1093,4 +1107,55 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get loadFailed => 'বিষয়বস্তু লোড করা যায়নি। আবার চেষ্টা করুন।';
+
+  @override
+  String get removeFolder => 'ফোল্ডার সরান';
+
+  @override
+  String get removeFolderConfirmTitle => 'ফোল্ডার সরাবেন?';
+
+  @override
+  String removeFolderConfirmMessage(String name) {
+    return '\"$name\" এবং এর মিডিয়া আপনার লাইব্রেরি থেকে সরাবেন? ডিস্কের ফাইল মুছে ফেলা হবে না।';
+  }
+
+  @override
+  String fileMissingOnDisk(String name) {
+    return '\"$name\" আর ডিস্কে খুঁজে পাওয়া যাচ্ছে না';
+  }
+
+  @override
+  String get folderUnavailable =>
+      'ফোল্ডার উপলভ্য নয়। ড্রাইভ সংযুক্ত আছে কিনা পরীক্ষা করুন।';
+
+  @override
+  String fileAlreadyImported(String name) {
+    return '\"$name\" ইতিমধ্যে আপনার লাইব্রেরিতে রয়েছে';
+  }
+
+  @override
+  String filesAlreadyImported(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countটি ফাইল ইতিমধ্যে আপনার লাইব্রেরিতে ছিল',
+      one: '১টি ফাইল ইতিমধ্যে আপনার লাইব্রেরিতে ছিল',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get folderAlreadyImported =>
+      'এই ফোল্ডারটি ইতিমধ্যে আমদানি করা হয়েছে — নতুন ফাইল খোঁজা হচ্ছে';
+
+  @override
+  String get rescanCompleted => 'লাইব্রেরি পুনরায় স্ক্যান সম্পন্ন হয়েছে';
+
+  @override
+  String rescanFailed(String error) {
+    return 'ফোল্ডার পুনরায় স্ক্যান করতে ব্যর্থ হয়েছে: $error';
+  }
+
+  @override
+  String get importedFolderFallback => 'আমদানিকৃত ফোল্ডার';
 }

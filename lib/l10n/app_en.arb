@@ -235,6 +235,16 @@
   "@copyId": {},
   "copyLink": "Copy link",
   "@copyLink": {},
+  "copySpotifyLink": "Copy Spotify link",
+  "@copySpotifyLink": {},
+  "copyYouTubeLink": "Copy YouTube link",
+  "@copyYouTubeLink": {},
+  "copySpotifyId": "Copy Spotify ID",
+  "@copySpotifyId": {},
+  "copyYouTubeId": "Copy YouTube ID",
+  "@copyYouTubeId": {},
+  "idCopied": "ID copied",
+  "@idCopied": {},
   "discover": "Discover",
   "@discover": {},
   "enterYourName": "Enter your name",
@@ -784,5 +794,57 @@
   "checkItOut": "Check it out",
   "@checkItOut": {},
   "loadFailed": "Could not load content. Please try again.",
-  "@loadFailed": {}
+  "@loadFailed": {},
+  "removeFolder": "Remove folder",
+  "@removeFolder": {},
+  "removeFolderConfirmTitle": "Remove folder?",
+  "@removeFolderConfirmTitle": {},
+  "removeFolderConfirmMessage": "Remove \"{name}\" and its media from your library? Files on disk will not be deleted.",
+  "@removeFolderConfirmMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fileMissingOnDisk": "\"{name}\" can no longer be found on disk",
+  "@fileMissingOnDisk": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "folderUnavailable": "Folder is unavailable. Please check that the drive is connected.",
+  "@folderUnavailable": {},
+  "fileAlreadyImported": "\"{name}\" is already in your library",
+  "@fileAlreadyImported": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "filesAlreadyImported": "{count, plural, =1{1 file was already in your library} other{{count} files were already in your library}}",
+  "@filesAlreadyImported": {
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "folderAlreadyImported": "This folder is already imported — checking for new files",
+  "@folderAlreadyImported": {},
+  "rescanCompleted": "Library rescan completed",
+  "@rescanCompleted": {},
+  "rescanFailed": "Failed to rescan folder: {error}",
+  "@rescanFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "importedFolderFallback": "Imported Folder",
+  "@importedFolderFallback": {}
 }

@@ -380,7 +380,7 @@ class AppDatabase extends _$AppDatabase {
         artistName: t.artistName,
         albumId: t.albumId,
         albumName: t.albumName,
-        albumImage: t.albumImage,
+        albumImage: t.albumImage ?? lf.artworkPath,
         durationMs: t.durationMs,
         youtubeVideoId: t.youtubeVideoId,
         playCount: t.playCount,
@@ -424,6 +424,13 @@ class AppDatabase extends _$AppDatabase {
       (update(tracks)..where((t) => t.spotifyId.equals(spotifyId))).write(
         TracksCompanion(youtubeVideoId: Value(videoId)),
       );
+
+  Future<String?> getCachedYoutubeId(String spotifyId) async {
+    final track = await (select(
+      tracks,
+    )..where((t) => t.spotifyId.equals(spotifyId))).getSingleOrNull();
+    return track?.youtubeVideoId;
+  }
 
   Future<void> toggleFavorite(String spotifyId, bool value) =>
       (update(tracks)..where((t) => t.spotifyId.equals(spotifyId))).write(
@@ -730,17 +737,33 @@ class AppDatabase extends _$AppDatabase {
       ..sort((a, b) => a.name.compareTo(b.name));
   }
 
-  /// Audio-only tracks in a given import-root folder (is_video = false).
+  /// All media tracks (audio and video) in a given import-root folder.
   Future<List<model.Track>> getFolderAppTracks(String rootLocator) async {
-    final query =
-        select(tracks).join([
-            innerJoin(
-              localFiles,
-              localFiles.libraryId.equalsExp(tracks.spotifyId),
-            ),
-          ])
-          ..where(localFiles.importRootLocator.equals(rootLocator))
-          ..where(localFiles.isVideo.equals(false));
+    final roots = await select(importRoots).get();
+    final targetRoot = roots
+        .where((r) => r.rootLocator == rootLocator)
+        .firstOrNull;
+    final locators = <String>{rootLocator};
+    if (targetRoot != null && targetRoot.displayPath.trim().isNotEmpty) {
+      final targetCanonical = _canonicalPath(targetRoot.displayPath);
+      for (final r in roots) {
+        if (r.displayPath.trim().isNotEmpty &&
+            _canonicalPath(r.displayPath) == targetCanonical) {
+          locators.add(r.rootLocator);
+        }
+      }
+    }
+
+    final query = select(tracks).join([
+      innerJoin(localFiles, localFiles.libraryId.equalsExp(tracks.spotifyId)),
+    ]);
+
+    if (rootLocator == 'imported') {
+      query.where(localFiles.importRootLocator.isNull());
+    } else {
+      query.where(localFiles.importRootLocator.isIn(locators));
+    }
+
     final rows = await query.get();
     return rows.map(_mapTrackWithLocal).toList()
       ..sort((a, b) => a.name.compareTo(b.name));
@@ -837,30 +860,163 @@ class AppDatabase extends _$AppDatabase {
       ..sort((a, b) => a.name.compareTo(b.name));
   }
 
-  /// Audio-only folders: roots that contain at least one audio track
-  /// (is_video = false).
+  String _canonicalPath(String rawPath) {
+    final clean = rawPath.trim();
+    if (clean.isEmpty) return clean;
+    try {
+      return Directory(clean).resolveSymbolicLinksSync();
+    } catch (_) {
+      return p.canonicalize(clean);
+    }
+  }
+
+  /// Media folders (audio and video): roots that contain imported files or
+  /// folders registered in importRoots, plus standalone imported files.
   Stream<List<LocalFolder>> watchLocalFolders() {
-    final query = selectOnly(localFiles)
-      ..addColumns([localFiles.importRootLocator])
-      ..where(localFiles.isVideo.equals(false))
-      ..groupBy([localFiles.importRootLocator]);
+    final query = select(importRoots).join([
+      leftOuterJoin(
+        localFiles,
+        localFiles.importRootLocator.equalsExp(importRoots.rootLocator),
+      ),
+    ]);
 
-    return query.watch().map((rows) {
-      return rows.map((row) {
-        final locator = row.read(localFiles.importRootLocator);
-        if (locator == null) {
-          return const LocalFolder(path: 'imported', name: 'Imported Files');
+    return query.watch().asyncMap((_) async {
+      final roots = await select(importRoots).get();
+      final allFiles = await select(localFiles).get();
+
+      final countsByLocator = <String, int>{};
+      int standaloneCount = 0;
+      for (final f in allFiles) {
+        final loc = f.importRootLocator;
+        if (loc == null) {
+          standaloneCount++;
+        } else {
+          countsByLocator[loc] = (countsByLocator[loc] ?? 0) + 1;
         }
-        // Extract the last part of the path as the name.
-        // We will do a full folder tree in the UI provider,
-        // this is just the root folders for now.
-        final uri = Uri.tryParse(locator) ?? Uri.file(locator);
-        final name = uri.pathSegments.isNotEmpty
-            ? uri.pathSegments.last
-            : locator;
+      }
 
-        return LocalFolder(path: locator, name: name);
-      }).toList();
+      final result = <LocalFolder>[];
+
+      // 1. Standalone imported files (if any exist)
+      if (standaloneCount > 0) {
+        result.add(
+          LocalFolder(
+            path: 'imported',
+            name: 'Imported Files',
+            trackCount: standaloneCount,
+          ),
+        );
+      }
+
+      // 2. Imported folder roots
+      // Deduplicate by canonical path / displayPath to gracefully merge any
+      // historical duplicate root records without destructive data modification.
+      final seenCanonical =
+          <String, String>{}; // canonicalKey -> primaryLocator
+      final foldersByPrimaryLocator = <String, LocalFolder>{};
+
+      for (final r in roots) {
+        final display = r.displayPath.trim();
+        final canonicalKey = display.isNotEmpty
+            ? _canonicalPath(display)
+            : r.rootLocator;
+
+        final existingPrimary = seenCanonical[canonicalKey];
+        final fileCount = countsByLocator[r.rootLocator] ?? 0;
+
+        if (existingPrimary != null) {
+          final prev = foldersByPrimaryLocator[existingPrimary]!;
+          foldersByPrimaryLocator[existingPrimary] = prev.copyWith(
+            trackCount: prev.trackCount + fileCount,
+          );
+          continue;
+        }
+
+        seenCanonical[canonicalKey] = r.rootLocator;
+
+        final source = display.isNotEmpty ? display : r.rootLocator;
+        final segments = source
+            .split(RegExp(r'[\\/]'))
+            .where((s) => s.isNotEmpty)
+            .toList();
+        var name = segments.isNotEmpty ? segments.last : source;
+        try {
+          name = Uri.decodeComponent(name);
+        } catch (_) {}
+        if (display.isEmpty && name.length > 64) {
+          name = 'Imported Folder';
+        }
+
+        foldersByPrimaryLocator[r.rootLocator] = LocalFolder(
+          path: r.rootLocator,
+          name: name,
+          trackCount: fileCount,
+        );
+      }
+
+      result.addAll(foldersByPrimaryLocator.values);
+
+      // 3. Fallback: Any legacy localFiles rows whose importRootLocator is not in importRoots
+      final knownLocators = roots.map((r) => r.rootLocator).toSet();
+      final orphanLocators = <String, int>{};
+      for (final entry in countsByLocator.entries) {
+        if (!knownLocators.contains(entry.key)) {
+          orphanLocators[entry.key] = entry.value;
+        }
+      }
+
+      for (final orphan in orphanLocators.entries) {
+        final loc = orphan.key;
+        final segments = loc
+            .split(RegExp(r'[\\/]'))
+            .where((s) => s.isNotEmpty)
+            .toList();
+        var name = segments.isNotEmpty ? segments.last : loc;
+        if (name.length > 64) name = 'Imported Folder';
+        result.add(
+          LocalFolder(path: loc, name: name, trackCount: orphan.value),
+        );
+      }
+
+      return result;
+    });
+  }
+
+  /// Removes an imported folder root: its files, their tracks, and the root.
+  Future<void> deleteLocalFolder(String rootLocator) async {
+    await transaction(() async {
+      final roots = await select(importRoots).get();
+      final targetRoot = roots
+          .where((r) => r.rootLocator == rootLocator)
+          .firstOrNull;
+      final locatorsToDelete = <String>{rootLocator};
+      if (targetRoot != null && targetRoot.displayPath.trim().isNotEmpty) {
+        final targetCanonical = _canonicalPath(targetRoot.displayPath);
+        for (final r in roots) {
+          if (r.displayPath.trim().isNotEmpty &&
+              _canonicalPath(r.displayPath) == targetCanonical) {
+            locatorsToDelete.add(r.rootLocator);
+          }
+        }
+      }
+
+      for (final loc in locatorsToDelete) {
+        final files = await getLocalFilesByImportRoot(loc);
+        for (final f in files) {
+          await (delete(
+            playlistTracks,
+          )..where((pt) => pt.trackSpotifyId.equals(f.libraryId))).go();
+          await (delete(
+            tracks,
+          )..where((t) => t.spotifyId.equals(f.libraryId))).go();
+        }
+        await (delete(
+          localFiles,
+        )..where((f) => f.importRootLocator.equals(loc))).go();
+        await (delete(
+          importRoots,
+        )..where((r) => r.rootLocator.equals(loc))).go();
+      }
     });
   }
 
@@ -1079,17 +1235,33 @@ class AppDatabase extends _$AppDatabase {
   );
 
   Future<void> deleteLocalFile(String libraryId) async {
-    await (delete(
-      localFiles,
-    )..where((f) => f.libraryId.equals(libraryId))).go();
-    // Also remove from Tracks so it disappears from playlists and history.
-    await (delete(tracks)..where((t) => t.spotifyId.equals(libraryId))).go();
+    await transaction(() async {
+      await (delete(
+        playlistTracks,
+      )..where((pt) => pt.trackSpotifyId.equals(libraryId))).go();
+      await (delete(
+        localFiles,
+      )..where((f) => f.libraryId.equals(libraryId))).go();
+      // Also remove from Tracks so it disappears from playlists and history.
+      await (delete(tracks)..where((t) => t.spotifyId.equals(libraryId))).go();
+    });
   }
 
   Future<List<LocalFile>> getLocalFilesByImportRoot(String rootLocator) =>
       (select(
         localFiles,
       )..where((f) => f.importRootLocator.equals(rootLocator))).get();
+
+  /// Returns the persisted import-root bookmark for a folder child stored at
+  /// [path], or null when the file was imported individually.
+  Future<String?> importRootLocatorForPath(String path) async {
+    final row =
+        await (select(localFiles)
+              ..where((f) => f.locator.equals(path))
+              ..limit(1))
+            .getSingleOrNull();
+    return row?.importRootLocator;
+  }
 
   // --- ImportRoots queries ---
 

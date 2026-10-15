@@ -1,0 +1,33 @@
+{
+  "artifact": "/private/tmp/ppplayer-phase2-release-smoke/build/app/outputs/flutter-apk/app-release.apk",
+  "sha256": "06d3951f65964495444c0d40edf5f1dc85e61a689d8e76a890e51208793c4c92",
+  "bytes": 94602018,
+  "build_mode": "release",
+  "signing": "Android Debug \u2014 smoke artifact, not distributable",
+  "abis": [
+    "arm64-v8a",
+    "x86_64"
+  ],
+  "native_libraries": [
+    "lib/arm64-v8a/libapp.so",
+    "lib/arm64-v8a/libdartjni.so",
+    "lib/arm64-v8a/libflutter.so",
+    "lib/arm64-v8a/libmediakitandroidhelper.so",
+    "lib/arm64-v8a/libmetadata_god.so",
+    "lib/arm64-v8a/libmpv.so",
+    "lib/arm64-v8a/libsqlite3.so",
+    "lib/x86_64/libapp.so",
+    "lib/x86_64/libdartjni.so",
+    "lib/x86_64/libflutter.so",
+    "lib/x86_64/libmediakitandroidhelper.so",
+    "lib/x86_64/libmetadata_god.so",
+    "lib/x86_64/libmpv.so",
+    "lib/x86_64/libsqlite3.so"
+  ],
+  "compile_sdk": 37,
+  "min_sdk": 24,
+  "target_sdk": 36,
+  "version": "3.0.3+11",
+  "physical_acceptance": "BLOCKED",
+  "lockfile_unchanged": true
+}

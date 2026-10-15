@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../shared/widgets/pp_image.dart';
+import '../../shared/layout/responsive_navigation.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -80,7 +81,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
     final query = ref.watch(searchQueryProvider);
     final results = ref.watch(searchResultsProvider(query));
     final colorScheme = Theme.of(context).colorScheme;
-    final isDesktop = MediaQuery.sizeOf(context).width >= 600;
+    final isDesktop = usesWideNavigation(context);
 
     ref.listen<String>(searchQueryProvider, (prev, next) {
       if (_ctrl.text != next) {

@@ -75,3 +75,6 @@ settings.lock
 # Generated Android Kotlin cache
 .kotlin/
 dist/
+
+# Developer-only dependency overrides
+/pubspec_overrides.yaml

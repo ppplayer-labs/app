@@ -12,3 +12,8 @@ PRODUCT_BUNDLE_IDENTIFIER = com.ppplayer.app
 
 // The copyright displayed in application information
 PRODUCT_COPYRIGHT = Copyright © 2026 PPPlayer. All rights reserved.
+
+// This candidate is arm64 only; Intel requires a separately built and validated CEF bundle.
+ARCHS = arm64
+ONLY_ACTIVE_ARCH = YES
+MACOSX_DEPLOYMENT_TARGET = 13.0

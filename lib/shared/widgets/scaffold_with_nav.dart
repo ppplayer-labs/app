@@ -34,6 +34,9 @@ import 'package:fullscreen_window/fullscreen_window.dart';
 import '../../core/network_outputs/network_output_providers.dart';
 import '../../features/network_outputs/output_picker.dart';
 import 'compact_desktop_navigation.dart';
+import 'player_route_transition.dart';
+import '../layout/responsive_navigation.dart';
+import '../layout/safe_area_padding.dart';
 
 class ScaffoldWithNav extends ConsumerStatefulWidget {
   const ScaffoldWithNav({
@@ -50,11 +53,6 @@ class ScaffoldWithNav extends ConsumerStatefulWidget {
 
 class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
   final GlobalKey _stackKey = GlobalKey();
-
-  double _stableSafeTop = 0.0;
-  double _stableSafeBottom = 0.0;
-  double _stableSafeLeft = 0.0;
-  double _stableSafeRight = 0.0;
 
   @override
   Widget build(BuildContext context) {
@@ -101,25 +99,12 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
         ? BoxFit.contain
         : BoxFit.cover;
 
-    final rawPadding = MediaQuery.paddingOf(context);
-    if (rawPadding.top > 0) _stableSafeTop = rawPadding.top;
-    if (rawPadding.bottom > 0) _stableSafeBottom = rawPadding.bottom;
-    if (rawPadding.left > 0) _stableSafeLeft = rawPadding.left;
-    if (rawPadding.right > 0) _stableSafeRight = rawPadding.right;
-
-    final stablePadding = EdgeInsets.only(
-      top: (rawPadding.top == 0.0 && Platform.isIOS)
-          ? _stableSafeTop
-          : rawPadding.top,
-      bottom: (rawPadding.bottom == 0.0 && Platform.isIOS)
-          ? _stableSafeBottom
-          : rawPadding.bottom,
-      left: (rawPadding.left == 0.0 && Platform.isIOS)
-          ? _stableSafeLeft
-          : rawPadding.left,
-      right: (rawPadding.right == 0.0 && Platform.isIOS)
-          ? _stableSafeRight
-          : rawPadding.right,
+    // viewPadding follows the current orientation and remains available when
+    // system UI temporarily removes padding. Never retain another orientation's
+    // notch or home-indicator insets.
+    final stablePadding = currentSafeAreaPadding(
+      MediaQuery.of(context),
+      preserveViewPadding: !kIsWeb && Platform.isIOS,
     );
 
     final screenSize = MediaQuery.sizeOf(context);
@@ -156,7 +141,7 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
     final pipPresentation =
         isPipMode ||
         ref.watch(playerProvider.select((s) => s.isPipRequestPending));
-    final isDesktop = screenSize.width >= 600;
+    final isDesktop = usesWideNavigation(context);
 
     Rect? normalBounds;
     bool showShadow = false;
@@ -168,7 +153,7 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
         : (isDesktop
               ? 90.0
               : (68.0 +
-                    _stableSafeBottom +
+                    stablePadding.bottom +
                     72.0)); // 68 (nav) + 72 (miniplayer)
 
     if (isPlayerScreen) {
@@ -231,6 +216,37 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
               );
       }
     }
+
+    // Keep both endpoints available while the route reverses on close.
+    final collapsedBounds = Rect.fromLTWH(
+      screenWidth - (showQueuePanel ? 360 : 0) - kMinW - 16,
+      screenSize.height -
+          (isDesktop ? 90.0 : 68.0 + stablePadding.bottom + 72.0) -
+          kMinH -
+          8,
+      kMinW,
+      kMinH,
+    );
+    final expandedBounds = videoLayout.isReady && videoLayout.isVisible
+        ? Rect.fromLTWH(
+            videoLayout.position.dx,
+            videoLayout.position.dy,
+            videoLayout.size.width,
+            videoLayout.size.height,
+          )
+        : Rect.fromLTWH(
+            0,
+            stablePadding.top,
+            screenWidth,
+            screenSize.height - stablePadding.top,
+          );
+    final routeTransition = ref.watch(playerRouteTransitionProvider);
+    final animatePlayerRoute =
+        showVideo &&
+        hasVideoId &&
+        settings.playerView == PlayerView.video &&
+        !pipPresentation &&
+        !(isWindows && playbackEngine.renderer is! Widget);
 
     Widget normalLayout = Scaffold(
       backgroundColor: Colors.transparent,
@@ -543,6 +559,10 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
               if (isPlayerScreen)
                 _PlaybackSurfaceLayer(
                   key: const ValueKey('video_surface'),
+                  routeTransition: routeTransition,
+                  animatePlayerRoute: animatePlayerRoute,
+                  collapsedBounds: collapsedBounds,
+                  expandedBounds: expandedBounds,
                   pipPresentation: pipPresentation,
                   normalBounds: normalBounds,
                   showShadow: showShadow,
@@ -692,6 +712,10 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
               if (!isPlayerScreen)
                 _PlaybackSurfaceLayer(
                   key: const ValueKey('video_surface'),
+                  routeTransition: routeTransition,
+                  animatePlayerRoute: animatePlayerRoute,
+                  collapsedBounds: collapsedBounds,
+                  expandedBounds: expandedBounds,
                   pipPresentation: pipPresentation,
                   normalBounds: normalBounds,
                   showShadow: showShadow,
@@ -721,8 +745,7 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
                               await ref
                                   .read(settingsProvider.notifier)
                                   .setPlayerView(PlayerView.video);
-                              if (context.mounted)
-                                context.push('/player?fullscreen=true');
+                              if (context.mounted) context.push('/player');
                             },
                           ),
                         ),
@@ -851,6 +874,10 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
 class _PlaybackSurfaceLayer extends StatefulWidget {
   const _PlaybackSurfaceLayer({
     super.key,
+    required this.routeTransition,
+    required this.animatePlayerRoute,
+    required this.collapsedBounds,
+    required this.expandedBounds,
     required this.pipPresentation,
     required this.normalBounds,
     required this.showShadow,
@@ -860,6 +887,10 @@ class _PlaybackSurfaceLayer extends StatefulWidget {
     required this.child,
   });
 
+  final PlayerRouteTransition routeTransition;
+  final bool animatePlayerRoute;
+  final Rect collapsedBounds;
+  final Rect expandedBounds;
   final bool pipPresentation;
   final Rect? normalBounds;
   final bool showShadow;
@@ -878,63 +909,84 @@ class _PlaybackSurfaceLayerState extends State<_PlaybackSurfaceLayer> {
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
-    final bounds = widget.pipPresentation
-        ? Rect.fromLTWH(0, 0, screenSize.width, screenSize.height)
-        : (widget.normalBounds ?? Rect.zero);
+    return AnimatedBuilder(
+      animation: widget.routeTransition,
+      builder: (context, _) {
+        final followsRoute =
+            widget.animatePlayerRoute && widget.routeTransition.isAttached;
+        final progress = widget.routeTransition.progress;
+        final radius = followsRoute
+            ? lerpDouble(12, 24, progress)!
+            : widget.renderRadius;
+        final bounds = followsRoute
+            ? Rect.lerp(
+                widget.collapsedBounds,
+                widget.expandedBounds,
+                progress,
+              )!
+            : widget.pipPresentation
+            ? Rect.fromLTWH(0, 0, screenSize.width, screenSize.height)
+            : (widget.normalBounds ?? Rect.zero);
 
-    final isHidingTransition =
-        (bounds.top == -9999.0 || _lastFinalTop == -9999.0);
+        final isHidingTransition =
+            (bounds.top == -9999.0 || _lastFinalTop == -9999.0);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        _lastFinalTop = bounds.top;
-      }
-    });
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            _lastFinalTop = bounds.top;
+          }
+        });
 
-    return AnimatedPositioned(
-      duration:
-          (widget.pipPresentation || (widget.isWindows && isHidingTransition))
-          ? Duration.zero
-          : const Duration(milliseconds: 250),
-      curve: Curves.easeOutQuart,
-      left: bounds.left,
-      top: bounds.top,
-      width: bounds.width,
-      height: bounds.height,
-      child: AnimatedContainer(
-        duration:
-            (widget.pipPresentation || (widget.isWindows && isHidingTransition))
-            ? Duration.zero
-            : const Duration(milliseconds: 250),
-        curve: Curves.easeOutQuart,
-        decoration: BoxDecoration(
-          color: widget.transparentBackground
-              ? Colors.transparent
-              : (widget.pipPresentation
-                    ? Colors.black
-                    : Theme.of(context).colorScheme.surface),
-          borderRadius: BorderRadius.circular(
-            widget.pipPresentation ? 0 : widget.renderRadius,
-          ),
-          boxShadow: [
-            if (widget.showShadow && !widget.pipPresentation)
-              BoxShadow(
-                color: Theme.of(
-                  context,
-                ).colorScheme.scrim.withValues(alpha: 0.5),
-                blurRadius: 15,
-                offset: const Offset(0, 6),
+        return AnimatedPositioned(
+          duration:
+              (followsRoute ||
+                  widget.pipPresentation ||
+                  (widget.isWindows && isHidingTransition))
+              ? Duration.zero
+              : const Duration(milliseconds: 250),
+          curve: Curves.easeOutQuart,
+          left: bounds.left,
+          top: bounds.top,
+          width: bounds.width,
+          height: bounds.height,
+          child: AnimatedContainer(
+            duration:
+                (followsRoute ||
+                    widget.pipPresentation ||
+                    (widget.isWindows && isHidingTransition))
+                ? Duration.zero
+                : const Duration(milliseconds: 250),
+            curve: Curves.easeOutQuart,
+            decoration: BoxDecoration(
+              color: widget.transparentBackground
+                  ? Colors.transparent
+                  : (widget.pipPresentation
+                        ? Colors.black
+                        : Theme.of(context).colorScheme.surface),
+              borderRadius: BorderRadius.circular(
+                widget.pipPresentation ? 0 : radius,
               ),
-          ],
-        ),
-        clipBehavior: Clip.none,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(
-            widget.pipPresentation ? 0 : widget.renderRadius,
+              boxShadow: [
+                if (widget.showShadow && !widget.pipPresentation)
+                  BoxShadow(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.scrim.withValues(alpha: 0.5),
+                    blurRadius: 15,
+                    offset: const Offset(0, 6),
+                  ),
+              ],
+            ),
+            clipBehavior: Clip.none,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(
+                widget.pipPresentation ? 0 : radius,
+              ),
+              child: widget.child,
+            ),
           ),
-          child: widget.child,
-        ),
-      ),
+        );
+      },
     );
   }
 }
@@ -1164,6 +1216,9 @@ class _MiniPlayerBar extends ConsumerWidget {
                             width: 48,
                             height: 48,
                             fit: BoxFit.cover,
+                            fallbackIcon: track.isVideoFile
+                                ? Icons.videocam_rounded
+                                : Icons.music_note_rounded,
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -1932,6 +1987,9 @@ class DesktopPlayerBar extends ConsumerWidget {
                                   width: compact ? 44 : 56,
                                   height: compact ? 44 : 56,
                                   fit: BoxFit.cover,
+                                  fallbackIcon: track.isVideoFile
+                                      ? Icons.videocam_rounded
+                                      : Icons.music_note_rounded,
                                 ),
                               ),
                               SizedBox(width: compact ? 8 : 16),

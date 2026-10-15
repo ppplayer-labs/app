@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -330,6 +329,21 @@ class AppLocalizationsKo extends AppLocalizations {
   String get copyLink => '링크 복사';
 
   @override
+  String get copySpotifyLink => 'Spotify 링크 복사';
+
+  @override
+  String get copyYouTubeLink => 'YouTube 링크 복사';
+
+  @override
+  String get copySpotifyId => 'Spotify ID 복사';
+
+  @override
+  String get copyYouTubeId => 'YouTube ID 복사';
+
+  @override
+  String get idCopied => 'ID가 복사되었습니다';
+
+  @override
   String get discover => '둘러보기';
 
   @override
@@ -387,10 +401,10 @@ class AppLocalizationsKo extends AppLocalizations {
   String get queue1 => '대기열';
 
   @override
-  String get queueNowPlaying => 'Now playing';
+  String get queueNowPlaying => '지금 재생 중';
 
   @override
-  String get queueUpNext => 'Up next';
+  String get queueUpNext => '다음 트랙';
 
   @override
   String get recentlyPlayed => '최근 재생';
@@ -1076,4 +1090,52 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get loadFailed => '콘텐츠를 불러올 수 없습니다. 다시 시도하세요.';
+
+  @override
+  String get removeFolder => '폴더 제거';
+
+  @override
+  String get removeFolderConfirmTitle => '폴더를 제거할까요?';
+
+  @override
+  String removeFolderConfirmMessage(String name) {
+    return '라이브러리에서 \"$name\" 및 해당 미디어를 제거할까요? 디스크의 파일은 삭제되지 않습니다.';
+  }
+
+  @override
+  String fileMissingOnDisk(String name) {
+    return '디스크에서 \"$name\" 파일을 찾을 수 없습니다';
+  }
+
+  @override
+  String get folderUnavailable => '폴더를 사용할 수 없습니다. 드라이브가 연결되어 있는지 확인하세요.';
+
+  @override
+  String fileAlreadyImported(String name) {
+    return '\"$name\" 파일이 이미 라이브러리에 있습니다';
+  }
+
+  @override
+  String filesAlreadyImported(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count개의 파일이 이미 라이브러리에 있습니다',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get folderAlreadyImported => '이미 가져온 폴더입니다 — 새 파일 확인 중';
+
+  @override
+  String get rescanCompleted => '라이브러리 다시 검사 완료';
+
+  @override
+  String rescanFailed(String error) {
+    return '폴더 다시 검사 실패: $error';
+  }
+
+  @override
+  String get importedFolderFallback => '가져온 폴더';
 }

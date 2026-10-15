@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -334,6 +333,21 @@ class AppLocalizationsVi extends AppLocalizations {
   String get copyLink => 'Sao chép liên kết';
 
   @override
+  String get copySpotifyLink => 'Sao chép liên kết Spotify';
+
+  @override
+  String get copyYouTubeLink => 'Sao chép liên kết YouTube';
+
+  @override
+  String get copySpotifyId => 'Sao chép ID Spotify';
+
+  @override
+  String get copyYouTubeId => 'Sao chép ID YouTube';
+
+  @override
+  String get idCopied => 'Đã sao chép ID';
+
+  @override
   String get discover => 'Khám phá';
 
   @override
@@ -391,10 +405,10 @@ class AppLocalizationsVi extends AppLocalizations {
   String get queue1 => 'Danh sách chờ';
 
   @override
-  String get queueNowPlaying => 'Now playing';
+  String get queueNowPlaying => 'Đang phát';
 
   @override
-  String get queueUpNext => 'Up next';
+  String get queueUpNext => 'Tiếp theo';
 
   @override
   String get recentlyPlayed => 'Vừa mới phát';
@@ -1089,4 +1103,54 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get loadFailed => 'Không thể tải nội dung. Vui lòng thử lại.';
+
+  @override
+  String get removeFolder => 'Xóa thư mục';
+
+  @override
+  String get removeFolderConfirmTitle => 'Xóa thư mục?';
+
+  @override
+  String removeFolderConfirmMessage(String name) {
+    return 'Xóa \"$name\" và phương tiện của thư mục khỏi thư viện? Các tệp trên đĩa sẽ không bị xóa.';
+  }
+
+  @override
+  String fileMissingOnDisk(String name) {
+    return '\"$name\" không còn được tìm thấy trên đĩa';
+  }
+
+  @override
+  String get folderUnavailable =>
+      'Thư mục không khả dụng. Vui lòng kiểm tra xem ổ đĩa đã được kết nối chưa.';
+
+  @override
+  String fileAlreadyImported(String name) {
+    return '\"$name\" đã có trong thư viện của bạn';
+  }
+
+  @override
+  String filesAlreadyImported(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count tệp đã có trong thư viện của bạn',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get folderAlreadyImported =>
+      'Thư mục này đã được nhập — đang kiểm tra các tệp mới';
+
+  @override
+  String get rescanCompleted => 'Đã hoàn tất quét lại thư viện';
+
+  @override
+  String rescanFailed(String error) {
+    return 'Không thể quét lại thư mục: $error';
+  }
+
+  @override
+  String get importedFolderFallback => 'Thư mục đã nhập';
 }

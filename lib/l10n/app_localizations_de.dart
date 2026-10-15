@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -338,6 +337,21 @@ class AppLocalizationsDe extends AppLocalizations {
   String get copyLink => 'Link kopieren';
 
   @override
+  String get copySpotifyLink => 'Spotify-Link kopieren';
+
+  @override
+  String get copyYouTubeLink => 'YouTube-Link kopieren';
+
+  @override
+  String get copySpotifyId => 'Spotify-ID kopieren';
+
+  @override
+  String get copyYouTubeId => 'YouTube-ID kopieren';
+
+  @override
+  String get idCopied => 'ID kopiert';
+
+  @override
   String get discover => 'Entdecken';
 
   @override
@@ -395,10 +409,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get queue1 => 'Warteschlange';
 
   @override
-  String get queueNowPlaying => 'Now playing';
+  String get queueNowPlaying => 'Aktuelle Wiedergabe';
 
   @override
-  String get queueUpNext => 'Up next';
+  String get queueUpNext => 'Als Nächstes';
 
   @override
   String get recentlyPlayed => 'Zuletzt gespielt';
@@ -1098,4 +1112,55 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get loadFailed =>
       'Der Inhalt konnte nicht geladen werden. Versuche es erneut.';
+
+  @override
+  String get removeFolder => 'Ordner entfernen';
+
+  @override
+  String get removeFolderConfirmTitle => 'Ordner entfernen?';
+
+  @override
+  String removeFolderConfirmMessage(String name) {
+    return '„$name“ und die zugehörigen Mediendateien aus deiner Bibliothek entfernen? Dateien auf der Festplatte werden nicht gelöscht.';
+  }
+
+  @override
+  String fileMissingOnDisk(String name) {
+    return '„$name“ wurde auf dem Datenträger nicht mehr gefunden';
+  }
+
+  @override
+  String get folderUnavailable =>
+      'Ordner nicht verfügbar. Bitte prüfe, ob das Laufwerk angeschlossen ist.';
+
+  @override
+  String fileAlreadyImported(String name) {
+    return '„$name“ befindet sich bereits in deiner Bibliothek';
+  }
+
+  @override
+  String filesAlreadyImported(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Dateien waren bereits in deiner Bibliothek',
+      one: '1 Datei war bereits in deiner Bibliothek',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get folderAlreadyImported =>
+      'Dieser Ordner ist bereits importiert – suche nach neuen Dateien';
+
+  @override
+  String get rescanCompleted => 'Bibliotheks-Suchlauf abgeschlossen';
+
+  @override
+  String rescanFailed(String error) {
+    return 'Ordner-Suchlauf fehlgeschlagen: $error';
+  }
+
+  @override
+  String get importedFolderFallback => 'Importierter Ordner';
 }

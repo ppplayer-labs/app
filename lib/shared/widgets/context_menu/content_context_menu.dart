@@ -13,6 +13,7 @@ import '../premium_modals.dart';
 import '../tactile_buttons.dart';
 import '../track_tile.dart';
 import '../../../core/local_library/local_library_service.dart';
+import '../../../core/playback/playback_service.dart';
 
 // ==========================================
 // 1. CONTEXT MENU TARGET ABSTRACTIONS
@@ -214,6 +215,44 @@ class _ContentContextMenuOverlayState
   // Submenu state: null, 'playlist', or 'share'
   String? _activeSubmenu;
   Offset _submenuAnchorOffset = Offset.zero;
+  String? _resolvedYoutubeId;
+
+  @override
+  void initState() {
+    super.initState();
+    final target = widget.target;
+    if (target is TrackContextTarget) {
+      final ytId = target.track.youtubeVideoId;
+      if (ytId != null && ytId.isNotEmpty) {
+        _resolvedYoutubeId = ytId;
+      } else if (!target.track.isLocal && !target.track.isNetworkStream) {
+        _lookupYoutubeId(target.track);
+      }
+    }
+  }
+
+  Future<void> _lookupYoutubeId(Track track) async {
+    try {
+      final dbCached = await _container
+          .read(db.appDatabaseProvider)
+          .getCachedYoutubeId(track.spotifyId);
+      if (dbCached != null && dbCached.isNotEmpty) {
+        if (mounted) {
+          setState(() => _resolvedYoutubeId = dbCached);
+        }
+        return;
+      }
+      final service = _container.read(playbackServiceProvider);
+      final candidates = await service.resolveCandidates(track, null);
+      if (candidates.isNotEmpty) {
+        final ytId = candidates.first.videoId;
+        await service.cacheYoutubeId(track.spotifyId, ytId);
+        if (mounted) {
+          setState(() => _resolvedYoutubeId = ytId);
+        }
+      }
+    } catch (_) {}
+  }
 
   ProviderContainer get _container => widget.container;
   BuildContext get _parentContext => widget.parentContext;
@@ -331,7 +370,7 @@ class _ContentContextMenuOverlayState
     double parentWidth,
   ) {
     final colorScheme = Theme.of(context).colorScheme;
-    const double submenuWidth = 220.0;
+    const double submenuWidth = 230.0;
     double subLeft = parentLeft + parentWidth + 6;
     if (subLeft + submenuWidth > screenSize.width - 12) {
       // Show on the left of parent menu
@@ -1301,6 +1340,51 @@ class _ContentContextMenuOverlayState
   }
 
   Widget _buildShareSubmenuContent(BuildContext context) {
+    if (widget.target case TrackContextTarget target) {
+      if (!target.track.isLocal && !target.track.isNetworkStream) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _ContextMenuItem(
+              icon: Icons.link_rounded,
+              label: _l10n.copySpotifyLink,
+              onTap: () {
+                Navigator.of(context).pop();
+                _copyToClipboard(
+                  'https://open.spotify.com/track/${target.track.spotifyId}',
+                );
+              },
+            ),
+            _ContextMenuItem(
+              icon: Icons.ondemand_video_rounded,
+              label: _l10n.copyYouTubeLink,
+              onTap: () {
+                Navigator.of(context).pop();
+                _copyYoutubeLink(target.track);
+              },
+            ),
+            _ContextMenuItem(
+              icon: Icons.tag_rounded,
+              label: _l10n.copySpotifyId,
+              onTap: () {
+                Navigator.of(context).pop();
+                _copyToClipboard(target.track.spotifyId, _l10n.idCopied);
+              },
+            ),
+            _ContextMenuItem(
+              icon: Icons.tag_rounded,
+              label: _l10n.copyYouTubeId,
+              onTap: () {
+                Navigator.of(context).pop();
+                _copyYoutubeId(target.track);
+              },
+            ),
+          ],
+        );
+      }
+    }
+
     final (url, id) = switch (widget.target) {
       TrackContextTarget target => (
         'https://open.spotify.com/track/${target.track.spotifyId}',
@@ -1343,16 +1427,80 @@ class _ContentContextMenuOverlayState
           label: _l10n.copyId,
           onTap: () {
             Navigator.of(context).pop();
-            _copyToClipboard(id);
+            _copyToClipboard(id, _l10n.idCopied);
           },
         ),
       ],
     );
   }
 
-  void _copyToClipboard(String text) {
+  Future<void> _copyYoutubeLink(Track track) async {
+    String? ytId = _resolvedYoutubeId ?? track.youtubeVideoId;
+    if (ytId == null || ytId.isEmpty) {
+      final dbCached = await _container
+          .read(db.appDatabaseProvider)
+          .getCachedYoutubeId(track.spotifyId);
+      if (dbCached != null && dbCached.isNotEmpty) {
+        ytId = dbCached;
+        _resolvedYoutubeId = dbCached;
+      }
+    }
+    if (ytId == null || ytId.isEmpty) {
+      try {
+        final service = _container.read(playbackServiceProvider);
+        final candidates = await service.resolveCandidates(track, null);
+        if (candidates.isNotEmpty) {
+          ytId = candidates.first.videoId;
+          _resolvedYoutubeId = ytId;
+          await service.cacheYoutubeId(track.spotifyId, ytId);
+        }
+      } catch (e) {
+        debugPrint('[ContentContextMenu] Failed to resolve YouTube link: $e');
+      }
+    }
+
+    if (ytId != null && ytId.isNotEmpty) {
+      _copyToClipboard('https://www.youtube.com/watch?v=$ytId');
+    } else {
+      _showToast('YouTube link not found');
+    }
+  }
+
+  Future<void> _copyYoutubeId(Track track) async {
+    String? ytId = _resolvedYoutubeId ?? track.youtubeVideoId;
+    if (ytId == null || ytId.isEmpty) {
+      final dbCached = await _container
+          .read(db.appDatabaseProvider)
+          .getCachedYoutubeId(track.spotifyId);
+      if (dbCached != null && dbCached.isNotEmpty) {
+        ytId = dbCached;
+        _resolvedYoutubeId = dbCached;
+      }
+    }
+    if (ytId == null || ytId.isEmpty) {
+      try {
+        final service = _container.read(playbackServiceProvider);
+        final candidates = await service.resolveCandidates(track, null);
+        if (candidates.isNotEmpty) {
+          ytId = candidates.first.videoId;
+          _resolvedYoutubeId = ytId;
+          await service.cacheYoutubeId(track.spotifyId, ytId);
+        }
+      } catch (e) {
+        debugPrint('[ContentContextMenu] Failed to resolve YouTube ID: $e');
+      }
+    }
+
+    if (ytId != null && ytId.isNotEmpty) {
+      _copyToClipboard(ytId, _l10n.idCopied);
+    } else {
+      _showToast('YouTube ID not found');
+    }
+  }
+
+  void _copyToClipboard(String text, [String? message]) {
     Clipboard.setData(ClipboardData(text: text));
-    _showToast(_l10n.linkCopied);
+    _showToast(message ?? _l10n.linkCopied);
   }
 
   void _showToast(String message) {

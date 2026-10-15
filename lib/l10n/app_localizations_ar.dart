@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -333,6 +332,21 @@ class AppLocalizationsAr extends AppLocalizations {
   String get copyLink => 'نسخ الرابط';
 
   @override
+  String get copySpotifyLink => 'نسخ رابط Spotify';
+
+  @override
+  String get copyYouTubeLink => 'نسخ رابط YouTube';
+
+  @override
+  String get copySpotifyId => 'نسخ معرف Spotify';
+
+  @override
+  String get copyYouTubeId => 'نسخ معرف YouTube';
+
+  @override
+  String get idCopied => 'تم نسخ المعرف';
+
+  @override
   String get discover => 'اكتشف';
 
   @override
@@ -390,10 +404,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get queue1 => 'قائمة الانتظار';
 
   @override
-  String get queueNowPlaying => 'Now playing';
+  String get queueNowPlaying => 'قيد التشغيل الآن';
 
   @override
-  String get queueUpNext => 'Up next';
+  String get queueUpNext => 'التالي';
 
   @override
   String get recentlyPlayed => 'تم تشغيلها مؤخرًا';
@@ -1088,4 +1102,55 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get loadFailed => 'تعذر تحميل المحتوى. حاول مرة أخرى.';
+
+  @override
+  String get removeFolder => 'إزالة المجلد';
+
+  @override
+  String get removeFolderConfirmTitle => 'إزالة المجلد؟';
+
+  @override
+  String removeFolderConfirmMessage(String name) {
+    return 'إزالة \"$name\" والوسائط الخاصة به من مكتبتك؟ لن يتم حذف الملفات من القرص.';
+  }
+
+  @override
+  String fileMissingOnDisk(String name) {
+    return 'لم يعد بالإمكان العثور على \"$name\" على القرص';
+  }
+
+  @override
+  String get folderUnavailable =>
+      'المجلد غير متوفر. يُرجى التحقق من اتصال محرك الأقراص.';
+
+  @override
+  String fileAlreadyImported(String name) {
+    return '\"$name\" موجود بالفعل في مكتبتك';
+  }
+
+  @override
+  String filesAlreadyImported(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ملفات كانت موجودة بالفعل في مكتبتك',
+      one: 'ملف واحد كان موجوداً بالفعل في مكتبتك',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get folderAlreadyImported =>
+      'هذا المجلد مستورد بالفعل — جارٍ البحث عن ملفات جديدة';
+
+  @override
+  String get rescanCompleted => 'اكتملت إعادة فحص المكتبة';
+
+  @override
+  String rescanFailed(String error) {
+    return 'فشلت إعادة فحص المجلد: $error';
+  }
+
+  @override
+  String get importedFolderFallback => 'مجلد مستورد';
 }
