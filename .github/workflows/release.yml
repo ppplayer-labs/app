@@ -316,6 +316,13 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
+      - name: Pre-restore Windows NuGet Packages
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri https://dist.nuget.org/win-x86-commandline/v5.10.0/nuget.exe -OutFile nuget.exe
+          .\nuget.exe install Microsoft.Web.WebView2 -Version 1.0.1418.22 -ExcludeVersion -OutputDirectory build\windows\x64\packages
+          .\nuget.exe install Microsoft.Windows.ImplementationLibrary -Version 1.0.220914.1 -ExcludeVersion -OutputDirectory build\windows\x64\packages
+
       - name: Build Windows App
         run: flutter build windows --release
 
@@ -340,7 +347,7 @@ jobs:
       - name: Install System Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev libgl1-mesa-dev libegl1-mesa-dev libx11-dev libxcb1-dev libstdc++-11-dev libvulkan-dev
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev libgl1-mesa-dev libegl1-mesa-dev libx11-dev libxcb1-dev libstdc++-11-dev libvulkan-dev libsecret-1-dev libjsoncpp-dev
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
