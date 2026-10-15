@@ -1,8 +1,9 @@
-## 0.5.3
+## 0.5.4
 
 * Add configurable `keychainBehavior` parameter (`ChromiumKeychainBehavior.mock` vs `.system`) to `ChromiumWebViewController.initialize`.
 * Default to mock keychain on macOS to prevent unnecessary login keychain access prompts.
-* Require `flutter_chromium_webview_platform_interface` ^0.1.6.
+* Support `CEF_KEYCHAIN_BEHAVIOR` environment variable override (`mock` or `system`).
+* Require `flutter_chromium_webview_platform_interface` ^0.1.7.
 
 ## 0.5.2
 

@@ -1,4 +1,4 @@
-## 0.1.6
+## 0.1.7
 
 * Add `ChromiumKeychainBehavior` enum (`mock`, `system`) and allow configuring macOS Keychain behavior in `ChromiumWebViewPlatform.initialize`.
 
