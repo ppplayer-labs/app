@@ -8,6 +8,7 @@ import '../../core/network_streams/network_stream_service.dart';
 import '../../core/network_streams/playlist_parser.dart';
 import '../../core/network_streams/video_metadata.dart';
 import '../../core/player/player_provider.dart';
+import '../../core/models/track.dart';
 import '../../shared/widgets/pp_logo_loader.dart';
 
 void showNetworkStreamDialog(BuildContext context) {
@@ -135,6 +136,7 @@ class _NetworkStreamDialogState extends ConsumerState<NetworkStreamDialog> {
   }
 
   Future<void> _submit({bool saveToLibrary = true}) async {
+    final l10n = AppLocalizations.of(context)!;
     var url = _cleanUrl(_urlController.text.trim());
     if (url.isEmpty) return;
 
@@ -144,7 +146,7 @@ class _NetworkStreamDialogState extends ConsumerState<NetworkStreamDialog> {
 
     var title = _titleController.text.trim();
     if (title.isEmpty) {
-      title = AppLocalizations.of(context)!.networkStream;
+      title = l10n.networkStream;
     }
 
     _activeClient?.close();
@@ -198,27 +200,55 @@ class _NetworkStreamDialogState extends ConsumerState<NetworkStreamDialog> {
         return;
       }
 
-      // For autoDetect or custom, try parsing as playlist
-      final channels = await service.analyzeAndParseUrl(
+      // For autoDetect or custom, analyze URL contents
+      final analysis = await service.analyzeUrl(
         url,
         client: _activeClient,
       );
 
-      if (channels.isEmpty) {
+      if (analysis.channels.isEmpty) {
         if (!mounted) return;
         setState(() {
-          _error = AppLocalizations.of(context)!.noResultsFound;
+          _error = l10n.noResultsFound;
           _isLoading = false;
         });
         return;
       }
 
+      // If an IPTV playlist is detected: do NOT attempt to play the parent M3U URL as video!
+      // Instead, save/register it and display the playlist/channel browser.
+      if (analysis.isIptvPlaylist) {
+        final playlistTitle = _titleController.text.trim().isNotEmpty
+            ? _titleController.text.trim()
+            : (analysis.suggestedTitle ?? 'IPTV Playlist');
+        final imgUrl = _imageUrlController.text.trim();
+
+        final playlistId = await service.savePlaylist(
+          playlistTitle,
+          url,
+          analysis.channels,
+          imageUrl: imgUrl.isEmpty ? null : imgUrl,
+          sourceKind: 'url',
+        );
+
+        if (mounted) {
+          Navigator.pop(context); // Close dialog
+          context.push('/stream_playlist/$playlistId');
+        }
+        return;
+      }
+
+      // Otherwise it's a single media stream or HLS stream
+      final streamTitle = _titleController.text.trim().isNotEmpty
+          ? _titleController.text.trim()
+          : (analysis.suggestedTitle ?? l10n.networkStream);
+
       if (saveToLibrary) {
         final imgUrl = _imageUrlController.text.trim();
         await service.savePlaylist(
-          title,
+          streamTitle,
           url,
-          channels,
+          analysis.channels,
           imageUrl: imgUrl.isEmpty ? null : imgUrl,
           sourceKind: _selectedPlatform.dbSourceKind,
         );
@@ -228,9 +258,7 @@ class _NetworkStreamDialogState extends ConsumerState<NetworkStreamDialog> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                AppLocalizations.of(
-                  context,
-                )!.addedChannels(channels.length.toString()),
+                l10n.addedVideo,
               ),
             ),
           );
@@ -239,13 +267,18 @@ class _NetworkStreamDialogState extends ConsumerState<NetworkStreamDialog> {
         if (mounted) {
           Navigator.pop(context); // Close the dialog
 
-          // Just play the first stream immediately
-          final first = channels.first;
+          final first = analysis.channels.first;
           final track = Track.fromNetworkStream(
             streamUrl: first.url,
-            title: first.title,
-            groupTitle: first.groupTitle ?? 'IPTV',
-            logoUrl: first.tvgLogo,
+            title: first.title.isNotEmpty ? first.title : streamTitle,
+            groupTitle: first.groupTitle ?? _selectedPlatform.displayName,
+            logoUrl: first.tvgLogo ??
+                (_imageUrlController.text.trim().isNotEmpty
+                    ? _imageUrlController.text.trim()
+                    : null),
+            liveStatus: analysis.isHlsStream
+                ? StreamLiveStatus.live
+                : StreamLiveStatus.unknown,
           );
           ref.read(playerProvider.notifier).playTrack(track, queue: [track]);
         }

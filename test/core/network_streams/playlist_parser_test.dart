@@ -260,5 +260,193 @@ Title7=Stream Seven
         );
       },
     );
+
+    test('IPTV Albanian playlist (al.m3u fixture) parses channels and metadata', () {
+      final alM3u = '''#EXTM3U
+#EXTINF:-1 tvg-id="AlbKanaleMusicTV.al" tvg-logo="https://i.imgur.com/GzB2Pq8.png" group-title="Music",AlbKanale Music TV (720p) [Not 24/7]
+https://albportal.net/albkanalemusic.m3u8
+#EXTINF:-1 tvg-id="AlpoTV.al" tvg-logo="https://i.imgur.com/dK46r3R.png" group-title="General",Alpo TV (576p)
+https://stream.alpotv.com/alpotv/live/playlist.m3u8
+#EXTINF:-1 tvg-id="CNA.al" tvg-logo="https://i.imgur.com/Z421lQ8.png" group-title="News",CNA (1080p)
+https://live1.mediadesk.al/cnatvlive.m3u8
+#EXTINF:-1 tvg-id="Cufo.al" tvg-logo="https://i.imgur.com/tOa7c64.png" group-title="Kids",Cufo (576p) [Not 24/7]
+https://cufo-al-stream.example.com/live.m3u8
+''';
+
+      final result = PlaylistParser.parseString(
+        alM3u,
+        'https://raw.githubusercontent.com/iptv-org/iptv/refs/heads/master/streams/al.m3u',
+      );
+
+      expect(result.type, PlaylistType.channelList);
+      expect(result.channels.length, 4);
+
+      final ch1 = result.channels[0];
+      expect(ch1.title, 'AlbKanale Music TV (720p) [Not 24/7]');
+      expect(ch1.tvgId, 'AlbKanaleMusicTV.al');
+      expect(ch1.tvgLogo, 'https://i.imgur.com/GzB2Pq8.png');
+      expect(ch1.groupTitle, 'Music');
+      expect(ch1.url, 'https://albportal.net/albkanalemusic.m3u8');
+
+      final ch3 = result.channels[2];
+      expect(ch3.title, 'CNA (1080p)');
+      expect(ch3.tvgId, 'CNA.al');
+      expect(ch3.groupTitle, 'News');
+      expect(ch3.url, 'https://live1.mediadesk.al/cnatvlive.m3u8');
+    });
+
+    test('IPTV playlist deduplicates channels with identical stream URLs', () {
+      final duplicateContent = '''#EXTM3U
+#EXTINF:-1 tvg-id="CNA.al" group-title="News",CNA (1080p)
+https://live1.mediadesk.al/cnatvlive.m3u8
+#EXTINF:-1 tvg-id="CNA.al" group-title="News",CNA Duplicate
+https://live1.mediadesk.al/cnatvlive.m3u8
+#EXTINF:-1 tvg-id="AlpoTV.al" group-title="General",Alpo TV
+https://stream.alpotv.com/alpotv/live/playlist.m3u8
+''';
+
+      final result = PlaylistParser.parseString(
+        duplicateContent,
+        'http://example.com/playlist.m3u',
+      );
+
+      expect(result.type, PlaylistType.channelList);
+      expect(result.channels.length, 2);
+      expect(result.channels[0].title, 'CNA (1080p)');
+      expect(result.channels[1].title, 'Alpo TV');
+    });
+
+    test('HLS master playlist with EXT-X-STREAM-INF is detected as hlsManifest', () {
+      final hlsMaster = '''#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-STREAM-INF:BANDWIDTH=1280000,RESOLUTION=1280x720
+chunklist_720p.m3u8
+#EXT-X-STREAM-INF:BANDWIDTH=2560000,RESOLUTION=1920x1080
+chunklist_1080p.m3u8
+''';
+
+      final result = PlaylistParser.parseString(
+        hlsMaster,
+        'https://example.com/live/master.m3u8',
+      );
+
+      expect(result.type, PlaylistType.hlsManifest);
+      expect(result.channels.isEmpty, isTrue);
+    });
+
+    test('HLS media segment playlist with EXT-X-TARGETDURATION is detected as hlsManifest', () {
+      final hlsMedia = '''#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-TARGETDURATION:10
+#EXT-X-MEDIA-SEQUENCE:42
+#EXTINF:10.0,
+segment42.ts
+#EXTINF:10.0,
+segment43.ts
+''';
+
+      final result = PlaylistParser.parseString(
+        hlsMedia,
+        'https://example.com/live/media.m3u8',
+      );
+
+      expect(result.type, PlaylistType.hlsManifest);
+      expect(result.channels.isEmpty, isTrue);
+    });
+
+    test('Regular M3U media playlist parses correctly', () {
+      final regularM3u = '''#EXTM3U
+#EXTINF:185,Artist One - Song One
+http://example.com/track1.mp3
+#EXTINF:210,Artist Two - Song Two
+http://example.com/track2.mp3
+''';
+
+      final result = PlaylistParser.parseString(
+        regularM3u,
+        'http://example.com/music.m3u',
+      );
+
+      expect(result.type, PlaylistType.channelList);
+      expect(result.channels.length, 2);
+      expect(result.channels[0].title, 'Artist One - Song One');
+      expect(result.channels[0].url, 'http://example.com/track1.mp3');
+      expect(result.channels[1].title, 'Artist Two - Song Two');
+    });
+
+    test('Handles single-quotes, unquoted attributes, and commas in channel title', () {
+      final complexM3u = '''#EXTM3U
+#EXTINF:-1 tvg-id='Custom.ID' group-title="News, Current Affairs" tvg-logo=https://example.com/logo.png,Channel One, Breaking News & More
+http://example.com/ch1.m3u8
+''';
+
+      final result = PlaylistParser.parseString(
+        complexM3u,
+        'http://example.com/playlist.m3u',
+      );
+
+      expect(result.type, PlaylistType.channelList);
+      expect(result.channels.length, 1);
+      final ch = result.channels.first;
+      expect(ch.tvgId, 'Custom.ID');
+      expect(ch.groupTitle, 'News, Current Affairs');
+      expect(ch.tvgLogo, 'https://example.com/logo.png');
+      expect(ch.title, 'Channel One, Breaking News & More');
+      expect(ch.url, 'http://example.com/ch1.m3u8');
+    });
+
+    test('Strips UTF-8 BOM and handles CRLF line endings cleanly', () {
+      final bomM3u = '\uFEFF#EXTM3U\r\n#EXTINF:-1 tvg-id="Test",Clean Channel\r\nhttp://example.com/stream.m3u8\r\n';
+
+      final result = PlaylistParser.parseString(
+        bomM3u,
+        'http://example.com/playlist.m3u',
+      );
+
+      expect(result.type, PlaylistType.channelList);
+      expect(result.channels.length, 1);
+      expect(result.channels.first.title, 'Clean Channel');
+      expect(result.channels.first.tvgId, 'Test');
+    });
+
+    test('Attaches EXTVLCOPT headers to channel item httpHeaders', () {
+      final vlcOptM3u = '''#EXTM3U
+#EXTINF:-1 tvg-id="Protected",Protected Stream
+#EXTVLCOPT:http-user-agent=CustomPlayer/2.0
+#EXTVLCOPT:http-referrer=https://allowed-origin.com
+http://example.com/stream.m3u8
+''';
+
+      final result = PlaylistParser.parseString(
+        vlcOptM3u,
+        'http://example.com/playlist.m3u',
+      );
+
+      expect(result.type, PlaylistType.channelList);
+      expect(result.channels.length, 1);
+      final ch = result.channels.first;
+      expect(ch.url, 'http://example.com/stream.m3u8');
+      expect(ch.httpHeaders?['User-Agent'], 'CustomPlayer/2.0');
+      expect(ch.httpHeaders?['Referer'], 'https://allowed-origin.com');
+    });
+
+    test('Resolves relative channel URLs against parent playlist URL', () {
+      final relativeM3u = '''#EXTM3U
+#EXTINF:-1,Channel 1
+streams/live1.m3u8
+#EXTINF:-1,Channel 2
+../other/live2.m3u8
+''';
+
+      final result = PlaylistParser.parseString(
+        relativeM3u,
+        'http://example.com/iptv/lists/channels.m3u',
+      );
+
+      expect(result.type, PlaylistType.channelList);
+      expect(result.channels.length, 2);
+      expect(result.channels[0].url, 'http://example.com/iptv/lists/streams/live1.m3u8');
+      expect(result.channels[1].url, 'http://example.com/iptv/other/live2.m3u8');
+    });
   });
 }

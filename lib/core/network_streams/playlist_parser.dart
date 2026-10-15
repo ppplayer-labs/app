@@ -9,6 +9,7 @@ class PlaylistItem {
   final String? tvgId;
   final String? tvgLogo;
   final String? groupTitle;
+  final Map<String, String>? httpHeaders;
 
   PlaylistItem({
     required this.title,
@@ -16,6 +17,7 @@ class PlaylistItem {
     this.tvgId,
     this.tvgLogo,
     this.groupTitle,
+    this.httpHeaders,
   });
 }
 
@@ -24,8 +26,13 @@ enum PlaylistType { channelList, hlsManifest, unknown }
 class PlaylistParseResult {
   final PlaylistType type;
   final List<PlaylistItem> channels;
+  final String? playlistTitle;
 
-  PlaylistParseResult({required this.type, this.channels = const []});
+  PlaylistParseResult({
+    required this.type,
+    this.channels = const [],
+    this.playlistTitle,
+  });
 }
 
 class PlaylistParser {
@@ -44,14 +51,21 @@ class PlaylistParser {
 
   /// Parses content directly from a string based on its inferred format.
   static PlaylistParseResult parseString(String content, String url) {
-    if (content.trimLeft().startsWith('#EXTM3U')) {
-      return _parseM3u(content, url);
-    } else if (content.trimLeft().toLowerCase().startsWith('[playlist]')) {
-      return _parsePls(content, url);
-    } else if (content.trimLeft().startsWith('<')) {
+    var cleanContent = content.startsWith('\uFEFF')
+        ? content.substring(1)
+        : content;
+    cleanContent = cleanContent.trimLeft();
+
+    if (cleanContent.startsWith('#EXTM3U') ||
+        cleanContent.startsWith('#EXTINF') ||
+        cleanContent.contains('#EXTINF:')) {
+      return _parseM3u(cleanContent, url);
+    } else if (cleanContent.toLowerCase().startsWith('[playlist]')) {
+      return _parsePls(cleanContent, url);
+    } else if (cleanContent.startsWith('<')) {
       // Could be XSPF or ASX
       try {
-        final document = XmlDocument.parse(content);
+        final document = XmlDocument.parse(cleanContent);
         final root = document.rootElement;
 
         if (root.name.local.toLowerCase() == 'playlist' &&
@@ -69,59 +83,211 @@ class PlaylistParser {
     return PlaylistParseResult(type: PlaylistType.unknown);
   }
 
+  static int _findFirstUnquotedComma(String line) {
+    bool inDoubleQuote = false;
+    bool inSingleQuote = false;
+    for (int i = 0; i < line.length; i++) {
+      final char = line[i];
+      if (char == '"' && !inSingleQuote) {
+        inDoubleQuote = !inDoubleQuote;
+      } else if (char == "'" && !inDoubleQuote) {
+        inSingleQuote = !inSingleQuote;
+      } else if (char == ',' && !inDoubleQuote && !inSingleQuote) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  static String? _extractAttribute(String text, String attrName) {
+    final pattern = RegExp(
+      '''$attrName=(?:"([^"]*)"|'([^']*)'|([^\\s,]+))''',
+      caseSensitive: false,
+    );
+    final match = pattern.firstMatch(text);
+    if (match != null) {
+      return match.group(1) ?? match.group(2) ?? match.group(3);
+    }
+    return null;
+  }
+
   static PlaylistParseResult _parseM3u(String content, String baseUrl) {
-    if (content.contains('#EXT-X-STREAM-INF') ||
-        content.contains('#EXT-X-TARGETDURATION')) {
+    // Check for standard HLS Master and Media playlist tags
+    final hasHlsTag =
+        content.contains('#EXT-X-STREAM-INF') ||
+        content.contains('#EXT-X-TARGETDURATION') ||
+        content.contains('#EXT-X-MEDIA-SEQUENCE') ||
+        content.contains('#EXT-X-ENDLIST') ||
+        content.contains('#EXT-X-PLAYLIST-TYPE') ||
+        content.contains('#EXT-X-MAP:') ||
+        content.contains('#EXT-X-KEY:') ||
+        content.contains('#EXT-X-MEDIA:') ||
+        content.contains('#EXT-X-I-FRAME-STREAM-INF');
+
+    if (hasHlsTag) {
       return PlaylistParseResult(type: PlaylistType.hlsManifest);
     }
 
+    // Extract playlist-level title if defined
+    String? playlistTitle;
+    final playlistNameMatch = RegExp(
+      r'#PLAYLIST:\s*(.+)',
+      caseSensitive: false,
+    ).firstMatch(content);
+    if (playlistNameMatch != null) {
+      playlistTitle = playlistNameMatch.group(1)?.trim();
+    } else {
+      final extm3uNameMatch = RegExp(
+        r'''#EXTM3U[^\n\r]*\bname=["']([^"']+)["']''',
+        caseSensitive: false,
+      ).firstMatch(content);
+      if (extm3uNameMatch != null) {
+        playlistTitle = extm3uNameMatch.group(1)?.trim();
+      }
+    }
+
     final channels = <PlaylistItem>[];
+    final seenUrls = <String>{};
     final lines = content.split(RegExp(r'\r?\n'));
 
     String? currentTitle;
     String? currentTvgId;
     String? currentTvgLogo;
     String? currentGroupTitle;
+    Map<String, String>? currentHeaders;
 
-    for (var line in lines) {
-      line = line.trim();
+    for (var rawLine in lines) {
+      final line = rawLine.trim();
       if (line.isEmpty) continue;
 
       if (line.startsWith('#EXTINF:')) {
-        final commaIndex = line.lastIndexOf(',');
-        if (commaIndex != -1) {
+        final commaIndex = _findFirstUnquotedComma(line);
+        if (commaIndex != -1 && commaIndex < line.length - 1) {
           currentTitle = line.substring(commaIndex + 1).trim();
         } else {
-          currentTitle = 'Unknown Channel';
+          currentTitle = '';
         }
-        currentTvgId = RegExp(r'tvg-id="([^"]*)"').firstMatch(line)?.group(1);
-        currentTvgLogo = RegExp(
-          r'tvg-logo="([^"]*)"',
-        ).firstMatch(line)?.group(1);
-        currentGroupTitle = RegExp(
-          r'group-title="([^"]*)"',
-        ).firstMatch(line)?.group(1);
+
+        final tagMeta = commaIndex != -1 ? line.substring(0, commaIndex) : line;
+
+        currentTvgId = _extractAttribute(tagMeta, 'tvg-id');
+        final tvgName = _extractAttribute(tagMeta, 'tvg-name');
+        if (currentTitle.isEmpty) {
+          currentTitle = (tvgName != null && tvgName.isNotEmpty)
+              ? tvgName
+              : (currentTvgId != null && currentTvgId.isNotEmpty
+                  ? currentTvgId
+                  : 'Unknown Channel');
+        }
+
+        currentTvgLogo =
+            _extractAttribute(tagMeta, 'tvg-logo') ??
+            _extractAttribute(tagMeta, 'logo');
+        currentGroupTitle = _extractAttribute(tagMeta, 'group-title');
+
+        final inlineUa =
+            _extractAttribute(tagMeta, 'http-user-agent') ??
+            _extractAttribute(tagMeta, 'user-agent');
+        final inlineRef =
+            _extractAttribute(tagMeta, 'http-referrer') ??
+            _extractAttribute(tagMeta, 'referrer');
+        if (inlineUa != null || inlineRef != null) {
+          currentHeaders ??= {};
+          if (inlineUa != null) currentHeaders['User-Agent'] = inlineUa;
+          if (inlineRef != null) currentHeaders['Referer'] = inlineRef;
+        }
+      } else if (line.startsWith('#EXTGRP:')) {
+        if (currentGroupTitle == null || currentGroupTitle.isEmpty) {
+          currentGroupTitle = line.substring(8).trim();
+        }
+      } else if (line.startsWith('#EXTVLCOPT:')) {
+        final opt = line.substring(11).trim();
+        final eq = opt.indexOf('=');
+        if (eq != -1) {
+          final key = opt.substring(0, eq).trim().toLowerCase();
+          final val = opt.substring(eq + 1).trim();
+          currentHeaders ??= {};
+          if (key == 'http-user-agent' || key == 'user-agent') {
+            currentHeaders['User-Agent'] = val;
+          } else if (key == 'http-referrer' || key == 'referrer') {
+            currentHeaders['Referer'] = val;
+          } else if (key == 'http-origin' || key == 'origin') {
+            currentHeaders['Origin'] = val;
+          }
+        }
+      } else if (line.startsWith('#KODIPROP:')) {
+        final prop = line.substring(10).trim();
+        if (prop.toLowerCase().startsWith(
+          'inputstream.adaptive.manifest_headers=',
+        )) {
+          final headersVal = prop.substring(38).trim();
+          for (final pair in headersVal.split('&')) {
+            final eq = pair.indexOf('=');
+            if (eq != -1) {
+              final k = pair.substring(0, eq).trim();
+              final v = pair.substring(eq + 1).trim();
+              currentHeaders ??= {};
+              currentHeaders[k] = v;
+            }
+          }
+        }
       } else if (!line.startsWith('#')) {
-        if (currentTitle != null) {
+        var streamUrl = line;
+        if ((streamUrl.startsWith('"') && streamUrl.endsWith('"')) ||
+            (streamUrl.startsWith("'") && streamUrl.endsWith("'"))) {
+          streamUrl = streamUrl.substring(1, streamUrl.length - 1).trim();
+        }
+
+        // Parse pipe syntax: url|Header=Val&...
+        if (streamUrl.contains('|')) {
+          final pipeIdx = streamUrl.indexOf('|');
+          final rawUrl = streamUrl.substring(0, pipeIdx).trim();
+          final pipeParams = streamUrl.substring(pipeIdx + 1).trim();
+          for (final pair in pipeParams.split('&')) {
+            final eq = pair.indexOf('=');
+            if (eq != -1) {
+              final k = pair.substring(0, eq).trim();
+              final v = Uri.decodeComponent(pair.substring(eq + 1).trim());
+              currentHeaders ??= {};
+              currentHeaders[k] = v;
+            }
+          }
+          streamUrl = rawUrl;
+        }
+
+        final resolvedUrl = _resolveUrl(normalizeUrl(streamUrl), baseUrl);
+
+        if (!seenUrls.contains(resolvedUrl)) {
+          seenUrls.add(resolvedUrl);
           channels.add(
             PlaylistItem(
-              title: currentTitle,
-              url: _resolveUrl(normalizeUrl(line), baseUrl),
+              title: currentTitle ?? 'Stream ${channels.length + 1}',
+              url: resolvedUrl,
               tvgId: currentTvgId,
               tvgLogo: currentTvgLogo,
               groupTitle: currentGroupTitle,
+              httpHeaders:
+                  currentHeaders != null ? Map.from(currentHeaders) : null,
             ),
           );
         }
+
         currentTitle = null;
         currentTvgId = null;
         currentTvgLogo = null;
         currentGroupTitle = null;
+        currentHeaders = null;
       }
     }
+
+    if (channels.isEmpty) {
+      return PlaylistParseResult(type: PlaylistType.unknown);
+    }
+
     return PlaylistParseResult(
       type: PlaylistType.channelList,
       channels: channels,
+      playlistTitle: playlistTitle,
     );
   }
 

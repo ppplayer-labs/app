@@ -475,15 +475,21 @@ class MediaKitPlaybackEngine implements PlaybackController {
         if (session != _activeSession || _disposed) return;
         final errStr = err.toLowerCase();
         String errorCode = 'error:playback_failed';
-        if (errStr.contains('timeout')) {
+        if (errStr.contains('403') || errStr.contains('forbidden')) {
+          errorCode = 'error:forbidden';
+        } else if (errStr.contains('404') || errStr.contains('not found')) {
+          errorCode = 'error:not_found';
+        } else if (errStr.contains('timeout') ||
+            errStr.contains('unreachable') ||
+            errStr.contains('connection refused') ||
+            errStr.contains('no route')) {
           errorCode = 'error:playback_timeout';
         } else if (errStr.contains('format') ||
             errStr.contains('codec') ||
             errStr.contains('corrupt')) {
           errorCode = 'error:unsupported_format';
         } else if (errStr.contains('access') ||
-            errStr.contains('permission') ||
-            errStr.contains('not found')) {
+            errStr.contains('permission')) {
           errorCode = 'error:file_inaccessible';
         }
         _watchdogTimer?.cancel();
@@ -662,12 +668,19 @@ class MediaKitPlaybackEngine implements PlaybackController {
         if (_disposed || _activeSession != session) return;
         final errStr = e.toString().toLowerCase();
         String errorCode = 'error:playback_failed';
-        if (errStr.contains('format') || errStr.contains('codec')) {
+        if (errStr.contains('403') || errStr.contains('forbidden')) {
+          errorCode = 'error:forbidden';
+        } else if (errStr.contains('404') || errStr.contains('not found')) {
+          errorCode = 'error:not_found';
+        } else if (errStr.contains('timeout') ||
+            errStr.contains('unreachable') ||
+            errStr.contains('connection refused') ||
+            errStr.contains('no route')) {
+          errorCode = 'error:playback_timeout';
+        } else if (errStr.contains('format') || errStr.contains('codec')) {
           errorCode = 'error:unsupported_format';
         } else if (errStr.contains('access') ||
-            errStr.contains('not found') ||
-            errStr.contains('no such file') ||
-            errStr.contains('timeout')) {
+            errStr.contains('no such file')) {
           errorCode = 'error:file_inaccessible';
         }
         _updateStatus(
@@ -805,12 +818,19 @@ class MediaKitPlaybackEngine implements PlaybackController {
         if (_valid(myGen)) {
           final errStr = e.toString().toLowerCase();
           String errorCode = 'error:playback_failed';
-          if (errStr.contains('format') || errStr.contains('codec')) {
+          if (errStr.contains('403') || errStr.contains('forbidden')) {
+            errorCode = 'error:forbidden';
+          } else if (errStr.contains('404') || errStr.contains('not found')) {
+            errorCode = 'error:not_found';
+          } else if (errStr.contains('timeout') ||
+              errStr.contains('unreachable') ||
+              errStr.contains('connection refused') ||
+              errStr.contains('no route')) {
+            errorCode = 'error:playback_timeout';
+          } else if (errStr.contains('format') || errStr.contains('codec')) {
             errorCode = 'error:unsupported_format';
           } else if (errStr.contains('access') ||
-              errStr.contains('not found') ||
-              errStr.contains('no such file') ||
-              errStr.contains('timeout')) {
+              errStr.contains('no such file')) {
             errorCode = 'error:file_inaccessible';
           }
           _failAttempt(myGen, errorCode);

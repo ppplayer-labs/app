@@ -27,16 +27,37 @@ final networkStreamServiceProvider = Provider<NetworkStreamService>((ref) {
   return NetworkStreamService(db, secureCredentialsService);
 });
 
+class StreamAnalysisResult {
+  final PlaylistType type;
+  final List<PlaylistItem> channels;
+  final String normalizedUrl;
+  final String? suggestedTitle;
+
+  const StreamAnalysisResult({
+    required this.type,
+    required this.channels,
+    required this.normalizedUrl,
+    this.suggestedTitle,
+  });
+
+  bool get isIptvPlaylist =>
+      type == PlaylistType.channelList && channels.isNotEmpty;
+  bool get isHlsStream => type == PlaylistType.hlsManifest;
+  bool get isSingleStream =>
+      type == PlaylistType.hlsManifest ||
+      type == PlaylistType.unknown ||
+      (type == PlaylistType.channelList && channels.length <= 1);
+}
+
 class NetworkStreamService {
   final AppDatabase _db;
   final SecureCredentialsService _secureCredentialsService;
 
   NetworkStreamService(this._db, this._secureCredentialsService);
 
-  /// Analyzes a URL to see if it's a playlist or a direct stream.
-  /// If it's a playlist, parses it and returns the list of channels.
-  /// If it's a direct stream or HLS manifest, returns a single channel item representing the stream itself.
-  Future<List<PlaylistItem>> analyzeAndParseUrl(
+  /// Analyzes a network URL to determine if it's an IPTV playlist,
+  /// HLS manifest, or single media stream.
+  Future<StreamAnalysisResult> analyzeUrl(
     String url, {
     http.Client? client,
   }) async {
@@ -50,10 +71,18 @@ class NetworkStreamService {
             uri.host == 'm.youtube.com' ||
             uri.host == 'music.youtube.com' ||
             uri.host == 'youtu.be')) {
-      // It can be /playlist?list=... or /watch?v=...&list=...
       if (uri.queryParameters.containsKey('list')) {
         final playlistId = uri.queryParameters['list']!;
-        return _fetchYoutubePlaylist(playlistId, client: client);
+        final channels = await _fetchYoutubePlaylist(
+          playlistId,
+          client: client,
+        );
+        return StreamAnalysisResult(
+          type: PlaylistType.channelList,
+          channels: channels,
+          normalizedUrl: normalizedUrl,
+          suggestedTitle: 'YouTube Playlist',
+        );
       }
     }
 
@@ -63,19 +92,73 @@ class NetworkStreamService {
         client: client,
       );
 
+      String? suggestedTitle = result.playlistTitle;
+      if (suggestedTitle == null || suggestedTitle.isEmpty) {
+        if (uri != null && uri.pathSegments.isNotEmpty) {
+          final lastSeg = uri.pathSegments.last;
+          final cleanSeg = lastSeg.replaceAll(
+            RegExp(r'\.(m3u8?|pls|xspf|asx)$', caseSensitive: false),
+            '',
+          );
+          if (cleanSeg.isNotEmpty &&
+              cleanSeg != 'index' &&
+              cleanSeg != 'playlist') {
+            suggestedTitle = cleanSeg.toUpperCase();
+          }
+        }
+      }
+
       switch (result.type) {
         case PlaylistType.channelList:
-          return result.channels;
+          return StreamAnalysisResult(
+            type: PlaylistType.channelList,
+            channels: result.channels,
+            normalizedUrl: normalizedUrl,
+            suggestedTitle: suggestedTitle,
+          );
         case PlaylistType.hlsManifest:
+          return StreamAnalysisResult(
+            type: PlaylistType.hlsManifest,
+            channels: [
+              PlaylistItem(
+                title: suggestedTitle ?? 'Live Stream',
+                url: normalizedUrl,
+              ),
+            ],
+            normalizedUrl: normalizedUrl,
+            suggestedTitle: suggestedTitle,
+          );
         case PlaylistType.unknown:
-          // Treat as a direct stream
-          return [PlaylistItem(title: 'Stream 1', url: normalizedUrl)];
+          return StreamAnalysisResult(
+            type: PlaylistType.unknown,
+            channels: [
+              PlaylistItem(
+                title: suggestedTitle ?? 'Stream 1',
+                url: normalizedUrl,
+              ),
+            ],
+            normalizedUrl: normalizedUrl,
+            suggestedTitle: suggestedTitle,
+          );
       }
     } catch (e) {
-      // If parsing fails (e.g., because it's a raw video file and bounded bytes didn't fail it),
-      // treat as a direct stream.
-      return [PlaylistItem(title: 'Stream 1', url: normalizedUrl)];
+      return StreamAnalysisResult(
+        type: PlaylistType.unknown,
+        channels: [PlaylistItem(title: 'Stream 1', url: normalizedUrl)],
+        normalizedUrl: normalizedUrl,
+      );
     }
+  }
+
+  /// Analyzes a URL to see if it's a playlist or a direct stream.
+  /// If it's a playlist, parses it and returns the list of channels.
+  /// If it's a direct stream or HLS manifest, returns a single channel item representing the stream itself.
+  Future<List<PlaylistItem>> analyzeAndParseUrl(
+    String url, {
+    http.Client? client,
+  }) async {
+    final result = await analyzeUrl(url, client: client);
+    return result.channels;
   }
 
   Future<List<PlaylistItem>> _fetchYoutubePlaylist(
@@ -176,6 +259,28 @@ class NetworkStreamService {
     if (trimmedInput.toLowerCase().startsWith('<iframe')) {
       final srcMatch = RegExp(r'src="([^"]+)"').firstMatch(trimmedInput);
       if (srcMatch != null) videoUrl = srcMatch.group(1)!;
+    }
+
+    // Check for pipe syntax: url|User-Agent=...&Referer=...
+    if (videoUrl.contains('|')) {
+      final pipeIdx = videoUrl.indexOf('|');
+      final actualUrl = videoUrl.substring(0, pipeIdx).trim();
+      final headerStr = videoUrl.substring(pipeIdx + 1).trim();
+      final headers = <String, String>{};
+      for (final pair in headerStr.split('&')) {
+        final eq = pair.indexOf('=');
+        if (eq != -1) {
+          final k = pair.substring(0, eq).trim();
+          final v = Uri.decodeComponent(pair.substring(eq + 1).trim());
+          if (k.isNotEmpty && v.isNotEmpty) {
+            headers[k] = v;
+          }
+        }
+      }
+      return ExtractedStream(
+        url: actualUrl,
+        httpHeaders: headers.isNotEmpty ? headers : null,
+      );
     }
 
     try {
@@ -470,8 +575,13 @@ class NetworkStreamService {
       final inserts = <StreamChannelsCompanion>[];
 
       for (final c in channels) {
-        urlsToKeep.add(c.url);
-        final existing = existingByUrl[c.url];
+        final streamUrl = (c.httpHeaders != null &&
+                c.httpHeaders!.isNotEmpty &&
+                !c.url.contains('|'))
+            ? '${c.url}|${c.httpHeaders!.entries.map((e) => '${e.key}=${Uri.encodeComponent(e.value)}').join('&')}'
+            : c.url;
+        urlsToKeep.add(streamUrl);
+        final existing = existingByUrl[streamUrl] ?? existingByUrl[c.url];
 
         if (existing != null) {
           // Update existing channel
@@ -480,6 +590,7 @@ class NetworkStreamService {
           )..where((t) => t.id.equals(existing.id))).write(
             StreamChannelsCompanion(
               title: drift.Value(c.title),
+              streamUrl: drift.Value(streamUrl),
               tvgId: drift.Value(c.tvgId),
               logo: drift.Value(c.tvgLogo),
               groupTitle: drift.Value(c.groupTitle),
@@ -492,7 +603,7 @@ class NetworkStreamService {
             StreamChannelsCompanion.insert(
               playlistId: playlistId,
               title: c.title,
-              streamUrl: c.url,
+              streamUrl: streamUrl,
               tvgId: drift.Value(c.tvgId),
               logo: drift.Value(c.tvgLogo),
               groupTitle: drift.Value(c.groupTitle),
@@ -574,5 +685,26 @@ class NetworkStreamService {
     await (_db.delete(
       _db.streamChannels,
     )..where((t) => t.id.equals(channelId))).go();
+  }
+
+  /// Refreshes an existing playlist from its remote source URL.
+  Future<int> refreshPlaylist(int playlistId, {http.Client? client}) async {
+    final playlist = await (_db.select(_db.streamPlaylists)
+          ..where((t) => t.id.equals(playlistId)))
+        .getSingleOrNull();
+    if (playlist == null) return 0;
+
+    final analysis = await analyzeUrl(playlist.sourceUri, client: client);
+    if (analysis.channels.isEmpty) return 0;
+
+    await savePlaylist(
+      playlist.title,
+      playlist.sourceUri,
+      analysis.channels,
+      imageUrl: playlist.imageUrl,
+      sourceKind: playlist.sourceKind,
+    );
+
+    return analysis.channels.length;
   }
 }

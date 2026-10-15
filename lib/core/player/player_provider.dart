@@ -249,13 +249,35 @@ class PlayerNotifier extends Notifier<PlayerState> {
       final isNetworkStream = track?.isNetworkStream ?? false;
 
       if (isNetworkStream) {
+        final err = status.error ?? '';
+        final errLower = err.toLowerCase();
+        final isPermanent = errLower.contains('forbidden') ||
+            errLower.contains('403') ||
+            errLower.contains('404') ||
+            errLower.contains('not_found') ||
+            errLower.contains('unreachable') ||
+            errLower.contains('connection refused') ||
+            errLower.contains('file_inaccessible');
+
+        if (isPermanent) {
+          debugPrint(
+            'PlayerNotifier: Permanent network stream error detected ($err). Halting retry.',
+          );
+          state = state.copyWith(
+            loadError: err.isNotEmpty ? err : 'error:forbidden',
+            isLoadingVideo: false,
+          );
+          _isRecovering = false;
+          return;
+        }
+
         debugPrint(
           'PlayerNotifier: Network stream error detected. Refreshing stream...',
         );
         final fallbackPos = status.position == Duration.zero
             ? state.position
             : status.position;
-        _handleNetworkStreamFailure(fallbackPos);
+        _handleNetworkStreamFailure(fallbackPos, statusError: status.error);
         return;
       }
 
@@ -1266,7 +1288,10 @@ class PlayerNotifier extends Notifier<PlayerState> {
     }
   }
 
-  void _handleNetworkStreamFailure(Duration lastPosition) async {
+  void _handleNetworkStreamFailure(
+    Duration lastPosition, {
+    String? statusError,
+  }) async {
     if (_isRecovering) return;
     _isRecovering = true;
 
@@ -1277,12 +1302,12 @@ class PlayerNotifier extends Notifier<PlayerState> {
     }
 
     _consecutiveTrackFailures++;
-    if (_consecutiveTrackFailures >= 5) {
+    if (_consecutiveTrackFailures >= 3) {
       debugPrint(
         'PlayerNotifier: Max network stream recovery attempts reached.',
       );
       state = state.copyWith(
-        loadError: 'Stream failed to load after multiple attempts',
+        loadError: statusError ?? 'Stream failed to connect after multiple attempts',
         isLoadingVideo: false,
       );
       _isRecovering = false;

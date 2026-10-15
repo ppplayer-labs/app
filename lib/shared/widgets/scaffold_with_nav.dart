@@ -90,6 +90,12 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
         : ref.watch(playerProvider.select((s) => s.videoId != null)) &&
               playbackStatus.hasVideo;
     final loadError = ref.watch(playerProvider.select((s) => s.loadError));
+    final hasNextTrack = ref.watch(
+      playerProvider.select((s) {
+        final q = s.playbackQueue;
+        return q.tracks.length > 1 && q.currentIndex + 1 < q.tracks.length;
+      }),
+    );
     final isPipMode = ref.watch(playerProvider.select((s) => s.isPipMode));
     final isFullscreen = ref.watch(isFullscreenProvider);
     final videoFitMode = ref.watch(
@@ -584,115 +590,11 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
                         ),
                       ),
                       if (loadError != null)
-                        Positioned.fill(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(renderRadius),
-                            child: BackdropFilter(
-                              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                              child: Container(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.surface.withValues(alpha: 0.7),
-                                child: SingleChildScrollView(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        Icons.error_outline_rounded,
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.error,
-                                        size: 24,
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8.0,
-                                        ),
-                                        child: Text(
-                                          loadError.startsWith('error:')
-                                              ? (loadError ==
-                                                        'error:unsupported_format'
-                                                    ? AppLocalizations.of(
-                                                        context,
-                                                      )!.playbackErrorUnsupportedFormat
-                                                    : (loadError ==
-                                                              'error:file_inaccessible'
-                                                          ? AppLocalizations.of(
-                                                              context,
-                                                            )!.playbackErrorFileInaccessible
-                                                          : loadError))
-                                              : loadError,
-                                          textAlign: TextAlign.center,
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.error,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 16),
-                                      TactileTap(
-                                        onTap: () => ref
-                                            .read(playerProvider.notifier)
-                                            .retryLoad(),
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 24,
-                                            vertical: 10,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.primary,
-                                            borderRadius: BorderRadius.circular(
-                                              20,
-                                            ),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .primary
-                                                    .withValues(alpha: 0.3),
-                                                blurRadius: 8,
-                                                offset: const Offset(0, 4),
-                                              ),
-                                            ],
-                                          ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              const Icon(
-                                                Icons.refresh_rounded,
-                                                color: Colors.white,
-                                                size: 20,
-                                              ),
-                                              const SizedBox(width: 8),
-                                              Text(
-                                                AppLocalizations.of(
-                                                  context,
-                                                )!.retry,
-                                                style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
+                        _buildErrorOverlay(
+                          renderRadius: renderRadius,
+                          loadError: loadError,
+                          isPlayerScreen: true,
+                          hasNext: hasNextTrack,
                         ),
                     ],
                   ),
@@ -750,120 +652,275 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
                           ),
                         ),
                       if (loadError != null)
-                        Positioned.fill(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(renderRadius),
-                            child: BackdropFilter(
-                              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                              child: Container(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.surface.withValues(alpha: 0.7),
-                                child: SingleChildScrollView(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
+                        _buildErrorOverlay(
+                          renderRadius: renderRadius,
+                          loadError: loadError,
+                          isPlayerScreen: false,
+                          hasNext: hasNextTrack,
+                        ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorOverlay({
+    required double renderRadius,
+    required String loadError,
+    required bool isPlayerScreen,
+    required bool hasNext,
+  }) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final errLower = loadError.toLowerCase();
+
+    String title;
+    String? subtitle;
+    IconData iconData = Icons.error_outline_rounded;
+
+    if (errLower.contains('forbidden') || errLower.contains('403')) {
+      title = 'Access Forbidden (HTTP 403)';
+      subtitle = 'This stream is restricted or requires authentication credentials.';
+      iconData = Icons.lock_outline_rounded;
+    } else if (errLower.contains('not_found') ||
+        errLower.contains('404') ||
+        errLower.contains('not found')) {
+      title = 'Stream Not Found (HTTP 404)';
+      subtitle = 'The stream is no longer available at this address.';
+      iconData = Icons.link_off_rounded;
+    } else if (errLower.contains('timeout') ||
+        errLower.contains('unreachable') ||
+        errLower.contains('connection refused') ||
+        errLower.contains('no route')) {
+      title = 'Channel Offline';
+      subtitle = 'The stream server is currently unreachable or timed out.';
+      iconData = Icons.wifi_off_rounded;
+    } else if (errLower.contains('unsupported_format')) {
+      title = AppLocalizations.of(context)!.playbackErrorUnsupportedFormat;
+      subtitle = 'The media format or codec is not supported by the playback engine.';
+      iconData = Icons.video_file_outlined;
+    } else if (errLower.contains('file_inaccessible')) {
+      title = AppLocalizations.of(context)!.playbackErrorFileInaccessible;
+      subtitle = 'Unable to read or access the media stream source.';
+      iconData = Icons.folder_off_outlined;
+    } else if (errLower.contains('multiple attempts')) {
+      title = 'Connection Failed';
+      subtitle = 'Unable to establish a reliable connection to the stream.';
+      iconData = Icons.sync_problem_rounded;
+    } else {
+      title = 'Playback Failed';
+      subtitle = loadError.startsWith('error:') ? loadError.substring(6) : loadError;
+      iconData = Icons.error_outline_rounded;
+    }
+
+    return Positioned.fill(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(renderRadius),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+          child: Container(
+            color: colorScheme.surface.withValues(alpha: 0.88),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final isMini = constraints.maxHeight < 140;
+
+                if (isMini) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    child: Row(
+                      children: [
+                        Icon(iconData, color: colorScheme.error, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: colorScheme.error,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        TactileTap(
+                          onTap: () => ref.read(playerProvider.notifier).retryLoad(),
+                          child: Container(
+                            padding: const EdgeInsets.all(7),
+                            decoration: BoxDecoration(
+                              color: colorScheme.primary,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.refresh_rounded,
+                              color: Colors.white,
+                              size: 16,
+                            ),
+                          ),
+                        ),
+                        if (hasNext) ...[
+                          const SizedBox(width: 6),
+                          TactileTap(
+                            onTap: () => ref.read(playerProvider.notifier).skipNext(),
+                            child: Container(
+                              padding: const EdgeInsets.all(7),
+                              decoration: BoxDecoration(
+                                color: colorScheme.surfaceContainerHighest,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.skip_next_rounded,
+                                color: colorScheme.onSurface,
+                                size: 16,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  );
+                }
+
+                return Center(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 480),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 58,
+                            height: 58,
+                            decoration: BoxDecoration(
+                              color: colorScheme.error.withValues(alpha: 0.15),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              iconData,
+                              color: colorScheme.error,
+                              size: 32,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            title,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: colorScheme.onSurface,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: -0.2,
+                            ),
+                          ),
+                          if (subtitle != null) ...[
+                            const SizedBox(height: 8),
+                            Text(
+                              subtitle,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: colorScheme.onSurfaceVariant,
+                                fontSize: 13,
+                                height: 1.4,
+                              ),
+                            ),
+                          ],
+                          const SizedBox(height: 22),
+                          Wrap(
+                            spacing: 12,
+                            runSpacing: 10,
+                            alignment: WrapAlignment.center,
+                            children: [
+                              TactileTap(
+                                onTap: () => ref.read(playerProvider.notifier).retryLoad(),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 22,
+                                    vertical: 11,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: colorScheme.primary,
+                                    borderRadius: BorderRadius.circular(22),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: colorScheme.primary.withValues(alpha: 0.35),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Icon(
-                                        Icons.error_outline_rounded,
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.error,
-                                        size: 24,
+                                      const Icon(
+                                        Icons.refresh_rounded,
+                                        color: Colors.white,
+                                        size: 18,
                                       ),
-                                      const SizedBox(height: 4),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8.0,
-                                        ),
-                                        child: Text(
-                                          loadError.startsWith('error:')
-                                              ? (loadError ==
-                                                        'error:unsupported_format'
-                                                    ? AppLocalizations.of(
-                                                        context,
-                                                      )!.playbackErrorUnsupportedFormat
-                                                    : (loadError ==
-                                                              'error:file_inaccessible'
-                                                          ? AppLocalizations.of(
-                                                              context,
-                                                            )!.playbackErrorFileInaccessible
-                                                          : loadError))
-                                              : loadError,
-                                          textAlign: TextAlign.center,
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.error,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 16),
-                                      TactileTap(
-                                        onTap: () => ref
-                                            .read(playerProvider.notifier)
-                                            .retryLoad(),
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 24,
-                                            vertical: 10,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.primary,
-                                            borderRadius: BorderRadius.circular(
-                                              20,
-                                            ),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .primary
-                                                    .withValues(alpha: 0.3),
-                                                blurRadius: 8,
-                                                offset: const Offset(0, 4),
-                                              ),
-                                            ],
-                                          ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              const Icon(
-                                                Icons.refresh_rounded,
-                                                color: Colors.white,
-                                                size: 20,
-                                              ),
-                                              const SizedBox(width: 8),
-                                              Text(
-                                                AppLocalizations.of(
-                                                  context,
-                                                )!.retry,
-                                                style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        AppLocalizations.of(context)!.retry,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
                                         ),
                                       ),
                                     ],
                                   ),
                                 ),
                               ),
-                            ),
+                              if (hasNext)
+                                TactileTap(
+                                  onTap: () => ref.read(playerProvider.notifier).skipNext(),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 22,
+                                      vertical: 11,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: colorScheme.surfaceContainerHighest,
+                                      borderRadius: BorderRadius.circular(22),
+                                      border: Border.all(
+                                        color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          Icons.skip_next_rounded,
+                                          color: colorScheme.onSurface,
+                                          size: 18,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          'Next Channel',
+                                          style: TextStyle(
+                                            color: colorScheme.onSurface,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                            ],
                           ),
-                        ),
-                    ],
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-            ],
+                );
+              },
+            ),
           ),
         ),
       ),
