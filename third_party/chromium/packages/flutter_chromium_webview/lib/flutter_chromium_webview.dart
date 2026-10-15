@@ -29,7 +29,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_chromium_webview_platform_interface/flutter_chromium_webview_platform_interface.dart';
 
 export 'package:flutter_chromium_webview_platform_interface/flutter_chromium_webview_platform_interface.dart'
-    show PointerInputType;
+    show PointerInputType, ChromiumKeychainBehavior;
 
 /// Represents a request from the browser to open a new window or tab.
 class NewWindowRequest {
@@ -780,9 +780,19 @@ class ChromiumWebViewController extends ChangeNotifier {
   /// attempting to create any browser instances. The [cachePath] should be an
   /// absolute path to a writable directory where CEF can store session data.
   ///
+  /// [keychainBehavior] controls whether macOS uses a mock in-memory keychain
+  /// (default) or the system login keychain for Chromium OSCrypt.
+  ///
   /// Returns true if initialization succeeded.
-  static Future<bool> initialize({required String cachePath}) async {
-    return _platform.initialize(cachePath: cachePath, sessionId: _sessionId);
+  static Future<bool> initialize({
+    required String cachePath,
+    ChromiumKeychainBehavior keychainBehavior = ChromiumKeychainBehavior.mock,
+  }) async {
+    return _platform.initialize(
+      cachePath: cachePath,
+      sessionId: _sessionId,
+      keychainBehavior: keychainBehavior,
+    );
   }
 
   /// Initiates native browser creation.

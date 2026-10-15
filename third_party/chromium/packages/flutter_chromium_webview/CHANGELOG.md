@@ -1,3 +1,9 @@
+## 0.5.3
+
+* Add configurable `keychainBehavior` parameter (`ChromiumKeychainBehavior.mock` vs `.system`) to `ChromiumWebViewController.initialize`.
+* Default to mock keychain on macOS to prevent unnecessary login keychain access prompts.
+* Require `flutter_chromium_webview_platform_interface` ^0.1.6.
+
 ## 0.5.2
 
 * Fix JavaScript mocked player properties in integration test.

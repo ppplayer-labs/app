@@ -1,3 +1,7 @@
+## 0.1.6
+
+* Add `ChromiumKeychainBehavior` enum (`mock`, `system`) and allow configuring macOS Keychain behavior in `ChromiumWebViewPlatform.initialize`.
+
 ## 0.1.5
 
 * Add a runnable Flutter example for registering a backend and handling browser lifecycle events.

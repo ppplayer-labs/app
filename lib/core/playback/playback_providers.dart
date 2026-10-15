@@ -153,6 +153,7 @@ final localPlaybackControllerProvider = Provider<PlaybackController>((ref) {
         final directory = await getApplicationSupportDirectory();
         if (!await ChromiumWebViewController.initialize(
           cachePath: directory.path,
+          keychainBehavior: ChromiumKeychainBehavior.mock,
         )) {
           throw StateError('CEF initialization failed');
         }
@@ -217,6 +218,7 @@ final localPlaybackControllerProvider = Provider<PlaybackController>((ref) {
           final directory = await getApplicationSupportDirectory();
           if (!await ChromiumWebViewController.initialize(
             cachePath: directory.path,
+            keychainBehavior: ChromiumKeychainBehavior.mock,
           )) {
             throw StateError('CEF initialization failed');
           }

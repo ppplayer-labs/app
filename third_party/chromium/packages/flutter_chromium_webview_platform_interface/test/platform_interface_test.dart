@@ -129,12 +129,32 @@ void main() {
       });
     });
 
-    test('initialize forwards arguments', () async {
+    test('initialize forwards arguments with default mock keychain', () async {
       expect(
         await platform.initialize(cachePath: '/c', sessionId: 's'),
         isTrue,
       );
-      expect(log.single.arguments, {'cachePath': '/c', 'sessionId': 's'});
+      expect(log.single.arguments, {
+        'cachePath': '/c',
+        'sessionId': 's',
+        'keychainBehavior': 'mock',
+      });
+    });
+
+    test('initialize forwards system keychain behavior when requested', () async {
+      expect(
+        await platform.initialize(
+          cachePath: '/c',
+          sessionId: 's',
+          keychainBehavior: ChromiumKeychainBehavior.system,
+        ),
+        isTrue,
+      );
+      expect(log.single.arguments, {
+        'cachePath': '/c',
+        'sessionId': 's',
+        'keychainBehavior': 'system',
+      });
     });
 
     test('createBrowser returns identifiers', () async {
