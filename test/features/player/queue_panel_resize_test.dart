@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive_ce/hive.dart';
 import 'package:ppplayer/features/player/queue_presentation.dart';
 
 void main() {
@@ -42,6 +44,36 @@ void main() {
 
       notifier.reset();
       expect(container.read(queuePanelWidthProvider), equals(kDefaultQueuePanelWidth));
+    });
+
+    test('persists queue panel width across app sessions via Hive', () async {
+      final tempDir = await Directory.systemTemp.createTemp('queue-width-test-');
+      Hive.init(tempDir.path);
+      await Hive.openBox('settings');
+
+      try {
+        // Session 1: User resizes queue to 480px
+        final container1 = ProviderContainer();
+        container1.read(queuePanelWidthProvider.notifier).setWidth(480.0);
+        expect(container1.read(queuePanelWidthProvider), equals(480.0));
+
+        // Allow debounce timer to flush write to Hive
+        await Future<void>.delayed(const Duration(milliseconds: 350));
+
+        // Close app (dispose container)
+        container1.dispose();
+
+        // Session 2: User reopens app
+        final container2 = ProviderContainer();
+        final loadedWidth = container2.read(queuePanelWidthProvider);
+        expect(loadedWidth, equals(480.0));
+        container2.dispose();
+      } finally {
+        await Hive.close();
+        if (await tempDir.exists()) {
+          await tempDir.delete(recursive: true);
+        }
+      }
     });
   });
 }
