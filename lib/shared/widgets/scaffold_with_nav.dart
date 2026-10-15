@@ -149,6 +149,17 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
         ref.watch(playerProvider.select((s) => s.isPipRequestPending));
     final isDesktop = usesWideNavigation(context);
 
+    final maxQueueWidth = (screenWidth - (isDesktop ? 240 : 0) - 340).clamp(
+      queue_ui.kMinQueuePanelWidth,
+      queue_ui.kMaxQueuePanelWidth,
+    );
+    final rawQueueWidth = ref.watch(queue_ui.queuePanelWidthProvider);
+    final effectiveQueueWidth = rawQueueWidth.clamp(
+      queue_ui.kMinQueuePanelWidth,
+      maxQueueWidth,
+    );
+    final queueTotalWidth = showQueuePanel ? (effectiveQueueWidth + 10.0) : 0.0;
+
     Rect? normalBounds;
     bool showShadow = false;
     double renderRadius = 0;
@@ -206,7 +217,7 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
       }
     } else {
       if (showVideo && hasVideoId) {
-        final left = screenWidth - (showQueuePanel ? 360 : 0) - kMinW - 16;
+        final left = screenWidth - queueTotalWidth - kMinW - 16;
         final top = screenSize.height - bottomBarHeight - kMinH - 8;
         normalBounds = Rect.fromLTWH(left, top, kMinW, kMinH);
         renderRadius = 12;
@@ -225,7 +236,7 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
 
     // Keep both endpoints available while the route reverses on close.
     final collapsedBounds = Rect.fromLTWH(
-      screenWidth - (showQueuePanel ? 360 : 0) - kMinW - 16,
+      screenWidth - queueTotalWidth - kMinW - 16,
       screenSize.height -
           (isDesktop ? 90.0 : 68.0 + stablePadding.bottom + 72.0) -
           kMinH -
@@ -308,10 +319,37 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
                                 children: [widget.child],
                               ),
                             ),
-                            if (showQueuePanel)
+                            if (showQueuePanel) ...[
+                              _QueueResizeDivider(
+                                onResize: (delta) {
+                                  final current = ref.read(
+                                    queue_ui.queuePanelWidthProvider,
+                                  );
+                                  var target = current - delta;
+                                  if ((target - queue_ui.kDefaultQueuePanelWidth).abs() < 8.0) {
+                                    target = queue_ui.kDefaultQueuePanelWidth;
+                                  }
+                                  final newWidth = target.clamp(
+                                    queue_ui.kMinQueuePanelWidth,
+                                    maxQueueWidth,
+                                  );
+                                  ref
+                                      .read(
+                                        queue_ui.queuePanelWidthProvider.notifier,
+                                      )
+                                      .setWidth(newWidth);
+                                },
+                                onReset: () {
+                                  ref
+                                      .read(
+                                        queue_ui.queuePanelWidthProvider.notifier,
+                                      )
+                                      .reset();
+                                },
+                              ),
                               SizedBox(
                                 key: const ValueKey('queue_side_panel'),
-                                width: 360,
+                                width: effectiveQueueWidth,
                                 child: QueuePage(
                                   onClose: () => ref
                                       .read(
@@ -320,6 +358,7 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
                                       .close(),
                                 ),
                               ),
+                            ],
                           ],
                         ),
                       ),
@@ -1417,6 +1456,89 @@ class _MiniPlayerBar extends ConsumerWidget {
                   ],
                 ),
               ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _QueueResizeDivider extends StatefulWidget {
+  const _QueueResizeDivider({
+    required this.onResize,
+    required this.onReset,
+  });
+
+  final ValueChanged<double> onResize;
+  final VoidCallback onReset;
+
+  @override
+  State<_QueueResizeDivider> createState() => _QueueResizeDividerState();
+}
+
+class _QueueResizeDividerState extends State<_QueueResizeDivider> {
+  bool _isHovered = false;
+  bool _isDragging = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final active = _isHovered || _isDragging;
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.resizeLeftRight,
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onDoubleTap: widget.onReset,
+        onHorizontalDragStart: (_) => setState(() => _isDragging = true),
+        onHorizontalDragUpdate: (details) => widget.onResize(details.delta.dx),
+        onHorizontalDragEnd: (_) => setState(() => _isDragging = false),
+        onHorizontalDragCancel: () => setState(() => _isDragging = false),
+        child: Tooltip(
+          message: 'Drag to resize queue\nDouble-click to reset',
+          waitDuration: const Duration(milliseconds: 500),
+          child: Container(
+            width: 10,
+            color: Colors.transparent,
+            alignment: Alignment.center,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                // 1px Vertical divider line
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
+                  width: 1,
+                  height: double.infinity,
+                  color: active
+                      ? colorScheme.primary.withValues(alpha: 0.6)
+                      : colorScheme.outlineVariant.withValues(alpha: 0.25),
+                ),
+                // Handle pill indicator
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
+                  width: active ? 4 : 3,
+                  height: active ? 40 : 28,
+                  decoration: BoxDecoration(
+                    color: active
+                        ? colorScheme.primary
+                        : colorScheme.onSurfaceVariant.withValues(alpha: 0.35),
+                    borderRadius: BorderRadius.circular(2),
+                    boxShadow: active
+                        ? [
+                            BoxShadow(
+                              color: colorScheme.primary.withValues(alpha: 0.45),
+                              blurRadius: 6,
+                              spreadRadius: 1,
+                            ),
+                          ]
+                        : null,
+                  ),
+                ),
+              ],
             ),
           ),
         ),
