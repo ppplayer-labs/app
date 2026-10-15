@@ -548,6 +548,8 @@ window.onYouTubeIframeAPIReady=function(){
        perfTimestamp: performance.now(),
        state: state,
        currentTime: time,
+       loadedFraction: player && player.getVideoLoadedFraction ? player.getVideoLoadedFraction() : null,
+       duration: player && player.getDuration ? player.getDuration() : null,
        playlistIndex: idx,
        hidden: document.hidden,
        visibility: document.visibilityState

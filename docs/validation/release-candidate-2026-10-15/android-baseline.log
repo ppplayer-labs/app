@@ -1,0 +1,302 @@
+00:00 +0: loading /Users/veneno/Projects/Apps/ppplayer/app/integration_test/chromium_live_ui_test.dart
+Running Gradle task 'assembleDebug'...                          
+WARNING: Your Android app project: app located at: /Users/veneno/Projects/Apps/ppplayer/app/android/app/build.gradle.kts
+applies the Kotlin Gradle Plugin, which will cause build failures in future versions of Flutter. 
+Please migrate your app to Built-in Kotlin using this guide: https://docs.flutter.dev/release/breaking-changes/migrate-to-built-in-kotlin/for-app-developers
+
+INFO: Precompiled binaries are disabled
+FINER: Running command rustup toolchain list
+FINER: Running command rustup target list --toolchain stable-aarch64-apple-darwin --installed
+INFO: Building metadata_god for aarch64-linux-android
+FINER: Running command rustup run stable cargo build --manifest-path /Users/veneno/Projects/Apps/ppplayer/app/lib/core/playback/packages/metadata_god/rust/Cargo.toml -p metadata_god --target aarch64-linux-android --target-dir /Users/veneno/Projects/Apps/ppplayer/app/build/metadata_god/build
+INFO: Building metadata_god for i686-linux-android
+FINER: Running command rustup run stable cargo build --manifest-path /Users/veneno/Projects/Apps/ppplayer/app/lib/core/playback/packages/metadata_god/rust/Cargo.toml -p metadata_god --target i686-linux-android --target-dir /Users/veneno/Projects/Apps/ppplayer/app/build/metadata_god/build
+INFO: Building metadata_god for x86_64-linux-android
+FINER: Running command rustup run stable cargo build --manifest-path /Users/veneno/Projects/Apps/ppplayer/app/lib/core/playback/packages/metadata_god/rust/Cargo.toml -p metadata_god --target x86_64-linux-android --target-dir /Users/veneno/Projects/Apps/ppplayer/app/build/metadata_god/build
+Running Gradle task 'assembleDebug'...                             66.0s
+✓ Built build/app/outputs/flutter-apk/app-debug.apk
+Installing build/app/outputs/flutter-apk/app-debug.apk...        2,479ms
+00:00 +0: live YouTube through ppplayer screen controls
+09:42:27.542 [PipDebug][HANDLER] event=onActivityStarted old=false new=false inPip=false pipRequestPending=false
+media_kit: NativeReferenceHolder: Allocated -5476376633268677328
+[VideoInit] Player Screen mounted — checking initial state
+[VideoInit] playerView=PlayerView.video
+[VideoInit] activeTrack=none
+[VideoInit] hasVideo=false
+[VideoInit] waiting for media...
+[VideoInit] skipped: hasVideo=false (initial_mount) — waiting for media
+[VideoInit] skipped: hasVideo=false (probe_500ms) — waiting for media
+PlayerNotifier: Resolving track Live probe
+[VideoInit] activeTrack changed (null -> live-probe)
+[VideoInit] hasVideo became true
+2026-10-15T09:42:30.185188 AUDIO_HANDLER publish playing=false position=0:00:00.000000
+2026-10-15T09:42:30.341929 AUDIO_HANDLER publish playing=false position=0:00:00.000000
+2026-10-15T09:42:30.346035 AUDIO_HANDLER publish playing=false position=0:00:00.000000
+2026-10-15T09:42:30.352405 AUDIO_HANDLER publish playing=false position=0:00:00.000000
+[VideoInit] slot unavailable (probe_1000ms) → retry 1/5
+09:42:31.452 [PipDebug][VIDEO_SURFACE] event=ensureVideoSurfaceReady reason=track_change hasVideo=true videoView=true visible=false slotExists=true slotSize=411.42857142857144x914.2857142857143 rect=Rect.fromLTRB(0.0, 0.0, 411.4, 914.3) providerBounds=Rect.fromLTRB(0.0, 0.0, 411.4, 914.3) generation=1
+[VideoInit #1] hidden=true, applying native bounds
+[VideoInit #1] scheduling reveal (next frame)
+09:42:31.457 [PipDebug][VIDEO_SURFACE] event=ensureVideoSurfaceReady reason=hasVideo_true hasVideo=true videoView=true visible=false slotExists=true slotSize=411.42857142857144x914.2857142857143 rect=Rect.fromLTRB(0.0, 0.0, 411.4, 914.3) providerBounds=Rect.fromLTRB(0.0, 0.0, 411.4, 914.3) generation=2
+[VideoInit #2] hidden=true, applying native bounds
+[VideoInit #2] scheduling reveal (next frame)
+09:42:31.464 [PipDebug][VIDEO_SURFACE] event=ensureVideoSurfaceReady reason=slot_retry_0 hasVideo=true videoView=true visible=false slotExists=true slotSize=411.42857142857144x914.2857142857143 rect=Rect.fromLTRB(0.0, 0.0, 411.4, 914.3) providerBounds=Rect.fromLTRB(0.0, 0.0, 411.4, 914.3) generation=3
+[VideoInit #3] hidden=true, applying native bounds
+[VideoInit #3] scheduling reveal (next frame)
+09:42:31.470 [PipDebug][VIDEO_SURFACE] event=ensureVideoSurfaceReady reason=slot_reflow hasVideo=true videoView=true visible=false slotExists=true slotSize=411.42857142857144x914.2857142857143 rect=Rect.fromLTRB(0.0, 0.0, 411.4, 914.3) providerBounds=Rect.fromLTRB(0.0, 0.0, 411.4, 914.3) generation=4
+[VideoInit #4] hidden=true, applying native bounds
+[VideoInit #4] scheduling reveal (next frame)
+09:42:31.490 [PipDebug][VIDEO_SURFACE] event=ensureVideoSurfaceReady reason=probe_1500ms hasVideo=true videoView=true visible=false slotExists=true slotSize=411.42857142857144x914.2857142857143 rect=Rect.fromLTRB(0.0, 0.0, 411.4, 914.3) providerBounds=Rect.fromLTRB(0.0, 0.0, 411.4, 914.3) generation=5
+[VideoInit #5] hidden=true, applying native bounds
+[VideoInit #5] scheduling reveal (next frame)
+09:42:31.493 [PipDebug][VIDEO_SURFACE] event=ensureVideoSurfaceReady reason=probe_2000ms hasVideo=true videoView=true visible=false slotExists=true slotSize=411.42857142857144x914.2857142857143 rect=Rect.fromLTRB(0.0, 0.0, 411.4, 914.3) providerBounds=Rect.fromLTRB(0.0, 0.0, 411.4, 914.3) generation=6
+[VideoInit #6] hidden=true, applying native bounds
+[VideoInit #6] scheduling reveal (next frame)
+[VideoInit #1] reveal skipped: stale (current=6)
+[VideoInit #2] reveal skipped: stale (current=6)
+[VideoInit #3] reveal skipped: stale (current=6)
+[VideoInit #4] reveal skipped: stale (current=6)
+[VideoInit #5] reveal skipped: stale (current=6)
+[VideoInit #6] frame committed → native visible=true
+LIVE_BROWSER_EVENT {playerId: Youtube1, generation: 1, StateChange: -1}
+LIVE_BROWSER_EVENT {playerId: Youtube1, generation: 1, StateChange: 3}
+2026-10-15T09:42:36.401967 AUDIO_HANDLER publish playing=false position=0:00:00.000000
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":4210.09999999986,"state":3,"currentTime":0,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":5990,"state":3,"currentTime":0,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":6298.199999999953,"state":3,"currentTime":0,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":7165.899999999907,"state":3,"currentTime":0,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+LIVE_BROWSER_EVENT {playerId: Youtube1, generation: 1, StateChange: 1}
+2026-10-15T09:42:40.812261 AUDIO_HANDLER publish playing=true position=0:00:00.000000
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":8166.199999999953,"state":1,"currentTime":0.23862701335144043,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":9167.699999999953,"state":1,"currentTime":1.239904051498413,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+2026-10-15T09:42:43.015917 AUDIO_HANDLER publish playing=false position=0:00:02.056837
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":10239,"state":1,"currentTime":2.3125091850128174,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+LIVE_BROWSER_EVENT {playerId: Youtube1, generation: 1, StateChange: 2}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":11164.59999999986,"state":2,"currentTime":2.6371,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+2026-10-15T09:42:44.723773 AUDIO_HANDLER publish playing=false position=0:11:11.000000
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":12165.399999999907,"state":2,"currentTime":2.6371,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+2026-10-15T09:42:44.965621 AUDIO_HANDLER publish playing=false position=0:00:10.000000
+2026-10-15T09:42:45.058184 AUDIO_HANDLER publish playing=true position=0:00:10.000000
+LIVE_BROWSER_EVENT {playerId: Youtube1, generation: 1, StateChange: 3}
+2026-10-15T09:42:45.384859 AUDIO_HANDLER publish playing=false position=0:00:10.000000
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":13164.5,"state":3,"currentTime":10,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+LIVE_BROWSER_EVENT {playerId: Youtube1, generation: 1, StateChange: 1}
+2026-10-15T09:42:46.012033 AUDIO_HANDLER publish playing=true position=0:00:10.000000
+CHROMIUM_BACKGROUND_READY
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":14164.399999999907,"state":1,"currentTime":10.787601929428101,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":15277.699999999953,"state":1,"currentTime":11.746048839782715,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+09:42:48.750 [PipDebug][HANDLER] event=onActivityStopped old=false new=true inPip=false pipRequestPending=false
+2026-10-15T09:42:48.756952 PlayerNotifier: onActivityStopped isPlaying=true isIFrameMode=true track=live-probe
+2026-10-15T09:42:48.756952 PlayerNotifier: NOT pausing onActivityStopped (BackgroundPlaybackExperiment=false, platform=TargetPlatform.android).
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":16164.59999999986,"state":1,"currentTime":12.670399994277954,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":17164.699999999953,"state":1,"currentTime":13.670125969482422,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":18164.399999999907,"state":1,"currentTime":14.669839099182129,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+LIVE_BROWSER_EVENT {playerId: Youtube1, generation: 1, StateChange: 3}
+2026-10-15T09:42:51.747178 AUDIO_HANDLER publish playing=false position=0:00:15.371657
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":19164.399999999907,"state":3,"currentTime":15.593297,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+LIVE_BROWSER_EVENT {playerId: Youtube1, generation: 1, StateChange: 1}
+2026-10-15T09:42:52.638571 AUDIO_HANDLER publish playing=true position=0:00:15.371657
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":20164.399999999907,"state":1,"currentTime":15.886763929428101,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":21167.59999999986,"state":1,"currentTime":16.76511894659424,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":22164.699999999953,"state":1,"currentTime":17.761726064849853,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":23164.59999999986,"state":1,"currentTime":18.762172925613402,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":24164.59999999986,"state":1,"currentTime":19.761961064849853,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":25164.699999999953,"state":1,"currentTime":20.76271795803833,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":26164.59999999986,"state":1,"currentTime":21.762532994277954,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+CHROMIUM_BACKGROUND_PROGRESS before=12.793399900817871 after=21.90164993133545
+CHROMIUM_SCREEN_OFF_READY
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":27199.59999999986,"state":1,"currentTime":22.796812116348267,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":28164.699999999953,"state":1,"currentTime":23.757481950408934,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":29164.399999999907,"state":1,"currentTime":24.76213406866455,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":30164.899999999907,"state":1,"currentTime":25.763277856948854,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+LIVE_BROWSER_EVENT {playerId: Youtube1, generation: 1, StateChange: 3}
+2026-10-15T09:43:03.648790 AUDIO_HANDLER publish playing=false position=0:00:26.614645
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":31165.799999999814,"state":3,"currentTime":26.593645,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+LIVE_BROWSER_EVENT {playerId: Youtube1, generation: 1, StateChange: 1}
+2026-10-15T09:43:04.219277 AUDIO_HANDLER publish playing=true position=0:00:26.614645
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":32164.59999999986,"state":1,"currentTime":27.125945030517578,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":33164.59999999986,"state":1,"currentTime":28.12620713923645,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":34164.59999999986,"state":1,"currentTime":29.126658135421753,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":35164.69999999995,"state":1,"currentTime":30.12655402670288,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":36164.59999999986,"state":1,"currentTime":31.12598596948242,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":37177.09999999986,"state":1,"currentTime":32.13531994277954,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":38164.59999999986,"state":1,"currentTime":33.12681713542175,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":39164.59999999986,"state":1,"currentTime":34.12674902670288,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":40165,"state":1,"currentTime":35.12647296948242,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":41164.799999999814,"state":1,"currentTime":36.12659602670288,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":42164.299999999814,"state":1,"currentTime":37.126706135421756,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":43164.5,"state":1,"currentTime":38.12606601716614,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":44164.59999999986,"state":1,"currentTime":39.1261139294281,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":45164.799999999814,"state":1,"currentTime":40.126940944686886,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":46164.799999999814,"state":1,"currentTime":41.126351929428104,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+CHROMIUM_SCREEN_OFF_MEASURED before=22.32731515258789 after=41.69841005722046 state=PlaybackState.playing
+CHROMIUM_SCREEN_OFF_PROGRESS before=22.32731515258789 after=41.69841005722046
+CHROMIUM_SCREEN_ON_READY
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":47165,"state":1,"currentTime":42.12695290272522,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+CHROMIUM_MEDIA_PAUSE_READY
+[MediaControls] system pause
+2026-10-15T09:43:20.410252 AUDIO_HANDLER publish playing=false position=0:00:42.552144
+LIVE_BROWSER_EVENT {playerId: Youtube1, generation: 1, StateChange: 2}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":48164.5,"state":2,"currentTime":42.778902,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":49164.89999999991,"state":2,"currentTime":42.778902,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":50164.59999999986,"state":2,"currentTime":42.778902,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":51164.5,"state":2,"currentTime":42.778902,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":52164.5,"state":2,"currentTime":42.778902,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":53164.5,"state":2,"currentTime":42.778902,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":54164.5,"state":2,"currentTime":42.778902,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":55164.39999999991,"state":2,"currentTime":42.778902,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":56164.39999999991,"state":2,"currentTime":42.778902,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":57164.69999999995,"state":2,"currentTime":42.778902,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+CHROMIUM_MEDIA_PLAY_READY
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":58164.39999999991,"state":2,"currentTime":42.778902,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[MediaControls] system play
+2026-10-15T09:43:30.882299 AUDIO_HANDLER publish playing=true position=0:00:42.552144
+LIVE_BROWSER_EVENT {playerId: Youtube1, generation: 1, StateChange: 3}
+2026-10-15T09:43:31.261721 AUDIO_HANDLER publish playing=false position=0:00:42.552144
+LIVE_BROWSER_EVENT {playerId: Youtube1, generation: 1, StateChange: 1}
+2026-10-15T09:43:31.507688 AUDIO_HANDLER publish playing=true position=0:00:42.552144
+CHROMIUM_BACKGROUND_DONE
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":59166.5,"state":1,"currentTime":43.57550412016296,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+09:43:32.537 [PipDebug][HANDLER] event=onActivityStarted old=true new=false inPip=false pipRequestPending=false
+09:43:32.747 [PipDebug][HANDLER] event=onActivityStopped old=false new=true inPip=false pipRequestPending=false
+2026-10-15T09:43:32.748181 PlayerNotifier: onActivityStopped isPlaying=true isIFrameMode=true track=live-probe
+2026-10-15T09:43:32.748181 PlayerNotifier: NOT pausing onActivityStopped (BackgroundPlaybackExperiment=false, platform=TargetPlatform.android).
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":60165.69999999995,"state":1,"currentTime":44.574073897003174,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":61164.69999999995,"state":1,"currentTime":45.57386294468689,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+LIVE_BROWSER_EVENT {playerId: Youtube1, generation: 1, StateChange: 3}
+2026-10-15T09:43:34.548943 AUDIO_HANDLER publish playing=false position=0:00:46.270842
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":62164.5,"state":3,"currentTime":46.33606,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":63164.799999999814,"state":3,"currentTime":46.33606,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":64164.59999999986,"state":3,"currentTime":46.33606,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":65164.5,"state":3,"currentTime":46.33606,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":66164.79999999981,"state":3,"currentTime":46.33606,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":67164.59999999986,"state":3,"currentTime":46.33606,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":68164.59999999986,"state":3,"currentTime":46.33606,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":69164.3999999999,"state":3,"currentTime":46.33606,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":70164.69999999995,"state":3,"currentTime":46.33606,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":71164.59999999986,"state":3,"currentTime":46.33606,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+PPPLAYER_LIVE_UI_FAILURE Expected: true
+  Actual: <false>
+Activity did not restore
+
+#0      fail (package:matcher/src/expect/expect.dart:187:31)
+#1      _expect (package:matcher/src/expect/expect.dart:182:3)
+#2      expect (package:matcher/src/expect/expect.dart:65:3)
+#3      expect (package:flutter_test/src/widget_tester.dart:473:18)
+#4      main.<anonymous closure>.waitInBackground (file:///Users/veneno/Projects/Apps/ppplayer/app/integration_test/chromium_live_ui_test.dart:131:7)
+<asynchronous suspension>
+#5      main.<anonymous closure> (file:///Users/veneno/Projects/Apps/ppplayer/app/integration_test/chromium_live_ui_test.dart:329:11)
+<asynchronous suspension>
+#6      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#7      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+#8      StackZoneSpecification._registerCallback.<anonymous closure> (package:stack_trace/src/stack_zone_specification.dart:114:42)
+<asynchronous suspension>
+
+CHROMIUM_BACKGROUND_DONE
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":72164.5,"state":3,"currentTime":46.33606,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":73165.29999999981,"state":3,"currentTime":46.33606,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":74164.3999999999,"state":3,"currentTime":46.33606,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":75212.19999999995,"state":3,"currentTime":46.33606,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":76164.3999999999,"state":3,"currentTime":46.33606,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":77165.5,"state":3,"currentTime":46.33606,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":78164.79999999981,"state":3,"currentTime":46.33606,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":79165.5,"state":3,"currentTime":46.33606,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":80164.5,"state":3,"currentTime":46.33606,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":81164.3999999999,"state":3,"currentTime":46.33606,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":82164.5,"state":3,"currentTime":46.33606,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":83164.59999999986,"state":3,"currentTime":46.33606,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+LIVE_BROWSER_EVENT {playerId: Youtube1, generation: 1, StateChange: 1}
+2026-10-15T09:43:56.314758 AUDIO_HANDLER publish playing=true position=0:00:46.270842
+Cleanup restoration failed after test failure: Expected: true
+  Actual: <false>
+Activity did not restore for cleanup
+
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":84164.5,"state":1,"currentTime":46.81094195803833,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+LIVE_BROWSER_EVENT {playerId: Youtube1, generation: 1, StateChange: 2}
+[Output] dlna disposed
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following StateError was thrown running a test:
+Bad state: YouTube controller is disposed
+
+When the exception was thrown, this was the stack:
+#4      ChromiumYoutubePlayerController._dispose (package:flutter_chromium_webview/chromium_youtube_player.dart:493:47)
+#5      ChromiumYoutubePlayerController.dispose (package:flutter_chromium_webview/chromium_youtube_player.dart:487:44)
+#6      ChromiumPlaybackEngine.stop (package:ppplayer/core/playback/chromium_playback_engine.dart:525:19)
+#8      ChromiumPlaybackEngine.stop (package:ppplayer/core/playback/chromium_playback_engine.dart:524:5)
+#9      HybridPlaybackEngine.stop (package:ppplayer/core/playback/hybrid_playback_engine.dart:482:29)
+#10     PpPlayerAudioHandler.stop (package:ppplayer/core/playback/media_handler.dart:358:57)
+#12     PpPlayerAudioHandler.stop (package:ppplayer/core/playback/media_handler.dart:356:5)
+#13     main.<anonymous closure> (file:///Users/veneno/Projects/Apps/ppplayer/app/integration_test/chromium_live_ui_test.dart:442:34)
+#15     main.<anonymous closure> (file:///Users/veneno/Projects/Apps/ppplayer/app/integration_test/chromium_live_ui_test.dart:102:11)
+#16     testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:29)
+#18     testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:189:25)
+#19     TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:19)
+#21     TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1941:5)
+#24     TestWidgetsFlutterBinding._runTest (package:flutter_test/src/binding.dart:1926:10)
+#25     LiveTestWidgetsFlutterBinding.runTest (package:flutter_test/src/binding.dart:3059:12)
+#26     IntegrationTestWidgetsFlutterBinding.runTest (package:integration_test/integration_test.dart:237:17)
+#27     testWidgets.<anonymous closure> (package:flutter_test/src/widget_tester.dart:184:24)
+#28     Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:253:25)
+#30     Declarer.test.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/declarer.dart:252:15)
+#35     Declarer.test.<anonymous closure> (package:test_api/src/backend/declarer.dart:250:17)
+#36     Invoker._waitForOutstandingCallbacks.<anonymous closure> (package:test_api/src/backend/invoker.dart:318:17)
+#41     Invoker._waitForOutstandingCallbacks (package:test_api/src/backend/invoker.dart:314:5)
+#42     Invoker._onRun.<anonymous closure>.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/invoker.dart:457:21)
+#44     Invoker._onRun.<anonymous closure>.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/invoker.dart:455:15)
+#49     Invoker._onRun.<anonymous closure>.<anonymous closure> (package:test_api/src/backend/invoker.dart:445:11)
+#50     Invoker._guardIfGuarded (package:test_api/src/backend/invoker.dart:500:15)
+#51     Invoker._onRun.<anonymous closure> (package:test_api/src/backend/invoker.dart:444:9)
+#58     Invoker._onRun (package:test_api/src/backend/invoker.dart:442:11)
+#59     LiveTestController.run (package:test_api/src/backend/live_test_controller.dart:161:11)
+#60     RemoteListener._runLiveTest.<anonymous closure> (package:test_api/src/backend/remote_listener.dart:323:16)
+#65     RemoteListener._runLiveTest (package:test_api/src/backend/remote_listener.dart:322:5)
+#66     RemoteListener._serializeTest.<anonymous closure> (package:test_api/src/backend/remote_listener.dart:263:7)
+#84     _GuaranteeSink.add (package:stream_channel/src/guarantee_channel.dart:125:12)
+#85     new _MultiChannel.<anonymous closure> (package:stream_channel/src/multi_channel.dart:159:31)
+#87     CastStreamSubscription._onData (dart:_internal/async_cast.dart:95:11)
+#101    _GuaranteeSink.add (package:stream_channel/src/guarantee_channel.dart:125:12)
+#102    main.<anonymous closure> (file:///var/folders/81/ycpgyt397wvdx03d5kwdmpwr0000gn/T/flutter_tools.On5pjx/flutter_test_listener.UOoBmz/listener.dart:56:22)
+#105    _runExtension (dart:developer-patch/developer.dart:113:23)
+(elided 67 frames from dart:async and package:stack_trace)
+
+The test description was:
+  live YouTube through ppplayer screen controls
+════════════════════════════════════════════════════════════════════════════════════════════════════
+01:34 +0 -1: live YouTube through ppplayer screen controls [E]
+  Test failed. See exception logs above.
+  The test description was: live YouTube through ppplayer screen controls
+  
+01:34 +0 -1: (tearDownAll)
+01:34 +0 -1: live YouTube through ppplayer screen controls
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test (but after the test had completed):
+Expected: true
+  Actual: <false>
+Activity did not restore
+
+When the exception was thrown, this was the stack:
+#0      fail (package:matcher/src/expect/expect.dart:187:31)
+#1      _expect (package:matcher/src/expect/expect.dart:182:3)
+#2      expect (package:matcher/src/expect/expect.dart:65:3)
+#3      expect (package:flutter_test/src/widget_tester.dart:473:18)
+#4      main.<anonymous closure>.waitInBackground (file:///Users/veneno/Projects/Apps/ppplayer/app/integration_test/chromium_live_ui_test.dart:131:7)
+<asynchronous suspension>
+#5      main.<anonymous closure> (file:///Users/veneno/Projects/Apps/ppplayer/app/integration_test/chromium_live_ui_test.dart:329:11)
+<asynchronous suspension>
+#6      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#7      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+01:34 +0 -1: live YouTube through ppplayer screen controls [E]
+  Test failed. See exception logs above.
+  The test description was: live YouTube through ppplayer screen controls
+  
+01:35 +0 -1: Some tests failed.
+
+Failing tests:
+  /Users/veneno/Projects/Apps/ppplayer/app/integration_test/chromium_live_ui_test.dart: live YouTube through ppplayer screen controls

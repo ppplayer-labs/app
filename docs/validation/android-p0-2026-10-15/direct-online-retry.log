@@ -1,0 +1,166 @@
+00:00 +0: loading /Users/veneno/Projects/Apps/ppplayer/app/integration_test/android_webview_background_control_test.dart
+Running Gradle task 'assembleDebug'...                          
+WARNING: Your Android app project: app located at: /Users/veneno/Projects/Apps/ppplayer/app/android/app/build.gradle.kts
+applies the Kotlin Gradle Plugin, which will cause build failures in future versions of Flutter. 
+Please migrate your app to Built-in Kotlin using this guide: https://docs.flutter.dev/release/breaking-changes/migrate-to-built-in-kotlin/for-app-developers
+
+INFO: Precompiled binaries are disabled
+FINER: Running command rustup toolchain list
+FINER: Running command rustup target list --toolchain stable-aarch64-apple-darwin --installed
+INFO: Building metadata_god for aarch64-linux-android
+FINER: Running command rustup run stable cargo build --manifest-path /Users/veneno/Projects/Apps/ppplayer/app/lib/core/playback/packages/metadata_god/rust/Cargo.toml -p metadata_god --target aarch64-linux-android --target-dir /Users/veneno/Projects/Apps/ppplayer/app/build/metadata_god/build
+INFO: Building metadata_god for i686-linux-android
+FINER: Running command rustup run stable cargo build --manifest-path /Users/veneno/Projects/Apps/ppplayer/app/lib/core/playback/packages/metadata_god/rust/Cargo.toml -p metadata_god --target i686-linux-android --target-dir /Users/veneno/Projects/Apps/ppplayer/app/build/metadata_god/build
+INFO: Building metadata_god for x86_64-linux-android
+FINER: Running command rustup run stable cargo build --manifest-path /Users/veneno/Projects/Apps/ppplayer/app/lib/core/playback/packages/metadata_god/rust/Cargo.toml -p metadata_god --target x86_64-linux-android --target-dir /Users/veneno/Projects/Apps/ppplayer/app/build/metadata_god/build
+Running Gradle task 'assembleDebug'...                             21.3s
+✓ Built build/app/outputs/flutter-apk/app-debug.apk
+Installing build/app/outputs/flutter-apk/app-debug.apk...        1,013ms
+00:00 +0: Android WebView offline audio Home/screen-off control
+10:11:17.156 [PipDebug][HANDLER] event=onActivityStarted old=false new=false inPip=false pipRequestPending=false
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069878827,"perfMs":614.5,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069879326,"perfMs":1113.8999999999069,"time":0,"rawTime":0,"buffered":[[0,1.109333],[51.646,52.208333]],"tag":"VIDEO","paused":true,"readyState":1,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069879826,"perfMs":1613.7000000001863,"time":0.052429,"rawTime":0.052429,"buffered":[[0,13.203],[51.646,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069880326,"perfMs":2113.899999999907,"time":0.420968,"rawTime":0.420968,"buffered":[[0,42.087],[51.646,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069880826,"perfMs":2613.7999999998137,"time":0.919577,"rawTime":0.919577,"buffered":[[0,42.087],[51.646,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069881326,"perfMs":3113.7999999998137,"time":1.420904,"rawTime":1.420904,"buffered":[[0,42.087],[51.646,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069881826,"perfMs":3613.899999999907,"time":1.920931,"rawTime":1.920931,"buffered":[[0,42.087],[51.646,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069882326,"perfMs":4113.600000000093,"time":2.420704,"rawTime":2.420704,"buffered":[[0,42.087],[51.646,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069882826,"perfMs":4613.799999999814,"time":2.920975,"rawTime":2.920975,"buffered":[[0,42.087],[51.646,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069883327,"perfMs":5114.100000000093,"time":3.421167,"rawTime":3.421167,"buffered":[[0,42.087],[51.646,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069883826,"perfMs":5613.799999999814,"time":3.920807,"rawTime":3.920807,"buffered":[[0,42.087],[51.646,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069884326,"perfMs":6113.5,"time":4.420658,"rawTime":4.420658,"buffered":[[0,42.087],[51.646,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069884826,"perfMs":6613.700000000186,"time":4.920802,"rawTime":4.920802,"buffered":[[0,42.087],[51.646,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069885326,"perfMs":7113.799999999814,"time":5.42085,"rawTime":5.42085,"buffered":[[0,42.087],[51.646,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069885826,"perfMs":7613.799999999814,"time":5.920902,"rawTime":5.920902,"buffered":[[0,42.087],[51.646,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069886326,"perfMs":8113.700000000186,"time":6.420852,"rawTime":6.420852,"buffered":[[0,42.087],[51.646,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069886826,"perfMs":8613.899999999907,"time":6.921018,"rawTime":6.921018,"buffered":[[0,42.087],[51.646,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069887326,"perfMs":9113.899999999907,"time":7.42097,"rawTime":7.42097,"buffered":[[0,42.087],[51.646,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069887826,"perfMs":9613.899999999907,"time":7.917773,"rawTime":7.917773,"buffered":[[0,42.087],[51.646,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069888326,"perfMs":10113.799999999814,"time":8.42093,"rawTime":8.42093,"buffered":[[0,42.087],[51.646,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069888826,"perfMs":10613.700000000186,"time":8.920739,"rawTime":8.920739,"buffered":[[0,42.087],[51.646,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069889326,"perfMs":11113.799999999814,"time":9.420949,"rawTime":9.420949,"buffered":[[0,42.087],[51.646,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069889826,"perfMs":11613.799999999814,"time":9.920551,"rawTime":9.920551,"buffered":[[0,42.087],[51.646,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069890326,"perfMs":12113.899999999907,"time":10.420954,"rawTime":10.420954,"buffered":[[0,42.087],[51.646,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069890826,"perfMs":12613.799999999814,"time":10.920963,"rawTime":10.920963,"buffered":[[0,42.087],[51.646,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069891326,"perfMs":13113.899999999907,"time":11.420871,"rawTime":11.420871,"buffered":[[0,42.087],[51.646,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069891826,"perfMs":13613.799999999814,"time":11.920829,"rawTime":11.920829,"buffered":[[0,42.087],[51.646,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069892326,"perfMs":14113.600000000093,"time":12.420728,"rawTime":12.420728,"buffered":[[0,42.087],[51.646,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069892826,"perfMs":14613.799999999814,"time":12.920946,"rawTime":12.920946,"buffered":[[0,42.087],[51.646,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069893326,"perfMs":15113.799999999814,"time":13.420882,"rawTime":13.420882,"buffered":[[0,42.087],[51.646,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069893826,"perfMs":15613.799999999814,"time":13.920901,"rawTime":13.920901,"buffered":[[0,42.087],[51.646,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069894326,"perfMs":16113.799999999814,"time":14.420885,"rawTime":14.420885,"buffered":[[0,42.087],[51.646,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069894826,"perfMs":16613.799999999814,"time":14.920912,"rawTime":14.920912,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069895326,"perfMs":17113.799999999814,"time":15.420928,"rawTime":15.420928,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069895826,"perfMs":17613.799999999814,"time":15.920848,"rawTime":15.920848,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069896326,"perfMs":18113.600000000093,"time":16.420007,"rawTime":16.420007,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069896826,"perfMs":18613.700000000186,"time":16.920854,"rawTime":16.920854,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069897326,"perfMs":19113.899999999907,"time":17.420812,"rawTime":17.420812,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069897826,"perfMs":19613.799999999814,"time":17.92096,"rawTime":17.92096,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069898326,"perfMs":20113.799999999814,"time":18.421023,"rawTime":18.421023,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069898826,"perfMs":20613.799999999814,"time":18.920918,"rawTime":18.920918,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069899326,"perfMs":21113.799999999814,"time":19.420863,"rawTime":19.420863,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069899826,"perfMs":21613.700000000186,"time":19.920834,"rawTime":19.920834,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069900326,"perfMs":22113.799999999814,"time":20.420997,"rawTime":20.420997,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069900826,"perfMs":22613.799999999814,"time":20.920916,"rawTime":20.920916,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069901326,"perfMs":23113.899999999907,"time":21.420982,"rawTime":21.420982,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069901826,"perfMs":23613.899999999907,"time":21.921085,"rawTime":21.921085,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069902326,"perfMs":24113.899999999907,"time":22.42097,"rawTime":22.42097,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069902827,"perfMs":24614,"time":22.920967,"rawTime":22.920967,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069903326,"perfMs":25113.799999999814,"time":23.420906,"rawTime":23.420906,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069903826,"perfMs":25613.899999999907,"time":23.920948,"rawTime":23.920948,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069904326,"perfMs":26113.600000000093,"time":24.420761,"rawTime":24.420761,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069904826,"perfMs":26613.799999999814,"time":24.920918,"rawTime":24.920918,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069905326,"perfMs":27113.899999999907,"time":25.420905,"rawTime":25.420905,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069905826,"perfMs":27613.799999999814,"time":25.920882,"rawTime":25.920882,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069906326,"perfMs":28113.600000000093,"time":26.418009,"rawTime":26.418009,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069906826,"perfMs":28613.799999999814,"time":26.920927,"rawTime":26.920927,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069907326,"perfMs":29113.700000000186,"time":27.420842,"rawTime":27.420842,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069907826,"perfMs":29613.700000000186,"time":27.92083,"rawTime":27.92083,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069908326,"perfMs":30113.799999999814,"time":28.420893,"rawTime":28.420893,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069908826,"perfMs":30613.799999999814,"time":28.920932,"rawTime":28.920932,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069909326,"perfMs":31113.700000000186,"time":29.420861,"rawTime":29.420861,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069909826,"perfMs":31613.700000000186,"time":29.920872,"rawTime":29.920872,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069910326,"perfMs":32113.799999999814,"time":30.419034,"rawTime":30.419034,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069910826,"perfMs":32613.799999999814,"time":30.920774,"rawTime":30.920774,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069911326,"perfMs":33113.89999999991,"time":31.420868,"rawTime":31.420868,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069911827,"perfMs":33613.89999999991,"time":31.921043,"rawTime":31.921043,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069912326,"perfMs":34113.799999999814,"time":32.420954,"rawTime":32.420954,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_FOREGROUND_PASS before=2.420704 after=32.420954
+WEBVIEW_CONTROL_HOME_READY
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069912827,"perfMs":34614.60000000009,"time":32.921346,"rawTime":32.921346,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069913326,"perfMs":35113.60000000009,"time":33.420784,"rawTime":33.420784,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+10:11:53.760 [PipDebug][HANDLER] event=onActivityStopped old=false new=true inPip=false pipRequestPending=false
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069913826,"perfMs":35613.700000000186,"time":33.920643,"rawTime":33.920643,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069914326,"perfMs":36113.60000000009,"time":34.420742,"rawTime":34.420742,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069914826,"perfMs":36613.700000000186,"time":34.920903,"rawTime":34.920903,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069915326,"perfMs":37113.89999999991,"time":35.421003,"rawTime":35.421003,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069915826,"perfMs":37613.89999999991,"time":35.920894,"rawTime":35.920894,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069916326,"perfMs":38113.700000000186,"time":36.420831,"rawTime":36.420831,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069916827,"perfMs":38614.10000000009,"time":36.921264,"rawTime":36.921264,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069917327,"perfMs":39114.10000000009,"time":37.421179,"rawTime":37.421179,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069917826,"perfMs":39613.60000000009,"time":37.920689,"rawTime":37.920689,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069918326,"perfMs":40114,"time":38.421057,"rawTime":38.421057,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069918826,"perfMs":40613.60000000009,"time":38.920791,"rawTime":38.920791,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069919326,"perfMs":41113.60000000009,"time":39.420698,"rawTime":39.420698,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069919826,"perfMs":41613.700000000186,"time":39.920812,"rawTime":39.920812,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069920326,"perfMs":42113.799999999814,"time":40.42092,"rawTime":40.42092,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069920826,"perfMs":42613.799999999814,"time":40.92086,"rawTime":40.92086,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069921326,"perfMs":43113.799999999814,"time":41.420868,"rawTime":41.420868,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069921826,"perfMs":43613.89999999991,"time":41.921035,"rawTime":41.921035,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069922326,"perfMs":44113.799999999814,"time":42.420936,"rawTime":42.420936,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069922826,"perfMs":44613.89999999991,"time":42.920931,"rawTime":42.920931,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069923326,"perfMs":45113.89999999991,"time":43.421026,"rawTime":43.421026,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069923826,"perfMs":45613.799999999814,"time":43.920926,"rawTime":43.920926,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069924326,"perfMs":46113.700000000186,"time":44.420828,"rawTime":44.420828,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069924826,"perfMs":46613.89999999991,"time":44.921002,"rawTime":44.921002,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069925326,"perfMs":47113.799999999814,"time":45.420822,"rawTime":45.420822,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069925826,"perfMs":47613.89999999991,"time":45.920979,"rawTime":45.920979,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069926326,"perfMs":48113.700000000186,"time":46.420674,"rawTime":46.420674,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069926826,"perfMs":48613.700000000186,"time":46.920657,"rawTime":46.920657,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069927326,"perfMs":49113.799999999814,"time":47.42085,"rawTime":47.42085,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SCREEN_OFF_READY
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069927826,"perfMs":49613.700000000186,"time":47.920842,"rawTime":47.920842,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069928327,"perfMs":50114,"time":48.420741,"rawTime":48.420741,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069928826,"perfMs":50613.700000000186,"time":48.920713,"rawTime":48.920713,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069929327,"perfMs":51114.200000000186,"time":49.421373,"rawTime":49.421373,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069929826,"perfMs":51613.89999999991,"time":49.920969,"rawTime":49.920969,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069930327,"perfMs":52114.700000000186,"time":50.421801,"rawTime":50.421801,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069930826,"perfMs":52613.700000000186,"time":50.92075,"rawTime":50.92075,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069931326,"perfMs":53113.799999999814,"time":51.42089,"rawTime":51.42089,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069931826,"perfMs":53613.60000000009,"time":51.920333,"rawTime":51.920333,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069932327,"perfMs":54114.10000000009,"time":52.242657,"rawTime":0.034324,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069932827,"perfMs":54614,"time":52.627391,"rawTime":0.419058,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069933327,"perfMs":55114.299999999814,"time":53.127989,"rawTime":0.919656,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069933832,"perfMs":55619.89999999991,"time":53.633735,"rawTime":1.425402,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069934327,"perfMs":56114.60000000009,"time":54.128321,"rawTime":1.919988,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069934827,"perfMs":56614.200000000186,"time":54.627978999999996,"rawTime":2.419646,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069935326,"perfMs":57113.60000000009,"time":55.127421,"rawTime":2.919088,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069935826,"perfMs":57613.700000000186,"time":55.627442,"rawTime":3.419109,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069936327,"perfMs":58114,"time":56.127766,"rawTime":3.919433,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069936826,"perfMs":58613.89999999991,"time":56.627638,"rawTime":4.419305,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069937326,"perfMs":59113.89999999991,"time":57.127697,"rawTime":4.919364,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069937827,"perfMs":59614.299999999814,"time":57.628051,"rawTime":5.419718,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069938326,"perfMs":60113.60000000009,"time":58.127403,"rawTime":5.91907,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069938827,"perfMs":60614.700000000186,"time":58.628508000000004,"rawTime":6.420175,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069939327,"perfMs":61114.39999999991,"time":59.128027,"rawTime":6.919694,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069939826,"perfMs":61613.89999999991,"time":59.627636,"rawTime":7.419303,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069940327,"perfMs":62114.39999999991,"time":60.128129,"rawTime":7.919796,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069940827,"perfMs":62614,"time":60.627803,"rawTime":8.41947,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069941326,"perfMs":63113.799999999814,"time":61.127597,"rawTime":8.919264,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069941827,"perfMs":63614.10000000009,"time":61.627811,"rawTime":9.419478,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069942327,"perfMs":64114.200000000186,"time":62.127913,"rawTime":9.91958,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069942827,"perfMs":64614.200000000186,"time":62.627945,"rawTime":10.419612,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069943327,"perfMs":65114.200000000186,"time":63.127883999999995,"rawTime":10.919551,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069943826,"perfMs":65613.70000000019,"time":63.62752699999999,"rawTime":11.419194,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069944326,"perfMs":66113.70000000019,"time":64.127482,"rawTime":11.919149,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069944826,"perfMs":66613.70000000019,"time":64.627298,"rawTime":12.418965,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069945327,"perfMs":67114.1000000001,"time":65.127824,"rawTime":12.919491,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069945826,"perfMs":67614,"time":65.62779,"rawTime":13.419457,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069946326,"perfMs":68113.6000000001,"time":66.127486,"rawTime":13.919153,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069946827,"perfMs":68614.3999999999,"time":66.628138,"rawTime":14.419805,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069947326,"perfMs":69113.79999999981,"time":67.12735900000001,"rawTime":14.919026,"buffered":[[0,52.208333]],"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_PASS
+WEBVIEW_CONTROL_CLEANUP
+01:10 +1: (tearDownAll)
+01:11 +1: All tests passed!

@@ -21,7 +21,7 @@
     "packages/flutter_chromium_webview/ios/flutter_chromium_webview/Package.swift": "8d20947fa5fbe4f896bf45cf899884e5070fea8ab718db602b7843adbfea645f",
     "packages/flutter_chromium_webview/ios/flutter_chromium_webview/Sources/flutter_chromium_webview/FlutterChromiumWebviewPlugin.swift": "f449eb23c010d929f408033fa17eec8e5bcd2cbaa81c62de7a4cc2e26025244c",
     "packages/flutter_chromium_webview/ios/flutter_chromium_webview/Sources/flutter_chromium_webview/PrivacyInfo.xcprivacy": "6d2da0d8d930227d428c1d9363b0ad6e3a12e2c9b68c5ce297158a7412fc8c31",
-    "packages/flutter_chromium_webview/lib/chromium_youtube_player.dart": "b4411e9809d99792667116507963874ea44e2b1a200ff13b699b505715874014",
+    "packages/flutter_chromium_webview/lib/chromium_youtube_player.dart": "b01ecc123e1f6928f0ac5d2eb2fa9d01f60059e18b8d624a7d9822640795015d",
     "packages/flutter_chromium_webview/lib/flutter_chromium_webview.dart": "9f61d38faae543c1d54a7297b0e8e840a64956d4110efa7f3213eeb0039c4a77",
     "packages/flutter_chromium_webview/linux/CMakeLists.txt": "5ebe9f4446baf4fbd96be5e5f7016ae7ac055961ec7f09441c6d951f86509548",
     "packages/flutter_chromium_webview/linux/DownloadCEF.cmake": "11f61ca2b0a2f612596f33d408beada62b997bf4ce951b13050ea75f3bdf352a",
@@ -52,7 +52,7 @@
     "packages/flutter_chromium_webview/macos/Classes/ChromiumTexture.h": "d3739ac316cbe3faf81cc56d84d87ccfab958323447a98df34764ddbbee27254",
     "packages/flutter_chromium_webview/macos/Classes/ChromiumTexture.mm": "2411a93c6488db85522dacda2dbe0723106cd0c20ac76d56b5d4873e4a7de3cf",
     "packages/flutter_chromium_webview/macos/Classes/FlutterChromiumWebviewPlugin.h": "4f529d9e1dc9d5dfeb9b64af04ea638ced42c3f1d93205055ff2340083a3e07f",
-    "packages/flutter_chromium_webview/macos/Classes/FlutterChromiumWebviewPlugin.mm": "a500ca09fd5c4dd59e993bce8d68dc842d12e96e32d2a6afd5727366959e0551",
+    "packages/flutter_chromium_webview/macos/Classes/FlutterChromiumWebviewPlugin.mm": "1e49d47489dcfb1526c19de38334b3ec9314c277eeaa17d0a360fde0f7a94147",
     "packages/flutter_chromium_webview/macos/Classes/PendingCallbacks.h": "bbb0773aa12aa66df167b0f2228e3585bb09d3079be37d1f68fcc8d3726fdb02",
     "packages/flutter_chromium_webview/macos/Classes/Protocol.h": "26f95af9b73fd185f7b9e00fa3f87f468e159c136f2124154e80df1b4aaced30",
     "packages/flutter_chromium_webview/macos/Classes/Protocol.mm": "d87413474e2672e4e05df7efe7944246d12a1461957a5b9ed2f5046bb988513e",
@@ -188,6 +188,18 @@
       "file": "packages/flutter_chromium_webview/android/src/main/java/dev/devflier/flutter_chromium_webview/FlutterChromiumWebviewPlugin.java",
       "previous_sha256": "a4e9e91644f8119ce90febc4c32c541ef055bc30ebb2ec4ff893ffd1c8e4a932",
       "change": "Preserve autoplay WebView window visibility in callbacks and provider queries when Android minimizes the Activity; ordinary browsing retains native visibility behavior."
+    },
+    {
+      "phase": "4.0.0-release-acceptance",
+      "file": "packages/flutter_chromium_webview/macos/Classes/FlutterChromiumWebviewPlugin.mm",
+      "previous_sha256": "a500ca09fd5c4dd59e993bce8d68dc842d12e96e32d2a6afd5727366959e0551",
+      "change": "Allow Flutter-approved repeated AppKit termination after one-shot CEF shutdown; regression exercises production terminate methods."
+    },
+    {
+      "phase": "4.0.0-release-diagnostics",
+      "file": "packages/flutter_chromium_webview/lib/chromium_youtube_player.dart",
+      "previous_sha256": "b4411e9809d99792667116507963874ea44e2b1a200ff13b699b505715874014",
+      "change": "Record buffered fraction and duration during live Android heartbeat diagnostics; no retry, seek or visibility workaround."
     }
   ]
 }

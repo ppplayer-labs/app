@@ -1,0 +1,197 @@
+--------- beginning of main
+10-15 09:18:12.380   948  1355 D CCodec  : allocate(c2.android.vorbis.decoder)
+10-15 09:18:12.410   948  1355 I CCodec  : setting up 'default' as default (vendor) store
+10-15 09:18:12.418   948  1355 I CCodec  : Created component [c2.android.vorbis.decoder] for [c2.android.vorbis.decoder]
+10-15 09:18:12.429   948  1354 I MediaCodec: media_quality service unavailable, skipping updatePictureProfile
+10-15 09:18:12.429   948  1355 D CCodec  : [c2.android.vorbis.decoder] buffers are bound to CCodec for this session
+10-15 09:18:12.430   948  1355 D CCodec  : encoding statistics level = 0
+10-15 09:18:12.430   948  1355 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+10-15 09:18:12.430   948  1355 D CCodec  :   int32_t bitrate = 160000
+10-15 09:18:12.430   948  1355 D CCodec  :   int32_t channel-count = 2
+10-15 09:18:12.430   948  1355 D CCodec  :   int32_t max-input-size = 32768
+10-15 09:18:12.430   948  1355 D CCodec  :   string mime = "audio/vorbis"
+10-15 09:18:12.430   948  1355 D CCodec  :   int32_t sample-rate = 44100
+10-15 09:18:12.430   948  1355 D CCodec  : }
+10-15 09:18:12.430   948  1355 D CCodec  : setup formats output: AMessage(what = 0x00000000) = {
+10-15 09:18:12.430   948  1355 D CCodec  :   int32_t buffer-batch-max-output-size = 0
+10-15 09:18:12.430   948  1355 D CCodec  :   int32_t buffer-batch-threshold-output-size = 0
+10-15 09:18:12.430   948  1355 D CCodec  :   int32_t channel-count = 2
+10-15 09:18:12.430   948  1355 D CCodec  :   string mime = "audio/raw"
+10-15 09:18:12.430   948  1355 D CCodec  :   int32_t sample-rate = 44100
+10-15 09:18:12.430   948  1355 D CCodec  :   int32_t channel-mask = 3
+10-15 09:18:12.430   948  1355 D CCodec  :   int32_t android._config-pcm-encoding = 2
+10-15 09:18:12.430   948  1355 D CCodec  : }
+10-15 09:18:12.473   948  1376 D CCodec  : allocate(c2.android.vorbis.decoder)
+10-15 09:18:12.475   948  1376 I CCodec  : setting up 'default' as default (vendor) store
+10-15 09:18:12.477   948  1376 I CCodec  : Created component [c2.android.vorbis.decoder] for [c2.android.vorbis.decoder]
+10-15 09:18:12.481   948  1354 I MediaCodec: media_quality service unavailable, skipping updatePictureProfile
+10-15 09:18:12.482   948  1376 D CCodec  : [c2.android.vorbis.decoder] buffers are bound to CCodec for this session
+10-15 09:18:12.483   948  1376 D CCodec  : encoding statistics level = 0
+10-15 09:18:12.483   948  1376 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+10-15 09:18:12.483   948  1376 D CCodec  :   int32_t bitrate = 160000
+10-15 09:18:12.483   948  1376 D CCodec  :   int32_t channel-count = 2
+10-15 09:18:12.483   948  1376 D CCodec  :   int32_t max-input-size = 32768
+10-15 09:18:12.483   948  1376 D CCodec  :   string mime = "audio/vorbis"
+10-15 09:18:12.483   948  1376 D CCodec  :   int32_t sample-rate = 44100
+10-15 09:18:12.483   948  1376 D CCodec  : }
+10-15 09:18:12.483   948  1376 D CCodec  : setup formats output: AMessage(what = 0x00000000) = {
+10-15 09:18:12.483   948  1376 D CCodec  :   int32_t buffer-batch-max-output-size = 0
+10-15 09:18:12.483   948  1376 D CCodec  :   int32_t buffer-batch-threshold-output-size = 0
+10-15 09:18:12.483   948  1376 D CCodec  :   int32_t channel-count = 2
+10-15 09:18:12.483   948  1376 D CCodec  :   string mime = "audio/raw"
+10-15 09:18:12.483   948  1376 D CCodec  :   int32_t sample-rate = 44100
+10-15 09:18:12.483   948  1376 D CCodec  :   int32_t channel-mask = 3
+10-15 09:18:12.483   948  1376 D CCodec  :   int32_t android._config-pcm-encoding = 2
+10-15 09:18:12.483   948  1376 D CCodec  : }
+10-15 09:18:12.542   948  1383 D CCodec  : allocate(c2.android.vorbis.decoder)
+10-15 09:18:12.552   948  1383 I CCodec  : setting up 'default' as default (vendor) store
+10-15 09:18:12.559   948  1383 I CCodec  : Created component [c2.android.vorbis.decoder] for [c2.android.vorbis.decoder]
+10-15 09:18:12.572   948  1354 I MediaCodec: media_quality service unavailable, skipping updatePictureProfile
+10-15 09:18:12.572   948  1383 D CCodec  : [c2.android.vorbis.decoder] buffers are bound to CCodec for this session
+10-15 09:18:12.575   948  1383 D CCodec  : encoding statistics level = 0
+10-15 09:18:12.575   948  1383 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+10-15 09:18:12.575   948  1383 D CCodec  :   int32_t bitrate = 160000
+10-15 09:18:12.575   948  1383 D CCodec  :   int32_t channel-count = 2
+10-15 09:18:12.575   948  1383 D CCodec  :   int32_t max-input-size = 32768
+10-15 09:18:12.575   948  1383 D CCodec  :   string mime = "audio/vorbis"
+10-15 09:18:12.575   948  1383 D CCodec  :   int32_t sample-rate = 48000
+10-15 09:18:12.575   948  1383 D CCodec  : }
+10-15 09:18:12.575   948  1383 D CCodec  : setup formats output: AMessage(what = 0x00000000) = {
+10-15 09:18:12.575   948  1383 D CCodec  :   int32_t buffer-batch-max-output-size = 0
+10-15 09:18:12.575   948  1383 D CCodec  :   int32_t buffer-batch-threshold-output-size = 0
+10-15 09:18:12.575   948  1383 D CCodec  :   int32_t channel-count = 2
+10-15 09:18:12.575   948  1383 D CCodec  :   string mime = "audio/raw"
+10-15 09:18:12.575   948  1383 D CCodec  :   int32_t sample-rate = 48000
+10-15 09:18:12.575   948  1383 D CCodec  :   int32_t channel-mask = 3
+10-15 09:18:12.575   948  1383 D CCodec  :   int32_t android._config-pcm-encoding = 2
+10-15 09:18:12.575   948  1383 D CCodec  : }
+10-15 09:18:23.200   596   596 D CCodec  : aidl based PersistentSurface created
+10-15 09:18:25.396  1682  2066 D CCodec  : allocate(c2.goldfish.hevc.decoder)
+10-15 09:18:25.842  1682  2066 I CCodec  : setting up 'default' as default (vendor) store
+10-15 09:18:25.849  1682  2066 I CCodec  : Created component [c2.goldfish.hevc.decoder] for [c2.goldfish.hevc.decoder]
+10-15 09:18:26.288  1682  1923 I MediaCodec: media_quality service unavailable, skipping updatePictureProfile
+10-15 09:18:26.288  1682  2066 D CCodec  : [c2.goldfish.hevc.decoder] buffers are bound to CCodec for this session
+10-15 09:18:26.288  1682  2066 D CCodec  : Client requested ByteBuffer mode decoder w/o color format set: using default planar color format
+10-15 09:18:26.288  1682  2066 D CCodec  : encoding statistics level = 0
+10-15 09:18:26.288  1682  2066 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+10-15 09:18:26.288  1682  2066 D CCodec  :   int32_t height = 1080
+10-15 09:18:26.288  1682  2066 D CCodec  :   int32_t level = 65536
+10-15 09:18:26.288  1682  2066 D CCodec  :   int32_t max-input-size = 6291456
+10-15 09:18:26.288  1682  2066 D CCodec  :   string mime = "video/hevc"
+10-15 09:18:26.288  1682  2066 D CCodec  :   int32_t profile = 1
+10-15 09:18:26.288  1682  2066 D CCodec  :   int32_t width = 1920
+10-15 09:18:26.288  1682  2066 D CCodec  :   Rect crop(0, 0, 1919, 1079)
+10-15 09:18:26.288  1682  2066 D CCodec  :   int32_t color-transfer-request = 0
+10-15 09:18:26.288  1682  2066 D CCodec  : }
+10-15 09:18:26.288  1682  2066 D CCodec  : setup formats output: AMessage(what = 0x00000000) = {
+10-15 09:18:26.288  1682  2066 D CCodec  :   int32_t android._color-format = 2135033992
+10-15 09:18:26.288  1682  2066 D CCodec  :   int32_t android._video-scaling = 1
+10-15 09:18:26.288  1682  2066 D CCodec  :   int32_t rotation-degrees = 0
+10-15 09:18:26.288  1682  2066 D CCodec  :   int32_t color-standard = 0
+10-15 09:18:26.288  1682  2066 D CCodec  :   int32_t color-range = 2
+10-15 09:18:26.288  1682  2066 D CCodec  :   int32_t color-transfer = 0
+10-15 09:18:26.288  1682  2066 D CCodec  :   int32_t sar-height = 1
+10-15 09:18:26.288  1682  2066 D CCodec  :   int32_t sar-width = 1
+10-15 09:18:26.288  1682  2066 D CCodec  :   Rect crop(0, 0, 1919, 1079)
+10-15 09:18:26.288  1682  2066 D CCodec  :   int32_t width = 1920
+10-15 09:18:26.288  1682  2066 D CCodec  :   int32_t height = 1080
+10-15 09:18:26.288  1682  2066 D CCodec  :   int32_t max-height = 240
+10-15 09:18:26.288  1682  2066 D CCodec  :   int32_t max-width = 320
+10-15 09:18:26.288  1682  2066 D CCodec  :   string mime = "video/raw"
+10-15 09:18:26.288  1682  2066 D CCodec  :   int32_t android._dataspace = 268435456
+10-15 09:18:26.288  1682  2066 D CCodec  :   int32_t color-format = 19
+10-15 09:18:26.288  1682  2066 D CCodec  : }
+10-15 09:18:29.019  1891  2312 W chromium: [WARNING:net/dns/dns_config_service_android.cc:69] Failed to read DnsConfig.
+10-15 09:18:29.397  1806  2341 W chromium: [1015/091829.396870:WARNING:net/dns/dns_config_service_android.cc:69] Failed to read DnsConfig.
+10-15 09:18:29.455  1806  2341 W chromium: [1015/091829.455191:WARNING:net/dns/dns_config_service_android.cc:69] Failed to read DnsConfig.
+10-15 09:18:30.551  1891  1891 I chromium: [INFO:components/enterprise/browser/controller/chrome_browser_cloud_management_controller.cc:334] Deferring CBCM Controller Initialization until it is unblocked.
+10-15 09:18:31.160  1891  1891 W chromium: [WARNING:components/gcm_driver/instance_id/instance_id_android.cc:98] Non-zero TTL requested for InstanceID token, while TTLs are not supported by Android Firebase IID API.
+10-15 09:18:31.162  1891  1891 W chromium: [WARNING:components/gcm_driver/instance_id/instance_id_android.cc:98] Non-zero TTL requested for InstanceID token, while TTLs are not supported by Android Firebase IID API.
+10-15 09:19:16.334  3442  3682 E chromium: [1015/091916.326185:ERROR:android_webview/browser/variations/variations_seed_loader.cc:39] Seed missing signature.
+10-15 09:19:16.340  3442  3682 I chromium: [1015/091916.335169:INFO:android_webview/browser/variations/variations_seed_loader.cc:67] Failed to open file for reading.: No such file or directory (2)
+10-15 09:19:25.573  3777  3898 E chromium: [1015/091925.572542:ERROR:android_webview/browser/variations/variations_seed_loader.cc:39] Seed missing signature.
+10-15 09:19:25.640  3777  3898 I chromium: [1015/091925.640303:INFO:android_webview/browser/variations/variations_seed_loader.cc:67] Failed to open file for reading.: No such file or directory (2)
+10-15 09:19:31.597  2351  4226 E chromium: [1015/091931.597546:ERROR:android_webview/browser/variations/variations_seed_loader.cc:39] Seed missing signature.
+10-15 09:19:31.597  2351  4226 I chromium: [1015/091931.597893:INFO:android_webview/browser/variations/variations_seed_loader.cc:67] Failed to open file for reading.: No such file or directory (2)
+10-15 09:19:32.076  4237  4250 W chromium: [WARNING:content/app/android/content_main_android.cc:82] android_setCpu already initialized
+10-15 09:19:32.100  4237  4250 W chromium: [WARNING:content/child/runtime_features.cc:497] Fenced frames cannot be enabled in this configuration. Use --enable-features=FencedFrames instead.
+10-15 09:19:32.116  4237  4279 I chromium: [INFO:third_party/skia/src/ports/SkFontMgr_android_parser.cpp:724] [SkFontMgr Android Parser] '/product/etc/fonts_customization.xml' could not be opened
+10-15 09:19:32.116  4237  4279 I chromium: 
+10-15 09:21:43.646  5268  5643 E chromium: [1015/092143.645717:ERROR:android_webview/browser/variations/variations_seed_loader.cc:36] Seed missing signature.
+10-15 09:21:43.648  5268  5643 I chromium: [1015/092143.647781:INFO:android_webview/browser/variations/variations_seed_loader.cc:63] Failed to open file for reading.: No such file or directory (2)
+10-15 09:21:43.868  5646  5674 W chromium: [WARNING:content/app/android/content_main_android.cc:82] android_setCpu already initialized
+10-15 09:21:43.940  5646  5686 I chromium: [INFO:third_party/skia/src/ports/SkFontMgr_android_parser.cpp:724] [SkFontMgr Android Parser] '/product/etc/fonts_customization.xml' could not be opened
+10-15 09:21:43.940  5646  5686 I chromium: 
+10-15 09:21:43.949  5646  5674 W chromium: [WARNING:content/child/runtime_features.cc:499] Fenced frames cannot be enabled in this configuration. Use --enable-features=FencedFrames instead.
+10-15 09:22:22.311  5897  6072 E chromium: [1015/092222.311774:ERROR:android_webview/browser/variations/variations_seed_loader.cc:36] Seed missing signature.
+10-15 09:22:22.317  5897  6072 I chromium: [1015/092222.317272:INFO:android_webview/browser/variations/variations_seed_loader.cc:63] Failed to open file for reading.: No such file or directory (2)
+10-15 09:22:22.450  6076  6107 W chromium: [WARNING:content/app/android/content_main_android.cc:82] android_setCpu already initialized
+10-15 09:22:22.467  6076  6107 W chromium: [WARNING:content/child/runtime_features.cc:499] Fenced frames cannot be enabled in this configuration. Use --enable-features=FencedFrames instead.
+10-15 09:22:22.473  6076  6115 I chromium: [INFO:third_party/skia/src/ports/SkFontMgr_android_parser.cpp:724] [SkFontMgr Android Parser] '/product/etc/fonts_customization.xml' could not be opened
+10-15 09:22:22.473  6076  6115 I chromium: 
+10-15 09:42:31.729  7470  7572 E chromium: [1015/094231.726661:ERROR:android_webview/browser/variations/variations_seed_loader.cc:36] Seed missing signature.
+10-15 09:42:31.729  7470  7572 I chromium: [1015/094231.729260:INFO:android_webview/browser/variations/variations_seed_loader.cc:63] Failed to open file for reading.: No such file or directory (2)
+10-15 09:42:32.433  7582  7603 W chromium: [WARNING:content/app/android/content_main_android.cc:82] android_setCpu already initialized
+10-15 09:42:32.485  7582  7603 W chromium: [WARNING:content/child/runtime_features.cc:499] Fenced frames cannot be enabled in this configuration. Use --enable-features=FencedFrames instead.
+10-15 09:42:32.568  7582  7614 I chromium: [INFO:third_party/skia/src/ports/SkFontMgr_android_parser.cpp:724] [SkFontMgr Android Parser] '/product/etc/fonts_customization.xml' could not be opened
+10-15 09:42:32.568  7582  7614 I chromium: 
+10-15 09:42:34.221  7470  7470 I chromium: [INFO:CONSOLE:148] "Unrecognized feature: 'web-share'.", source: https://www.youtube.com/s/player/21090930/www-widgetapi.vflset/www-widgetapi.js (148)
+10-15 09:42:34.501  7470  7470 I chromium: [INFO:CONSOLE:164] "Failed to execute 'postMessage' on 'DOMWindow': The target origin provided ('https://www.youtube.com') does not match the recipient window's origin ('https://ppplayer.com').", source: https://www.youtube.com/s/player/21090930/www-widgetapi.vflset/www-widgetapi.js (164)
+10-15 09:42:36.558  7470  7470 I ChromiumBG: webview=10032940 onWindowVisibilityChanged visibility=0
+10-15 09:42:38.288  7470  7577 I cr_MediaCodecBridge: create MediaCodec video decoder, mime video/x-vnd.on2.vp9, decoder name c2.goldfish.vp9.decoder, block_model=false
+10-15 09:42:38.598  7470  7696 D CCodec  : allocate(c2.goldfish.vp9.decoder)
+10-15 09:42:38.879  7470  7696 I CCodec  : setting up 'default' as default (vendor) store
+10-15 09:42:38.927  7470  7696 I CCodec  : Created component [c2.goldfish.vp9.decoder] for [c2.goldfish.vp9.decoder]
+10-15 09:42:38.967  7470  7695 I MediaCodec: MediaCodec will operate in async mode
+10-15 09:42:38.972  7470  7577 I MediaCodec: media_quality service unavailable, skipping updatePictureProfile
+10-15 09:42:38.981  7470  7695 I MediaCodec: [c2.goldfish.vp9.decoder] setting surface generation to 7649281
+10-15 09:42:38.997  7470  7696 D CCodec  : [c2.goldfish.vp9.decoder] buffers are bound to CCodec for this session
+10-15 09:42:39.009  7470  7696 D CCodec  : client requested max input size 153720, which is smaller than what component recommended (6291456); overriding with component recommendation.
+10-15 09:42:39.009  7470  7696 W CCodec  : This behavior is subject to change. It is recommended that app developers double check whether the requested max input size is in reasonable range.
+10-15 09:42:39.009  7470  7696 D CCodec  : encoding statistics level = 0
+10-15 09:42:39.009  7470  7696 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+10-15 09:42:39.009  7470  7696 D CCodec  :   int32_t height = 480
+10-15 09:42:39.009  7470  7696 D CCodec  :   int32_t level = 256
+10-15 09:42:39.009  7470  7696 D CCodec  :   int32_t max-input-size = 6291456
+10-15 09:42:39.009  7470  7696 D CCodec  :   string mime = "video/x-vnd.on2.vp9"
+10-15 09:42:39.009  7470  7696 D CCodec  :   int32_t profile = 1
+10-15 09:42:39.009  7470  7696 D CCodec  :   int32_t width = 854
+10-15 09:42:39.009  7470  7696 D CCodec  :   Rect crop(0, 0, 853, 479)
+10-15 09:42:39.009  7470  7696 D CCodec  : }
+10-15 09:42:39.009  7470  7696 D CCodec  : setup formats output: AMessage(what = 0x00000000) = {
+10-15 09:42:39.009  7470  7696 D CCodec  :   int32_t android._color-format = 2135033992
+10-15 09:42:39.009  7470  7696 D CCodec  :   int32_t android._video-scaling = 1
+10-15 09:42:39.009  7470  7696 D CCodec  :   int32_t rotation-degrees = 0
+10-15 09:42:39.009  7470  7696 D CCodec  :   int32_t color-standard = 1
+10-15 09:42:39.009  7470  7696 D CCodec  :   int32_t color-range = 2
+10-15 09:42:39.009  7470  7696 D CCodec  :   int32_t color-transfer = 3
+10-15 09:42:39.009  7470  7696 D CCodec  :   int32_t sar-height = 1
+10-15 09:42:39.009  7470  7696 D CCodec  :   int32_t sar-width = 1
+10-15 09:42:39.009  7470  7696 D CCodec  :   Rect crop(0, 0, 853, 479)
+10-15 09:42:39.009  7470  7696 D CCodec  :   int32_t width = 854
+10-15 09:42:39.009  7470  7696 D CCodec  :   Buffer hdr10-plus-info = {
+10-15 09:42:39.009  7470  7696 D CCodec  :   }
+10-15 09:42:39.009  7470  7696 D CCodec  :   int32_t height = 480
+10-15 09:42:39.009  7470  7696 D CCodec  :   int32_t max-height = 480
+10-15 09:42:39.009  7470  7696 D CCodec  :   int32_t max-width = 854
+10-15 09:42:39.009  7470  7696 D CCodec  :   string mime = "video/raw"
+10-15 09:42:39.009  7470  7696 D CCodec  :   int32_t android._dataspace = 260
+10-15 09:42:39.009  7470  7696 D CCodec  :   int32_t color-format = 2130708361
+10-15 09:42:39.009  7470  7696 D CCodec  : }
+10-15 09:42:39.011  7470  7577 D MediaCodec: keep callback message for reclaim
+10-15 09:42:41.359  7470  7470 I chromium: [INFO:CONSOLE:0] "Access to fetch at 'https://googleads.g.doubleclick.net/pagead/viewthroughconversion/962985656/?backend=innertube&cname=56&cver=2_20261014&foc_id=_x5XG1OV2P6uZZ5FSM9Ttw&label=followon_view&ptype=no_rmkt&random=41772735&cv_attributed=0' (redirected from 'https://www.youtube.com/pagead/viewthroughconversion/962985656/?backend=innertube&cname=56&cver=2_20261014&foc_id=_x5XG1OV2P6uZZ5FSM9Ttw&label=followon_view&ptype=no_rmkt&random=41772735') from origin 'https://www.youtube.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.", source: https://www.youtube.com/embed/?enablejsapi=1&playsinline=1&origin=https%3A%2F%2Fppplayer.com&widget_referrer=https%3A%2F%2Fppplayer.com%2Fchromium%2Fplayer.html&widgetid=1&forigin=https%3A%2F%2Fppplayer.com%2Fchromium%2Fplayer.html&aoriginsup=1&vf=1 (0)
+10-15 09:42:42.472  7470  7610 E chromium: [ERROR:ui/gl/gl_context_egl.cc:363] eglCreateContext ES 3.1 failed with error EGL_BAD_CONFIG. ES version fallback is disabled.
+10-15 09:42:42.480  7470  7470 I chromium: [INFO:CONSOLE:1] "Failed to create WebGPU Context Provider", source:  (1)
+10-15 09:42:44.948  7470  7602 D MediaCodec: keep callback message for reclaim
+10-15 09:42:45.030  7470  7602 D MediaCodec: keep callback message for reclaim
+10-15 09:42:47.426  7470  7470 I ChromiumBG: webview=10032940 event=activityPaused attached=true parent=FlutterMutatorView windowVis=0
+10-15 09:42:48.745  7470  7470 I ChromiumBG: webview=10032940 event=activityStopped attached=true parent=FlutterMutatorView windowVis=0
+10-15 09:42:48.799  7470  7470 I ChromiumBG: webview=10032940 onWindowVisibilityChanged visibility=8
+10-15 09:42:49.282  7470  7470 I chromium: [INFO:CONSOLE:0] "The resource https://ppplayer.com/_next/static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.", source: https://ppplayer.com/chromium/player.html (0)
+10-15 09:42:49.282  7470  7470 I chromium: [INFO:CONSOLE:0] "The resource https://ppplayer.com/_next/static/media/3fd1b3eda9c5392f-s.p.0p-f7yd42daun.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.", source: https://ppplayer.com/chromium/player.html (0)
+10-15 09:42:54.958  7470  7470 I chromium: [INFO:CONSOLE:0] "The resource https://ppplayer.com/_next/static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.", source: https://ppplayer.com/chromium/player.html (0)
+10-15 09:42:54.958  7470  7470 I chromium: [INFO:CONSOLE:0] "The resource https://ppplayer.com/_next/static/media/3fd1b3eda9c5392f-s.p.0p-f7yd42daun.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.", source: https://ppplayer.com/chromium/player.html (0)
+10-15 09:43:00.383  7470  7470 I chromium: [INFO:CONSOLE:0] "The resource https://ppplayer.com/_next/static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.", source: https://ppplayer.com/chromium/player.html (0)
+10-15 09:43:00.384  7470  7470 I chromium: [INFO:CONSOLE:0] "The resource https://ppplayer.com/_next/static/media/3fd1b3eda9c5392f-s.p.0p-f7yd42daun.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.", source: https://ppplayer.com/chromium/player.html (0)
+10-15 09:43:04.424  7470  7470 I chromium: [INFO:CONSOLE:0] "The resource https://ppplayer.com/_next/static/media/83afe278b6a6bb3c-s.p.0q-301v4kxxnr.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.", source: https://ppplayer.com/chromium/player.html (0)
+10-15 09:43:04.427  7470  7470 I chromium: [INFO:CONSOLE:0] "The resource https://ppplayer.com/_next/static/media/3fd1b3eda9c5392f-s.p.0p-f7yd42daun.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.", source: https://ppplayer.com/chromium/player.html (0)

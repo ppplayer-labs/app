@@ -2,9 +2,39 @@
 
 All notable changes to PPPlayer will be documented in this file.
 
-## [Unreleased]
+## [Unreleased] — 4.0.0 candidate
+
+Latest published app release: **3.0.2 (October 3, 2026)**. The dates below are
+historical development-entry dates and can differ from GitHub publication.
+Candidate metadata: **4.0.0+12**, MSIX **4.0.0.0**. Not approved for publication.
+
+### Compatibility changes
+
+- macOS minimum rises from 12 to 13; current candidate validation covers Apple Silicon only. Intel/universal support is not qualified.
+- Android builds now package ARM64 and x86_64, without 32-bit ARM.
+- iOS deployment target remains 15.0; earlier website 14.0 claims were inaccurate.
+
+### Added and improved since 3.0.2
+
+- Chromium YouTube routing on Android/macOS/Windows/Linux with vendored native sources; iOS retains WebKit. Direct/local media stays on MediaKit.
+- Queue redesign with desktop panel/mobile sheet, independent fullscreen navigation, resizable desktop width and debounced persistence.
+- Network playlists: M3U/PLS/XSPF/ASX parsing, HLS classification, relative URLs, IPTV headers/groups, deduplication, bounded HTTP reads and timeouts; improved stream error handling and browsing.
+- Local-library schema 14 retained-data handling, file access/relinking, metadata and video probing improvements.
+- Playback ownership, recovery, source-switching and native control regressions; macOS Chromium video resizing correction and import entitlements.
+- Linux packaging scripts for AppImage, Debian and portable archives; artifacts require Linux validation.
+- Expanded localization, store-listing tooling, native integration probes and release regression checks.
+
+Full implementation evidence, retained capabilities and unresolved acceptance:
+[October 15 audit](docs/RELEASE_AUDIT_2026-10-15.md).
+
+
+### Changed
+
+- Windows MSIX publisher display name is Devflier; application display name remains PPPlayer.
 
 ### Fixed
+
+- macOS normal Quit now forwards Flutter-approved termination retries after Chromium shutdown; validated in an actual Release build with no tracked helper survivors.
 
 - Corrected Android autoplay WebView visibility propagation during Activity minimize. Live screen-off playback still stalls; this correction is not yet a verified background-playback fix.
 - Linux packaging builds a fresh release bundle and stops on Flutter build failure, preventing missing or stale artifacts in clean CI.
@@ -19,32 +49,11 @@ All notable changes to PPPlayer will be documented in this file.
 - Updated Android setup, playback architecture, candidate dependency/SDK guidance and platform support documentation. Current results and remaining device/distribution gates are in `docs/validation/pre-release-2026-10-14/REPORT.md`.
 - Local static analysis and 604 app/engine/Chromium tests passed at the October 14 checkpoint; this does not announce a published release or certify untested platforms.
 
-## [3.0.3] - 2026-10-06
+## Candidate scope carried forward from unpublished entries
 
-### Added
-- Added Linux distribution pipeline including AppImage, Debian package, and Portable tarball artifacts.
-- Unified application identifier to `com.ppplayer.app` across all Linux packages.
-
-## [3.1.0] - 2026-10-06
-
-### Added
-
-- Unified Chromium playback engine across all platforms with comprehensive testing and integration.
-- Playback providers and CMake build configuration for Linux and Windows platforms.
-- Store listing builder tool and updated Linux run configuration.
-- Additional internationalization support with multiple language localizations.
-
-### Changed
-
-- Redesigned queue with now playing and compact upcoming tracks, presented in a desktop panel and mobile sheet.
-- Separated queue navigation from fullscreen video and refined desktop queue and fullscreen player layout.
-- Windows Chromium video now fills behind player controls.
-- Promoted preview playback fixes and validation into the main app.
-- Integrated published native media package and documented playback usage.
-
-### Fixed
-
-- Fixed Chromium renderer controls and desktop Cast startup.
+The former 3.0.3 and 3.1.0 headings described candidate work, not published
+GitHub releases. Their changes are included in the 4.0.0 draft above. The app
+has a v3.0.3 tag but no corresponding published release as of October 15.
 
 ## [3.0.2] - 2026-10-06
 

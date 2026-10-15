@@ -1,0 +1,16 @@
+{
+  "appHead": "ac266d5e697b1ca3f8141b50d278bef8c9e1b313",
+  "candidate": "4.0.0+12",
+  "diagnosticFiles": {
+    "pubspec.yaml": "afb7adff342b1a72d9987e0ba8ea487b588b0f75122024e6f53f7b4912a0597f",
+    "integration_test/chromium_live_ui_test.dart": "a738fcda0c82a55110731875647bbffba2e1fc558cfa10b7ef7e8961d2ff7e1a",
+    "integration_test/android_webview_background_control_test.dart": "c09768fb8bd162e4ed6e38a94ad9552ae29e235632ca66104a93107f3051ebf8",
+    "scripts/test_chromium_android.py": "d380b88d67685ac507d6a70f6bc883b1da229ae818f03b931881e209065419e8",
+    "scripts/test_android_webview_control.py": "bdb5b713a8a74be023633e76ee9eb9bee548dfc030b218496323d19d401ce8f5",
+    "scripts/capture_android_playback.py": "54fe8cf2fdb987ceb5f03dbcd0eed04fb4b08bc956d4672f1440845eb7fcdea6"
+  },
+  "generatedFixtureHashes": {
+    "vp9.webm": "f4073a21156c140d6e8f321fdb5a845c97168dda3c6208dc5683832e4a785d0b",
+    "vp9-480.webm": "93c4dfa0fc009fc6bda2ff1942c0f1940b3b779c57085ff6ab95d33c874cb873"
+  }
+}

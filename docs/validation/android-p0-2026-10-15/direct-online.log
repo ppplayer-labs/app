@@ -1,0 +1,91 @@
+00:00 +0: loading /Users/veneno/Projects/Apps/ppplayer/app/integration_test/android_webview_background_control_test.dart
+Running Gradle task 'assembleDebug'...                          
+WARNING: Your Android app project: app located at: /Users/veneno/Projects/Apps/ppplayer/app/android/app/build.gradle.kts
+applies the Kotlin Gradle Plugin, which will cause build failures in future versions of Flutter. 
+Please migrate your app to Built-in Kotlin using this guide: https://docs.flutter.dev/release/breaking-changes/migrate-to-built-in-kotlin/for-app-developers
+
+INFO: Precompiled binaries are disabled
+FINER: Running command rustup toolchain list
+FINER: Running command rustup target list --toolchain stable-aarch64-apple-darwin --installed
+INFO: Building metadata_god for aarch64-linux-android
+FINER: Running command rustup run stable cargo build --manifest-path /Users/veneno/Projects/Apps/ppplayer/app/lib/core/playback/packages/metadata_god/rust/Cargo.toml -p metadata_god --target aarch64-linux-android --target-dir /Users/veneno/Projects/Apps/ppplayer/app/build/metadata_god/build
+INFO: Building metadata_god for i686-linux-android
+FINER: Running command rustup run stable cargo build --manifest-path /Users/veneno/Projects/Apps/ppplayer/app/lib/core/playback/packages/metadata_god/rust/Cargo.toml -p metadata_god --target i686-linux-android --target-dir /Users/veneno/Projects/Apps/ppplayer/app/build/metadata_god/build
+INFO: Building metadata_god for x86_64-linux-android
+FINER: Running command rustup run stable cargo build --manifest-path /Users/veneno/Projects/Apps/ppplayer/app/lib/core/playback/packages/metadata_god/rust/Cargo.toml -p metadata_god --target x86_64-linux-android --target-dir /Users/veneno/Projects/Apps/ppplayer/app/build/metadata_god/build
+Running Gradle task 'assembleDebug'...                             21.4s
+✓ Built build/app/outputs/flutter-apk/app-debug.apk
+Installing build/app/outputs/flutter-apk/app-debug.apk...          805ms
+00:00 +0: Android WebView offline audio Home/screen-off control
+10:09:49.076 [PipDebug][HANDLER] event=onActivityStarted old=false new=false inPip=false pipRequestPending=false
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069790738,"perfMs":575.6000000000931,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069791237,"perfMs":1074.5,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":4,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069791737,"perfMs":1574.6000000000931,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":4,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069792237,"perfMs":2074.7000000001863,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":4,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069792737,"perfMs":2574.5,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":4,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069793237,"perfMs":3074.600000000093,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":4,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069793737,"perfMs":3574.399999999907,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":4,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069794237,"perfMs":4074.8000000002794,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":4,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069794738,"perfMs":4575.100000000093,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":4,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069795237,"perfMs":5074.700000000186,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":4,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069795737,"perfMs":5574.800000000279,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":4,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069796237,"perfMs":6074.600000000093,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":4,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069796737,"perfMs":6574.399999999907,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":4,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069797237,"perfMs":7074.5,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":4,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069797737,"perfMs":7574.700000000186,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":4,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069798237,"perfMs":8074.5,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":4,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069798737,"perfMs":8574.5,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":4,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069799237,"perfMs":9074.399999999907,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":4,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069799737,"perfMs":9574.80000000028,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":4,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069800239,"perfMs":10076.100000000093,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":4,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069800737,"perfMs":10574.700000000186,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":4,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069801237,"perfMs":11074.700000000186,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":4,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069801737,"perfMs":11574.700000000186,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":4,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069802237,"perfMs":12074.80000000028,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":4,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069802737,"perfMs":12574.80000000028,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":4,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069803237,"perfMs":13074.600000000093,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":4,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069803737,"perfMs":13574.600000000093,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":4,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069804238,"perfMs":14075.399999999907,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":4,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069804737,"perfMs":14574.600000000093,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":4,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069805237,"perfMs":15074.600000000093,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":4,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069805737,"perfMs":15574.80000000028,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":4,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069806237,"perfMs":16074.700000000186,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":4,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069806737,"perfMs":16574.80000000028,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":4,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069807237,"perfMs":17074.80000000028,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":4,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069807737,"perfMs":17574.5,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":4,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069808237,"perfMs":18074.700000000186,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":4,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069808737,"perfMs":18574.600000000093,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":4,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069809237,"perfMs":19074.399999999907,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":4,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069809737,"perfMs":19574.80000000028,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":4,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"wallMs":1792069810237,"perfMs":20074.5,"time":0,"rawTime":0,"buffered":[],"tag":"VIDEO","paused":true,"readyState":0,"error":4,"hidden":false}
+WEBVIEW_CONTROL_CLEANUP
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: a value greater than <1>
+  Actual: <0.0>
+   Which: is not a value greater than <1>
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///Users/veneno/Projects/Apps/ppplayer/app/integration_test/android_webview_background_control_test.dart:98:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///Users/veneno/Projects/Apps/ppplayer/app/integration_test/android_webview_background_control_test.dart line 98
+The test description was:
+  Android WebView offline audio Home/screen-off control
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:21 +0 -1: Android WebView offline audio Home/screen-off control [E]
+  Test failed. See exception logs above.
+  The test description was: Android WebView offline audio Home/screen-off control
+  
+00:21 +0 -1: (tearDownAll)
+00:21 +0 -1: Some tests failed.
+
+Failing tests:
+  /Users/veneno/Projects/Apps/ppplayer/app/integration_test/android_webview_background_control_test.dart: Android WebView offline audio Home/screen-off control

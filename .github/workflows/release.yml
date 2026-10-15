@@ -5,6 +5,12 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      approve_publication:
+        description: "Publish only after final platform validation and explicit release approval"
+        type: boolean
+        required: true
+        default: false
 
 jobs:
   validate-and-test:
@@ -152,6 +158,9 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Verify native Flutter Quit handshake
+        run: python3 -m unittest discover -s scripts -p 'test_macos_quit_handshake.py'
 
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
@@ -359,7 +368,7 @@ jobs:
   publish-release:
     name: Publish GitHub Release
     needs: [validate-and-test, build-android, build-macos, build-windows, build-linux]
-    if: needs.validate-and-test.outputs.is_new_version == 'true'
+    if: github.event_name == 'workflow_dispatch' && inputs.approve_publication == true && needs.validate-and-test.outputs.is_new_version == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write # Scope: only the publish job has write access to create the release

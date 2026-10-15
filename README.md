@@ -2,6 +2,9 @@
 
 PPPlayer is a Flutter media player for music discovery, local music and video libraries, network streams, and playlists. Spotify supplies catalog metadata; YouTube playback uses an embedded player. Local media uses the native playback engine.
 
+Candidate: **4.0.0+12 — unreleased, blocked pending platform acceptance**.
+See the [release audit](docs/RELEASE_AUDIT_2026-10-15.md) for the published 3.0.2 comparison, inventory and ordered release gates.
+
 ## Current development features
 
 - Local music/video playback, subtitles, network streams, queue management and artist discovery.
@@ -11,7 +14,8 @@ PPPlayer is a Flutter media player for music discovery, local music and video li
 - iPhone lock-screen and Control Center play/pause commands that respect explicit playback intent.
 - Correct local-audio artwork without stale video thumbnails; file and network images go through `PPImage`.
 - Chromium YouTube playback on Android, macOS, Windows and Linux; iOS retains WebKit. Local files and direct streams use MediaKit.
-- Redesigned queue interface with desktop panel and mobile sheet integration, and a refined fullscreen player layout.
+- Redesigned queue interface with a resizable desktop panel (260–640 logical pixels, saved after a short delay), mobile sheet integration, and a refined fullscreen player layout.
+- Network playlist import supports M3U, PLS, XSPF and ASX parsing, channel groups/search and per-source HTTP headers. Playback depends on codecs, server access and platform capabilities.
 
 These describe the development tree, not availability in every published binary. iOS is not yet publicly available. Local AirPlay and system commands have been checked on a physical iPhone; physical Chromecast and DLNA receiver testing remain pending.
 
@@ -27,7 +31,9 @@ These describe the development tree, not availability in every published binary.
 
 ## Linux Installation
 
-PPPlayer is distributed in multiple formats for Linux (x86_64). Tested on Ubuntu 26.04 and Debian-based systems.
+Linux x86_64 packaging scripts produce AppImage, Debian and portable formats.
+These are candidate installation examples; no Linux artifact is present in the
+latest published 3.0.2 release, and current target-host acceptance is pending.
 
 **AppImage**
 ```bash
