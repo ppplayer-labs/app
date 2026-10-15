@@ -2,11 +2,11 @@
 
 All notable changes to PPPlayer will be documented in this file.
 
-## [Unreleased] — 4.0.0 candidate
+## [4.0.0] - 2026-10-15
 
-Latest published app release: **3.0.2 (October 3, 2026)**. The dates below are
-historical development-entry dates and can differ from GitHub publication.
-Candidate metadata: **4.0.0+12**, MSIX **4.0.0.0**. Not approved for publication.
+Latest published app release: **4.0.0 (October 15, 2026)**.
+Release metadata: **4.0.0+12**, Windows MSIX **4.0.0.0**.
+Publisher: Devflier.
 
 ### Compatibility changes
 
@@ -49,7 +49,7 @@ Full implementation evidence, retained capabilities and unresolved acceptance:
 - Updated Android setup, playback architecture, candidate dependency/SDK guidance and platform support documentation. Current results and remaining device/distribution gates are in `docs/validation/pre-release-2026-10-14/REPORT.md`.
 - Local static analysis and 604 app/engine/Chromium tests passed at the October 14 checkpoint; this does not announce a published release or certify untested platforms.
 
-## Candidate scope carried forward from unpublished entries
+### Candidate scope carried forward from unpublished entries
 
 The former 3.0.3 and 3.1.0 headings described candidate work, not published
 GitHub releases. Their changes are included in the 4.0.0 draft above. The app
