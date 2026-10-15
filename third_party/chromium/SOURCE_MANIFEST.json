@@ -110,7 +110,7 @@
     "packages/flutter_chromium_webview/revert_hide_show.patch": "de2b5df1a7eb8e5e1864dd4084fae8c04b51f29b35b580e9b59eaba256bb4ac6",
     "packages/flutter_chromium_webview/test/browser_settings_test.dart": "9680805a3ec2057e3421188c6166eb47445a1add700f7fcb00b558412da17088",
     "packages/flutter_chromium_webview/test/controller_lifecycle_test.dart": "4fe915444c4041228ca9da4761b18091118fbe9e26cdf8410657c90aa7521856",
-    "packages/flutter_chromium_webview/test/event_decoding_test.dart": "e6ad763bd541887e249ad6fe6bcdbead0f689ac84f767fa6618cd1dceb4b1e5c",
+    "packages/flutter_chromium_webview/test/event_decoding_test.dart": "7ad82110ac9cf938309093851e6fd61a6e7046e05a68ae8e7aba81e37cb51347",
     "packages/flutter_chromium_webview/test/flutter_chromium_webview_test.dart": "f6759282ab53d9b455ec6e2727b7c3f70bc2f61da55f8df962fbc774804ba08a",
     "packages/flutter_chromium_webview/test/html_loading_test.dart": "e6829427b5ac7c8f2c6293825f7a2e438fddb92d02bb1fa119e2b3fb1ed1080e",
     "packages/flutter_chromium_webview/test/input_coordinates_test.dart": "c35b8f3dbac57e78cf8df94c1e4c268553764e6d21b3a00dac1a1b91768039a1",
@@ -147,9 +147,9 @@
     "packages/flutter_chromium_webview_platform_interface/lib/flutter_chromium_webview_platform_interface.dart": "a7acb79c8573db5c9ff37ca78b870d727e18a96e186a239c3ffbb34a45f1f744",
     "packages/flutter_chromium_webview_platform_interface/lib/src/method_channel.dart": "12100d877ef825db535e20f779833fafc3c0c1fdfc1029c4cc16caf9e33a4396",
     "packages/flutter_chromium_webview_platform_interface/lib/src/platform_interface.dart": "501361739f11845bb07ffe33e4a5616366ef8f5bfdbebc0745c6ac0c93637a3c",
-    "packages/flutter_chromium_webview_platform_interface/lib/src/types.dart": "210174d9b3a254c23e3abd7059c4270a1d5b1f37b1ae0651d61897dcbd7a320b",
+    "packages/flutter_chromium_webview_platform_interface/lib/src/types.dart": "5c8a22212d5f780200dbe4e74cdd6f48452040997f048c3c277109f2d121c1b1",
     "packages/flutter_chromium_webview_platform_interface/pubspec.yaml": "def17a335cdd3f4204ed7106ec692f24d64c8326203df1798e12560a6a16cd45",
-    "packages/flutter_chromium_webview_platform_interface/test/platform_interface_test.dart": "17ef938983a5a4386ca771aa7d368465cc2ed8f073f93e17319e700278de4b6e"
+    "packages/flutter_chromium_webview_platform_interface/test/platform_interface_test.dart": "47d209249ef0d867b201a2d5f12477814aa769fc76eb599529779303ef1c5ce1"
   },
   "excluded": "Example applications are not required by PPPlayer and resolve separate package graphs.",
   "candidate_patches": [
