@@ -138,7 +138,9 @@
     _task.arguments = @[
         [NSString stringWithFormat:@"--ipc-socket=%@", _socketPath],
         [NSString stringWithFormat:@"--ipc-token=%@", _token],
-        [NSString stringWithFormat:@"--parent-pid=%d", getpid()]
+        [NSString stringWithFormat:@"--parent-pid=%d", getpid()],
+        @"--use-mock-keychain",
+        @"--password-store=basic"
     ];
     
     __weak ChromiumHostManager* weakSelf = self;

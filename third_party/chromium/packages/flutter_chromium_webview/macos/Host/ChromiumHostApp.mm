@@ -396,12 +396,12 @@ void ChromiumHostApp::OnContextInitialized() {
 }
 
 void ChromiumHostApp::OnBeforeCommandLineProcessing(const CefString& process_type, CefRefPtr<CefCommandLine> command_line) {
-    // Ephemeral integration fixtures must not prompt for a user's Keychain.
-    // Production launches continue using the normal encrypted credential store.
-    const char* inputTest = getenv("CEF_INPUT_TEST_USE_MOCK_KEYCHAIN");
-    if (inputTest && std::string(inputTest) == "1") {
-        command_line->AppendSwitch("use-mock-keychain");
-    }
+    // PPPlayer is an account-free media player that only uses Chromium as an embedded
+    // playback engine for web-based streams (YouTube). It does not store user passwords.
+    // Use a mock keychain and basic password store to prevent macOS from prompting the user
+    // for their macOS login keychain password ("Chromium Safe Storage").
+    command_line->AppendSwitch("use-mock-keychain");
+    command_line->AppendSwitchWithValue("password-store", "basic");
     command_line->AppendSwitchWithValue("disable-features", "Accessibility");
     command_line->AppendSwitch("disable-renderer-accessibility");
     command_line->AppendSwitch("ignore-gpu-blocklist");
