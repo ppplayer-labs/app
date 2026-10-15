@@ -81,7 +81,7 @@ Architecture: amd64
 Maintainer: Lucas Veneno
 Description: Media player powered by Lucas Veneno.
  PPPlayer is a Flutter media player for music discovery, local music and video libraries, network streams, and playlists.
-Depends: libgtk-3-0, libgl1, libegl1, libx11-6, libxcb1, libstdc++6, libvulkan1
+Depends: libgtk-3-0, libgl1, libegl1, libx11-6, libxcb1, libstdc++6, libvulkan1, libsecret-1-0, libwebkit2gtk-4.1-0 | libwebkit2gtk-4.0-37, libmpv1 | libmpv2, libepoxy0
 EOF
 
 chmod -R 755 "$DEB_BUILD_DIR"

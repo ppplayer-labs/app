@@ -70,6 +70,10 @@ endforeach()
 if(TARGET webview_win_floating_DEPENDENCIES_DOWNLOAD AND TARGET webview_win_floating_plugin)
   add_dependencies(webview_win_floating_plugin
     webview_win_floating_DEPENDENCIES_DOWNLOAD)
+  target_include_directories(webview_win_floating_plugin PRIVATE
+    "${CMAKE_BINARY_DIR}/packages/Microsoft.Web.WebView2/build/native/include"
+    "${CMAKE_BINARY_DIR}/packages/Microsoft.Windows.ImplementationLibrary/include"
+  )
 endif()
 
 

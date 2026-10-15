@@ -43,6 +43,10 @@ The primary controls are previous, play/pause and next. **Queue** has a dedicate
 
 Secondary actions are grouped in an options menu: shuffle, repeat, autoplay, subtitles, audio selection and fit controls where the current media supports them. The layout adapts to narrow portrait, compact landscape, desktop and larger text settings. Fit controls remain capability-gated.
 
+The desktop queue has a draggable edge, a default width of 360 logical pixels
+and bounds of 260–640. Width is saved after a 300 ms debounce; storage errors
+fall back to the default. Mobile uses a sheet.
+
 ## Local audio artwork
 
 Local audio uses the track's artwork or audio fallback. It must not inherit `activeVideoId` or a video surface from an earlier YouTube track. Local audio is not classified as video solely because embedded artwork has image dimensions.
@@ -51,7 +55,10 @@ Image consumers use `PPImage` / `PPImageProvider`. Network image loading receive
 
 ## Android background playback
 
-YouTube playback should continue after Home, minimize and screen-off. The same
+**Accepted known limitation for 4.0.0 (unfixed):** Android YouTube playback
+stalls after Home/screen-off in emulator acceptance, and YouTube developer
+policy disallows hidden iframe playback. Hidden YouTube playback is not
+supported or verified; local/direct media is covered separately. The same
 Chromium player stays active; a support foreground service keeps the process
 eligible for background playback and AudioService provides system controls.
 Local files and direct streams use MediaKit. Explicit pause in the player or

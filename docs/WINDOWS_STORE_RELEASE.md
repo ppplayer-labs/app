@@ -15,10 +15,10 @@ The `pubspec.yaml` has an `msix_config` block that defines your Microsoft Store 
 ```yaml
 msix_config:
   display_name: PPPlayer
-  publisher_display_name: YOUR_PUBLISHER_NAME
+  publisher_display_name: Devflier
   identity_name: YOUR_IDENTITY_NAME
   publisher: YOUR_PUBLISHER_ID
-  msix_version: 1.3.1.0
+  msix_version: 4.0.0.0
   logo_path: assets/logo.png
   architecture: x64
   capabilities: internetClient, musicLibrary
@@ -26,6 +26,12 @@ msix_config:
 
 > [!IMPORTANT]
 > If you ever update the `version` of your app at the top of `pubspec.yaml`, you **MUST** also update the `msix_version` field to match (and ensure it follows the format `MAJOR.MINOR.PATCH.0`).
+
+The Windows publisher display name is **Devflier**; the app display name stays
+**PPPlayer**. Keep the existing identity name and publisher certificate subject
+for update continuity. Confirm the publisher display name against Partner Center
+and inspect the generated manifest on Windows before submission. No store
+metadata was changed remotely.
 
 ## Automated Build Process
 

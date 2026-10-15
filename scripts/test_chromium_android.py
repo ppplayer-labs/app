@@ -2,6 +2,7 @@
 import argparse
 from pathlib import Path
 import re
+import json
 import shutil
 import subprocess
 import time
@@ -11,7 +12,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--device', default='emulator-5554')
     parser.add_argument('--log', default='build/validation/chromium-android-live.log')
+    parser.add_argument('--foreground-only', action='store_true', help='90-second live YouTube foreground control')
+    parser.add_argument('--foreground-system-controls', action='store_true', help='Add native system pause/resume to foreground-only control')
     args = parser.parse_args()
+    if args.foreground_system_controls and not args.foreground_only:
+        parser.error('--foreground-system-controls requires --foreground-only')
     root = Path(__file__).resolve().parents[1]
     log = Path(args.log).resolve()
     log.parent.mkdir(parents=True, exist_ok=True)
@@ -28,7 +33,6 @@ def main():
     def restore():
         device('shell', 'input', 'keyevent', 'KEYCODE_WAKEUP')
         time.sleep(0.5)
-        device('shell', 'wm', 'dismiss-keyguard')
         device('shell', 'am', 'start', '-n', 'com.ppplayer.app/.MainActivity')
 
     policy = device('shell', 'dumpsys', 'window', 'policy')
@@ -45,6 +49,10 @@ def main():
         'CHROMIUM_MEDIA_PLAY_READY': ('shell', 'cmd', 'media_session', 'dispatch', 'play'),
         'CHROMIUM_BACKGROUND_DONE': None,
     }
+    if args.foreground_only:
+        markers = {'CHROMIUM_FOREGROUND_PASS': None}
+        if args.foreground_system_controls:
+            markers = {'CHROMIUM_FOREGROUND_PAUSE_READY': ('shell','cmd','media_session','dispatch','pause'), 'CHROMIUM_FOREGROUND_PLAY_READY': ('shell','cmd','media_session','dispatch','play'), **markers}
     seen = set()
     with log.open('w') as output:
         process = subprocess.Popen([
@@ -52,17 +60,25 @@ def main():
             '-d', args.device, '--dart-define=PPPLAYER_CHROMIUM=true',
             '--dart-define=PPPLAYER_BACKGROUND_PROBE=true',
             '--dart-define=PPPLAYER_SOURCE_SWITCH_PROBE=true',
+            *(['--dart-define=PPPLAYER_FOREGROUND_PROBE=true'] if args.foreground_only else []),
+            *(['--dart-define=PPPLAYER_FOREGROUND_SYSTEM_CONTROLS=true'] if args.foreground_system_controls else []),
         ], cwd=root, stdout=output, stderr=subprocess.STDOUT)
         deadline = time.monotonic() + 600
         try:
             while True:
                 content = log.read_text(errors='replace')
+                if 'CHROMIUM_BACKGROUND_CLEANUP' in content and 'cleanup' not in seen:
+                    # Cleanup is not a successful acceptance phase.
+                    seen.add('cleanup')
+                    if not args.foreground_only: restore()
                 for marker, command in markers.items():
                     if marker in content and marker not in seen:
                         seen.add(marker)
+                        with log.with_suffix('.actions.jsonl').open('a') as trace:
+                            trace.write(json.dumps({'wallMs':int(time.time()*1000),'marker':marker,'command':command})+'\n')
                         if command:
                             device(*command)
-                        else:
+                        elif not args.foreground_only:
                             restore()
                         if marker == 'CHROMIUM_SCREEN_OFF_READY':
                             time.sleep(0.5)
@@ -70,20 +86,19 @@ def main():
                             log.with_suffix('.screen-off.txt').write_text(power)
                             if not any(f'mWakefulness={s}' in power for s in ('Asleep', 'Dozing')):
                                 raise RuntimeError('Device did not turn its screen off')
-                        if marker == 'CHROMIUM_SCREEN_ON_READY':
-                            device('shell', 'wm', 'dismiss-keyguard')
                         print(f'Handled {marker}', flush=True)
                 if process.poll() is not None:
                     break
                 if time.monotonic() > deadline:
                     raise TimeoutError(f'Android acceptance timed out: {log}')
                 time.sleep(0.1)
-            if process.returncode or len(seen) != len(markers):
+            if process.returncode or not set(markers).issubset(seen):
                 raise RuntimeError(
                     f'Android acceptance failed (exit={process.returncode}, '
-                    f'phases={len(seen)}/{len(markers)}): {log}',
+                    f'phases={len(set(markers) & seen)}/{len(markers)}): {log}',
                 )
-            print(f'PASS: background, screen-off, media controls and source switching: {log}')
+            scope = ('90-second foreground-only live YouTube control with system pause/resume' if args.foreground_system_controls else '90-second foreground-only live YouTube control') if args.foreground_only else 'background, screen-off, media controls and source switching'
+            print(f'PASS: {scope}: {log}')
         finally:
             if process.poll() is None:
                 process.terminate()

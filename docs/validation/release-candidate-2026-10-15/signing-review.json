@@ -1,0 +1,27 @@
+{
+  "macosLocalRequiredFieldsNonempty": {
+    "DEVELOPER_ID_APPLICATION": true,
+    "APPLE_ID": true,
+    "TEAM_ID": true,
+    "APP_SPECIFIC_PASSWORD": true
+  },
+  "androidKeyPropertiesExists": false,
+  "androidReleaseEnvExists": true,
+  "ciRequiredSecretNamesPresent": [
+    "ANDROID_KEYSTORE_BASE64",
+    "ANDROID_KEYSTORE_PASSWORD",
+    "ANDROID_KEY_ALIAS",
+    "ANDROID_KEY_PASSWORD",
+    "APPLE_ID",
+    "APP_SPECIFIC_PASSWORD",
+    "MACOS_CERTIFICATE_B64",
+    "MACOS_CERTIFICATE_PWD",
+    "TEAM_ID"
+  ],
+  "ciSecretValuesAndSigningIdentitiesVerified": false,
+  "localReleaseDevelopmentSigned": true,
+  "localReleaseHasHardenedRuntime": false,
+  "deepSignatureExit": 0,
+  "stapleValidationExit": 65,
+  "gatekeeperExit": 3
+}

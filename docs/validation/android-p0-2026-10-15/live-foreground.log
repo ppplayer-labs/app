@@ -1,0 +1,278 @@
+00:00 +0: loading /Users/veneno/Projects/Apps/ppplayer/app/integration_test/chromium_live_ui_test.dart
+Running Gradle task 'assembleDebug'...                          
+WARNING: Your Android app project: app located at: /Users/veneno/Projects/Apps/ppplayer/app/android/app/build.gradle.kts
+applies the Kotlin Gradle Plugin, which will cause build failures in future versions of Flutter. 
+Please migrate your app to Built-in Kotlin using this guide: https://docs.flutter.dev/release/breaking-changes/migrate-to-built-in-kotlin/for-app-developers
+
+INFO: Precompiled binaries are disabled
+FINER: Running command rustup toolchain list
+FINER: Running command rustup target list --toolchain stable-aarch64-apple-darwin --installed
+INFO: Building metadata_god for aarch64-linux-android
+FINER: Running command rustup run stable cargo build --manifest-path /Users/veneno/Projects/Apps/ppplayer/app/lib/core/playback/packages/metadata_god/rust/Cargo.toml -p metadata_god --target aarch64-linux-android --target-dir /Users/veneno/Projects/Apps/ppplayer/app/build/metadata_god/build
+INFO: Building metadata_god for i686-linux-android
+FINER: Running command rustup run stable cargo build --manifest-path /Users/veneno/Projects/Apps/ppplayer/app/lib/core/playback/packages/metadata_god/rust/Cargo.toml -p metadata_god --target i686-linux-android --target-dir /Users/veneno/Projects/Apps/ppplayer/app/build/metadata_god/build
+INFO: Building metadata_god for x86_64-linux-android
+FINER: Running command rustup run stable cargo build --manifest-path /Users/veneno/Projects/Apps/ppplayer/app/lib/core/playback/packages/metadata_god/rust/Cargo.toml -p metadata_god --target x86_64-linux-android --target-dir /Users/veneno/Projects/Apps/ppplayer/app/build/metadata_god/build
+Running Gradle task 'assembleDebug'...                             26.1s
+✓ Built build/app/outputs/flutter-apk/app-debug.apk
+Installing build/app/outputs/flutter-apk/app-debug.apk...          824ms
+00:00 +0: live YouTube through ppplayer screen controls
+10:16:59.989 [PipDebug][HANDLER] event=onActivityStarted old=false new=false inPip=false pipRequestPending=false
+media_kit: NativeReferenceHolder: Allocated -5476376633268747232
+[VideoInit] Player Screen mounted — checking initial state
+[VideoInit] playerView=PlayerView.video
+[VideoInit] activeTrack=none
+[VideoInit] hasVideo=false
+[VideoInit] waiting for media...
+[VideoInit] skipped: hasVideo=false (initial_mount) — waiting for media
+[VideoInit] skipped: hasVideo=false (probe_500ms) — waiting for media
+PlayerNotifier: Resolving track Live probe
+[VideoInit] activeTrack changed (null -> live-probe)
+[VideoInit] hasVideo became true
+2026-10-15T10:17:01.382398 AUDIO_HANDLER publish playing=false position=0:00:00.000000
+2026-10-15T10:17:01.451833 AUDIO_HANDLER publish playing=false position=0:00:00.000000
+2026-10-15T10:17:01.452661 AUDIO_HANDLER publish playing=false position=0:00:00.000000
+2026-10-15T10:17:01.455181 AUDIO_HANDLER publish playing=false position=0:00:00.000000
+10:17:01.776 [PipDebug][VIDEO_SURFACE] event=ensureVideoSurfaceReady reason=track_change hasVideo=true videoView=true visible=false slotExists=true slotSize=411.42857142857144x914.2857142857143 rect=Rect.fromLTRB(0.0, 0.0, 411.4, 914.3) providerBounds=Rect.fromLTRB(0.0, 0.0, 411.4, 914.3) generation=1
+[VideoInit #1] hidden=true, applying native bounds
+[VideoInit #1] scheduling reveal (next frame)
+10:17:01.795 [PipDebug][VIDEO_SURFACE] event=ensureVideoSurfaceReady reason=hasVideo_true hasVideo=true videoView=true visible=false slotExists=true slotSize=411.42857142857144x914.2857142857143 rect=Rect.fromLTRB(0.0, 0.0, 411.4, 914.3) providerBounds=Rect.fromLTRB(0.0, 0.0, 411.4, 914.3) generation=2
+[VideoInit #2] hidden=true, applying native bounds
+[VideoInit #2] scheduling reveal (next frame)
+10:17:01.799 [PipDebug][VIDEO_SURFACE] event=ensureVideoSurfaceReady reason=slot_reflow hasVideo=true videoView=true visible=false slotExists=true slotSize=411.42857142857144x914.2857142857143 rect=Rect.fromLTRB(0.0, 0.0, 411.4, 914.3) providerBounds=Rect.fromLTRB(0.0, 0.0, 411.4, 914.3) generation=3
+[VideoInit #3] hidden=true, applying native bounds
+[VideoInit #3] scheduling reveal (next frame)
+10:17:01.820 [PipDebug][VIDEO_SURFACE] event=ensureVideoSurfaceReady reason=probe_1000ms hasVideo=true videoView=true visible=false slotExists=true slotSize=411.42857142857144x914.2857142857143 rect=Rect.fromLTRB(0.0, 0.0, 411.4, 914.3) providerBounds=Rect.fromLTRB(0.0, 0.0, 411.4, 914.3) generation=4
+[VideoInit #4] hidden=true, applying native bounds
+[VideoInit #4] scheduling reveal (next frame)
+[VideoInit #1] reveal skipped: stale (current=4)
+[VideoInit #2] reveal skipped: stale (current=4)
+[VideoInit #3] reveal skipped: stale (current=4)
+[VideoInit #4] frame committed → native visible=true
+LIVE_BROWSER_EVENT {playerId: Youtube1, generation: 1, StateChange: -1}
+LIVE_BROWSER_EVENT {playerId: Youtube1, generation: 1, StateChange: 3}
+2026-10-15T10:17:04.589797 AUDIO_HANDLER publish playing=false position=0:00:00.000000
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":2878.399999999907,"state":3,"currentTime":0,"loadedFraction":0,"duration":0,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+LIVE_BROWSER_EVENT {playerId: Youtube1, generation: 1, StateChange: 1}
+2026-10-15T10:17:05.983313 AUDIO_HANDLER publish playing=true position=0:00:00.000000
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":3829.6999999997206,"state":1,"currentTime":0.24695806675720214,"loadedFraction":0.022327804408998998,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":4828,"state":1,"currentTime":1.245968114440918,"loadedFraction":0.022327804408998998,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+2026-10-15T10:17:08.320338 AUDIO_HANDLER publish playing=false position=0:00:02.175676
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":5827.699999999721,"state":1,"currentTime":2.244676005722046,"loadedFraction":0.022327804408998998,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+LIVE_BROWSER_EVENT {playerId: Youtube1, generation: 1, StateChange: 2}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":6827.899999999907,"state":2,"currentTime":2.320117,"loadedFraction":0.022327804408998998,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+2026-10-15T10:17:09.553886 AUDIO_HANDLER publish playing=false position=0:11:11.000000
+2026-10-15T10:17:09.718511 AUDIO_HANDLER publish playing=false position=0:00:10.000000
+2026-10-15T10:17:09.773071 AUDIO_HANDLER publish playing=true position=0:00:10.000000
+LIVE_BROWSER_EVENT {playerId: Youtube1, generation: 1, StateChange: 3}
+2026-10-15T10:17:10.135624 AUDIO_HANDLER publish playing=false position=0:00:10.000000
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":7827.899999999907,"state":3,"currentTime":10,"loadedFraction":0.022327804408998998,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+LIVE_BROWSER_EVENT {playerId: Youtube1, generation: 1, StateChange: 1}
+2026-10-15T10:17:10.403906 AUDIO_HANDLER publish playing=true position=0:00:10.000000
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":8827.69999999972,"state":1,"currentTime":10.885150923706055,"loadedFraction":0.022327804408998998,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":9828,"state":1,"currentTime":11.885682146865845,"loadedFraction":0.022327804408998998,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":10827.899999999907,"state":1,"currentTime":12.885206049591064,"loadedFraction":0.022327804408998998,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":11827.899999999907,"state":1,"currentTime":13.885649898910522,"loadedFraction":0.022327804408998998,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":12827.899999999907,"state":1,"currentTime":14.886448998092652,"loadedFraction":0.022327804408998998,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":13827.599999999627,"state":1,"currentTime":15.88509480545044,"loadedFraction":0.022327804408998998,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":14828.19999999972,"state":1,"currentTime":16.885930102996827,"loadedFraction":0.033291879424944236,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":15827.599999999627,"state":1,"currentTime":17.885402900817873,"loadedFraction":0.033291879424944236,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":16828.099999999627,"state":1,"currentTime":18.886011102996825,"loadedFraction":0.033291879424944236,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":17827.69999999972,"state":1,"currentTime":19.88504080735779,"loadedFraction":0.033291879424944236,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+CHROMIUM_FOREGROUND_INTERVAL interval=0 before=10.345184881744384 after=20.407703076293945 state=PlaybackState.playing
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":18827.69999999972,"state":1,"currentTime":20.88463187602234,"loadedFraction":0.033291879424944236,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":19828.5,"state":1,"currentTime":21.886110171661375,"loadedFraction":0.033291879424944236,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":20827.799999999814,"state":1,"currentTime":22.88570504196167,"loadedFraction":0.033291879424944236,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":21827.899999999907,"state":1,"currentTime":23.8863620667572,"loadedFraction":0.04222270349440818,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":22827.69999999972,"state":1,"currentTime":24.884730948501588,"loadedFraction":0.04222270349440818,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":23827.799999999814,"state":1,"currentTime":25.885707171661377,"loadedFraction":0.04222270349440818,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":24827.69999999972,"state":1,"currentTime":26.885320876022337,"loadedFraction":0.04222270349440818,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":25827.799999999814,"state":1,"currentTime":27.885792171661375,"loadedFraction":0.04222270349440818,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":26829.5,"state":1,"currentTime":28.886959969482422,"loadedFraction":0.05115352756387214,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":27827.69999999972,"state":1,"currentTime":29.885626851226807,"loadedFraction":0.05115352756387214,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+CHROMIUM_FOREGROUND_INTERVAL interval=1 before=20.407703076293945 after=30.441440895095827 state=PlaybackState.playing
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":28830.5,"state":1,"currentTime":30.888496022888184,"loadedFraction":0.05115352756387214,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":29827.799999999814,"state":1,"currentTime":31.883908923706056,"loadedFraction":0.05115352756387214,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":30830.599999999627,"state":1,"currentTime":32.88837685694885,"loadedFraction":0.05115352756387214,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":31827.69999999972,"state":1,"currentTime":33.88525283215332,"loadedFraction":0.05115352756387214,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":32827.69999999972,"state":1,"currentTime":34.88510080545044,"loadedFraction":0.05115352756387214,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":33829.89999999991,"state":1,"currentTime":35.887215925613404,"loadedFraction":0.0585958809550921,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":34828.09999999963,"state":1,"currentTime":36.886663064849856,"loadedFraction":0.0585958809550921,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":35827.799999999814,"state":1,"currentTime":37.884804102996824,"loadedFraction":0.0585958809550921,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":36827.799999999814,"state":1,"currentTime":38.886003066757205,"loadedFraction":0.06306129298982407,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":37827.799999999814,"state":1,"currentTime":39.88484293705749,"loadedFraction":0.06306129298982407,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+CHROMIUM_FOREGROUND_INTERVAL interval=2 before=30.441440895095827 after=40.461771064849856 state=PlaybackState.playing
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":38830,"state":1,"currentTime":40.88840592179871,"loadedFraction":0.06306129298982407,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":39827.69999999972,"state":1,"currentTime":41.88571080354309,"loadedFraction":0.06306129298982407,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":40827.59999999963,"state":1,"currentTime":42.884892005722044,"loadedFraction":0.06752670502455604,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":41827.799999999814,"state":1,"currentTime":43.884614114440915,"loadedFraction":0.06752670502455604,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":42827.799999999814,"state":1,"currentTime":44.885106005722044,"loadedFraction":0.07199211705928801,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":43828.89999999991,"state":1,"currentTime":45.887510897003175,"loadedFraction":0.07199211705928801,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":44828,"state":1,"currentTime":46.886217089645385,"loadedFraction":0.07199211705928801,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":45827.69999999972,"state":1,"currentTime":47.885531001907346,"loadedFraction":0.07199211705928801,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":46827.89999999991,"state":1,"currentTime":48.8836549961853,"loadedFraction":0.08107178819657637,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":47827.69999999972,"state":1,"currentTime":49.88446483596802,"loadedFraction":0.08107178819657637,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+CHROMIUM_FOREGROUND_INTERVAL interval=3 before=40.461771064849856 after=50.494105122070316 state=PlaybackState.playing
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":48827.89999999991,"state":1,"currentTime":50.88614015258789,"loadedFraction":0.08107178819657637,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":49828.39999999991,"state":1,"currentTime":51.88540597138977,"loadedFraction":0.08107178819657637,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":50827.89999999991,"state":1,"currentTime":52.88641999809265,"loadedFraction":0.08107178819657637,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":51827.799999999814,"state":1,"currentTime":53.8858441373291,"loadedFraction":0.08107178819657637,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":52849.19999999972,"state":1,"currentTime":54.87272702670288,"loadedFraction":0.08107178819657637,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":53828.299999999814,"state":1,"currentTime":55.8864820667572,"loadedFraction":0.08107178819657637,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":54827.59999999963,"state":1,"currentTime":56.88095998855591,"loadedFraction":0.09134223587645991,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":55827.69999999972,"state":1,"currentTime":57.88544990081787,"loadedFraction":0.09134223587645991,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":56828.5,"state":1,"currentTime":58.88592604196167,"loadedFraction":0.09134223587645991,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":57828.5,"state":1,"currentTime":59.885719108718874,"loadedFraction":0.09134223587645991,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+CHROMIUM_FOREGROUND_INTERVAL interval=4 before=50.494105122070316 after=60.54971303623962 state=PlaybackState.playing
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":58827.799999999814,"state":1,"currentTime":60.87847894850159,"loadedFraction":0.09134223587645991,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":59828.09999999963,"state":1,"currentTime":61.885441078201296,"loadedFraction":0.09134223587645991,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":60830.299999999814,"state":1,"currentTime":62.81762192370606,"loadedFraction":0.09898330010322544,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":61828.59999999963,"state":1,"currentTime":63.818318074386596,"loadedFraction":0.09898330010322544,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":62827.69999999972,"state":1,"currentTime":64.81716192370605,"loadedFraction":0.09898330010322544,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":63827.69999999972,"state":1,"currentTime":65.81850300190735,"loadedFraction":0.09898330010322544,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":64827.59999999963,"state":1,"currentTime":66.81785297711181,"loadedFraction":0.10419294747707941,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":65827.79999999981,"state":1,"currentTime":67.81859113732911,"loadedFraction":0.10419294747707941,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":66827.69999999972,"state":1,"currentTime":68.81848083215333,"loadedFraction":0.10419294747707941,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":67828,"state":1,"currentTime":69.8187011373291,"loadedFraction":0.10940259485093337,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+CHROMIUM_FOREGROUND_INTERVAL interval=5 before=60.54971303623962 after=70.56596609346008 state=PlaybackState.playing
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":68827.69999999972,"state":1,"currentTime":70.81893810299682,"loadedFraction":0.10940259485093337,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":69828,"state":1,"currentTime":71.8194850667572,"loadedFraction":0.10940259485093337,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":70827.8999999999,"state":1,"currentTime":72.81887610299682,"loadedFraction":0.11664623740660776,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":71827.69999999972,"state":1,"currentTime":73.81463778637695,"loadedFraction":0.11664623740660776,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":72827.69999999972,"state":1,"currentTime":74.81855180354309,"loadedFraction":0.11664623740660776,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":73829.3999999999,"state":1,"currentTime":75.81971409918214,"loadedFraction":0.11664623740660776,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":74827.69999999972,"state":1,"currentTime":76.81780287602234,"loadedFraction":0.11664623740660776,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":75827.69999999972,"state":1,"currentTime":77.81737600572204,"loadedFraction":0.11664623740660776,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":76827.8999999999,"state":1,"currentTime":78.81953196948243,"loadedFraction":0.11664623740660776,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":77828,"state":1,"currentTime":79.81965401716614,"loadedFraction":0.12391443972847317,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+CHROMIUM_FOREGROUND_INTERVAL interval=6 before=70.56596609346008 after=80.59062987983704 state=PlaybackState.playing
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":78829.79999999981,"state":1,"currentTime":80.82146002288819,"loadedFraction":0.12391443972847317,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":79828.19999999972,"state":1,"currentTime":81.81956401716614,"loadedFraction":0.12391443972847317,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":80827.79999999981,"state":1,"currentTime":82.8176860743866,"loadedFraction":0.12907496756994508,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":81828.8999999999,"state":1,"currentTime":83.8203839256134,"loadedFraction":0.12907496756994508,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":82827.8999999999,"state":1,"currentTime":84.8193751373291,"loadedFraction":0.12907496756994508,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":83828,"state":1,"currentTime":85.81829914305115,"loadedFraction":0.12907496756994508,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":84827.69999999972,"state":1,"currentTime":86.81773997138977,"loadedFraction":0.13599635622377965,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":85827.8999999999,"state":1,"currentTime":87.81804717547607,"loadedFraction":0.13599635622377965,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":86828,"state":1,"currentTime":88.8191190667572,"loadedFraction":0.13599635622377965,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":87827.8999999999,"state":1,"currentTime":89.81799210299683,"loadedFraction":0.13599635622377965,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+CHROMIUM_FOREGROUND_INTERVAL interval=7 before=80.59062987983704 after=90.61475300953674 state=PlaybackState.playing
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":88827.8999999999,"state":1,"currentTime":90.8192540667572,"loadedFraction":0.13599635622377965,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":89827.69999999972,"state":1,"currentTime":91.81783487602235,"loadedFraction":0.143959674352385,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":90827.79999999981,"state":1,"currentTime":92.81401081880188,"loadedFraction":0.143959674352385,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":91828.79999999981,"state":1,"currentTime":93.81870404196167,"loadedFraction":0.143959674352385,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":92829.09999999963,"state":1,"currentTime":94.82067802670288,"loadedFraction":0.143959674352385,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":93827.69999999972,"state":1,"currentTime":95.81752787602234,"loadedFraction":0.143959674352385,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":94828.69999999972,"state":1,"currentTime":96.81978701716614,"loadedFraction":0.143959674352385,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":95828.8999999999,"state":1,"currentTime":97.82048909536744,"loadedFraction":0.1512777404419716,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":96827.79999999981,"state":1,"currentTime":98.81561083024597,"loadedFraction":0.1512777404419716,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":97827.79999999981,"state":1,"currentTime":99.81775983596802,"loadedFraction":0.1512777404419716,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+CHROMIUM_FOREGROUND_INTERVAL interval=8 before=90.61475300953674 after=100.62410597138977 state=PlaybackState.playing
+CHROMIUM_FOREGROUND_PASS
+CHROMIUM_BACKGROUND_CLEANUP
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":98828.3999999999,"state":1,"currentTime":100.81910614305114,"loadedFraction":0.1512777404419716,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[ChromiumBG] JS Heartbeat -> {"perfTimestamp":99829.59999999963,"state":1,"currentTime":101.8205209923706,"loadedFraction":0.15648813205116469,"duration":1343.661,"playlistIndex":-1,"hidden":false,"visibility":"visible"}
+[Output] dlna disposed
+01:43 +1: (tearDownAll)
+01:43 +0 -1: (tearDownAll)
+01:43 +0 -1: live YouTube through ppplayer screen controls [E]
+  'package:flutter/src/foundation/stack_frame.dart': Failed assertion: line 197 pos 7: 'line != '===== asynchronous gap ==========================='': Got a stack frame from package:stack_trace, where a vm or web frame was expected. This can happen if FlutterError.demangleStackTrace was not set in an environment that propagates non-standard stack traces to the framework, such as during tests.
+  dart:core                                                                                                              _AssertionError._throwNew
+  package:flutter/src/foundation/stack_frame.dart 197:7                                                                  StackFrame.fromStackTraceLine
+  dart:core                                                                                                              Iterable.toList
+  package:flutter/src/foundation/stack_frame.dart 85:10                                                                  StackFrame.fromStackString
+  package:flutter/src/foundation/assertions.dart 1082:54                                                                 FlutterError.defaultStackFilter
+  package:flutter/src/foundation/assertions.dart 1274:43                                                                 DiagnosticsStackTrace._applyStackFilter
+  package:flutter/src/foundation/assertions.dart 1253:22                                                                 new DiagnosticsStackTrace
+  package:flutter/src/foundation/assertions.dart 716:9                                                                   FlutterErrorDetails.debugFillProperties
+  package:flutter/src/foundation/diagnostics.dart 2922:17                                                                DiagnosticableNode.builder.<fn>
+  package:flutter/src/foundation/diagnostics.dart 2925:8                                                                 DiagnosticableNode.builder
+  package:flutter/src/foundation/assertions.dart 1293:56                                                                 _FlutterErrorDetailsNode.builder
+  package:flutter/src/foundation/diagnostics.dart 2943:68                                                                DiagnosticableNode.getProperties
+  package:flutter/src/foundation/diagnostics.dart 1270:63                                                                TextTreeRenderer._debugRender
+  package:flutter/src/foundation/diagnostics.dart 1137:14                                                                TextTreeRenderer.render
+  package:flutter/src/foundation/diagnostics.dart 1818:75                                                                DiagnosticsNode.toStringDeep.<fn>
+  package:flutter/src/foundation/diagnostics.dart 1825:6                                                                 DiagnosticsNode.toStringDeep
+  package:flutter/src/foundation/assertions.dart 736:65                                                                  FlutterErrorDetails.toString
+  package:integration_test/integration_test.dart 90:67                                                                   new IntegrationTestWidgetsFlutterBinding.<fn>
+  package:flutter_test/src/binding.dart 1823:28                                                                          TestWidgetsFlutterBinding._runTest.handleUncaughtError
+  package:flutter_test/src/binding.dart 1920:13                                                                          TestWidgetsFlutterBinding._runTest.<fn>
+  ===== asynchronous gap ===========================
+  dart:async                                                                                                             _CustomZone.registerBinaryCallback
+  package:ppplayer/core/playback/chromium_playback_engine.dart 472:20                                                    ChromiumPlaybackEngine.pause
+  package:ppplayer/core/playback/hybrid_playback_engine.dart 193:31                                                      HybridPlaybackEngine._handleSubStatus
+  package:ppplayer/core/playback/hybrid_playback_engine.dart 49:9                                                        new HybridPlaybackEngine.<fn>
+  ===== asynchronous gap ===========================
+  dart:async                                                                                                             _StreamImpl.listen
+  package:ppplayer/core/playback/hybrid_playback_engine.dart 48:38                                                       new HybridPlaybackEngine
+  Users/veneno/Projects/Apps/ppplayer/app/integration_test/chromium_live_ui_test.dart 83:11                              main.<fn>
+  package:flutter_test/src/widget_tester.dart 192:29                                                                     testWidgets.<fn>.<fn>
+  ===== asynchronous gap ===========================
+  dart:async                                                                                                             _CustomZone.registerUnaryCallback
+  package:flutter_test/src/widget_tester.dart 189:25                                                                     testWidgets.<fn>.<fn>
+  package:flutter_test/src/binding.dart 1952:19                                                                          TestWidgetsFlutterBinding._runTestBody
+  ===== asynchronous gap ===========================
+  dart:async                                                                                                             _CustomZone.registerUnaryCallback
+  package:flutter_test/src/binding.dart 1941:5                                                                           TestWidgetsFlutterBinding._runTestBody
+  dart:async                                                                                                             _CustomZone.runBinary
+  package:flutter_test/src/binding.dart 1926:10                                                                          TestWidgetsFlutterBinding._runTest
+  package:flutter_test/src/binding.dart 3059:12                                                                          LiveTestWidgetsFlutterBinding.runTest
+  package:integration_test/integration_test.dart 237:17                                                                  IntegrationTestWidgetsFlutterBinding.runTest
+  package:flutter_test/src/widget_tester.dart 184:24                                                                     testWidgets.<fn>
+  ===== asynchronous gap ===========================
+  package:stream_channel                                                                                                 _GuaranteeSink.add
+  var/folders/81/ycpgyt397wvdx03d5kwdmpwr0000gn/T/flutter_tools.3Y7AFg/flutter_test_listener.NwXgf7/listener.dart 56:22  main.<fn>
+  
+  This test failed after it had already completed.
+  Make sure to use a matching library which informs the test runner
+  of pending async work.
+  dart:core                                                                                                              _AssertionError._throwNew
+  package:flutter/src/foundation/stack_frame.dart 197:7                                                                  StackFrame.fromStackTraceLine
+  dart:core                                                                                                              Iterable.toList
+  package:flutter/src/foundation/stack_frame.dart 85:10                                                                  StackFrame.fromStackString
+  package:flutter/src/foundation/assertions.dart 1082:54                                                                 FlutterError.defaultStackFilter
+  package:flutter/src/foundation/assertions.dart 1274:43                                                                 DiagnosticsStackTrace._applyStackFilter
+  package:flutter/src/foundation/assertions.dart 1253:22                                                                 new DiagnosticsStackTrace
+  package:flutter/src/foundation/assertions.dart 716:9                                                                   FlutterErrorDetails.debugFillProperties
+  package:flutter/src/foundation/diagnostics.dart 2922:17                                                                DiagnosticableNode.builder.<fn>
+  package:flutter/src/foundation/diagnostics.dart 2925:8                                                                 DiagnosticableNode.builder
+  package:flutter/src/foundation/assertions.dart 1293:56                                                                 _FlutterErrorDetailsNode.builder
+  package:flutter/src/foundation/diagnostics.dart 2943:68                                                                DiagnosticableNode.getProperties
+  package:flutter/src/foundation/diagnostics.dart 1270:63                                                                TextTreeRenderer._debugRender
+  package:flutter/src/foundation/diagnostics.dart 1137:14                                                                TextTreeRenderer.render
+  package:flutter/src/foundation/diagnostics.dart 1818:75                                                                DiagnosticsNode.toStringDeep.<fn>
+  package:flutter/src/foundation/diagnostics.dart 1825:6                                                                 DiagnosticsNode.toStringDeep
+  package:flutter/src/foundation/assertions.dart 736:65                                                                  FlutterErrorDetails.toString
+  package:integration_test/integration_test.dart 90:67                                                                   new IntegrationTestWidgetsFlutterBinding.<fn>
+  package:flutter_test/src/binding.dart 1823:28                                                                          TestWidgetsFlutterBinding._runTest.handleUncaughtError
+  package:flutter_test/src/binding.dart 1920:13                                                                          TestWidgetsFlutterBinding._runTest.<fn>
+  ===== asynchronous gap ===========================
+  dart:async                                                                                                             _CustomZone.registerBinaryCallback
+  package:ppplayer/core/playback/chromium_playback_engine.dart 472:20                                                    ChromiumPlaybackEngine.pause
+  package:ppplayer/core/playback/hybrid_playback_engine.dart 193:31                                                      HybridPlaybackEngine._handleSubStatus
+  package:ppplayer/core/playback/hybrid_playback_engine.dart 49:9                                                        new HybridPlaybackEngine.<fn>
+  ===== asynchronous gap ===========================
+  dart:async                                                                                                             _StreamImpl.listen
+  package:ppplayer/core/playback/hybrid_playback_engine.dart 48:38                                                       new HybridPlaybackEngine
+  Users/veneno/Projects/Apps/ppplayer/app/integration_test/chromium_live_ui_test.dart 83:11                              main.<fn>
+  package:flutter_test/src/widget_tester.dart 192:29                                                                     testWidgets.<fn>.<fn>
+  ===== asynchronous gap ===========================
+  dart:async                                                                                                             _CustomZone.registerUnaryCallback
+  package:flutter_test/src/widget_tester.dart 189:25                                                                     testWidgets.<fn>.<fn>
+  package:flutter_test/src/binding.dart 1952:19                                                                          TestWidgetsFlutterBinding._runTestBody
+  ===== asynchronous gap ===========================
+  dart:async                                                                                                             _CustomZone.registerUnaryCallback
+  package:flutter_test/src/binding.dart 1941:5                                                                           TestWidgetsFlutterBinding._runTestBody
+  dart:async                                                                                                             _CustomZone.runBinary
+  package:flutter_test/src/binding.dart 1926:10                                                                          TestWidgetsFlutterBinding._runTest
+  package:flutter_test/src/binding.dart 3059:12                                                                          LiveTestWidgetsFlutterBinding.runTest
+  package:integration_test/integration_test.dart 237:17                                                                  IntegrationTestWidgetsFlutterBinding.runTest
+  package:flutter_test/src/widget_tester.dart 184:24                                                                     testWidgets.<fn>
+  ===== asynchronous gap ===========================
+  package:stream_channel                                                                                                 _GuaranteeSink.add
+  var/folders/81/ycpgyt397wvdx03d5kwdmpwr0000gn/T/flutter_tools.3Y7AFg/flutter_test_listener.NwXgf7/listener.dart 56:22  main.<fn>
+  
+01:44 +0 -1: Some tests failed.
+
+Failing tests:
+  /Users/veneno/Projects/Apps/ppplayer/app/integration_test/chromium_live_ui_test.dart: live YouTube through ppplayer screen controls

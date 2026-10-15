@@ -1,0 +1,10 @@
+{
+  "macos_releaseEnvFileExists": true,
+  "androidLocalKeyPropertiesExists": false,
+  "builtVersion": {
+    "CFBundleShortVersionString": "4.0.0",
+    "CFBundleVersion": "12",
+    "LSMinimumSystemVersion": "13.0"
+  },
+  "androidReleaseEnvFileExists": true
+}

@@ -1,0 +1,109 @@
+00:00 +0: loading /Users/veneno/Projects/Apps/ppplayer/app/integration_test/android_webview_background_control_test.dart
+Running Gradle task 'assembleDebug'...                          
+WARNING: Your Android app project: app located at: /Users/veneno/Projects/Apps/ppplayer/app/android/app/build.gradle.kts
+applies the Kotlin Gradle Plugin, which will cause build failures in future versions of Flutter. 
+Please migrate your app to Built-in Kotlin using this guide: https://docs.flutter.dev/release/breaking-changes/migrate-to-built-in-kotlin/for-app-developers
+
+INFO: Precompiled binaries are disabled
+FINER: Running command rustup toolchain list
+FINER: Running command rustup target list --toolchain stable-aarch64-apple-darwin --installed
+INFO: Building metadata_god for aarch64-linux-android
+FINER: Running command rustup run stable cargo build --manifest-path /Users/veneno/Projects/Apps/ppplayer/app/lib/core/playback/packages/metadata_god/rust/Cargo.toml -p metadata_god --target aarch64-linux-android --target-dir /Users/veneno/Projects/Apps/ppplayer/app/build/metadata_god/build
+INFO: Building metadata_god for i686-linux-android
+FINER: Running command rustup run stable cargo build --manifest-path /Users/veneno/Projects/Apps/ppplayer/app/lib/core/playback/packages/metadata_god/rust/Cargo.toml -p metadata_god --target i686-linux-android --target-dir /Users/veneno/Projects/Apps/ppplayer/app/build/metadata_god/build
+INFO: Building metadata_god for x86_64-linux-android
+FINER: Running command rustup run stable cargo build --manifest-path /Users/veneno/Projects/Apps/ppplayer/app/lib/core/playback/packages/metadata_god/rust/Cargo.toml -p metadata_god --target x86_64-linux-android --target-dir /Users/veneno/Projects/Apps/ppplayer/app/build/metadata_god/build
+Running Gradle task 'assembleDebug'...                             24.8s
+✓ Built build/app/outputs/flutter-apk/app-debug.apk
+Installing build/app/outputs/flutter-apk/app-debug.apk...           5.9s
+00:00 +0: Android WebView offline audio Home/screen-off control
+10:01:15.475 [PipDebug][HANDLER] event=onActivityStarted old=false new=false inPip=false pipRequestPending=false
+WEBVIEW_CONTROL_SAMPLE {"time":0,"rawTime":0,"tag":"VIDEO","paused":true,"readyState":0,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":0,"rawTime":0,"tag":"VIDEO","paused":true,"readyState":0,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":0,"rawTime":0,"tag":"VIDEO","paused":true,"readyState":0,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":0,"rawTime":0,"tag":"VIDEO","paused":true,"readyState":0,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":0,"rawTime":0,"tag":"VIDEO","paused":true,"readyState":0,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":0,"rawTime":0,"tag":"VIDEO","paused":true,"readyState":1,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":0,"rawTime":0,"tag":"VIDEO","paused":true,"readyState":1,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":0.069048,"rawTime":0.069048,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":0.570535,"rawTime":0.570535,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":1.07082,"rawTime":1.07082,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":1.570579,"rawTime":1.570579,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":2.070256,"rawTime":2.070256,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_HOME_READY
+WEBVIEW_CONTROL_SAMPLE {"time":2.552068,"rawTime":2.552068,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":3.070021,"rawTime":3.070021,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+10:01:39.635 [PipDebug][HANDLER] event=onActivityStopped old=false new=true inPip=false pipRequestPending=false
+WEBVIEW_CONTROL_SAMPLE {"time":3.570185,"rawTime":3.570185,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":4.070667,"rawTime":4.070667,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":4.570702,"rawTime":4.570702,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":5,"rawTime":5,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":5.133057,"rawTime":0.133057,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":5.63245,"rawTime":0.63245,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":6.1326480000000005,"rawTime":1.132648,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":6.632996,"rawTime":1.632996,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":7.132606000000001,"rawTime":2.132606,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":7.632633,"rawTime":2.632633,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":8.132632000000001,"rawTime":3.132632,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":8.632837,"rawTime":3.632837,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":9.132523,"rawTime":4.132523,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":9.632707,"rawTime":4.632707,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":10.032062,"rawTime":0.032062,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":10.294033,"rawTime":0.294033,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":10.794429000000001,"rawTime":0.794429,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":11.293747000000002,"rawTime":1.293747,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":11.793931,"rawTime":1.793931,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":12.293845000000001,"rawTime":2.293845,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":12.794186,"rawTime":2.794186,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":13.293985,"rawTime":3.293985,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":13.794041,"rawTime":3.794041,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":14.294171,"rawTime":4.294171,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":14.794471999999999,"rawTime":4.794472,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":15.018908,"rawTime":0.018908,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":15.355996,"rawTime":0.355996,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":15.856983999999999,"rawTime":0.856984,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SCREEN_OFF_READY
+WEBVIEW_CONTROL_SAMPLE {"time":16.355953,"rawTime":1.355953,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":16.856006,"rawTime":1.856006,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":17.356117,"rawTime":2.356117,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":17.856158,"rawTime":2.856158,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":18.356328,"rawTime":3.356328,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":18.856563,"rawTime":3.856563,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":19.356112000000003,"rawTime":4.356112,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":19.855393000000003,"rawTime":4.855393,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":20.085028,"rawTime":0.085028,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":20.51706,"rawTime":0.51706,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":21.016782,"rawTime":1.016782,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":21.517152,"rawTime":1.517152,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":22.016669999999998,"rawTime":2.01667,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":22.516986999999997,"rawTime":2.516987,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":23.016695,"rawTime":3.016695,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":23.516795,"rawTime":3.516795,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":24.017229,"rawTime":4.017229,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":24.516969,"rawTime":4.516969,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":25,"rawTime":5,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":25.079062999999998,"rawTime":0.079063,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":25.579055999999998,"rawTime":0.579056,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":26.079631999999997,"rawTime":1.079632,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":26.579544,"rawTime":1.579544,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":27.07896,"rawTime":2.07896,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":27.579369,"rawTime":2.579369,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":28.079944,"rawTime":3.079944,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":28.579171000000002,"rawTime":3.579171,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":29.079361000000002,"rawTime":4.079361,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":29.579451000000002,"rawTime":4.579451,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":30.000000000000004,"rawTime":5,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":30.141760000000005,"rawTime":0.14176,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":30.641235000000005,"rawTime":0.641235,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":31.141518000000005,"rawTime":1.141518,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":31.641993000000006,"rawTime":1.641993,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":32.14162100000001,"rawTime":2.141621,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":32.64143000000001,"rawTime":2.64143,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":33.14154400000001,"rawTime":3.141544,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":33.64185500000001,"rawTime":3.641855,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":34.141329000000006,"rawTime":4.141329,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":34.64125200000001,"rawTime":4.641252,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_PASS
+WEBVIEW_CONTROL_CLEANUP
+01:05 +1: (tearDownAll)
+01:05 +1: All tests passed!

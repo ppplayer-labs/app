@@ -261,6 +261,52 @@ void main() {
           // Android's Home transition needs frames until onStop completes.
           binding.framePolicy =
               LiveTestWidgetsFlutterBindingFramePolicy.fullyLive;
+          const foregroundOnly = bool.fromEnvironment(
+            'PPPLAYER_FOREGROUND_PROBE',
+          );
+          if (foregroundOnly) {
+            var previous = await player.currentTime;
+            for (var interval = 0; interval < 9; interval++) {
+              await Future<void>.delayed(const Duration(seconds: 10));
+              final current = await player.currentTime;
+              print(
+                'CHROMIUM_FOREGROUND_INTERVAL interval=$interval before=$previous after=$current state=${engine.currentStatus.state}',
+              );
+              expect(PipHandler.isActivityStopped, isFalse);
+              expect(
+                current - previous,
+                greaterThan(5),
+                reason: 'Foreground YouTube stalled',
+              );
+              previous = current;
+            }
+            if (const bool.fromEnvironment(
+              'PPPLAYER_FOREGROUND_SYSTEM_CONTROLS',
+            )) {
+              print('CHROMIUM_FOREGROUND_PAUSE_READY');
+              await waitInBackground(
+                () async => engine.currentStatus.state == PlaybackState.paused,
+                'Foreground system pause was not delivered',
+              );
+              final paused = await player.currentTime;
+              await Future<void>.delayed(const Duration(seconds: 10));
+              expect((await player.currentTime) - paused, lessThan(0.5));
+              print('CHROMIUM_FOREGROUND_PLAY_READY');
+              await waitInBackground(
+                () async => engine.currentStatus.isPlaying,
+                'Foreground system play was not delivered',
+              );
+              final resumed = await player.currentTime;
+              await Future<void>.delayed(const Duration(seconds: 10));
+              final after = await player.currentTime;
+              expect(after - resumed, greaterThan(5));
+              print(
+                'CHROMIUM_FOREGROUND_SYSTEM_PASS before=$resumed after=$after',
+              );
+            }
+            print('CHROMIUM_FOREGROUND_PASS');
+            return;
+          }
           print('CHROMIUM_BACKGROUND_READY');
           await waitInBackground(
             () async => PipHandler.isActivityStopped,
@@ -291,7 +337,24 @@ void main() {
           final screenOffBefore = await player.currentTime.timeout(
             const Duration(seconds: 8),
           );
-          await Future<void>.delayed(const Duration(seconds: 20));
+          // Check each interval: total progress alone can conceal a long stall.
+          var lastScreenOffPosition = screenOffBefore;
+          for (var interval = 0; interval < 9; interval++) {
+            await Future<void>.delayed(const Duration(seconds: 10));
+            final position = await player.currentTime.timeout(
+              const Duration(seconds: 8),
+            );
+            print(
+              'CHROMIUM_SCREEN_OFF_INTERVAL interval=$interval before=$lastScreenOffPosition after=$position state=${engine.currentStatus.state}',
+            );
+            expect(await isInteractive(), isFalse);
+            expect(
+              position - lastScreenOffPosition,
+              greaterThan(5),
+              reason: 'Screen-off playback stalled in a ten-second interval',
+            );
+            lastScreenOffPosition = position;
+          }
           final screenOffAfter = await player.currentTime.timeout(
             const Duration(seconds: 8),
           );
@@ -323,6 +386,18 @@ void main() {
             await Future<void>.delayed(const Duration(milliseconds: 100));
           }
           expect(engine.currentStatus.isPlaying, isTrue);
+          final resumedPosition = await player.currentTime;
+          await Future<void>.delayed(const Duration(seconds: 10));
+          final resumedAfter = await player.currentTime;
+          print(
+            'CHROMIUM_SYSTEM_RESUME_PROGRESS before=$resumedPosition after=$resumedAfter state=${engine.currentStatus.state}',
+          );
+          expect(
+            resumedAfter - resumedPosition,
+            greaterThan(5),
+            reason:
+                'System resume must sustain playback beyond a transient playing event',
+          );
           expect(PipHandler.isActivityStopped, isTrue);
           print('CHROMIUM_BACKGROUND_DONE');
           await Future<void>.delayed(const Duration(seconds: 3));
@@ -425,7 +500,7 @@ void main() {
       if (android && const bool.fromEnvironment('PPPLAYER_BACKGROUND_PROBE')) {
         // Restore the activity even when a background assertion fails, so
         // widget cleanup can receive frames and report the original failure.
-        print('CHROMIUM_BACKGROUND_DONE');
+        print('CHROMIUM_BACKGROUND_CLEANUP');
         await Future<void>.delayed(const Duration(seconds: 2));
         try {
           await waitInBackground(
@@ -438,6 +513,9 @@ void main() {
         }
       }
       binding.framePolicy = LiveTestWidgetsFlutterBindingFramePolicy.onlyPumps;
+      // Quiesce the actual player before provider disposal; otherwise a late
+      // playing event can schedule intent containment against a closed engine.
+      await controller.stop();
       await tester.pumpWidget(const SizedBox());
       if (android) await handler.stop();
       container.dispose();

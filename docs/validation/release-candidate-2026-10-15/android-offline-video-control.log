@@ -1,0 +1,120 @@
+00:00 +0: loading /Users/veneno/Projects/Apps/ppplayer/app/integration_test/android_webview_background_control_test.dart
+Running Gradle task 'assembleDebug'...                          
+WARNING: Your Android app project: app located at: /Users/veneno/Projects/Apps/ppplayer/app/android/app/build.gradle.kts
+applies the Kotlin Gradle Plugin, which will cause build failures in future versions of Flutter. 
+Please migrate your app to Built-in Kotlin using this guide: https://docs.flutter.dev/release/breaking-changes/migrate-to-built-in-kotlin/for-app-developers
+
+INFO: Precompiled binaries are disabled
+FINER: Running command rustup toolchain list
+FINER: Running command rustup target list --toolchain stable-aarch64-apple-darwin --installed
+INFO: Building metadata_god for aarch64-linux-android
+FINER: Running command rustup run stable cargo build --manifest-path /Users/veneno/Projects/Apps/ppplayer/app/lib/core/playback/packages/metadata_god/rust/Cargo.toml -p metadata_god --target aarch64-linux-android --target-dir /Users/veneno/Projects/Apps/ppplayer/app/build/metadata_god/build
+INFO: Building metadata_god for i686-linux-android
+FINER: Running command rustup run stable cargo build --manifest-path /Users/veneno/Projects/Apps/ppplayer/app/lib/core/playback/packages/metadata_god/rust/Cargo.toml -p metadata_god --target i686-linux-android --target-dir /Users/veneno/Projects/Apps/ppplayer/app/build/metadata_god/build
+INFO: Building metadata_god for x86_64-linux-android
+FINER: Running command rustup run stable cargo build --manifest-path /Users/veneno/Projects/Apps/ppplayer/app/lib/core/playback/packages/metadata_god/rust/Cargo.toml -p metadata_god --target x86_64-linux-android --target-dir /Users/veneno/Projects/Apps/ppplayer/app/build/metadata_god/build
+Running Gradle task 'assembleDebug'...                             21.5s
+✓ Built build/app/outputs/flutter-apk/app-debug.apk
+Installing build/app/outputs/flutter-apk/app-debug.apk...        1,335ms
+00:00 +0: Android WebView offline audio Home/screen-off control
+09:56:23.302 [PipDebug][HANDLER] event=onActivityStopped old=false new=true inPip=false pipRequestPending=false
+WEBVIEW_CONTROL_SAMPLE {"time":0.181032,"rawTime":0.181032,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":0.680887,"rawTime":0.680887,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":1.180189,"rawTime":1.180189,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":1.680374,"rawTime":1.680374,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":2.18036,"rawTime":2.18036,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":2.680573,"rawTime":2.680573,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":3.181267,"rawTime":3.181267,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":3.680388,"rawTime":3.680388,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":4.180253,"rawTime":4.180253,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":4.680748,"rawTime":4.680748,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":5.004208,"rawTime":0.004208,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":5.243155,"rawTime":0.243155,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":5.7431659999999995,"rawTime":0.743166,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":6.242761,"rawTime":1.242761,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":6.74259,"rawTime":1.74259,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":7.242611999999999,"rawTime":2.242612,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":7.742839999999999,"rawTime":2.74284,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":8.243184,"rawTime":3.243184,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":8.743008999999999,"rawTime":3.743009,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":9.242605999999999,"rawTime":4.242606,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":9.742894999999997,"rawTime":4.742895,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":9.999999999999996,"rawTime":0,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":10.206152999999997,"rawTime":0.206153,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":10.706089999999996,"rawTime":0.70609,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":11.206029999999997,"rawTime":1.20603,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":11.705921999999997,"rawTime":1.705922,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":12.206090999999997,"rawTime":2.206091,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":12.706506999999998,"rawTime":2.706507,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":13.205550999999998,"rawTime":3.205551,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":13.706326999999998,"rawTime":3.706327,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":14.206654999999998,"rawTime":4.206655,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":14.706485999999998,"rawTime":4.706486,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":14.999999999999998,"rawTime":0,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":15.169601999999998,"rawTime":0.169602,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":15.669816999999998,"rawTime":0.669817,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":16.169794999999997,"rawTime":1.169795,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":16.668531999999995,"rawTime":1.668532,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":17.169846999999997,"rawTime":2.169847,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+09:56:43.405 [PipDebug][HANDLER] event=onActivityStarted old=true new=false inPip=false pipRequestPending=false
+WEBVIEW_CONTROL_HOME_READY
+WEBVIEW_CONTROL_SAMPLE {"time":17.669461999999996,"rawTime":2.669462,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":18.169490999999997,"rawTime":3.169491,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":18.669587999999997,"rawTime":3.669588,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":19.169701999999997,"rawTime":4.169702,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":19.669558999999996,"rawTime":4.669559,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":19.999999999999996,"rawTime":0,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":20.231761999999996,"rawTime":0.231762,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":20.732329999999997,"rawTime":0.73233,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":21.231948,"rawTime":1.231948,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":21.734242,"rawTime":1.734242,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":22.232245,"rawTime":2.232245,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":22.731948,"rawTime":2.731948,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":23.23209,"rawTime":3.23209,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":23.731778,"rawTime":3.731778,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":24.232191,"rawTime":4.232191,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":24.7319,"rawTime":4.7319,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":25.018332,"rawTime":0.018332,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":25.29225,"rawTime":0.29225,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":25.794537,"rawTime":0.794537,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":26.294123,"rawTime":1.294123,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":26.794317,"rawTime":1.794317,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":27.294163,"rawTime":2.294163,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":27.794295,"rawTime":2.794295,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":28.294339,"rawTime":3.294339,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":28.794047,"rawTime":3.794047,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":29.294325999999998,"rawTime":4.294326,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":29.794307999999997,"rawTime":4.794308,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":30.032815999999997,"rawTime":0.032816,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":30.356823999999996,"rawTime":0.356824,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_SAMPLE {"time":30.856515999999996,"rawTime":0.856516,"tag":"VIDEO","paused":false,"readyState":4,"error":null,"hidden":false}
+WEBVIEW_CONTROL_CLEANUP
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: true
+  Actual: <false>
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure> (file:///Users/veneno/Projects/Apps/ppplayer/app/integration_test/android_webview_background_control_test.dart:99:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1952:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///Users/veneno/Projects/Apps/ppplayer/app/integration_test/android_webview_background_control_test.dart line 99
+The test description was:
+  Android WebView offline audio Home/screen-off control
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:35 +0 -1: Android WebView offline audio Home/screen-off control [E]
+  Test failed. See exception logs above.
+  The test description was: Android WebView offline audio Home/screen-off control
+  
+00:35 +0 -1: (tearDownAll)
+00:35 +0 -1: Some tests failed.
+
+Failing tests:
+  /Users/veneno/Projects/Apps/ppplayer/app/integration_test/android_webview_background_control_test.dart: Android WebView offline audio Home/screen-off control

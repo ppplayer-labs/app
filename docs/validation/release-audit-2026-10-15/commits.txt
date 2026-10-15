@@ -1,0 +1,27 @@
+ac266d5 style: add newline after imports in autoplay_test.dart to satisfy dart format
+b10ec1c ci: display formatting diff when format check fails
+8908537 style: apply dart format to pass CI format check
+1d3fca9 feat: persist queue panel width in Hive with debounce and add corresponding tests
+7843105 feat: add resizable queue panel functionality with drag handle and bounds validation
+9fea862 feat: enhance network stream playback error handling and playlist parsing with new tests
+938ad6e feat: integrate flutter_chromium_webview package and update player tests and database schema
+8dc725f refactor: simplify media kit playback engine platform check for iOS and macOS
+a199025 chore: add scratch documentation and configuration files for webview integration
+949d473 feat: add multi-language localization files, playback engines, and comprehensive tests
+d5a0154 chore: bump version to 3.0.3 for Linux pipeline integration
+0242862 docs: update README with recent playback engine and UI improvements
+452238d feat: add Linux packaging scripts, desktop entry, and automated release workflow
+3549b58 feat: add store listing builder tool and update linux run configuration
+08f4804 feat: add playback providers and Linux CMake build configuration
+59a7b6a feat: add chromium playback engine tests, providers, and integration test setup
+21ebf62 Promote preview playback fixes and validation into main app
+9748b6c Let Windows Chromium video fill behind player controls
+fbff569 feat: add CMake configuration for Windows platform build
+bcc0be6 Present queue in desktop panel and mobile sheet
+5c84c44 Redesign queue with now playing and compact upcoming tracks
+a676c48 Separate queue navigation from fullscreen video
+bdaad9e Refine desktop queue and fullscreen player layout
+4cd927a Fix Chromium renderer controls and desktop Cast startup
+1f7a60d feat: add internationalization support with multiple language localizations
+292f111 Integrate published native media package and document playback usage
+5ed601c feat: Migrate all platforms to unified Chromium playback engine
