@@ -80,5 +80,5 @@ dist/
 /pubspec_overrides.yaml
 
 # Validation run raw dumps
-docs/validation/*-observed/
-docs/validation/release-candidate-*/memory/
+docs/validation/**/*-observed/
+docs/validation/**/memory/
