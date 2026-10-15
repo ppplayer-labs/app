@@ -10,6 +10,7 @@ import 'package:ppplayer/core/playback/playback_providers.dart';
 import 'package:ppplayer/core/api/spotify_repository.dart';
 import 'package:ppplayer/core/services/settings_provider.dart';
 import 'package:ppplayer/core/cache/catalog_cache_repository.dart';
+
 // ignore: depend_on_referenced_packages
 
 // ---------------------------------------------------------------------------
