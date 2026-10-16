@@ -99,7 +99,7 @@ SPEC CHECKSUMS:
   connectivity_plus: 4adf20a405e25b42b9c9f87feff8f4b6fde18a4e
   file_picker_darwin: 4c2b9a50ea44cb3b071381ea0cf48591bdd80251
   file_selector_macos: 9e9e068e90ebee155097d00e89ae91edb2374db7
-  flutter_chromium_webview: de7700662e306a880525394e073fe5157fdc9063
+  flutter_chromium_webview: 5ef4df7e9d5abcb151506533beb0b0eec70909ef
   flutter_secure_storage_darwin: 46e401699982ee74142909676535e0f6a7321e58
   FlutterMacOS: c232990155153907050900a2e175c7773903ba4e
   macos_file_open_handler: a0ab1237d6bb2f8a7032f302018fd268a5802b1f

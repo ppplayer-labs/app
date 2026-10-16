@@ -473,6 +473,7 @@
 		};
 		EFD860FD56EE528B4AF35A25 /* Embed CEF Framework */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);

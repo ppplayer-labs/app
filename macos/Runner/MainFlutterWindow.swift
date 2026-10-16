@@ -8,6 +8,9 @@ class MainFlutterWindow: NSWindow, NSWindowDelegate {
   private var patchTimer: Timer?
 
   override func awakeFromNib() {
+    // PPPlayer publishes its own Now Playing session and remote commands.
+    // Configure the Chromium host before the Flutter engine can initialize it.
+    setenv("CEF_SYSTEM_MEDIA_CONTROLS", "0", 1)
     let flutterViewController = FlutterViewController()
     let windowFrame = self.frame
     self.contentViewController = flutterViewController

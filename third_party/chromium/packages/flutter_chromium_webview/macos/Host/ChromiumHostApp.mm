@@ -412,7 +412,13 @@ void ChromiumHostApp::OnBeforeCommandLineProcessing(const CefString& process_typ
         command_line->AppendSwitchWithValue("password-store", "basic");
     }
 
-    command_line->AppendSwitchWithValue("disable-features", "Accessibility");
+    // PPPlayer's native MPNowPlayingInfoCenter owns metadata and remote commands.
+    // Disable Chromium's OS integration before CEF initializes: page-level
+    // MediaSession overrides cannot suppress sessions from cross-origin frames.
+    std::string disabled_features = command_line->GetSwitchValue("disable-features").ToString();
+    if (!disabled_features.empty()) disabled_features += ",";
+    disabled_features += "Accessibility,HardwareMediaKeyHandling,MediaSessionService";
+    command_line->AppendSwitchWithValue("disable-features", disabled_features);
     command_line->AppendSwitch("disable-renderer-accessibility");
     command_line->AppendSwitch("ignore-gpu-blocklist");
     command_line->AppendSwitch("enable-gpu");

@@ -64,14 +64,15 @@ flutter analyze
 flutter test
 ```
 
-The candidate vendors patched Chromium sources under `third_party/chromium`.
-Use the checked-in `pubspec.lock` and avoid developer path overrides during
-release validation. Verify the snapshot and run all package suites:
+Chromium resolves from pub.dev (`flutter_chromium_webview` ^0.5.5), including
+its hosted platform interface. Use the checked-in `pubspec.lock` and avoid
+developer path overrides during release validation. The sources retained under
+`third_party/chromium` are a historical snapshot, not the active dependency.
+Run the application and playback-engine suites:
 
 ```bash
-python3 scripts/verify_chromium_snapshot.py
 python3 -m unittest discover -s scripts -p 'test_*.py'
-flutter test --no-pub test lib/core/playback/packages/pp_playback_engine/test third_party/chromium/packages/flutter_chromium_webview/test third_party/chromium/packages/flutter_chromium_webview_platform_interface/test
+flutter test --no-pub test lib/core/playback/packages/pp_playback_engine/test
 ```
 
 Run Flutter builds and device tests sequentially in the same checkout.

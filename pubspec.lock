@@ -529,16 +529,18 @@ packages:
   flutter_chromium_webview:
     dependency: "direct main"
     description:
-      path: "third_party/chromium/packages/flutter_chromium_webview"
-      relative: true
-    source: path
-    version: "0.5.4"
+      name: flutter_chromium_webview
+      sha256: "507de381ee13734640f4679c054e52eec57937f0d2d4a15f5fa3f1beb40aae41"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.5"
   flutter_chromium_webview_platform_interface:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
-      path: "third_party/chromium/packages/flutter_chromium_webview_platform_interface"
-      relative: true
-    source: path
+      name: flutter_chromium_webview_platform_interface
+      sha256: "030e581dbf25f0dadd33a952a9907fa7a72a1be8d962be16100dfbe4e617596e"
+      url: "https://pub.dev"
+    source: hosted
     version: "0.1.7"
   flutter_dotenv:
     dependency: "direct main"
