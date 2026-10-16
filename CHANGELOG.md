@@ -2,6 +2,17 @@
 
 All notable changes to PPPlayer will be documented in this file.
 
+## [4.0.1] - 2026-10-16
+
+Release metadata: **4.0.1+13**, Windows MSIX **4.0.1.0**.
+Publisher: Devflier.
+
+### Fixed
+
+- macOS duplicate media controls: suppressed Chromium's separate system media session via `CEF_SYSTEM_MEDIA_CONTROLS=0` before CEF initializes, ensuring PPPlayer's native Now Playing controls remain the single authoritative media session.
+- Fixed CMake lookup from Homebrew and `/Applications/CMake.app` when building the native CEF framework from Xcode's restricted PATH environment.
+- Upgraded `flutter_chromium_webview` to hosted release `0.5.5` from pub.dev.
+
 ## [4.0.0] - 2026-10-15
 
 Latest published app release: **4.0.0 (October 15, 2026)**.
