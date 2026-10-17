@@ -340,6 +340,8 @@ jobs:
     needs: validate-and-test
     if: needs.validate-and-test.outputs.is_new_version == 'true'
     runs-on: ubuntu-latest
+    env:
+      SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -385,7 +387,7 @@ jobs:
           path: ${{ steps.snapcraft.outputs.snap }}
 
       - name: Publish to Snap Store
-        if: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS != '' }}
+        if: env.SNAPCRAFT_STORE_CREDENTIALS != ''
         uses: snapcore/action-publish@v1
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
