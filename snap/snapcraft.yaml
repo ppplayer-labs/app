@@ -33,7 +33,7 @@ parts:
     plugin: dump
     source: build/linux/x64/release/bundle
     stage-packages:
-      - libmpv2
+      - libmpv1
       - libsecret-1-0
       - libjsoncpp25
       - libvulkan1
