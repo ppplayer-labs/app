@@ -385,7 +385,7 @@ jobs:
           path: ${{ steps.snapcraft.outputs.snap }}
 
       - name: Publish to Snap Store
-        if: env.SNAPCRAFT_STORE_CREDENTIALS != ''
+        if: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS != '' }}
         uses: snapcore/action-publish@v1
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
