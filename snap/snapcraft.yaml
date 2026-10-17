@@ -1,10 +1,18 @@
 name: ppplayer
+title: PPPlayer
 base: core24
 version: '4.0.2'
 summary: Media player powered by Lucas Veneno
 description: |
   PPPlayer is a modern Flutter media player for music discovery,
   local music and video libraries, network streams, and playlists.
+
+license: MIT
+website: https://ppplayer.com
+issues: https://github.com/ppplayer-labs/app/issues
+source-code: https://github.com/ppplayer-labs/app
+contact: https://ppplayer.com/support
+icon: snap/gui/icon.png
 
 grade: stable
 confinement: strict
