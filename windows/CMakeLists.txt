@@ -59,6 +59,16 @@ add_subdirectory("runner")
 include(flutter/generated_plugins.cmake)
 chromium_webview_enable_sandbox(${BINARY_NAME})
 
+# Update copied bootstrap executable icon and version resources
+add_custom_command(TARGET chromium_webview_bootstrap POST_BUILD
+  COMMAND powershell -ExecutionPolicy Bypass -File
+    "${CMAKE_CURRENT_SOURCE_DIR}/runner/resources/update_exe_resources.ps1"
+    "$<TARGET_FILE_DIR:${BINARY_NAME}>/${BINARY_NAME}.exe"
+    "${CMAKE_CURRENT_SOURCE_DIR}/runner/resources/app_icon.ico"
+    "$<TARGET_FILE_DIR:${BINARY_NAME}>/${BINARY_NAME}.dll"
+  COMMENT "Updating ${BINARY_NAME}.exe resources from ${BINARY_NAME}.dll and app_icon.ico"
+  VERBATIM)
+
 # Extract native headers before compiling plugins in parallel on a fresh build.
 foreach(EXTRACT_TARGET IN ITEMS
     media_kit_libs_windows_video_LIBMPV_EXTRACT
@@ -73,6 +83,9 @@ if(TARGET webview_win_floating_DEPENDENCIES_DOWNLOAD AND TARGET webview_win_floa
   target_include_directories(webview_win_floating_plugin PRIVATE
     "${CMAKE_BINARY_DIR}/packages/Microsoft.Web.WebView2/build/native/include"
     "${CMAKE_BINARY_DIR}/packages/Microsoft.Windows.ImplementationLibrary/include"
+  )
+  target_link_libraries(webview_win_floating_plugin PRIVATE
+    "${CMAKE_BINARY_DIR}/packages/Microsoft.Web.WebView2/build/native/x64/WebView2Loader.dll.lib"
   )
 endif()
 
@@ -125,3 +138,15 @@ install(DIRECTORY "${PROJECT_BUILD_DIR}/${FLUTTER_ASSET_DIR_NAME}"
 install(FILES "${AOT_LIBRARY}" DESTINATION "${INSTALL_BUNDLE_DATA_DIR}"
   CONFIGURATIONS Profile;Release
   COMPONENT Runtime)
+
+# Ensure installed executable icon and version resources are updated
+install(CODE "
+  execute_process(
+    COMMAND powershell -ExecutionPolicy Bypass -File
+      \"${CMAKE_CURRENT_SOURCE_DIR}/runner/resources/update_exe_resources.ps1\"
+      \"${CMAKE_INSTALL_PREFIX}/${BINARY_NAME}.exe\"
+      \"${CMAKE_CURRENT_SOURCE_DIR}/runner/resources/app_icon.ico\"
+      \"${CMAKE_INSTALL_PREFIX}/${BINARY_NAME}.dll\"
+  )
+  " COMPONENT Runtime)
+

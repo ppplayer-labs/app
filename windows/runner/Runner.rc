@@ -92,7 +92,7 @@ BEGIN
             VALUE "CompanyName", "com.ppplayer" "\0"
             VALUE "FileDescription", "PPPlayer" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "ppplayer" "\0"
+            VALUE "InternalName", "PPPlayer" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2026 com.ppplayer.app. All rights reserved." "\0"
             VALUE "OriginalFilename", "ppplayer.exe" "\0"
             VALUE "ProductName", "PPPlayer" "\0"

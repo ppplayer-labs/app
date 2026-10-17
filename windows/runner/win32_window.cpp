@@ -53,6 +53,24 @@ void EnableFullDpiSupportIfAvailable(HWND hwnd) {
   FreeLibrary(user32_module);
 }
 
+// Helper to get the module handle containing application resources.
+// In sandboxed runner setups, resources are compiled into the runner DLL
+// rather than the bootstrap executable.
+HMODULE GetResourceModuleHandle() {
+  HMODULE module = nullptr;
+  if (GetModuleHandleEx(
+          GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+              GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+          reinterpret_cast<LPCWSTR>(&GetResourceModuleHandle), &module) &&
+      module != nullptr) {
+    if (FindResource(module, MAKEINTRESOURCE(IDI_APP_ICON), RT_GROUP_ICON) !=
+        nullptr) {
+      return module;
+    }
+  }
+  return GetModuleHandle(nullptr);
+}
+
 }  // namespace
 
 // Manages the Win32Window's window class registration.
@@ -88,15 +106,16 @@ WindowClassRegistrar* WindowClassRegistrar::instance_ = nullptr;
 
 const wchar_t* WindowClassRegistrar::GetWindowClass() {
   if (!class_registered_) {
+    HMODULE resource_module = GetResourceModuleHandle();
     WNDCLASS window_class{};
     window_class.hCursor = LoadCursor(nullptr, IDC_ARROW);
     window_class.lpszClassName = kWindowClassName;
     window_class.style = CS_HREDRAW | CS_VREDRAW;
     window_class.cbClsExtra = 0;
     window_class.cbWndExtra = 0;
-    window_class.hInstance = GetModuleHandle(nullptr);
+    window_class.hInstance = resource_module;
     window_class.hIcon =
-        LoadIcon(window_class.hInstance, MAKEINTRESOURCE(IDI_APP_ICON));
+        LoadIcon(resource_module, MAKEINTRESOURCE(IDI_APP_ICON));
     window_class.hbrBackground = 0;
     window_class.lpszMenuName = nullptr;
     window_class.lpfnWndProc = Win32Window::WndProc;
@@ -134,14 +153,32 @@ bool Win32Window::Create(const std::wstring& title,
   UINT dpi = FlutterDesktopGetDpiForMonitor(monitor);
   double scale_factor = dpi / 96.0;
 
+  HMODULE resource_module = GetResourceModuleHandle();
   HWND window = CreateWindow(
       window_class, title.c_str(), WS_OVERLAPPEDWINDOW,
       Scale(origin.x, scale_factor), Scale(origin.y, scale_factor),
       Scale(size.width, scale_factor), Scale(size.height, scale_factor),
-      nullptr, nullptr, GetModuleHandle(nullptr), this);
+      nullptr, nullptr, resource_module, this);
 
   if (!window) {
     return false;
+  }
+
+  HICON icon_small = static_cast<HICON>(
+      LoadImage(resource_module, MAKEINTRESOURCE(IDI_APP_ICON), IMAGE_ICON,
+                GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON),
+                LR_DEFAULTCOLOR));
+  HICON icon_big = static_cast<HICON>(
+      LoadImage(resource_module, MAKEINTRESOURCE(IDI_APP_ICON), IMAGE_ICON,
+                GetSystemMetrics(SM_CXICON), GetSystemMetrics(SM_CYICON),
+                LR_DEFAULTCOLOR));
+  if (icon_small != nullptr) {
+    SendMessage(window, WM_SETICON, ICON_SMALL,
+                reinterpret_cast<LPARAM>(icon_small));
+  }
+  if (icon_big != nullptr) {
+    SendMessage(window, WM_SETICON, ICON_BIG,
+                reinterpret_cast<LPARAM>(icon_big));
   }
 
   UpdateTheme(window);
