@@ -2,6 +2,15 @@
 
 All notable changes to PPPlayer will be documented in this file.
 
+## [4.0.2] - 2026-10-17
+
+Release metadata: **4.0.2+14**, Windows MSIX **4.0.2.0**.
+Publisher: Devflier.
+
+### Fixed
+
+- Windows executable metadata: customized CEF bootstrap launcher version resources and icons so PPPlayer displays correctly as "PPPlayer" across Windows Task Manager, Explorer file properties, and process lists instead of "CEF Bootstrap Application".
+
 ## [4.0.1] - 2026-10-16
 
 Release metadata: **4.0.1+13**, Windows MSIX **4.0.1.0**.

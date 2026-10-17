@@ -1,0 +1,40 @@
+name: ppplayer
+base: core22
+version: '4.0.2'
+summary: Media player powered by Lucas Veneno
+description: |
+  PPPlayer is a modern Flutter media player for music discovery,
+  local music and video libraries, network streams, and playlists.
+
+grade: stable
+confinement: strict
+
+architectures:
+  - build-on: amd64
+
+apps:
+  ppplayer:
+    command: ppplayer
+    extensions: [gnome]
+    plugs:
+      - network
+      - network-bind
+      - audio-playback
+      - home
+      - removable-media
+      - opengl
+      - x11
+      - wayland
+    environment:
+      LD_LIBRARY_PATH: "$SNAP/lib:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$LD_LIBRARY_PATH"
+
+parts:
+  bundle:
+    plugin: dump
+    source: build/linux/x64/release/bundle
+    stage-packages:
+      - libmpv2
+      - libsecret-1-0
+      - libjsoncpp25
+      - libvulkan1
+      - libepoxy0

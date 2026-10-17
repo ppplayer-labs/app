@@ -1,7 +1,7 @@
-# PPPlayer 4.0.1 — draft release notes
+# PPPlayer 4.0.2 — draft release notes
 
-Candidate: 4.0.1+13; MSIX 4.0.1.0.
-Latest published app release: 4.0.0 (October 15, 2026).
+Candidate: 4.0.2+14; MSIX 4.0.2.0.
+Latest published app release: 4.0.1 (October 16, 2026).
 
 ## Compatibility changes
 
