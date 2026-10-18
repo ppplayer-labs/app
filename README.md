@@ -26,14 +26,21 @@ These describe the development tree, not availability in every published binary.
 - [Changelog](CHANGELOG.md): upcoming and released changes.
 - [Pre-release validation](docs/validation/pre-release-2026-10-14/REPORT.md): current test evidence, fixes and remaining release gates.
 - [Next release notes](docs/RELEASE_NOTES_NEXT.md): draft notes to promote after platform acceptance.
-- [Android setup](README_ANDROID.md), [macOS release guide](MACOS_RELEASE_GUIDE.md), [Windows Store release guide](docs/WINDOWS_STORE_RELEASE.md).
+- [Android setup](README_ANDROID.md), [macOS release guide](MACOS_RELEASE_GUIDE.md), [Windows Store release guide](docs/WINDOWS_STORE_RELEASE.md), [Flathub release guide](docs/FLATHUB_RELEASE_GUIDE.md).
 - [Historical architecture discovery](PPPLAYER_CONTEXT.md): September 2026 snapshot; use the current guides above for playback behavior.
 
-## Linux Installation
+## Linux Installation & Flatpak
 
-Linux x86_64 packaging scripts produce AppImage, Debian and portable formats.
+Linux x86_64 packaging scripts produce AppImage, Debian, Flatpak and portable formats.
 These are candidate installation examples; no Linux artifact is present in the
 latest published 3.0.2 release, and current target-host acceptance is pending.
+
+**Flathub / Flatpak**
+See the [Flathub Release Guide](docs/FLATHUB_RELEASE_GUIDE.md) and Flatpak packaging manifests in `packaging/linux/flatpak/`.
+```bash
+flatpak install flathub com.ppplayer.PPPlayer
+flatpak run com.ppplayer.PPPlayer
+```
 
 **AppImage**
 ```bash

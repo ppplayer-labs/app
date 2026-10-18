@@ -133,12 +133,51 @@ fi
 # ARCH=x86_64 required for appimagetool to set the right architecture internally
 ARCH=x86_64 $APPIMAGETOOL "$APPDIR" "$DIST_DIR/$APPIMAGE_NAME"
 
-# 6. Generate Checksums
+# 6. Prepare Flathub / Flatpak Package
+echo "Preparing Flathub / Flatpak artifacts..."
+FLATPAK_DIST_DIR="$DIST_DIR/flatpak"
+mkdir -p "$FLATPAK_DIST_DIR"
+
+TAR_SHA256=$(sha256sum "$DIST_DIR/$TAR_NAME" | awk '{print $1}')
+echo "Tarball SHA-256 for Flathub: $TAR_SHA256"
+
+# Copy Flathub metadata files
+cp packaging/linux/flatpak/com.ppplayer.PPPlayer.desktop "$FLATPAK_DIST_DIR/"
+cp packaging/linux/flatpak/com.ppplayer.PPPlayer.metainfo.xml "$FLATPAK_DIST_DIR/"
+cp packaging/linux/flatpak/com.ppplayer.PPPlayer.png "$FLATPAK_DIST_DIR/"
+
+# Generate manifest with exact release version and computed sha256
+sed -e "s|download/v[0-9.]*|download/v${VERSION}|g" \
+    -e "s|sha256: [0-9a-fA-F]*|sha256: ${TAR_SHA256}|g" \
+    packaging/linux/flatpak/com.ppplayer.PPPlayer.yml > "$FLATPAK_DIST_DIR/com.ppplayer.PPPlayer.yml"
+
+# If flatpak-builder is available, build standalone .flatpak bundle
+FLATPAK_BUNDLE_NAME="PPPlayer-Linux-x86_64.flatpak"
+if command -v flatpak-builder &> /dev/null; then
+    echo "Building Flatpak bundle: $FLATPAK_BUNDLE_NAME"
+    FLATPAK_BUILD_DIR="build/linux/x64/flatpak"
+    rm -rf "$FLATPAK_BUILD_DIR"
+    mkdir -p "$FLATPAK_BUILD_DIR"
+    flatpak-builder --force-clean --repo="$FLATPAK_BUILD_DIR/repo" "$FLATPAK_BUILD_DIR/build" "$FLATPAK_DIST_DIR/com.ppplayer.PPPlayer.yml" || true
+    if [ -d "$FLATPAK_BUILD_DIR/repo" ]; then
+        flatpak build-bundle "$FLATPAK_BUILD_DIR/repo" "$DIST_DIR/$FLATPAK_BUNDLE_NAME" com.ppplayer.PPPlayer || true
+    fi
+fi
+
+# 7. Generate Checksums
 echo "Generating Checksums..."
 cd "$DIST_DIR"
-# Make sure we only hash the newly generated Linux artifacts (in case old macOS dmg are there, though dist/ has it, let's specify)
-sha256sum "$APPIMAGE_NAME" "$DEB_NAME" "$TAR_NAME" > SHA256SUMS
+HASH_TARGETS=("$APPIMAGE_NAME" "$DEB_NAME" "$TAR_NAME")
+if [ -f "$FLATPAK_BUNDLE_NAME" ]; then
+    HASH_TARGETS+=("$FLATPAK_BUNDLE_NAME")
+fi
+sha256sum "${HASH_TARGETS[@]}" > SHA256SUMS
 cd ..
 
 echo "Done! Artifacts are in $DIST_DIR/"
 ls -lh "$DIST_DIR/$APPIMAGE_NAME" "$DIST_DIR/$DEB_NAME" "$DIST_DIR/$TAR_NAME" "$DIST_DIR/SHA256SUMS"
+if [ -f "$DIST_DIR/$FLATPAK_BUNDLE_NAME" ]; then
+    ls -lh "$DIST_DIR/$FLATPAK_BUNDLE_NAME"
+fi
+ls -lh "$FLATPAK_DIST_DIR"
+
