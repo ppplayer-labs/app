@@ -60,7 +60,7 @@ apps:
       - x11
       - wayland
     environment:
-      LD_LIBRARY_PATH: "$SNAP/lib:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$LD_LIBRARY_PATH"
+      LD_LIBRARY_PATH: "$SNAP/lib:$SNAP/usr/lib/x86_64-linux-gnu:$SNAP/usr/lib/x86_64-linux-gnu/blas:$SNAP/usr/lib/x86_64-linux-gnu/lapack:$LD_LIBRARY_PATH"
 
 parts:
   bundle:
@@ -71,3 +71,15 @@ parts:
       - libsecret-1-0
       - libvulkan1
       - libepoxy0
+      - libblas3
+      - liblapack3
+    override-prime: |
+      craftctl default
+      for dir in "$CRAFT_PRIME"/usr/lib/*-linux-gnu; do
+        if [ -d "$dir/blas" ] && [ ! -e "$dir/libblas.so.3" ]; then
+          ln -sf blas/libblas.so.3 "$dir/libblas.so.3"
+        fi
+        if [ -d "$dir/lapack" ] && [ ! -e "$dir/liblapack.so.3" ]; then
+          ln -sf lapack/liblapack.so.3 "$dir/liblapack.so.3"
+        fi
+      done
