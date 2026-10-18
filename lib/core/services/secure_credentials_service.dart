@@ -15,38 +15,58 @@ class SecureCredentialsService {
   // --- Spotify ---
 
   Future<String?> readSpotifyClientId() async {
-    return await _storage.read(key: _spotifyClientIdKey);
+    try {
+      return await _storage.read(key: _spotifyClientIdKey);
+    } catch (_) {
+      return null;
+    }
   }
 
   Future<String?> readSpotifyClientSecret() async {
-    return await _storage.read(key: _spotifyClientSecretKey);
+    try {
+      return await _storage.read(key: _spotifyClientSecretKey);
+    } catch (_) {
+      return null;
+    }
   }
 
   Future<void> writeSpotifyCredentials({
     required String clientId,
     required String clientSecret,
   }) async {
-    await _storage.write(key: _spotifyClientIdKey, value: clientId);
-    await _storage.write(key: _spotifyClientSecretKey, value: clientSecret);
+    try {
+      await _storage.write(key: _spotifyClientIdKey, value: clientId);
+      await _storage.write(key: _spotifyClientSecretKey, value: clientSecret);
+    } catch (_) {}
   }
 
   Future<void> clearSpotifyCredentials() async {
-    await _storage.delete(key: _spotifyClientIdKey);
-    await _storage.delete(key: _spotifyClientSecretKey);
+    try {
+      await _storage.delete(key: _spotifyClientIdKey);
+      await _storage.delete(key: _spotifyClientSecretKey);
+    } catch (_) {}
   }
 
   // --- YouTube ---
 
   Future<String?> readYoutubeApiKey() async {
-    return await _storage.read(key: _youtubeApiKeyKey);
+    try {
+      return await _storage.read(key: _youtubeApiKeyKey);
+    } catch (_) {
+      return null;
+    }
   }
 
   Future<void> writeYoutubeApiKey(String apiKey) async {
-    await _storage.write(key: _youtubeApiKeyKey, value: apiKey);
+    try {
+      await _storage.write(key: _youtubeApiKeyKey, value: apiKey);
+    } catch (_) {}
   }
 
   Future<void> clearYoutubeApiKey() async {
-    await _storage.delete(key: _youtubeApiKeyKey);
+    try {
+      await _storage.delete(key: _youtubeApiKeyKey);
+    } catch (_) {}
   }
 }
 
