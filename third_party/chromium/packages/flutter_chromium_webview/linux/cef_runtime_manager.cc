@@ -12,6 +12,13 @@ class SoftwareRenderingApp : public CefApp {
     // CPU off-screen rendering is the supported v0.1.0 path.
     command_line->AppendSwitch("disable-gpu");
     command_line->AppendSwitch("disable-gpu-compositing");
+    // Inside sandboxed environments (Snap, Flatpak, Docker) or when requested,
+    // disable the redundant inner user-namespace sandbox so it doesn't abort.
+    if (getenv("SNAP") != nullptr || getenv("FLATPAK_ID") != nullptr ||
+        getenv("PPPLAYER_NO_SANDBOX") != nullptr) {
+      command_line->AppendSwitch("no-sandbox");
+      command_line->AppendSwitch("disable-setuid-sandbox");
+    }
   }
  private:
   IMPLEMENT_REFCOUNTING(SoftwareRenderingApp);
@@ -47,9 +54,14 @@ bool CefRuntimeManager::Initialize(const std::string& cache_path, int argc, char
   CefMainArgs main_args(argc > 0 ? argc : 1, argc > 0 ? argv : default_argv);
   CefSettings settings;
 
-  // Keep Chromium's sandbox enabled. Unsupported hosts must fail explicitly;
-  // no automatic --no-sandbox fallback is permitted.
+  // Keep Chromium's sandbox enabled on standard desktop hosts. Inside sandboxed
+  // environments (Snap, Flatpak, Docker) or when requested, disable the inner
+  // user-namespace sandbox so it doesn't fail with credentials.cc:131 check failed.
   settings.windowless_rendering_enabled = true;
+  if (getenv("SNAP") != nullptr || getenv("FLATPAK_ID") != nullptr ||
+      getenv("PPPLAYER_NO_SANDBOX") != nullptr) {
+    settings.no_sandbox = true;
+  }
   // Use CEF's external pump instead of a nested GLib pump. The latter can
   // keep dispatching GTK sources inside a timer call and starve window events.
   // Our periodic main-thread timer also services delayed Chromium work.

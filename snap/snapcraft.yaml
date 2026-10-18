@@ -59,6 +59,7 @@ apps:
       - opengl
       - x11
       - wayland
+      - browser-support
     environment:
       LD_LIBRARY_PATH: "$SNAP/lib:$SNAP/usr/lib/x86_64-linux-gnu:$SNAP/usr/lib/x86_64-linux-gnu/blas:$SNAP/usr/lib/x86_64-linux-gnu/lapack:$LD_LIBRARY_PATH"
 
