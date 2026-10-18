@@ -1,13 +1,15 @@
 #include "include/cef_runtime_manager.h"
 #include <iostream>
-#include <unistd.h>
 #include <linux/limits.h>
+#include <unistd.h>
+
 
 namespace {
 class SoftwareRenderingApp : public CefApp {
- public:
-  void OnBeforeCommandLineProcessing(const CefString& process_type,
-                                    CefRefPtr<CefCommandLine> command_line) override {
+public:
+  void OnBeforeCommandLineProcessing(
+      const CefString &process_type,
+      CefRefPtr<CefCommandLine> command_line) override {
     command_line->AppendSwitchWithValue("ozone-platform", "x11");
     // CPU off-screen rendering is the supported v0.1.0 path.
     command_line->AppendSwitch("disable-gpu");
@@ -20,19 +22,21 @@ class SoftwareRenderingApp : public CefApp {
       command_line->AppendSwitch("disable-setuid-sandbox");
     }
   }
- private:
+
+private:
   IMPLEMENT_REFCOUNTING(SoftwareRenderingApp);
 };
-}  // namespace
+} // namespace
 
-CefRuntimeManager* CefRuntimeManager::instance_ = nullptr;
+CefRuntimeManager *CefRuntimeManager::instance_ = nullptr;
 std::mutex CefRuntimeManager::instance_mutex_;
 
-CefRuntimeManager::CefRuntimeManager() : state_(CefRuntimeState::kUninitialized) {}
+CefRuntimeManager::CefRuntimeManager()
+    : state_(CefRuntimeState::kUninitialized) {}
 
 CefRuntimeManager::~CefRuntimeManager() {}
 
-CefRuntimeManager* CefRuntimeManager::GetInstance() {
+CefRuntimeManager *CefRuntimeManager::GetInstance() {
   std::lock_guard<std::mutex> lock(instance_mutex_);
   if (!instance_) {
     instance_ = new CefRuntimeManager();
@@ -40,23 +44,25 @@ CefRuntimeManager* CefRuntimeManager::GetInstance() {
   return instance_;
 }
 
-bool CefRuntimeManager::Initialize(const std::string& cache_path, int argc, char** argv) {
+bool CefRuntimeManager::Initialize(const std::string &cache_path, int argc,
+                                   char **argv) {
   std::lock_guard<std::mutex> lock(state_mutex_);
   if (state_ != CefRuntimeState::kUninitialized) {
     return state_ == CefRuntimeState::kReady;
   }
-  
+
   state_ = CefRuntimeState::kInitializing;
 
   // Chromium expects argv[0] even when invoked through a Flutter channel.
   char program_name[] = "flutter_chromium_webview";
-  char* default_argv[] = {program_name, nullptr};
+  char *default_argv[] = {program_name, nullptr};
   CefMainArgs main_args(argc > 0 ? argc : 1, argc > 0 ? argv : default_argv);
   CefSettings settings;
 
   // Keep Chromium's sandbox enabled on standard desktop hosts. Inside sandboxed
   // environments (Snap, Flatpak, Docker) or when requested, disable the inner
-  // user-namespace sandbox so it doesn't fail with credentials.cc:131 check failed.
+  // user-namespace sandbox so it doesn't fail with credentials.cc:131 check
+  // failed.
   settings.windowless_rendering_enabled = true;
   if (getenv("SNAP") != nullptr || getenv("FLATPAK_ID") != nullptr ||
       getenv("PPPLAYER_NO_SANDBOX") != nullptr) {
@@ -80,7 +86,8 @@ bool CefRuntimeManager::Initialize(const std::string& cache_path, int argc, char
     dir = dir.substr(0, dir.find_last_of("/\\"));
   }
 
-  std::string subprocess_path = dir + "/lib/flutter_chromium_webview_subprocess";
+  std::string subprocess_path =
+      dir + "/lib/flutter_chromium_webview_subprocess";
   CefString(&settings.browser_subprocess_path) = subprocess_path;
 
   // CEF resources are in the 'lib' dir when bundled
@@ -90,20 +97,24 @@ bool CefRuntimeManager::Initialize(const std::string& cache_path, int argc, char
 
   // Initialize CEF
   std::cerr << "[CEF] Initializing runtime" << std::endl;
-  bool success = CefInitialize(main_args, settings, new SoftwareRenderingApp(), nullptr);
+  bool success =
+      CefInitialize(main_args, settings, new SoftwareRenderingApp(), nullptr);
   std::cerr << "[CEF] Initialization result: " << success << std::endl;
-  
+
   if (success) {
     state_ = CefRuntimeState::kReady;
-    pump_id_ = g_timeout_add(10, [](gpointer) -> gboolean {
-      CefDoMessageLoopWork();
-      return G_SOURCE_CONTINUE;
-    }, nullptr);
+    pump_id_ = g_timeout_add(
+        10,
+        [](gpointer) -> gboolean {
+          CefDoMessageLoopWork();
+          return G_SOURCE_CONTINUE;
+        },
+        nullptr);
   } else {
     // CEF initialization is a one-shot operation, including early exits.
     state_ = CefRuntimeState::kShutdown;
   }
-  
+
   return success;
 }
 
@@ -126,7 +137,9 @@ void CefRuntimeManager::Shutdown() {
     g_usleep(1000);
   }
   if (browser_count_ != 0) {
-    g_warning("CEF shutdown timed out with %d browsers; skipping unsafe CefShutdown", browser_count_);
+    g_warning(
+        "CEF shutdown timed out with %d browsers; skipping unsafe CefShutdown",
+        browser_count_);
     return;
   }
   CefShutdown();
@@ -134,6 +147,4 @@ void CefRuntimeManager::Shutdown() {
   std::cerr << "[CEF] Shutdown complete" << std::endl;
 }
 
-CefRuntimeState CefRuntimeManager::GetState() const {
-  return state_;
-}
+CefRuntimeState CefRuntimeManager::GetState() const { return state_; }
