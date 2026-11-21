@@ -63,10 +63,13 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
   // The view to restore when the queue is dismissed on narrow screen.
   // Updated whenever the user navigates away from queue.
   PlayerView _previousPlayerView = PlayerView.video;
+  ModalRoute<dynamic>? _observedRoute;
+  late final VideoLayoutNotifier _videoLayoutNotifier;
 
   @override
   void initState() {
     super.initState();
+    _videoLayoutNotifier = ref.read(videoLayoutProvider.notifier);
     // Queue navigation has its own route; normalize older saved view choices.
     if (ref.read(settingsProvider).playerView == PlayerView.queue) {
       Future.microtask(() {
@@ -112,6 +115,14 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route != _observedRoute) {
+      _observedRoute?.secondaryAnimation
+          ?.removeStatusListener(_onSecondaryAnimationStatus);
+      _observedRoute = route;
+      _observedRoute?.secondaryAnimation
+          ?.addStatusListener(_onSecondaryAnimationStatus);
+    }
     // Re-measure immediately on every window resize (macOS / desktop).
     final windowSize = MediaQuery.sizeOf(context);
     if (_lastWindowSize != null && _lastWindowSize != windowSize) {
@@ -120,6 +131,14 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
       });
     }
     _lastWindowSize = windowSize;
+  }
+
+  void _onSecondaryAnimationStatus(AnimationStatus status) {
+    if (status == AnimationStatus.dismissed &&
+        mounted &&
+        (_observedRoute?.isCurrent ?? false)) {
+      ensureVideoSurfaceReady('route_resumed');
+    }
   }
 
   // Safety-net probes for slow media resolvers.
@@ -156,6 +175,17 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
   void ensureVideoSurfaceReady([String label = 'manual']) {
     if (!mounted) {
       if (kDebugMode) debugPrint('[VideoInit] skipped: unmounted ($label)');
+      return;
+    }
+
+    // Only the topmost / current route should publish layout bounds to
+    // videoLayoutProvider. Background instances (e.g. when an artist or album
+    // screen is pushed on top of PlayerScreen) must never overwrite layout.
+    final isCurrentRoute = _observedRoute?.isCurrent ?? true;
+    if (!isCurrentRoute) {
+      if (kDebugMode) {
+        debugPrint('[VideoInit] skipped: not current route ($label)');
+      }
       return;
     }
 
@@ -380,6 +410,17 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
 
   @override
   void dispose() {
+    _observedRoute?.secondaryAnimation
+        ?.removeStatusListener(_onSecondaryAnimationStatus);
+    _observedRoute = null;
+    final layoutNotifier = _videoLayoutNotifier;
+    Future.microtask(() {
+      try {
+        layoutNotifier.clear();
+      } catch (_) {
+        // Container may already be disposed during shutdown or test teardown.
+      }
+    });
     if (_ownedFullscreen) {
       FullScreenWindow.setFullScreen(false);
     }
@@ -567,6 +608,7 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
                         PPImage(
                               imageUrl: track.albumImage ?? '',
                               fit: BoxFit.cover,
+                              maxCacheLogicalExtent: 256,
                             )
                             .animate(
                               onPlay: (controller) => isPowerSaver
@@ -659,8 +701,7 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
 
               if (!isPipMode &&
                   (!hasVideo || !isVideoView) &&
-                  status != null &&
-                  status.state != PlaybackState.preparing)
+                  status?.state != PlaybackState.preparing)
                 _VinylArtwork(
                   key: const ValueKey('artwork_view'),
                   imageUrl:

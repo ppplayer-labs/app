@@ -101,9 +101,9 @@ static gboolean my_application_local_command_line(GApplication* application,
 
 // Implements GApplication::startup.
 static void my_application_startup(GApplication* application) {
-  // MyApplication* self = MY_APPLICATION(object);
-
-  // Perform any actions required at application startup.
+  // Suppress Chromium's duplicate MPRIS system media session by default unless
+  // explicitly overridden in the environment.
+  g_setenv("CEF_SYSTEM_MEDIA_CONTROLS", "0", FALSE);
 
   G_APPLICATION_CLASS(my_application_parent_class)->startup(application);
 }

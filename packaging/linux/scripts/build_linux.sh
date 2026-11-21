@@ -60,9 +60,13 @@ mkdir -p "$DEB_BUILD_DIR/opt/ppplayer"
 mkdir -p "$DEB_BUILD_DIR/usr/bin"
 mkdir -p "$DEB_BUILD_DIR/usr/share/applications"
 mkdir -p "$DEB_BUILD_DIR/usr/share/icons/hicolor/256x256/apps"
+mkdir -p "$DEB_BUILD_DIR/etc/apparmor.d"
 
 # Copy App Files
 cp -r "$BUNDLE_DIR/"* "$DEB_BUILD_DIR/opt/ppplayer/"
+if [ -f "$DEB_BUILD_DIR/opt/ppplayer/lib/flutter_chromium_webview_subprocess" ]; then
+    chmod +x "$DEB_BUILD_DIR/opt/ppplayer/lib/flutter_chromium_webview_subprocess"
+fi
 
 # Create Launcher symlink
 ln -s /opt/ppplayer/ppplayer "$DEB_BUILD_DIR/usr/bin/ppplayer"
@@ -70,6 +74,44 @@ ln -s /opt/ppplayer/ppplayer "$DEB_BUILD_DIR/usr/bin/ppplayer"
 # Copy Desktop and Icon
 cp packaging/linux/com.ppplayer.app.desktop "$DEB_BUILD_DIR/usr/share/applications/"
 cp assets/logo.png "$DEB_BUILD_DIR/usr/share/icons/hicolor/256x256/apps/com.ppplayer.app.png"
+
+# Install a narrowly scoped AppArmor profile permitting unprivileged user
+# namespaces ONLY for PPPlayer's installed binaries so Chromium's native
+# sandbox works on Ubuntu 24.04+ without relaxing system-wide sysctl settings.
+cat <<'EOF' > "$DEB_BUILD_DIR/etc/apparmor.d/ppplayer"
+abi <abi/4.0>,
+include <tunables/global>
+
+profile ppplayer /opt/ppplayer/{ppplayer,lib/flutter_chromium_webview_subprocess} flags=(unconfined) {
+  userns,
+
+  include if exists <local/ppplayer>
+}
+EOF
+
+cat <<'EOF' > "$DEB_BUILD_DIR/DEBIAN/postinst"
+#!/bin/sh
+set -e
+if [ "$1" = "configure" ] && command -v apparmor_parser >/dev/null 2>&1 && [ -f /etc/apparmor.d/ppplayer ]; then
+    if [ -d /sys/kernel/security/apparmor ]; then
+        apparmor_parser -r -T -W /etc/apparmor.d/ppplayer || true
+    fi
+fi
+exit 0
+EOF
+chmod 0755 "$DEB_BUILD_DIR/DEBIAN/postinst"
+
+cat <<'EOF' > "$DEB_BUILD_DIR/DEBIAN/postrm"
+#!/bin/sh
+set -e
+if [ "$1" = "purge" ] || [ "$1" = "remove" ]; then
+    if command -v apparmor_parser >/dev/null 2>&1 && [ -d /sys/kernel/security/apparmor ]; then
+        apparmor_parser -R /etc/apparmor.d/ppplayer 2>/dev/null || true
+    fi
+fi
+exit 0
+EOF
+chmod 0755 "$DEB_BUILD_DIR/DEBIAN/postrm"
 
 # Generate control file
 cat <<EOF > "$DEB_BUILD_DIR/DEBIAN/control"
@@ -81,14 +123,17 @@ Architecture: amd64
 Maintainer: Lucas Veneno
 Description: Media player powered by Lucas Veneno.
  PPPlayer is a Flutter media player for music discovery, local music and video libraries, network streams, and playlists.
-Depends: libgtk-3-0, libgl1, libegl1, libx11-6, libxcb1, libstdc++6, libvulkan1, libsecret-1-0, libwebkit2gtk-4.1-0 | libwebkit2gtk-4.0-37, libmpv1 | libmpv2, libepoxy0
+Depends: libgtk-3-0, libgl1, libegl1, libx11-6, libxcb1, libstdc++6, libvulkan1, libsecret-1-0, libmpv1 | libmpv2, libepoxy0
 EOF
 
-chmod -R 755 "$DEB_BUILD_DIR"
+chmod -R 755 "$DEB_BUILD_DIR/opt/ppplayer" "$DEB_BUILD_DIR/usr"
+chmod 0644 "$DEB_BUILD_DIR/etc/apparmor.d/ppplayer" "$DEB_BUILD_DIR/DEBIAN/control"
+chmod 0755 "$DEB_BUILD_DIR/DEBIAN" "$DEB_BUILD_DIR/DEBIAN/postinst" "$DEB_BUILD_DIR/DEBIAN/postrm"
 # Workaround for WSL filesystem permission issues with dpkg-deb:
 # Build the deb in /tmp, then move it to the output directory.
 cp -r "$DEB_BUILD_DIR" "/tmp/ppplayer_deb_build"
-chmod -R 0755 "/tmp/ppplayer_deb_build"
+chmod 0755 "/tmp/ppplayer_deb_build/DEBIAN" "/tmp/ppplayer_deb_build/DEBIAN/postinst" "/tmp/ppplayer_deb_build/DEBIAN/postrm"
+chmod 0644 "/tmp/ppplayer_deb_build/DEBIAN/control" "/tmp/ppplayer_deb_build/etc/apparmor.d/ppplayer"
 dpkg-deb --build "/tmp/ppplayer_deb_build"
 mv "/tmp/ppplayer_deb_build.deb" "$DIST_DIR/$DEB_NAME"
 rm -rf "/tmp/ppplayer_deb_build"
@@ -102,6 +147,9 @@ mkdir -p "$APPDIR"
 
 # Copy bundle
 cp -r "$BUNDLE_DIR/"* "$APPDIR/"
+if [ -f "$APPDIR/lib/flutter_chromium_webview_subprocess" ]; then
+    chmod +x "$APPDIR/lib/flutter_chromium_webview_subprocess"
+fi
 
 # Copy Desktop and Icon into root of AppDir
 cp packaging/linux/com.ppplayer.app.desktop "$APPDIR/"
@@ -113,6 +161,7 @@ cat <<'EOF' > "$APPDIR/AppRun"
 #!/bin/sh
 HERE="$(dirname "$(readlink -f "${0}")")"
 export LD_LIBRARY_PATH="${HERE}/lib:${LD_LIBRARY_PATH}"
+export CEF_SYSTEM_MEDIA_CONTROLS="${CEF_SYSTEM_MEDIA_CONTROLS:-0}"
 exec "${HERE}/ppplayer" "$@"
 EOF
 chmod +x "$APPDIR/AppRun"

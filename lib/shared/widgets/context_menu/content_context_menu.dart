@@ -173,6 +173,7 @@ void showContentContextMenu(
     },
     transitionBuilder: (context, anim1, anim2, child) {
       return FadeTransition(
+        alwaysIncludeSemantics: true,
         opacity: CurvedAnimation(parent: anim1, curve: Curves.easeOut),
         child: child,
       );

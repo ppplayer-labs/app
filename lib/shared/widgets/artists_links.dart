@@ -43,11 +43,15 @@ class ArtistsLinks extends StatelessWidget {
                       ),
                     );
                   } else {
-                    final id = i < ids.length
-                        ? ids[i]
-                        : (ids.isNotEmpty ? ids[0] : '');
+                    final id = (i < ids.length
+                            ? ids[i]
+                            : (ids.isNotEmpty ? ids[0] : ''))
+                        .trim();
                     if (id.isNotEmpty) {
-                      context.push('/artist/$id');
+                      final target = '/artist/$id';
+                      if (GoRouterState.of(context).uri.path != target) {
+                        context.push(target);
+                      }
                     }
                   }
                 },

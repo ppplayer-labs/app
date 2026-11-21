@@ -16,12 +16,15 @@ class PlayerRouteTransition extends ChangeNotifier {
 
   bool get isAttached => _animation != null;
   double get progress => Curves.easeOutQuart.transform(_animation?.value ?? 0);
+  AnimationStatus? get status => _animation?.status;
 
   void attach(Animation<double> animation) {
     if (identical(animation, _animation)) return;
     _animation?.removeListener(_tick);
+    _animation?.removeStatusListener(_onStatus);
     _animation = animation;
     animation.addListener(_tick);
+    animation.addStatusListener(_onStatus);
     // The route builder runs during build; wake the shell after layout.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!_disposed && identical(_animation, animation)) notifyListeners();
@@ -31,6 +34,7 @@ class PlayerRouteTransition extends ChangeNotifier {
   void detach(Animation<double> animation) {
     if (!identical(animation, _animation)) return;
     animation.removeListener(_tick);
+    animation.removeStatusListener(_onStatus);
     _animation = null;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!_disposed && _animation == null) notifyListeners();
@@ -38,11 +42,13 @@ class PlayerRouteTransition extends ChangeNotifier {
   }
 
   void _tick() => notifyListeners();
+  void _onStatus(AnimationStatus status) => notifyListeners();
 
   @override
   void dispose() {
     _disposed = true;
     _animation?.removeListener(_tick);
+    _animation?.removeStatusListener(_onStatus);
     _animation = null;
     super.dispose();
   }
@@ -88,9 +94,14 @@ class _PlayerRouteTransitionBoundaryState
 
   @override
   Widget build(BuildContext context) => FadeTransition(
+    alwaysIncludeSemantics: true,
     opacity: widget.animation.drive(
       CurveTween(curve: const Interval(0.35, 1, curve: Curves.easeOut)),
     ),
-    child: widget.child,
+    // Scope OverlayPortal children (e.g. Material Slider's always-shown value
+    // indicator and Tooltips) inside this route's Offstage boundary so
+    // HeroController's frame-1 offstage layout cannot orphan traversal children
+    // in the ancestor Navigator's Overlay and break Windows ui::AXTree.
+    child: Overlay.wrap(child: widget.child),
   );
 }

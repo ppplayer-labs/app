@@ -76,41 +76,46 @@ class MediaKitPlayerAdapter implements INativePlayerAdapter {
   static Player? _sharedPlayer;
   static VideoController? _sharedVideoController;
 
-  MediaKitPlayerAdapter() {
+  MediaKitPlayerAdapter({bool needsVideoSurface = true}) {
     _sharedPlayer ??= Player(
-      configuration: const PlayerConfiguration(logLevel: MPVLogLevel.debug),
+      configuration: PlayerConfiguration(
+        logLevel: kDebugMode ? MPVLogLevel.warn : MPVLogLevel.error,
+      ),
     );
-    _sharedVideoController ??= VideoController(_sharedPlayer!);
     _player = _sharedPlayer!;
-    _videoController = _sharedVideoController!;
-    _logSubscription = _player.stream.log.listen(
-      (event) =>
-          print('MPV_LOG: ${event.level} - ${event.prefix}: ${event.text}'),
-    );
+    if (needsVideoSurface) {
+      _sharedVideoController ??= VideoController(_sharedPlayer!);
+      _videoController = _sharedVideoController;
+    }
+    if (kDebugMode) {
+      _logSubscription = _player.stream.log.listen(
+        (event) =>
+            debugPrint('MPV_LOG: ${event.level} - ${event.prefix}: ${event.text}'),
+      );
+    }
     try {
       // Enable ffmpeg HTTPS reconnects to prevent EOF/partial file when seeking
       (_player.platform as dynamic).setProperty(
         'stream-lavf-o',
         'reconnect=1,reconnect_streamed=1,reconnect_delay_max=5,reconnect_on_network_error=1,reconnect_on_http_error=5xx',
       );
-      // Keep some cache around
-      (_player.platform as dynamic).setProperty('cache-secs', '100');
-      // Increase demuxer cache to prevent stalling when skipping fragments
+      // Bounded default demuxer cache; open() tunes tighter limits for local files.
+      (_player.platform as dynamic).setProperty('cache-secs', '60');
       (_player.platform as dynamic).setProperty(
         'demuxer-max-bytes',
-        '150000000',
-      ); // 150MB
+        '48000000',
+      ); // 48MB
       (_player.platform as dynamic).setProperty(
         'demuxer-max-back-bytes',
-        '50000000',
-      ); // 50MB
+        '16000000',
+      ); // 16MB
     } catch (e) {
       debugPrint('MediaKitPlaybackEngine: Failed to set mpv properties: $e');
     }
   }
 
   late final Player _player;
-  late final VideoController _videoController;
+  VideoController? _videoController;
   StreamSubscription<PlayerLog>? _logSubscription;
   bool _disposed = false;
 
@@ -175,6 +180,19 @@ class MediaKitPlayerAdapter implements INativePlayerAdapter {
       await (_player.platform as dynamic).setProperty(
         'hr-seek',
         local ? 'yes' : 'no',
+      );
+      // Local files read directly from disk and do not need large RAM demuxer caches.
+      await (_player.platform as dynamic).setProperty(
+        'cache-secs',
+        local ? '20' : '60',
+      );
+      await (_player.platform as dynamic).setProperty(
+        'demuxer-max-bytes',
+        local ? '16000000' : '48000000',
+      );
+      await (_player.platform as dynamic).setProperty(
+        'demuxer-max-back-bytes',
+        local ? '4000000' : '16000000',
       );
     }
     // Bug fix: do NOT inject HTTP headers for local-scheme URIs (file://, content://,
@@ -377,10 +395,10 @@ class MediaKitPlaybackEngine implements PlaybackController {
   // Session management
   // ---------------------------------------------------------------------------
 
-  INativePlayerAdapter _makeAdapter() =>
+  INativePlayerAdapter _makeAdapter({bool needsVideoSurface = true}) =>
       nativeAdapterFactory != null
           ? nativeAdapterFactory!()
-          : MediaKitPlayerAdapter();
+          : MediaKitPlayerAdapter(needsVideoSurface: needsVideoSurface);
 
   /// Immediately detach [_activeSession] (so its callbacks are rejected), then
   /// stop + dispose it asynchronously. Must be called *before* any await so
@@ -591,9 +609,11 @@ class MediaKitPlaybackEngine implements PlaybackController {
       if (_disposed || _playGeneration != myGen) return;
 
       // ── Create and activate the new session ───────────────────────────────
+      final needsVideoSurface =
+          track.isVideo || track.sourceType == PlaybackSourceType.networkStream;
       final session = NativePlaybackSession(
         generation: myGen,
-        adapter: _makeAdapter(),
+        adapter: _makeAdapter(needsVideoSurface: needsVideoSurface),
       );
       // Assign _activeSession first so its callbacks are accepted and the
       // renderer getter immediately returns the new VideoController.
@@ -726,9 +746,11 @@ class MediaKitPlaybackEngine implements PlaybackController {
       if (_disposed || _playGeneration != myGen) return;
 
       // ── Create and activate the new session ───────────────────────────────
+      final needsVideoSurface =
+          track.isVideo || track.sourceType == PlaybackSourceType.networkStream;
       final session = NativePlaybackSession(
         generation: myGen,
-        adapter: _makeAdapter(),
+        adapter: _makeAdapter(needsVideoSurface: needsVideoSurface),
         startPosition: startAt,
       );
       _activeSession = session;

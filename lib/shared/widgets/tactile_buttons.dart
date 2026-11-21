@@ -96,10 +96,22 @@ class _TactileIconButtonState extends State<TactileIconButton> {
     final effectiveRadius =
         widget.borderRadius ?? BorderRadius.circular(widget.size + 12);
 
-    Widget content = MouseRegion(
-      cursor: isEnabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
+    Widget content = FocusableActionDetector(
+      enabled: isEnabled,
+      mouseCursor: isEnabled
+          ? SystemMouseCursors.click
+          : SystemMouseCursors.basic,
+      onShowHoverHighlight: (hovered) {
+        if (_isHovered != hovered) setState(() => _isHovered = hovered);
+      },
+      actions: <Type, Action<Intent>>{
+        ActivateIntent: CallbackAction<ActivateIntent>(
+          onInvoke: (ActivateIntent intent) {
+            widget.onTap?.call();
+            return null;
+          },
+        ),
+      },
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTapDown: _handleTapDown,
@@ -152,7 +164,12 @@ class _TactileIconButtonState extends State<TactileIconButton> {
       );
     }
 
-    return content;
+    return Semantics(
+      button: true,
+      enabled: isEnabled,
+      label: widget.tooltip,
+      child: content,
+    );
   }
 }
 
@@ -521,6 +538,7 @@ class _TactilePlayerPlayPauseButtonState
 
     return Semantics(
       button: true,
+      enabled: isEnabled,
       label: widget.isLoading
           ? AppLocalizations.of(context)!.loading
           : (widget.isPlaying
@@ -529,10 +547,22 @@ class _TactilePlayerPlayPauseButtonState
       hint: widget.isLoading
           ? AppLocalizations.of(context)!.loading
           : tooltipMessage,
-      child: MouseRegion(
-        cursor: isEnabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
-        onEnter: (_) => setState(() => _isHovered = true),
-        onExit: (_) => setState(() => _isHovered = false),
+      child: FocusableActionDetector(
+        enabled: isEnabled,
+        mouseCursor: isEnabled
+            ? SystemMouseCursors.click
+            : SystemMouseCursors.basic,
+        onShowHoverHighlight: (hovered) {
+          if (_isHovered != hovered) setState(() => _isHovered = hovered);
+        },
+        actions: <Type, Action<Intent>>{
+          ActivateIntent: CallbackAction<ActivateIntent>(
+            onInvoke: (ActivateIntent intent) {
+              widget.onTap?.call();
+              return null;
+            },
+          ),
+        },
         child: Tooltip(
           message: tooltipMessage,
           waitDuration: const Duration(milliseconds: 600),

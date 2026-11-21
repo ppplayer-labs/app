@@ -1,6 +1,7 @@
 """Check that Linux packaging builds a fresh bundle and stops on build failure."""
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import tempfile
 import unittest
@@ -8,6 +9,7 @@ import unittest
 SCRIPT = Path(__file__).resolve().parents[1] / 'packaging/linux/scripts/build_linux.sh'
 
 
+@unittest.skipUnless(shutil.which('bash'), 'bash required')
 class LinuxBuildTests(unittest.TestCase):
     def test_build_failure_stops_packaging_even_with_stale_bundle(self):
         with tempfile.TemporaryDirectory() as directory:

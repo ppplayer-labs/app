@@ -571,10 +571,24 @@ class PlayerNotifier extends Notifier<PlayerState> {
           isPlaying: false,
         );
 
-        // Cue the video silently so the IFrame shows the paused frame.
-        // _restoringState blocks macOS from auto-playing via the AudioHandler.
-        _restoringState = true;
-        unawaited(_prepareRestoredTrack(position));
+        // Defer native engine / Chromium startup on desktop until the user
+        // actually presses Play. PlayerState already has the restored track,
+        // artwork, duration, and saved position for the player bar; eager
+        // cuing on desktop launches CEF + 7 subprocesses (~450-500 MB) while
+        // the app is completely idle.
+        final isDesktop =
+            !kIsWeb &&
+            const {
+              TargetPlatform.windows,
+              TargetPlatform.linux,
+              TargetPlatform.macOS,
+            }.contains(defaultTargetPlatform);
+        if (!isDesktop) {
+          // Cue the video silently so the IFrame shows the paused frame.
+          // _restoringState blocks mobile/iOS from auto-playing via AudioHandler.
+          _restoringState = true;
+          unawaited(_prepareRestoredTrack(position));
+        }
       }
     } catch (e) {
       debugPrint('Failed to restore player state: $e');
@@ -684,6 +698,9 @@ class PlayerNotifier extends Notifier<PlayerState> {
       // play before.
       _userIntentPlay = true;
       _startRequestedAt = DateTime.now();
+      if (position == null) {
+        _pendingSeek = null;
+      }
     }
     _playbackGeneration++;
     final myGen = _playbackGeneration;
@@ -725,8 +742,8 @@ class PlayerNotifier extends Notifier<PlayerState> {
       clearLoadError: true,
       isLoadingVideo: true,
       videoId: null,
-      position: Duration.zero,
-      duration: Duration.zero,
+      position: position ?? Duration.zero,
+      duration: position != null ? state.duration : Duration.zero,
       buffered: Duration.zero,
       subtitleUri: null,
       subtitleDelay: Duration.zero,
@@ -1019,6 +1036,7 @@ class PlayerNotifier extends Notifier<PlayerState> {
       track,
       queue: state.playbackQueue.tracks,
       position: position,
+      queueIndex: state.playbackQueue.currentIndex,
     );
     if (_disposed || generation != _playbackGeneration) return;
   }
@@ -1166,6 +1184,14 @@ class PlayerNotifier extends Notifier<PlayerState> {
 
   Future<void> seekTo(Duration position) async {
     _seekGeneration++;
+    if (_controller.currentStatus.state == PlaybackState.idle &&
+        !_isRecovering &&
+        !state.isLoadingVideo) {
+      _pendingSeek = null;
+      state = state.copyWith(position: position);
+      _scheduleSaveState();
+      return;
+    }
     _pendingSeek = SeekRequest(position: position, generation: _seekGeneration);
     await _controller.seekTo(position);
   }

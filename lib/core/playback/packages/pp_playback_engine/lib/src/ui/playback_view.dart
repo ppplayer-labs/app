@@ -29,7 +29,6 @@ class PlaybackView extends StatefulWidget {
 }
 
 class _PlaybackViewState extends State<PlaybackView> {
-  bool _toggle = false;
   Size? _lastSize;
   Timer? _pumpTimer;
 
@@ -41,39 +40,31 @@ class _PlaybackViewState extends State<PlaybackView> {
 
   @override
   Widget build(BuildContext context) {
-    // Detect window resizing to force the native Windows floating webview to perfectly track its layout
-    // position (e.g. following the bottom right of the screen).
-    final currentSize = MediaQuery.sizeOf(context);
-
-    final isWindows = !kIsWeb && Platform.isWindows;
-
-    if (isWindows && _lastSize != null && _lastSize != currentSize) {
-      // If the window maximized or restored, a single frame might not be enough for the plugin
-      // to sync the Win32 window. We pump a few extra rebuilds over the next 150ms to guarantee it catches up!
-      _pumpTimer?.cancel();
-      int pumpCount = 0;
-      _pumpTimer = Timer.periodic(const Duration(milliseconds: 16), (timer) {
-        if (!mounted) {
-          timer.cancel();
-          return;
-        }
-        setState(() {});
-        pumpCount++;
-        if (pumpCount >= 10) {
-          timer.cancel();
-        }
-      });
-    }
-    _lastSize = currentSize;
-
-    // Toggle a tiny sub-pixel difference to FORCE a Flutter layout pass on every build.
-    // Transform.translate only affects painting, which causes the Win32 window to get stuck.
-    // Changing the layout constraints forces the platform view to update its global position!
-    if (isWindows) {
-      _toggle = !_toggle;
-    }
-
     final renderer = widget.controller.renderer;
+    final isWindows = !kIsWeb && Platform.isWindows;
+    // Only legacy floating Win32 webviews (non-Widget, non-MediaKit) needed
+    // extra post-resize layout pumps. Skipping this for texture-backed
+    // ChromiumWebView and MediaKit avoids 10 redundant rebuilds per resize tick.
+    if (isWindows && renderer != null && renderer is! Widget && renderer is! mk.VideoController) {
+      final currentSize = MediaQuery.sizeOf(context);
+      if (_lastSize != null && _lastSize != currentSize) {
+        _pumpTimer?.cancel();
+        int pumpCount = 0;
+        _pumpTimer = Timer.periodic(const Duration(milliseconds: 16), (timer) {
+          if (!mounted) {
+            timer.cancel();
+            return;
+          }
+          setState(() {});
+          pumpCount++;
+          if (pumpCount >= 10) {
+            timer.cancel();
+          }
+        });
+      }
+      _lastSize = currentSize;
+    }
+
     if (renderer is Widget) {
       return Stack(
         fit: StackFit.expand,
