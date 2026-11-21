@@ -57,6 +57,70 @@ class PackagingAndConfigTests(unittest.TestCase):
         self.assertIn('CEF_SYSTEM_MEDIA_CONTROLS', win_main)
         self.assertIn('CEF_SYSTEM_MEDIA_CONTROLS', linux_app)
 
+    def test_release_workflow_gates_all_publication_behind_explicit_approval(self):
+        workflow = (ROOT / '.github/workflows/release.yml').read_text(encoding='utf-8')
+
+        # Split top-level jobs under `jobs:` without requiring third-party YAML libs.
+        jobs_section = workflow.split('\njobs:\n', 1)[1]
+        jobs = {}
+        current_job = None
+        current_lines = []
+        for line in jobs_section.splitlines():
+            if line.startswith('  ') and not line.startswith('   ') and line.rstrip().endswith(':'):
+                if current_job is not None:
+                    jobs[current_job] = '\n'.join(current_lines)
+                current_job = line.strip()[:-1]
+                current_lines = [line]
+            elif current_job is not None:
+                current_lines.append(line)
+        if current_job is not None:
+            jobs[current_job] = '\n'.join(current_lines)
+
+        self.assertIn('build-linux', jobs)
+        self.assertIn('publish-release', jobs)
+
+        # Ordinary build jobs (which run on push to main) must still build & upload
+        # artifacts, including the Snap package, but MUST NEVER publish or receive
+        # store publishing credentials.
+        for job_name, job_body in jobs.items():
+            if job_name == 'publish-release':
+                continue
+            self.assertNotIn(
+                'snapcore/action-publish',
+                job_body,
+                f'{job_name} must not publish to Snap Store outside publish-release',
+            )
+            self.assertNotIn(
+                'softprops/action-gh-release',
+                job_body,
+                f'{job_name} must not create GitHub Releases outside publish-release',
+            )
+            self.assertNotIn(
+                'SNAPCRAFT_STORE_CREDENTIALS',
+                job_body,
+                f'{job_name} must not receive Snap Store publishing credentials',
+            )
+
+        self.assertIn('snapcore/action-build@v1', jobs['build-linux'])
+        self.assertIn('PPPlayer-Linux-Snap', jobs['build-linux'])
+
+        # publish-release must require all platform builds AND explicit workflow_dispatch approval.
+        publish_job = jobs['publish-release']
+        self.assertIn(
+            'needs: [validate-and-test, build-android, build-macos, build-windows, build-linux]',
+            publish_job,
+        )
+        self.assertIn(
+            "if: github.event_name == 'workflow_dispatch' && inputs.approve_publication == true && needs.validate-and-test.outputs.is_new_version == 'true'",
+            publish_job,
+        )
+        self.assertIn('snapcore/action-publish@v1', publish_job)
+        self.assertIn(
+            "if: github.event_name == 'workflow_dispatch' && inputs.approve_publication == true && env.SNAPCRAFT_STORE_CREDENTIALS != ''",
+            publish_job,
+        )
+        self.assertIn('softprops/action-gh-release@v2', publish_job)
+
 
 if __name__ == '__main__':
     unittest.main()

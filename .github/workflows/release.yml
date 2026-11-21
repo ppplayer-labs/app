@@ -333,8 +333,6 @@ jobs:
     needs: validate-and-test
     if: needs.validate-and-test.outputs.is_new_version == 'true'
     runs-on: ubuntu-latest
-    env:
-      SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -379,20 +377,13 @@ jobs:
           name: PPPlayer-Linux-Snap
           path: ${{ steps.snapcraft.outputs.snap }}
 
-      - name: Publish to Snap Store
-        if: env.SNAPCRAFT_STORE_CREDENTIALS != ''
-        uses: snapcore/action-publish@v1
-        env:
-          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
-        with:
-          snap: ${{ steps.snapcraft.outputs.snap }}
-          release: stable
-
   publish-release:
     name: Publish GitHub Release
     needs: [validate-and-test, build-android, build-macos, build-windows, build-linux]
     if: github.event_name == 'workflow_dispatch' && inputs.approve_publication == true && needs.validate-and-test.outputs.is_new_version == 'true'
     runs-on: ubuntu-latest
+    env:
+      SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
     permissions:
       contents: write # Scope: only the publish job has write access to create the release
     steps:
@@ -405,6 +396,7 @@ jobs:
           path: artifacts
 
       - name: Check Artifacts Existence
+        id: check_artifacts
         run: |
           ls -R artifacts/
           
@@ -439,6 +431,13 @@ jobs:
              echo "::error::Linux AppImage artifact is missing!"
              exit 1
           fi
+
+          SNAP_FILE=$(find artifacts/PPPlayer-Linux-Snap -maxdepth 2 -name "*.snap" | head -n 1)
+          if [ -z "$SNAP_FILE" ]; then
+             echo "::error::Linux Snap artifact is missing!"
+             exit 1
+          fi
+          echo "snap_path=$SNAP_FILE" >> "$GITHUB_OUTPUT"
 
       - name: Prepare Assets & Checksums
         run: |
@@ -498,3 +497,12 @@ jobs:
           generate_release_notes: true
           files: |
             release-assets/*
+
+      - name: Publish to Snap Store
+        if: github.event_name == 'workflow_dispatch' && inputs.approve_publication == true && env.SNAPCRAFT_STORE_CREDENTIALS != ''
+        uses: snapcore/action-publish@v1
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
+        with:
+          snap: ${{ steps.check_artifacts.outputs.snap_path }}
+          release: stable
