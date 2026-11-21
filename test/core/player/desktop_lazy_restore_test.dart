@@ -5,9 +5,11 @@ import 'package:drift/native.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_ce/hive_ce.dart';
+import 'package:ppplayer/core/cache/image_cache_manager.dart';
 import 'package:ppplayer/core/db/app_database.dart';
 import 'package:ppplayer/core/models/resolved_video_candidate.dart';
 import 'package:ppplayer/core/models/track.dart';
@@ -82,7 +84,9 @@ void main() {
     'desktop startup restore populates PlayerState without eagerly preparing Chromium until resume',
     () async {
       final prevPlatform = debugDefaultTargetPlatformOverride;
-      debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+      debugDefaultTargetPlatformOverride = Platform.isMacOS
+          ? TargetPlatform.macOS
+          : TargetPlatform.windows;
       final dir = await Directory.systemTemp.createTemp(
         'ppplayer-desktop-restore-',
       );
@@ -164,7 +168,9 @@ void main() {
     'seeking while idle does not bleed into a different track selected afterwards',
     () async {
       final prevPlatform = debugDefaultTargetPlatformOverride;
-      debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+      debugDefaultTargetPlatformOverride = Platform.isMacOS
+          ? TargetPlatform.macOS
+          : TargetPlatform.windows;
       final dir = await Directory.systemTemp.createTemp('ppplayer-idle-seek-');
       Hive.init(dir.path);
       final box = await Hive.openBox('player_state');
@@ -299,15 +305,20 @@ void main() {
     'PlayerScreen displays artwork when opened on a desktop lazy-restored paused session before first play',
     (tester) async {
       final prevPlatform = debugDefaultTargetPlatformOverride;
-      debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+      debugDefaultTargetPlatformOverride = Platform.isMacOS
+          ? TargetPlatform.macOS
+          : TargetPlatform.windows;
       final dir = await tester.runAsync(
         () => Directory.systemTemp.createTemp('ppplayer-restore-ui-'),
       );
       await tester.runAsync(() async {
         Hive.init(dir!.path);
         final box = await Hive.openBox('player_state');
-        final track = fakes.trackWith(
+        const track = Track(
           spotifyId: 'sp1',
+          name: 'Test Track',
+          artistId: 'artist1',
+          artistName: 'Test Artist',
           youtubeVideoId: 'videoAAAAAA',
         );
         await box.put(
@@ -323,11 +334,20 @@ void main() {
       const pathProviderChannel = MethodChannel(
         'plugins.flutter.io/path_provider',
       );
+      const castDiscoveryChannel = MethodChannel(
+        'com.ppplayer.app/cast_discovery',
+      );
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
             pathProviderChannel,
             (call) async => dir!.path,
           );
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(castDiscoveryChannel, (call) async => null);
+      final testCacheManager = CacheManager(
+        Config(PPImageCacheManager.key, repo: NonStoringObjectProvider()),
+      );
+      PPImageCacheManager.debugTestOverride = testCacheManager;
 
       try {
         await tester.pumpWidget(
@@ -360,6 +380,11 @@ void main() {
       } finally {
         await tester.pumpWidget(const SizedBox.shrink());
         await tester.pump(const Duration(milliseconds: 100));
+        PPImageCacheManager.debugTestOverride = null;
+        await testCacheManager.dispose();
+        await tester.pump(const Duration(seconds: 11));
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(castDiscoveryChannel, null);
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
             .setMockMethodCallHandler(pathProviderChannel, null);
         await tester.runAsync(() async {
