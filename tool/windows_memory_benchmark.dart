@@ -117,7 +117,9 @@ class _BenchmarkAppState extends State<_BenchmarkApp> {
   }
 
   Future<void> _signalAndWait(String stage) async {
-    final benchDir = Directory(p.join(Directory.systemTemp.path, 'ppplayer_bench'));
+    final benchDir = Directory(
+      p.join(Directory.systemTemp.path, 'ppplayer_bench'),
+    );
     final ackFile = File(p.join(benchDir.path, 'ack_$stage.txt'));
     if (ackFile.existsSync()) ackFile.deleteSync();
 
@@ -264,8 +266,13 @@ class _BenchmarkAppState extends State<_BenchmarkApp> {
         await ctrl.setRenderingActive(true);
         await Future.delayed(const Duration(milliseconds: 60));
         await ctrl.dispose();
-        if (i == 1 || i == 25 || i == 50 || i == 75 || i == widget.stressCycles) {
-          final rssMb = (ProcessInfo.currentRss / (1024 * 1024)).toStringAsFixed(1);
+        if (i == 1 ||
+            i == 25 ||
+            i == 50 ||
+            i == 75 ||
+            i == widget.stressCycles) {
+          final rssMb = (ProcessInfo.currentRss / (1024 * 1024))
+              .toStringAsFixed(1);
           final d = await _cefDiag();
           stdout.writeln(
             '[BENCH_STRESS_CHECKPOINT] cycle=$i/${widget.stressCycles} rssMb=$rssMb browsers=${d['browsers'] ?? 0} textures=${d['textures'] ?? 0}',
@@ -328,10 +335,7 @@ class _BenchmarkAppState extends State<_BenchmarkApp> {
                 child: SizedBox(
                   width: _viewportSize.width,
                   height: _viewportSize.height,
-                  child: PlaybackView(
-                    controller: _engine,
-                    status: _status,
-                  ),
+                  child: PlaybackView(controller: _engine, status: _status),
                 ),
               ),
             Positioned(

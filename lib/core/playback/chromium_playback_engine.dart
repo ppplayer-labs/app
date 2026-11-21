@@ -61,7 +61,11 @@ class ChromiumPlaybackEngine implements PlaybackController {
   /// Maximum bounded retry attempts for recoverable startup failures.
   static const int maxStartupRetries = 3;
 
-  static bool _isExpectedDetachmentOrShutdown(Object error, {required bool closed, ChromiumYoutubePlayerController? player}) {
+  static bool _isExpectedDetachmentOrShutdown(
+    Object error, {
+    required bool closed,
+    ChromiumYoutubePlayerController? player,
+  }) {
     if (closed) return true;
     if (error is PlatformException) {
       if (error.code == 'DETACHED') return true;
@@ -72,9 +76,11 @@ class ChromiumPlaybackEngine implements PlaybackController {
       }
     }
     if (error is JavaScriptException) {
-      return const {'browser_closed', 'detached', 'cancelled'}.contains(
-        error.code,
-      );
+      return const {
+        'browser_closed',
+        'detached',
+        'cancelled',
+      }.contains(error.code);
     }
     if (error is StateError) {
       return const {
@@ -117,7 +123,11 @@ class ChromiumPlaybackEngine implements PlaybackController {
   static bool _isRecoverableStartupFailure(Object error) {
     if (error is StateError && error.message == 'Browser crashed') return true;
     if (error is PlatformException &&
-        const {'HOST_FAILED', 'INIT_TIMEOUT', 'NOT_READY'}.contains(error.code)) {
+        const {
+          'HOST_FAILED',
+          'INIT_TIMEOUT',
+          'NOT_READY',
+        }.contains(error.code)) {
       return true;
     }
     return false;

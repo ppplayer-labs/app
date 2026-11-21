@@ -117,11 +117,13 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
     super.didChangeDependencies();
     final route = ModalRoute.of(context);
     if (route != _observedRoute) {
-      _observedRoute?.secondaryAnimation
-          ?.removeStatusListener(_onSecondaryAnimationStatus);
+      _observedRoute?.secondaryAnimation?.removeStatusListener(
+        _onSecondaryAnimationStatus,
+      );
       _observedRoute = route;
-      _observedRoute?.secondaryAnimation
-          ?.addStatusListener(_onSecondaryAnimationStatus);
+      _observedRoute?.secondaryAnimation?.addStatusListener(
+        _onSecondaryAnimationStatus,
+      );
     }
     // Re-measure immediately on every window resize (macOS / desktop).
     final windowSize = MediaQuery.sizeOf(context);
@@ -410,8 +412,9 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
 
   @override
   void dispose() {
-    _observedRoute?.secondaryAnimation
-        ?.removeStatusListener(_onSecondaryAnimationStatus);
+    _observedRoute?.secondaryAnimation?.removeStatusListener(
+      _onSecondaryAnimationStatus,
+    );
     _observedRoute = null;
     final layoutNotifier = _videoLayoutNotifier;
     Future.microtask(() {

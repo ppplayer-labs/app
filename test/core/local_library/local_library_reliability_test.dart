@@ -592,8 +592,14 @@ void main() {
         final restoredFiles = await db.getLocalFilesByImportRoot(folder.path);
         expect(restoredRoots, hasLength(1));
         expect(restoredFiles, hasLength(1));
-        expect(p.normalize(restoredRoots.first.displayPath), p.normalize(folder.path));
-        expect(p.normalize(restoredFiles.first.displayPath), p.normalize(file.path));
+        expect(
+          p.normalize(restoredRoots.first.displayPath),
+          p.normalize(folder.path),
+        );
+        expect(
+          p.normalize(restoredFiles.first.displayPath),
+          p.normalize(file.path),
+        );
       },
     );
 

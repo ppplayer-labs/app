@@ -94,10 +94,7 @@ class _VerifyAppState extends State<_VerifyApp> {
       javaScriptChannels: [
         JavaScriptChannel(
           name: 'verify',
-          allowedOrigins: {
-            'http://127.0.0.1:$port',
-            'https://ppplayer.com',
-          },
+          allowedOrigins: {'http://127.0.0.1:$port', 'https://ppplayer.com'},
         ),
       ],
     );
@@ -326,14 +323,17 @@ class _VerifyAppState extends State<_VerifyApp> {
     String cachePath,
     Map<String, Object?> report,
   ) async {
-    final profileDir = Directory('$cachePath\\profile_ppplayer_youtube_session');
+    final profileDir = Directory(
+      '$cachePath\\profile_ppplayer_youtube_session',
+    );
     report['profileDirExists'] = profileDir.existsSync();
     if (profileDir.existsSync()) {
-      report['profileEntries'] = profileDir
-          .listSync()
-          .map((e) => e.uri.pathSegments.where((s) => s.isNotEmpty).last)
-          .toList()
-        ..sort();
+      report['profileEntries'] =
+          profileDir
+              .listSync()
+              .map((e) => e.uri.pathSegments.where((s) => s.isNotEmpty).last)
+              .toList()
+            ..sort();
     }
 
     final c1 = _makeController(

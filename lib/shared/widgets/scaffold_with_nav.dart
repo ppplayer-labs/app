@@ -183,7 +183,8 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
     // And its width must be either full screenWidth or screenWidth - queuePanel.
     // If dx > 1.0 or the width is significantly stale compared to the current window size,
     // we must fall back to defaultPlayerBounds rather than using corrupted background-route bounds.
-    final bool isVideoLayoutValid = videoLayout.isReady &&
+    final bool isVideoLayoutValid =
+        videoLayout.isReady &&
         videoLayout.isVisible &&
         (!isDesktop || videoLayout.position.dx <= 1.0) &&
         videoLayout.size.width > 0 &&
@@ -317,7 +318,9 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
                           ),
                           child: CustomPaint(
                             painter: _MeshPainter(
-                              primaryColor: Theme.of(context).colorScheme.primary,
+                              primaryColor: Theme.of(
+                                context,
+                              ).colorScheme.primary,
                             ),
                           ),
                         ),
@@ -1060,7 +1063,8 @@ class _PlaybackSurfaceLayerState extends State<_PlaybackSurfaceLayer> {
       animation: widget.routeTransition,
       builder: (context, _) {
         final transitionStatus = widget.routeTransition.status;
-        final followsRoute = widget.animatePlayerRoute &&
+        final followsRoute =
+            widget.animatePlayerRoute &&
             widget.routeTransition.isAttached &&
             (widget.isPlayerScreen
                 ? (transitionStatus != AnimationStatus.dismissed)
@@ -1353,12 +1357,13 @@ class _MiniPlayerBar extends ConsumerWidget {
                             'assets/logo.png',
                             width: 100,
                             height: 100,
-                            cacheWidth: (100 *
-                                    (MediaQuery.maybeDevicePixelRatioOf(
-                                          context,
-                                        ) ??
-                                        1.0))
-                                .round(),
+                            cacheWidth:
+                                (100 *
+                                        (MediaQuery.maybeDevicePixelRatioOf(
+                                              context,
+                                            ) ??
+                                            1.0))
+                                    .round(),
                             color: colorScheme.primary,
                           ),
                         ),
@@ -1646,10 +1651,11 @@ class _DesktopSidebar extends ConsumerWidget {
                   child: Image.asset(
                     'assets/logo.png',
                     height: 28,
-                    cacheHeight: (28 *
-                            (MediaQuery.maybeDevicePixelRatioOf(context) ??
-                                1.0))
-                        .round(),
+                    cacheHeight:
+                        (28 *
+                                (MediaQuery.maybeDevicePixelRatioOf(context) ??
+                                    1.0))
+                            .round(),
                     color: colorScheme.primary,
                   ),
                 ),

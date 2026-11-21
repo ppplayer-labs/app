@@ -27,7 +27,8 @@ import 'package:macos_file_open_handler/macos_file_open_handler.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'core/player/player_provider.dart';
-import 'core/playback/playback_providers.dart' show localPlaybackControllerProvider;
+import 'core/playback/playback_providers.dart'
+    show localPlaybackControllerProvider;
 import 'core/local_library/local_library_service.dart';
 
 /// Global access to the provider container for the [AudioHandler].

@@ -89,8 +89,9 @@ class MediaKitPlayerAdapter implements INativePlayerAdapter {
     }
     if (kDebugMode) {
       _logSubscription = _player.stream.log.listen(
-        (event) =>
-            debugPrint('MPV_LOG: ${event.level} - ${event.prefix}: ${event.text}'),
+        (event) => debugPrint(
+          'MPV_LOG: ${event.level} - ${event.prefix}: ${event.text}',
+        ),
       );
     }
     try {

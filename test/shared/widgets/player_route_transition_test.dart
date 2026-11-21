@@ -78,42 +78,50 @@ void main() {
     },
   );
 
-  test(
-    'non-player screen ignores completed route transition',
-    () {
-      final transition = PlayerRouteTransition();
-      final clock = AnimationController(
-        vsync: const TestVSync(),
-        duration: const Duration(milliseconds: 300),
-      );
-      transition.attach(clock);
+  test('non-player screen ignores completed route transition', () {
+    final transition = PlayerRouteTransition();
+    final clock = AnimationController(
+      vsync: const TestVSync(),
+      duration: const Duration(milliseconds: 300),
+    );
+    transition.attach(clock);
 
-      clock.value = 1.0;
-      // When animation is completed but route is not player screen:
-      // status == AnimationStatus.completed.
-      // Under followsRoute logic:
-      // isPlayerScreen ? status != dismissed : status == reverse
-      bool shouldFollowRoute({required bool isPlayerScreen}) =>
-          transition.isAttached &&
-          (isPlayerScreen
-              ? (transition.status != AnimationStatus.dismissed)
-              : (transition.status == AnimationStatus.reverse));
+    clock.value = 1.0;
+    // When animation is completed but route is not player screen:
+    // status == AnimationStatus.completed.
+    // Under followsRoute logic:
+    // isPlayerScreen ? status != dismissed : status == reverse
+    bool shouldFollowRoute({required bool isPlayerScreen}) =>
+        transition.isAttached &&
+        (isPlayerScreen
+            ? (transition.status != AnimationStatus.dismissed)
+            : (transition.status == AnimationStatus.reverse));
 
-      expect(shouldFollowRoute(isPlayerScreen: false), false,
-          reason: 'Non-player screen must not expand bounds when transition is completed');
-      expect(shouldFollowRoute(isPlayerScreen: true), true,
-          reason: 'Player screen must follow route when transition is completed');
+    expect(
+      shouldFollowRoute(isPlayerScreen: false),
+      false,
+      reason:
+          'Non-player screen must not expand bounds when transition is completed',
+    );
+    expect(
+      shouldFollowRoute(isPlayerScreen: true),
+      true,
+      reason: 'Player screen must follow route when transition is completed',
+    );
 
-      // But when reversing (popping player):
-      clock.reverse();
-      expect(shouldFollowRoute(isPlayerScreen: false), true,
-          reason: 'Popping player route must follow transition to animate back to miniplayer');
+    // But when reversing (popping player):
+    clock.reverse();
+    expect(
+      shouldFollowRoute(isPlayerScreen: false),
+      true,
+      reason:
+          'Popping player route must follow transition to animate back to miniplayer',
+    );
 
-      clock.stop();
-      clock.dispose();
-      transition.dispose();
-    },
-  );
+    clock.stop();
+    clock.dispose();
+    transition.dispose();
+  });
 
   test(
     'desktop video layout validation rejects sidebar-contaminated dx and stale width',
@@ -142,7 +150,11 @@ void main() {
         isVisible: true,
       );
       expect(
-        isVideoLayoutValid(layout: validFull, screenWidth: 1024, isDesktop: true),
+        isVideoLayoutValid(
+          layout: validFull,
+          screenWidth: 1024,
+          isDesktop: true,
+        ),
         true,
       );
 
@@ -204,7 +216,11 @@ void main() {
     addTearDown(container.dispose);
 
     final notifier = container.read(videoLayoutProvider.notifier);
-    notifier.updateLayout(const Size(800, 600), const Offset(10, 20), isVisible: true);
+    notifier.updateLayout(
+      const Size(800, 600),
+      const Offset(10, 20),
+      isVisible: true,
+    );
 
     expect(container.read(videoLayoutProvider).isReady, true);
     expect(container.read(videoLayoutProvider).isVisible, true);

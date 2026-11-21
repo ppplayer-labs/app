@@ -45,7 +45,10 @@ class _PlaybackViewState extends State<PlaybackView> {
     // Only legacy floating Win32 webviews (non-Widget, non-MediaKit) needed
     // extra post-resize layout pumps. Skipping this for texture-backed
     // ChromiumWebView and MediaKit avoids 10 redundant rebuilds per resize tick.
-    if (isWindows && renderer != null && renderer is! Widget && renderer is! mk.VideoController) {
+    if (isWindows &&
+        renderer != null &&
+        renderer is! Widget &&
+        renderer is! mk.VideoController) {
       final currentSize = MediaQuery.sizeOf(context);
       if (_lastSize != null && _lastSize != currentSize) {
         _pumpTimer?.cancel();
