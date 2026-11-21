@@ -142,6 +142,9 @@ class PackagingAndConfigTests(unittest.TestCase):
             'build-linux:',
         ]:
             self.assertIn(required_job, pr_workflow)
+        release_workflow = (ROOT / '.github/workflows/release.yml').read_text(encoding='utf-8')
+        self.assertNotIn('runs-on: macos-14', pr_workflow)
+        self.assertNotIn('runs-on: macos-14', release_workflow)
 
 
 if __name__ == '__main__':

@@ -129,7 +129,7 @@ jobs:
   build-macos:
     name: PR Build macOS arm64 (Ad-Hoc Release Verification)
     needs: validate-and-test
-    runs-on: macos-14
+    runs-on: macos-latest
     timeout-minutes: 45
     steps:
       - name: Checkout Repository

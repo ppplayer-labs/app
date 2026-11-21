@@ -154,7 +154,7 @@ jobs:
     name: Build macOS App
     needs: validate-and-test
     if: needs.validate-and-test.outputs.is_new_version == 'true'
-    runs-on: macos-14
+    runs-on: macos-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
