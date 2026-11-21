@@ -121,6 +121,28 @@ class PackagingAndConfigTests(unittest.TestCase):
         )
         self.assertIn('softprops/action-gh-release@v2', publish_job)
 
+    def test_pr_validation_workflow_cannot_publish_or_access_release_secrets(self):
+        pr_workflow = (ROOT / '.github/workflows/pr-validation.yml').read_text(encoding='utf-8')
+        self.assertIn('pull_request:', pr_workflow)
+        self.assertIn('- main', pr_workflow)
+        self.assertIn('contents: read', pr_workflow)
+        self.assertNotIn('contents: write', pr_workflow)
+        self.assertNotIn('snapcore/action-publish', pr_workflow)
+        self.assertNotIn('softprops/action-gh-release', pr_workflow)
+        self.assertNotIn('secrets.', pr_workflow)
+        self.assertNotIn('SNAPCRAFT_STORE_CREDENTIALS', pr_workflow)
+        self.assertNotIn('ANDROID_KEYSTORE', pr_workflow)
+        self.assertNotIn('MACOS_CERTIFICATE', pr_workflow)
+        self.assertNotIn('APPLE_ID', pr_workflow)
+        for required_job in [
+            'validate-and-test:',
+            'build-android:',
+            'build-macos:',
+            'build-windows:',
+            'build-linux:',
+        ]:
+            self.assertIn(required_job, pr_workflow)
+
 
 if __name__ == '__main__':
     unittest.main()

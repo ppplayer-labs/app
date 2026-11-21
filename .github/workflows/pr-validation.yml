@@ -1,0 +1,299 @@
+name: PPPlayer PR Validation
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: pr-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  validate-and-test:
+    name: Validate, Format, Analyze & Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.4'
+          channel: 'stable'
+          cache: true
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Verify Hosted Chromium Dependency (pub.dev)
+        run: |
+          python3 - <<'PY'
+          import json, pathlib
+
+          cfg = json.loads(pathlib.Path(".dart_tool/package_config.json").read_text(encoding="utf-8"))
+          pkgs = {p["name"]: p["rootUri"] for p in cfg["packages"]}
+          for name, expected in [
+              ("flutter_chromium_webview", "flutter_chromium_webview-0.5.7"),
+              ("flutter_chromium_webview_platform_interface", "flutter_chromium_webview_platform_interface-0.1.7"),
+          ]:
+              uri = pkgs.get(name, "")
+              print(f"{name}: {uri}")
+              assert "/hosted/pub.dev/" in uri and expected in uri, (
+                  f"Expected hosted pub.dev {expected}, got: {uri}"
+              )
+          print("PASS: Hosted flutter_chromium_webview 0.5.7 and platform_interface 0.1.7 resolved from pub.dev")
+          PY
+
+      - name: Check Formatting
+        run: |
+          if ! git ls-files -z -- ':(glob)lib/**/*.dart' ':(glob)test/**/*.dart' ':(glob)integration_test/**/*.dart' ':!:lib/core/playback/packages/**' ':!:**/*.g.dart' ':!:**/*.freezed.dart' | xargs -0 dart format --language-version=3.8 --output=none --set-exit-if-changed; then
+            echo "::error::Dart format check failed. Printing diff:"
+            git ls-files -z -- ':(glob)lib/**/*.dart' ':(glob)test/**/*.dart' ':(glob)integration_test/**/*.dart' ':!:lib/core/playback/packages/**' ':!:**/*.g.dart' ':!:**/*.freezed.dart' | xargs -0 dart format --language-version=3.8
+            git diff
+            exit 1
+          fi
+          dart format --language-version=3.7 --output=none --set-exit-if-changed lib/core/playback/packages/pp_playback_engine/lib lib/core/playback/packages/pp_playback_engine/test
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Run Tests
+        run: flutter test test lib/core/playback/packages/pp_playback_engine/test third_party/chromium/packages/flutter_chromium_webview/test third_party/chromium/packages/flutter_chromium_webview_platform_interface/test
+
+      - name: Verify Chromium Snapshot and Packaging/Workflow Guards
+        run: |
+          python3 scripts/verify_chromium_snapshot.py
+          python3 -m unittest discover -s scripts -p 'test_*.py' -v
+
+  build-android:
+    name: PR Build Android (Unsigned Release Verification)
+    needs: validate-and-test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.4'
+          channel: 'stable'
+          cache: true
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Build Release APK & App Bundle (Debug-Signed Fallback)
+        run: |
+          flutter build apk --release
+          flutter build appbundle --release
+
+      - name: Verify Android Artifacts & ABIs
+        run: |
+          APK="build/app/outputs/flutter-apk/app-release.apk"
+          AAB="build/app/outputs/bundle/release/app-release.aab"
+          test -s "$APK"
+          test -s "$AAB"
+          unzip -l "$APK" | grep -q "lib/arm64-v8a/"
+          unzip -l "$APK" | grep -q "lib/x86_64/"
+          if unzip -l "$APK" | grep -qE "lib/(armeabi-v7a|x86)/"; then
+            echo "::error::Unexpected 32-bit ABI found in APK"
+            exit 1
+          fi
+          ls -lh "$APK" "$AAB"
+          sha256sum "$APK" "$AAB"
+
+      - name: Upload Android PR Verification Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: PR-PPPlayer-Android
+          retention-days: 7
+          path: |
+            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/bundle/release/app-release.aab
+
+  build-macos:
+    name: PR Build macOS arm64 (Ad-Hoc Release Verification)
+    needs: validate-and-test
+    runs-on: macos-14
+    timeout-minutes: 45
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: 'latest-stable'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.4'
+          channel: 'stable'
+          cache: true
+
+      - name: Install Dependencies
+        run: |
+          mkdir -p build/ios/SourcePackages/
+          flutter pub get
+
+      - name: Verify Native Flutter Quit Handshake Against Hosted Plugin
+        run: python3 -m unittest discover -s scripts -p 'test_macos_quit_handshake.py' -v
+
+      - name: Configure Ad-Hoc Signing for PR CI Build
+        run: |
+          sed -i '' 's/CODE_SIGN_IDENTITY = "Apple Development";/CODE_SIGN_IDENTITY = "-";/g' macos/Runner.xcodeproj/project.pbxproj
+          sed -i '' 's/"CODE_SIGN_IDENTITY\[sdk=macosx\*\]" = "Apple Development";/"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";/g' macos/Runner.xcodeproj/project.pbxproj
+          sed -i '' 's/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g' macos/Runner.xcodeproj/project.pbxproj
+          sed -i '' '/DEVELOPMENT_TEAM = /d' macos/Runner.xcodeproj/project.pbxproj
+
+      - name: Build Release macOS
+        run: flutter build macos --release
+
+      - name: Verify Bundle Architecture, Embedded CEF Host & Package ZIP
+        working-directory: build/macos/Build/Products/Release
+        run: |
+          lipo -info PPPlayer.app/Contents/MacOS/PPPlayer | grep -q "arm64"
+          HOST="PPPlayer.app/Contents/Frameworks/ChromiumWebViewHost.app"
+          test -x "$HOST/Contents/MacOS/ChromiumWebViewHost"
+          test -d "$HOST/Contents/Frameworks/Chromium Embedded Framework.framework"
+          test -d "$HOST/Contents/Frameworks/ChromiumWebView Helper.app"
+          test -d "$HOST/Contents/Frameworks/ChromiumWebView Helper (GPU).app"
+          test -d "$HOST/Contents/Frameworks/ChromiumWebView Helper (Renderer).app"
+          test -d "$HOST/Contents/Frameworks/ChromiumWebView Helper (Plugin).app"
+          test -d "$HOST/Contents/Frameworks/ChromiumWebView Helper (Alerts).app"
+          /usr/bin/ditto -c -k --sequesterRsrc --keepParent PPPlayer.app PPPlayer-macOS-pr-unsigned.zip
+          ls -lh PPPlayer-macOS-pr-unsigned.zip
+          shasum -a 256 PPPlayer-macOS-pr-unsigned.zip
+
+      - name: Upload macOS PR Verification ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: PR-PPPlayer-macOS-unsigned-zip
+          retention-days: 7
+          path: build/macos/Build/Products/Release/PPPlayer-macOS-pr-unsigned.zip
+
+  build-windows:
+    name: PR Build Windows x64 & MSIX
+    needs: validate-and-test
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.4'
+          channel: 'stable'
+          cache: true
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Build Windows Release
+        run: flutter build windows --release
+
+      - name: Create MSIX Package
+        run: dart run msix:create
+
+      - name: Verify Windows Release Bundle & MSIX
+        shell: pwsh
+        run: |
+          $rel = "build/windows/x64/runner/Release"
+          foreach ($f in @("ppplayer.exe", "libcef.dll", "icudtl.dat", "flutter_chromium_webview_plugin.dll")) {
+            $p = Join-Path $rel $f
+            if (!(Test-Path $p)) { throw "Missing required Windows runtime file: $p" }
+          }
+          $msix = Get-ChildItem -Path $rel -Filter "*.msix" | Select-Object -First 1
+          if (!$msix) { throw "Missing MSIX package in $rel" }
+          Write-Host "MSIX: $($msix.FullName) ($($msix.Length) bytes)"
+          (Get-FileHash -Algorithm SHA256 $msix.FullName).Hash
+
+      - name: Upload Windows PR Verification MSIX
+        uses: actions/upload-artifact@v4
+        with:
+          name: PR-PPPlayer-Windows-MSIX
+          retention-days: 7
+          path: build/windows/x64/runner/Release/*.msix
+
+  build-linux:
+    name: PR Build Linux x86_64 (AppImage, deb, tar.gz, Snap)
+    needs: validate-and-test
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install System Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev libgl1-mesa-dev libegl1-mesa-dev libx11-dev libxcb1-dev libstdc++-11-dev libvulkan-dev libsecret-1-dev libjsoncpp-dev libmpv-dev libepoxy-dev
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.4'
+          channel: 'stable'
+          cache: true
+
+      - name: Build Linux Packages
+        run: |
+          chmod +x packaging/linux/scripts/build_linux.sh
+          ./packaging/linux/scripts/build_linux.sh
+
+      - name: Verify Linux Packages, Permissions & Checksums
+        run: |
+          cd dist
+          sha256sum -c SHA256SUMS
+          test -x PPPlayer-Linux-x86_64.AppImage
+          DEB=$(ls ppplayer_*_amd64.deb | head -n 1)
+          dpkg-deb -c "$DEB" | grep -q "./etc/apparmor.d/ppplayer"
+          dpkg-deb -c "$DEB" | grep -q "./opt/ppplayer/lib/flutter_chromium_webview_subprocess"
+          dpkg-deb -c "$DEB" | grep -q "./opt/ppplayer/lib/libcef.so"
+          tar -tzf PPPlayer-Linux-x86_64.tar.gz | grep -q "PPPlayer/lib/libcef.so"
+          ls -lh
+          cat SHA256SUMS
+
+      - name: Build Snap Package (Validation Only — Never Published)
+        uses: snapcore/action-build@v1
+        id: snapcraft
+        with:
+          snapcraft-channel: stable
+
+      - name: Verify Snap Artifact
+        run: |
+          test -s "${{ steps.snapcraft.outputs.snap }}"
+          ls -lh "${{ steps.snapcraft.outputs.snap }}"
+          sha256sum "${{ steps.snapcraft.outputs.snap }}"
+
+      - name: Upload Linux PR Verification Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: PR-PPPlayer-Linux
+          retention-days: 7
+          path: dist/
+
+      - name: Upload Linux Snap PR Verification Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PR-PPPlayer-Linux-Snap
+          retention-days: 7
+          path: ${{ steps.snapcraft.outputs.snap }}
