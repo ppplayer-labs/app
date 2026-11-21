@@ -75,7 +75,7 @@ flutter analyze
 flutter test
 ```
 
-Chromium resolves from pub.dev (`flutter_chromium_webview` ^0.5.5), including
+Chromium resolves from pub.dev (`flutter_chromium_webview` ^0.5.7), including
 its hosted platform interface. Use the checked-in `pubspec.lock` and avoid
 developer path overrides during release validation. The sources retained under
 `third_party/chromium` are a historical snapshot, not the active dependency.
