@@ -2,14 +2,28 @@
 
 All notable changes to PPPlayer will be documented in this file.
 
-## [4.0.2] - 2026-10-17
+## [4.0.2] - 2026-11-21
 
 Release metadata: **4.0.2+14**, Windows MSIX **4.0.2.0**.
 Publisher: Devflier.
 
+### Added & Improved
+
+- **Hosted `flutter_chromium_webview ^0.5.7` (`platform_interface ^0.1.7`):** Upgraded to the published `0.5.7` release on pub.dev (with the verified historical snapshot retained under `third_party/chromium`).
+- **Desktop Idle Memory & Startup Optimization:** Implemented lazy desktop playback restoration so paused/restored sessions do not eagerly initialize Chromium/CEF or MediaKit video textures at startup (`0` Chromium subprocesses at idle; measured reference baselines: ~284 MB on Windows 11 x64 and ~163–172 MB on macOS Apple Silicon arm64).
+- **Rendering Throttling & Audio-Only Optimization:** Throttles inactive desktop Chromium off-screen rendering via `setRenderingActive(false/true)` when playback is paused/resumed without suspending audio or JavaScript events, caps desktop image cache allocations (`48 MB` / `200` images), and defers MediaKit video controller/texture allocation for audio-only playback.
+- **Persistent Chromium Sessions:** Preserves the named `ppplayer_youtube_session` profile (`HttpOnly` cookies, `document.cookie`, and `localStorage`) across full application restarts on Windows, Linux, and macOS.
+- **Windows Performance & Metadata:** Adopts Chromium 0.5.7's event-driven CEF message pump (`external_message_pump`) and bounded pooled SIMD texture path; customized CEF bootstrap launcher version resources and icons so PPPlayer displays correctly as "PPPlayer" across Windows Task Manager, Explorer file properties, and process lists instead of "CEF Bootstrap Application".
+- **Linux Lifecycle & Packaging:** Adopts Chromium 0.5.7's multi-threaded message loop (`MTML`) shutdown hardening, ships a narrowly scoped `.deb` AppArmor `userns` profile (`/etc/apparmor.d/ppplayer`) preserving Chromium's native sandbox on Ubuntu 24.04+/26.04, sets explicit container-verified sandbox opt-out only in strict Snap/Flatpak manifests, and suppresses duplicate MPRIS sessions via `CEF_SYSTEM_MEDIA_CONTROLS=0`.
+- **macOS Lifecycle & Persistence:** Forwards `cachePath` into `ChromiumWebViewHost` for cross-restart session persistence, bounds Metal texture/IOSurface caches, retries host socket `listen()` races, removes legacy WebKit timer scanning, and preserves `CEF_SYSTEM_MEDIA_CONTROLS=0`.
+- **Android Compatibility:** Aligns `minSdk` to 24 matching `flutter_chromium_webview 0.5.7` and adopts `onRenderProcessGone` → `browserCrash` event handling with duplicate-registration fixes.
+
 ### Fixed
 
-- Windows executable metadata: customized CEF bootstrap launcher version resources and icons so PPPlayer displays correctly as "PPPlayer" across Windows Task Manager, Explorer file properties, and process lists instead of "CEF Bootstrap Application".
+- **Clean Desktop Shutdown:** Added `AppShutdownCoordinator` for single-shot ordered playback and Riverpod container disposal before exit, eliminating orphaned Chromium subprocesses on Windows, Linux, and macOS.
+- **Desktop Accessibility:** Added route-local `PlayerRouteTransitionBoundary` preventing orphaned `OverlayPortal` / slider semantics traversal children on Windows.
+- **Release Automation Safety:** Moved `Publish to Snap Store` into the approval-gated `publish-release` job alongside GitHub Release creation (requiring `workflow_dispatch` with `approve_publication == true` and all 4 platform builds), added cross-platform PR validation CI (`.github/workflows/pr-validation.yml`), and added automated regression guards.
+- **macOS Headless Test Reliability:** Fixed `desktop_lazy_restore_test.dart` on macOS via cast-discovery channel mocking and a `@visibleForTesting` cache-manager override that does not alter production behavior.
 
 ## [4.0.1] - 2026-10-16
 

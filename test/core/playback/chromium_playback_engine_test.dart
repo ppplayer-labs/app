@@ -2,6 +2,7 @@ import 'package:ppplayer/core/playback/chromium_playback_engine.dart';
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_chromium_webview/chromium_youtube_player.dart';
 import 'package:flutter_chromium_webview/flutter_chromium_webview.dart';
@@ -572,4 +573,167 @@ void main() {
     expect(engine.currentStatus.state, PlaybackState.error);
     expect(players, isEmpty);
   });
+
+  test(
+    'permanent INIT_FAILED does not retry and fast-fails subsequent play calls',
+    () async {
+      await engine.dispose();
+      native = NativeFallback();
+      var initAttempts = 0;
+      engine = ChromiumPlaybackEngine(
+        fallback: native,
+        initializeCef: () async {
+          initAttempts++;
+          throw PlatformException(
+            code: 'INIT_FAILED',
+            message: 'CEF one-shot init failed',
+          );
+        },
+        createPlayer: () => throw StateError('must not create'),
+      );
+      await expectLater(engine.play(video), throwsA(isA<PlatformException>()));
+      expect(initAttempts, 1);
+      expect(engine.currentStatus.state, PlaybackState.error);
+
+      // Subsequent online play fails immediately without calling initializeCef again.
+      await expectLater(engine.play(video), throwsStateError);
+      expect(initAttempts, 1);
+    },
+  );
+
+  test(
+    'configuration failure SETTINGS_FAILED fails immediately without retries',
+    () async {
+      await engine.dispose();
+      native = NativeFallback();
+      var createCalls = 0;
+      engine = ChromiumPlaybackEngine(
+        fallback: native,
+        initializeCef: () async {},
+        createPlayer: () {
+          createCalls++;
+          final player = _ThrowingYoutubeFixture(
+            onInit: () async => throw PlatformException(
+              code: 'SETTINGS_FAILED',
+              message: 'Invalid browser profile',
+            ),
+          );
+          players.add(player);
+          return player;
+        },
+      );
+      await expectLater(engine.play(video), throwsA(isA<PlatformException>()));
+      expect(createCalls, 1);
+    },
+  );
+
+  test(
+    'browser detachment during playback or controls does not report false playback error',
+    () async {
+      await engine.dispose();
+      native = NativeFallback();
+      var detached = false;
+      final detaching = _ThrowingYoutubeFixture(
+        onPause: () async {
+          if (detached) throw StateError('Browser detached');
+        },
+        onSeek: () async {
+          if (detached) {
+            throw const JavaScriptException('browser_closed', 'Closed');
+          }
+        },
+        onVolume: () async {
+          if (detached) {
+            throw PlatformException(
+              code: 'DETACHED',
+              message: 'Flutter view detached',
+            );
+          }
+        },
+      );
+      players.add(detaching);
+      engine = ChromiumPlaybackEngine(
+        fallback: native,
+        initializeCef: () async {},
+        createPlayer: () => detaching,
+      );
+      await engine.play(video);
+      detaching.messages.add({'StateChange': 1});
+      expect(engine.currentStatus.state, PlaybackState.playing);
+
+      detached = true;
+      await engine.pause();
+      await engine.seekTo(const Duration(seconds: 10));
+      await engine.setVolume(0.5);
+
+      expect(engine.currentStatus.state, isNot(PlaybackState.error));
+      expect(engine.currentStatus.error, isNull);
+    },
+  );
+
+  test(
+    'detachment during open completes quietly without reporting error state',
+    () async {
+      await engine.dispose();
+      native = NativeFallback();
+      engine = ChromiumPlaybackEngine(
+        fallback: native,
+        initializeCef: () async {},
+        createPlayer: () {
+          final player = _ThrowingYoutubeFixture(
+            onInit: () async => throw PlatformException(
+              code: 'DETACHED',
+              message: 'Host view closed',
+            ),
+          );
+          players.add(player);
+          return player;
+        },
+      );
+      await engine.play(video);
+      expect(engine.currentStatus.state, isNot(PlaybackState.error));
+      expect(engine.currentStatus.error, isNull);
+    },
+  );
+}
+
+class _ThrowingYoutubeFixture extends YoutubeFixture {
+  _ThrowingYoutubeFixture({
+    this.onInit,
+    this.onPause,
+    this.onSeek,
+    this.onVolume,
+  });
+
+  final Future<void> Function()? onInit;
+  final Future<void> Function()? onPause;
+  final Future<void> Function()? onSeek;
+  final Future<void> Function()? onVolume;
+
+  @override
+  Future<void> initialize() async {
+    if (onInit != null) return onInit!();
+    return super.initialize();
+  }
+
+  @override
+  Future<void> pauseVideo() async {
+    if (onPause != null) return onPause!();
+    return super.pauseVideo();
+  }
+
+  @override
+  Future<void> seekTo({
+    required double seconds,
+    bool allowSeekAhead = true,
+  }) async {
+    if (onSeek != null) return onSeek!();
+    return super.seekTo(seconds: seconds, allowSeekAhead: allowSeekAhead);
+  }
+
+  @override
+  Future<void> setVolume(int volume) async {
+    if (onVolume != null) return onVolume!();
+    return super.setVolume(volume);
+  }
 }

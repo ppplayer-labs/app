@@ -50,15 +50,23 @@ class PlaylistCover extends StatelessWidget {
       );
     }
 
+    final double cellExtent = size.isFinite
+        ? (images.length >= 2 ? size * 0.5 : size)
+        : (images.length >= 2 ? 96.0 : 180.0);
+
     if (images.length < 2) {
-      return _Image(url: images.first);
+      return _Image(url: images.first, maxCacheLogicalExtent: cellExtent);
     }
 
     if (images.length == 2) {
       return Row(
         children: [
-          Expanded(child: _Image(url: images[0])),
-          Expanded(child: _Image(url: images[1])),
+          Expanded(
+            child: _Image(url: images[0], maxCacheLogicalExtent: cellExtent),
+          ),
+          Expanded(
+            child: _Image(url: images[1], maxCacheLogicalExtent: cellExtent),
+          ),
         ],
       );
     }
@@ -68,14 +76,31 @@ class PlaylistCover extends StatelessWidget {
         children: [
           Expanded(
             child: Row(
-              children: [Expanded(child: _Image(url: images[0]))],
+              children: [
+                Expanded(
+                  child: _Image(
+                    url: images[0],
+                    maxCacheLogicalExtent: cellExtent * 2,
+                  ),
+                ),
+              ],
             ),
           ),
           Expanded(
             child: Row(
               children: [
-                Expanded(child: _Image(url: images[1])),
-                Expanded(child: _Image(url: images[2])),
+                Expanded(
+                  child: _Image(
+                    url: images[1],
+                    maxCacheLogicalExtent: cellExtent,
+                  ),
+                ),
+                Expanded(
+                  child: _Image(
+                    url: images[2],
+                    maxCacheLogicalExtent: cellExtent,
+                  ),
+                ),
               ],
             ),
           ),
@@ -88,16 +113,36 @@ class PlaylistCover extends StatelessWidget {
         Expanded(
           child: Row(
             children: [
-              Expanded(child: _Image(url: images[0])),
-              Expanded(child: _Image(url: images[1])),
+              Expanded(
+                child: _Image(
+                  url: images[0],
+                  maxCacheLogicalExtent: cellExtent,
+                ),
+              ),
+              Expanded(
+                child: _Image(
+                  url: images[1],
+                  maxCacheLogicalExtent: cellExtent,
+                ),
+              ),
             ],
           ),
         ),
         Expanded(
           child: Row(
             children: [
-              Expanded(child: _Image(url: images[2])),
-              Expanded(child: _Image(url: images[3])),
+              Expanded(
+                child: _Image(
+                  url: images[2],
+                  maxCacheLogicalExtent: cellExtent,
+                ),
+              ),
+              Expanded(
+                child: _Image(
+                  url: images[3],
+                  maxCacheLogicalExtent: cellExtent,
+                ),
+              ),
             ],
           ),
         ),
@@ -107,11 +152,16 @@ class PlaylistCover extends StatelessWidget {
 }
 
 class _Image extends StatelessWidget {
-  const _Image({required this.url});
+  const _Image({required this.url, required this.maxCacheLogicalExtent});
   final String url;
+  final double maxCacheLogicalExtent;
 
   @override
   Widget build(BuildContext context) {
-    return PPImage(imageUrl: url, fit: BoxFit.cover);
+    return PPImage(
+      imageUrl: url,
+      fit: BoxFit.cover,
+      maxCacheLogicalExtent: maxCacheLogicalExtent,
+    );
   }
 }

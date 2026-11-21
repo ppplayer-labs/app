@@ -15,6 +15,12 @@ extern "C" __declspec(dllexport) int RunWinMain(
   (void)version_info;
   const int cef_exit = FlutterChromiumWebviewExecuteProcess(sandbox_info);
   if (cef_exit >= 0) return cef_exit;
+  // Prevent Chromium from registering a duplicate Windows system media session
+  // alongside PPPlayer's own playback controls unless explicitly overridden.
+  if (GetEnvironmentVariableW(L"CEF_SYSTEM_MEDIA_CONTROLS", nullptr, 0) == 0 &&
+      GetLastError() == ERROR_ENVVAR_NOT_FOUND) {
+    SetEnvironmentVariableW(L"CEF_SYSTEM_MEDIA_CONTROLS", L"0");
+  }
   // Attach to console when present (e.g., 'flutter run') or create a
   // new console when running with a debugger.
   if (!::AttachConsole(ATTACH_PARENT_PROCESS) && ::IsDebuggerPresent()) {

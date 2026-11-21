@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:ppplayer/l10n/app_localization_delegates.dart';
 import 'dart:io';
 import 'dart:ui';
@@ -26,10 +27,45 @@ import 'package:macos_file_open_handler/macos_file_open_handler.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'core/player/player_provider.dart';
+import 'core/playback/playback_providers.dart'
+    show localPlaybackControllerProvider;
 import 'core/local_library/local_library_service.dart';
 
 /// Global access to the provider container for the [AudioHandler].
 late ProviderContainer globalContainer;
+
+/// Coordinates one-shot, ordered shutdown of playback engines, browser
+/// controllers, and Riverpod providers before process exit.
+class AppShutdownCoordinator {
+  AppShutdownCoordinator(this._containerProvider);
+
+  final ProviderContainer Function() _containerProvider;
+  Future<void>? _shutdownFuture;
+
+  Future<void> shutdown() => _shutdownFuture ??= _performShutdown();
+
+  Future<void> _performShutdown() async {
+    final container = _containerProvider();
+    try {
+      if (container.exists(localPlaybackControllerProvider)) {
+        final controller = container.read(localPlaybackControllerProvider);
+        await controller.dispose().timeout(
+          const Duration(seconds: 3),
+          onTimeout: () {},
+        );
+      }
+    } catch (error) {
+      debugPrint('[shutdown] Playback disposal error: $error');
+    }
+    try {
+      container.dispose();
+    } catch (error) {
+      debugPrint('[shutdown] Container disposal error: $error');
+    }
+  }
+}
+
+late AppShutdownCoordinator appShutdownCoordinator;
 
 Future<void> _requestNotificationPermission() async {
   if (!kIsWeb && Platform.isAndroid) {
@@ -48,6 +84,12 @@ void main() async {
 
   startupLog('main() entered');
   WidgetsFlutterBinding.ensureInitialized();
+  // Cap desktop image cache so Impeller/ANGLE GPU-backed image allocations stay
+  // bounded without hurting scrolling responsiveness (resized covers use ~150 KB).
+  if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
+    PaintingBinding.instance.imageCache.maximumSizeBytes = 48 * 1024 * 1024;
+    PaintingBinding.instance.imageCache.maximumSize = 200;
+  }
   startupLog('Flutter binding initialized');
   MediaKit.ensureInitialized();
   startupLog('MediaKit initialized');
@@ -142,8 +184,10 @@ void main() async {
   }
   startupLog('AudioHandler init complete');
 
-  // Re-initialize/Update container with the actual handler instance
+  // Re-initialize/Update container with the actual handler instance, disposing
+  // the temporary bootstrap container so Riverpod resources are never leaked.
   startupLog('ProviderContainer re-init with handler');
+  final bootstrapContainer = globalContainer;
   globalContainer = ProviderContainer(
     overrides: [
       // Provide the drift database instance app-wide
@@ -152,6 +196,8 @@ void main() async {
       audioHandlerProvider.overrideWithValue(handler),
     ],
   );
+  bootstrapContainer.dispose();
+  appShutdownCoordinator = AppShutdownCoordinator(() => globalContainer);
 
   // Initialize background media sync service
   startupLog('MediaSyncService init');
@@ -189,45 +235,63 @@ void main() async {
     globalContainer.read(cacheMetricsProvider).startLogging();
   }
 
-  // Instrument Flutter Lifecycle
-  AppLifecycleListener(onStateChange: (AppLifecycleState state) {});
-
   startupLog('runApp called');
   runApp(
     UncontrolledProviderScope(
       container: globalContainer,
-      child: const _AppLifecycleLogger(child: PpPlayerApp()),
+      child: _AppLifecycleLogger(
+        shutdownCoordinator: appShutdownCoordinator,
+        child: const PpPlayerApp(),
+      ),
     ),
   );
 }
 
 class _AppLifecycleLogger extends StatefulWidget {
   final Widget child;
-  const _AppLifecycleLogger({required this.child});
+  final AppShutdownCoordinator shutdownCoordinator;
+  const _AppLifecycleLogger({
+    required this.child,
+    required this.shutdownCoordinator,
+  });
   @override
   State<_AppLifecycleLogger> createState() => _AppLifecycleLoggerState();
 }
 
 class _AppLifecycleLoggerState extends State<_AppLifecycleLogger>
     with WidgetsBindingObserver {
+  late final AppLifecycleListener _lifecycleListener;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _lifecycleListener = AppLifecycleListener(
+      onExitRequested: () async {
+        await widget.shutdownCoordinator.shutdown();
+        return AppExitResponse.exit;
+      },
+      onDetach: () {
+        unawaited(widget.shutdownCoordinator.shutdown());
+      },
+    );
   }
 
   @override
   void dispose() {
+    _lifecycleListener.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    final time = DateTime.now().toIso8601String().substring(11, 23);
-    debugPrint(
-      '$time [PipDebug][FLUTTER] state=${state.name} inPip=${PipHandler.isInPipMode} activityStopped=${PipHandler.isActivityStopped}',
-    );
+    if (kDebugMode) {
+      final time = DateTime.now().toIso8601String().substring(11, 23);
+      debugPrint(
+        '$time [PipDebug][FLUTTER] state=${state.name} inPip=${PipHandler.isInPipMode} activityStopped=${PipHandler.isActivityStopped}',
+      );
+    }
   }
 
   @override

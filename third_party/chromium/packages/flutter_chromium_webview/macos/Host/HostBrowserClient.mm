@@ -17,6 +17,27 @@
 #include "include/cef_parser.h"
 
 namespace {
+#if DEBUG
+bool PipelineDiagnostics() {
+    static bool enabled = [NSProcessInfo.processInfo.environment[@"PERFORMANCE_DIAGNOSTICS"] isEqualToString:@"true"];
+    return enabled;
+}
+NSString* PipelineMode() {
+    static NSString* mode = PipelineDiagnostics() ? (NSProcessInfo.processInfo.environment[@"CEF_DIAGNOSTIC_PIPELINE"] ?: @"full") : @"full";
+    return mode;
+}
+double MonotonicMs() {
+    mach_timebase_info_data_t base;
+    mach_timebase_info(&base);
+    return (double)mach_absolute_time() * base.numer / base.denom / 1e6;
+}
+void RecordPipeline(HostBrowserClient::BrowserSession* session, double callback, double blit) {
+    if (!PipelineDiagnostics()) return;
+    if (session->pipelineFrames.size() < 4096)
+        session->pipelineFrames.push_back({(double)session->frameSequence, callback, MonotonicMs(), blit});
+    else session->pipelineOverflow++;
+}
+#endif
 
 class MediaDevToolsObserver : public CefDevToolsMessageObserver {
 public:
@@ -160,6 +181,10 @@ HostBrowserClient::~HostBrowserClient() {
 NSDictionary* HostBrowserClient::RenderDiagnostics(int64_t browserId) {
     auto* session = GetSession(browserId);
     if (!session) return @{@"hostPid": @(getpid()), @"browserPresent": @NO};
+    NSMutableArray* frames = [NSMutableArray array];
+    for (const auto& frame : session->pipelineFrames)
+        [frames addObject:@{@"sequence": @(frame[0]), @"callbackMs": @(frame[1]), @"copyCompletedMs": @(frame[2]), @"blitMs": @(frame[3])}];
+    session->pipelineFrames.clear();
     return @{@"hostPid": @(getpid()), @"browserPresent": @YES,
         @"surfaceGeneration": @(session->generation),
         @"frameSequence": @(session->frameSequence),
@@ -167,6 +192,10 @@ NSDictionary* HostBrowserClient::RenderDiagnostics(int64_t browserId) {
         @"acceleratedCallbacks": @(session->acceleratedFrames),
         @"completedMetalFrames": @(session->completedMetalFrames),
         @"failedMetalFrames": @(session->failedMetalFrames),
+        @"telemetryWindowGpuBlitTimeMs": @(session->totalGpuBlitTimeMs),
+        @"diagnosticGpuBlitTimeMs": @(session->diagnosticGpuBlitTimeMs),
+        @"pipelineMode": PipelineMode(), @"pipelineFrames": frames,
+        @"pipelineOverflow": @(session->pipelineOverflow),
         @"droppedFrames": session->droppedFrames >= 0 ? @(session->droppedFrames) : NSNull.null};
 }
 #endif
@@ -208,66 +237,125 @@ void HostBrowserClient::CreateBrowser(int64_t browser_id, const std::string& url
     // Bind the returned browser to this exact session on the CEF UI thread.
     // Picking an arbitrary unbound session in OnAfterCreated swaps concurrent
     // browsers (and consequently their textures, focus and input destinations).
-    creating_browser_id_ = browser_id;
-    auto context = chromium_settings::CustomContext(requiresGesture, profile);
-    auto browser = CefBrowserHost::CreateBrowserSync(window_info, this, url,
-                                                     browser_settings, extra_info, context);
-    creating_browser_id_ = -1;
-    auto& created = _sessions.at(browser_id);
-    if (!browser) {
+    CefRefPtr<HostBrowserClient> self = this;
+    auto finishCreate = [self, browser_id, url, request_id, requiresGesture,
+                         window_info, browser_settings, extra_info](
+                            CefRefPtr<CefRequestContext> context) mutable {
+        @autoreleasepool {
+        auto it = self->_sessions.find(browser_id);
+        if (it == self->_sessions.end() || it->second.closing) {
+            if (it != self->_sessions.end()) {
+                it->second.pending_context = nullptr;
+                self->_sessions.erase(it);
+                g_counters.activeBrowsers--;
+            }
+            IPC::Message error;
+            error.type = "error";
+            error.requestId = request_id;
+            error.payload = @{@"code": @"detached", @"browserId": @(browser_id)};
+            if (self->on_message_) self->on_message_(error);
+            return;
+        }
+        it->second.pending_context = nullptr;
+
+        std::string settingsError;
+        if (!requiresGesture && (!context || !chromium_settings::AllowAutoplay(context, settingsError))) {
+            self->_sessions.erase(it);
+            g_counters.activeBrowsers--;
+            IPC::Message error;
+            error.type = "error";
+            error.requestId = request_id;
+            error.payload = @{@"message": [NSString stringWithUTF8String:settingsError.c_str()]};
+            if (self->on_message_) self->on_message_(error);
+            return;
+        }
+
+        self->creating_browser_id_ = browser_id;
+        auto browser = CefBrowserHost::CreateBrowserSync(window_info, self, url,
+                                                         browser_settings, extra_info, context);
+        self->creating_browser_id_ = -1;
+        auto createdIt = self->_sessions.find(browser_id);
+        if (createdIt == self->_sessions.end()) {
+            if (browser) browser->GetHost()->CloseBrowser(true);
+            return;
+        }
+        auto& created = createdIt->second;
+        if (!browser) {
+            self->_sessions.erase(createdIt);
+            g_counters.activeBrowsers--;
+            IPC::Message error;
+            error.type = "error";
+            error.requestId = request_id;
+            error.payload = @{@"code": @"create_failed", @"browserId": @(browser_id)};
+            if (self->on_message_) self->on_message_(error);
+            return;
+        }
+        created.browser = browser;
+        if (!created.rendering_active) {
+            browser->GetHost()->SetWindowlessFrameRate(1);
+        }
+        NSLog(@"[CEFHost] browserCreated id=%lld", browser_id);
+#if DEBUG
+        created.media_observer = new MediaDevToolsObserver(self, browser_id);
+        created.media_observer_registration = browser->GetHost()->AddDevToolsMessageObserver(created.media_observer);
+        CefRefPtr<CefDictionaryValue> params = CefDictionaryValue::Create();
+        browser->GetHost()->ExecuteDevToolsMethod(0, "Media.enable", params);
+#endif
+
+        IPC::Message ack;
+        ack.type = "browserCreated";
+        ack.requestId = request_id;
+        ack.browserId = std::to_string(browser_id);
+        ack.payload = @{@"browserId": @(browser_id)};
+        if (self->on_message_) self->on_message_(ack);
+
+        // Allocate IOSurfaces using the latest session dimensions.
+        const int surfWidth = created.width;
+        const int surfHeight = created.height;
+        NSDictionary* surfaceProps = @{
+            (id)kIOSurfaceWidth: @(surfWidth),
+            (id)kIOSurfaceHeight: @(surfHeight),
+            (id)kIOSurfaceBytesPerElement: @4,
+            (id)kIOSurfacePixelFormat: @(kCVPixelFormatType_32BGRA)
+        };
+        created.io_surfaces.clear();
+        for (int i = 0; i < 3; i++) {
+            IOSurfaceRef surface = IOSurfaceCreate((__bridge CFDictionaryRef)surfaceProps);
+            if (surface) g_counters.activeIOSurfaces++;
+            created.io_surfaces.push_back(surface);
+            mach_port_t port = surface ? IOSurfaceCreateMachPort(surface) : MACH_PORT_NULL;
+            if (port == MACH_PORT_NULL) continue;
+            g_counters.activeMachSendRights++;
+            SendSurfacePort(port, i, browser_id, surfWidth, surfHeight, created.generation, false);
+            mach_port_deallocate(mach_task_self(), port);
+            g_counters.activeMachSendRights--;
+        }
+        created.current_surface_slot = 0;
+        }
+    };
+
+    if (requiresGesture && profile.empty()) {
+        finishCreate(nullptr);
+        return;
+    }
+
+    CefRefPtr<CefRequestContextHandler> ctxHandler =
+        new chromium_settings::ContextReadyHandler(std::move(finishCreate));
+    auto context = chromium_settings::CustomContext(requiresGesture, profile, ctxHandler);
+    if (!context) {
         _sessions.erase(browser_id);
         g_counters.activeBrowsers--;
         IPC::Message error;
         error.type = "error";
         error.requestId = request_id;
-        error.payload = @{@"code": @"create_failed", @"browserId": @(browser_id)};
+        error.payload = @{@"code": @"settings_failed", @"browserId": @(browser_id)};
         if (on_message_) on_message_(error);
         return;
     }
-    created.browser = browser;
-    std::string settingsError;
-    if (!requiresGesture && (!context || !chromium_settings::AllowAutoplay(browser, settingsError))) {
-        CloseBrowser(browser_id);
-        IPC::Message error;
-        error.type = "error";
-        error.requestId = request_id;
-        error.payload = @{@"message": [NSString stringWithUTF8String:settingsError.c_str()]};
-        if (on_message_) on_message_(error);
-        return;
+    auto pendingIt = _sessions.find(browser_id);
+    if (pendingIt != _sessions.end() && !pendingIt->second.browser) {
+        pendingIt->second.pending_context = context;
     }
-    NSLog(@"[CEFHost] browserCreated id=%lld", browser_id);
-    created.media_observer = new MediaDevToolsObserver(this, browser_id);
-    created.media_observer_registration = browser->GetHost()->AddDevToolsMessageObserver(created.media_observer);
-    CefRefPtr<CefDictionaryValue> params = CefDictionaryValue::Create();
-    browser->GetHost()->ExecuteDevToolsMethod(0, "Media.enable", params);
-
-    IPC::Message ack;
-    ack.type = "browserCreated";
-    ack.requestId = request_id;
-    ack.browserId = std::to_string(browser_id);
-    ack.payload = @{@"browserId": @(browser_id)};
-    if (on_message_) on_message_(ack);
-    
-    // Allocate IOSurfaces
-    NSDictionary* surfaceProps = @{
-        (id)kIOSurfaceWidth: @(width),
-        (id)kIOSurfaceHeight: @(height),
-        (id)kIOSurfaceBytesPerElement: @4,
-        (id)kIOSurfacePixelFormat: @(kCVPixelFormatType_32BGRA)
-    };
-    created.io_surfaces.clear();
-    for (int i = 0; i < 3; i++) {
-        IOSurfaceRef surface = IOSurfaceCreate((__bridge CFDictionaryRef)surfaceProps);
-        if (surface) g_counters.activeIOSurfaces++;
-        created.io_surfaces.push_back(surface);
-        mach_port_t port = surface ? IOSurfaceCreateMachPort(surface) : MACH_PORT_NULL;
-        if (port == MACH_PORT_NULL) continue;
-        g_counters.activeMachSendRights++;
-        SendSurfacePort(port, i, browser_id, width, height, created.generation, false);
-        mach_port_deallocate(mach_task_self(), port);
-        g_counters.activeMachSendRights--;
-    }
-    created.current_surface_slot = 0;
 }
 
 void HostBrowserClient::SetUserAgent(const IPC::Message& request) {
@@ -341,8 +429,11 @@ void HostBrowserClient::CloseBrowser(int64_t browser_id) {
     ClearHtml(browser_id);
     InvalidateJavaScript(browser_id, "browser_closed", "Browser closed");
     auto it = _sessions.find(browser_id);
-    if (it != _sessions.end() && it->second.browser) {
-        it->second.browser->GetHost()->CloseBrowser(true);
+    if (it != _sessions.end()) {
+        it->second.closing = true;
+        if (it->second.browser) {
+            it->second.browser->GetHost()->CloseBrowser(true);
+        }
     }
 }
 
@@ -353,6 +444,12 @@ void HostBrowserClient::ResizeBrowser(int64_t browser_id, int width, int height,
     NSLog(@"[CEFHost] ResizeBrowser called for %lld, width=%d, height=%d, scale=%f", browser_id, width, height, scale_factor);
     auto it = _sessions.find(browser_id);
     if (it != _sessions.end()) {
+        if (!it->second.browser) {
+            it->second.width = width;
+            it->second.height = height;
+            it->second.deviceScaleFactor = scale_factor;
+            return;
+        }
         if (it->second.width == width && 
             it->second.height == height && 
             it->second.deviceScaleFactor == scale_factor &&
@@ -414,6 +511,21 @@ void HostBrowserClient::ResizeBrowser(int64_t browser_id, int width, int height,
     }
 }
 
+void HostBrowserClient::SetRenderingActive(int64_t browser_id, bool active) {
+    CEF_REQUIRE_UI_THREAD();
+    auto* session = GetSession(browser_id);
+    if (!session || session->closing) return;
+    if (session->rendering_active == active) return;
+    session->rendering_active = active;
+    if (session->browser) {
+        auto host = session->browser->GetHost();
+        host->SetWindowlessFrameRate(active ? session->active_frame_rate : 1);
+        if (active) {
+            host->Invalidate(PET_VIEW);
+        }
+    }
+}
+
 HostBrowserClient::BrowserSession* HostBrowserClient::GetSession(int64_t browser_id) {
     auto it = _sessions.find(browser_id);
     if (it != _sessions.end()) {
@@ -442,6 +554,15 @@ void HostBrowserClient::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
 
 void HostBrowserClient::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
     CEF_REQUIRE_UI_THREAD();
+    if (browser) {
+        if (auto host = browser->GetHost()) {
+            if (auto ctx = host->GetRequestContext()) {
+                if (auto cm = ctx->GetCookieManager(nullptr)) {
+                    cm->FlushStore(nullptr);
+                }
+            }
+        }
+    }
     int64_t id = GetBrowserId(browser);
     if (id != -1) {
         if (auto* session = GetSession(id); session && session->user_agent) session->user_agent->Cancel();
@@ -455,7 +576,7 @@ void HostBrowserClient::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
         auto it = _sessions.find(id);
         if (it != _sessions.end()) {
 
-for (auto surface : it->second.io_surfaces) {
+            for (auto surface : it->second.io_surfaces) {
                 if (surface) {
                     CFRelease(surface);
                     g_counters.activeIOSurfaces--;
@@ -467,12 +588,12 @@ for (auto surface : it->second.io_surfaces) {
                 if (tex) CFRelease(tex);
             }
             it->second.dest_metal_textures.clear();
-            
-            for (auto pair : it->second.source_metal_textures) {
-                if (pair.second) CFRelease(pair.second);
+
+            if (it->second.source_metal_texture) {
+                CFRelease(it->second.source_metal_texture);
+                it->second.source_metal_texture = nullptr;
             }
-            it->second.source_metal_textures.clear();
-            
+
             _sessions.erase(it);
             g_counters.activeBrowsers--;
                 }
@@ -552,6 +673,7 @@ void HostBrowserClient::OnPaint(CefRefPtr<CefBrowser> browser,
         session->current_surface_slot = (session->current_surface_slot + 1) % 3;
     }
     
+#if DEBUG
     uint64_t now = mach_absolute_time();
     if (session->lastPrintTime == 0) session->lastPrintTime = now;
     if (session->frameSequence % 60 == 0) {
@@ -563,6 +685,7 @@ void HostBrowserClient::OnPaint(CefRefPtr<CefBrowser> browser,
         session->lastPrintTime = now;
         session->totalGpuBlitTimeMs = 0;
     }
+#endif
     }
 }
 
@@ -583,6 +706,13 @@ void HostBrowserClient::OnAcceleratedPaint(CefRefPtr<CefBrowser> browser,
     
     session->frameSequence++;
     session->acceleratedFrames++;
+#if DEBUG
+    double callbackMs = PipelineDiagnostics() ? MonotonicMs() : 0;
+    if ([PipelineMode() isEqualToString:@"cef-only"]) {
+        RecordPipeline(session, callbackMs, 0);
+        return; // CEF still composes into its own accelerated surface.
+    }
+#endif
     
     id<MTLDevice> device = (__bridge id<MTLDevice>)metal_device_;
     id<MTLCommandQueue> queue = (__bridge id<MTLCommandQueue>)command_queue_;
@@ -590,18 +720,24 @@ void HostBrowserClient::OnAcceleratedPaint(CefRefPtr<CefBrowser> browser,
     IOSurfaceRef cefSurface = (IOSurfaceRef)info.shared_texture_io_surface;
     if (!cefSurface) return;
     
-id<MTLTexture> source = nil;
+    id<MTLTexture> source = nil;
     uint32_t sourceId = IOSurfaceGetID(cefSurface);
-    auto source_it = session->source_metal_textures.find(sourceId);
-    if (source_it != session->source_metal_textures.end()) {
-        source = (__bridge id<MTLTexture>)source_it->second;
+    if (session->source_metal_texture && session->source_surface_id == sourceId) {
+        source = (__bridge id<MTLTexture>)session->source_metal_texture;
     } else {
+        // Keep only the current source alongside the three destination textures.
+        // Retaining every CEF surface ID grows the cache throughout playback.
+        if (session->source_metal_texture) {
+            CFRelease(session->source_metal_texture);
+            session->source_metal_texture = nullptr;
+        }
         MTLTextureDescriptor* sourceDesc = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatBGRA8Unorm
                                                                                             width:IOSurfaceGetWidth(cefSurface)
                                                                                            height:IOSurfaceGetHeight(cefSurface)
                                                                                         mipmapped:NO];
         source = [device newTextureWithDescriptor:sourceDesc iosurface:cefSurface plane:0];
-        session->source_metal_textures[sourceId] = (void*)CFBridgingRetain(source);
+        session->source_metal_texture = (void*)CFBridgingRetain(source);
+        session->source_surface_id = sourceId;
         TrackMetalTexture(source);
     }
     if (!source) {
@@ -613,7 +749,7 @@ id<MTLTexture> source = nil;
     IOSurfaceRef destinationSurface = session->io_surfaces[slot];
     
     if (!destinationSurface) return;
-id<MTLTexture> destination = nil;
+    id<MTLTexture> destination = nil;
     if (slot < session->dest_metal_textures.size() && session->dest_metal_textures[slot] != nullptr) {
         destination = (__bridge id<MTLTexture>)session->dest_metal_textures[slot];
     } else {
@@ -672,6 +808,14 @@ id<MTLTexture> destination = nil;
     mach_timebase_info(&timebase);
     double blitTimeMs = (double)(end_time - start_time) * timebase.numer / timebase.denom / 1e6;
     session->totalGpuBlitTimeMs += blitTimeMs;
+#if DEBUG
+    if (PipelineDiagnostics()) session->diagnosticGpuBlitTimeMs += blitTimeMs;
+    RecordPipeline(session, callbackMs, blitTimeMs);
+    if ([PipelineMode() isEqualToString:@"native-only"]) {
+        session->current_surface_slot = (slot + 1) % 3;
+        return; // Exercise native copies, omit downstream frameReady notification.
+    }
+#endif
     
     IPC::Message msg;
     msg.type = "frameReady";
@@ -687,6 +831,7 @@ id<MTLTexture> destination = nil;
     
     session->current_surface_slot = (slot + 1) % 3;
     
+#if DEBUG
     uint64_t now = mach_absolute_time();
     if (session->lastPrintTime == 0) session->lastPrintTime = now;
     if (session->frameSequence % 60 == 0) {
@@ -699,6 +844,7 @@ id<MTLTexture> destination = nil;
         session->lastPrintTime = now;
         session->totalGpuBlitTimeMs = 0;
     }
+#endif
     }
 }
 

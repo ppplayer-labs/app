@@ -10,6 +10,7 @@
 #include "include/cef_devtools_message_observer.h"
 #include <unordered_map>
 #include <functional>
+#include <array>
 #include "../Classes/Protocol.h"
 #include "../../native/javascript_bridge.h"
 #include "../../native/html_document.h"
@@ -38,20 +39,27 @@ public:
         chromium_bridge::Policy javascript_policy;
         std::string context_token;
         bool renderer_gone = false;
+        bool closing = false;
+        bool rendering_active = true;
+        int active_frame_rate = 60;
+        CefRefPtr<CefRequestContext> pending_context;
         CefRefPtr<chromium_settings::UserAgent> user_agent;
         CefRefPtr<CefDevToolsMessageObserver> media_observer;
         CefRefPtr<CefRegistration> media_observer_registration;
         
         std::vector<IOSurfaceRef> io_surfaces;
         std::vector<void*> dest_metal_textures;
-        std::unordered_map<uint32_t, void*> source_metal_textures;
-
+        void* source_metal_texture = nullptr;
+        uint32_t source_surface_id = 0;
 
         uint32_t current_surface_slot = 0;
         
 #if DEBUG
         uint64_t completedMetalFrames = 0;
         uint64_t failedMetalFrames = 0;
+        std::vector<std::array<double, 4>> pipelineFrames;
+        uint64_t pipelineOverflow = 0;
+        double diagnosticGpuBlitTimeMs = 0;
 #endif
         // Telemetry
         uint64_t softwareFrames = 0;
@@ -75,7 +83,6 @@ public:
                                           CefRefPtr<CefProcessMessage> message) override;
 
     CefRefPtr<CefRequestHandler> GetRequestHandler() override {
-        NSLog(@"[CEFHost] GetRequestHandler called");
         return this;
     }
     
@@ -143,6 +150,7 @@ public:
     void CloseBrowser(int64_t browser_id);
     void RecoverGpuProcess();
     void ResizeBrowser(int64_t browser_id, int width, int height, double scale_factor);
+    void SetRenderingActive(int64_t browser_id, bool active);
 
     BrowserSession* GetSession(int64_t browser_id);
 

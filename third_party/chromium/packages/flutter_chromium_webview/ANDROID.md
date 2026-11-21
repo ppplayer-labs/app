@@ -20,8 +20,9 @@ WebView keyboard and accessibility behavior;
   Local HTTP test fixtures require a debug-only cleartext policy; the example
   supplies one without enabling cleartext in the release manifest.
 
-For unpublished Android support, use this checkout as a path dependency. The
-published 0.2.1 release is the desktop package.
+In release 0.5.3, Android is officially published and supported as a first-class
+platform via `pub.dev`. Consumer applications can depend directly on
+`flutter_chromium_webview: ^0.5.3`.
 
 ```powershell
 ./scripts/validate_android.ps1 -Device emulator-5554
@@ -79,4 +80,11 @@ implemented. These boundaries should be checked against the host application's
 requirements before release.
 
 Test speaker output, keyboard/IME, visual rendering, background/foreground
-transitions and production playback origins on a physical device before shipping.
+transitions, screen-off playback, and production playback origins on a physical
+device before shipping.
+
+## Lifecycle and Crash Handling
+
+- `FlutterChromiumWebviewPlugin` unregisters its `Application.ActivityLifecycleCallbacks` on Activity detach, configuration changes, and Flutter engine teardown (`onDetachedFromEngine`), preventing duplicate registrations and Activity leaks.
+- Renderer process termination (`WebViewClient.onRenderProcessGone`) emits a deduplicated `browserCrash` event to Dart and destroys the dead `WebView` safely so host-coordinated recovery (`recoverAutomatically: false`) or bounded automatic recovery operates consistently with desktop platforms.
+- Background/screen-off audio reliability remains subject to Android OEM power management and requires physical-device verification in addition to host foreground-service and media-session integration.

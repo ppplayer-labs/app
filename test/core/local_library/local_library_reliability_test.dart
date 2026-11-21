@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:drift/drift.dart' as drift;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:path/path.dart' as p;
 import 'package:ppplayer/core/db/app_database.dart';
 import 'package:ppplayer/core/local_library/local_library_service.dart';
 import 'package:ppplayer/core/network_outputs/local_media_server.dart';
@@ -591,8 +592,14 @@ void main() {
         final restoredFiles = await db.getLocalFilesByImportRoot(folder.path);
         expect(restoredRoots, hasLength(1));
         expect(restoredFiles, hasLength(1));
-        expect(restoredRoots.first.displayPath, folder.path);
-        expect(restoredFiles.first.displayPath, file.path);
+        expect(
+          p.normalize(restoredRoots.first.displayPath),
+          p.normalize(folder.path),
+        );
+        expect(
+          p.normalize(restoredFiles.first.displayPath),
+          p.normalize(file.path),
+        );
       },
     );
 

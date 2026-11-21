@@ -12,7 +12,6 @@ list(APPEND FLUTTER_PLUGIN_LIST
   media_kit_video
   permission_handler_windows
   url_launcher_windows
-  webview_win_floating
   windows_taskbar
 )
 

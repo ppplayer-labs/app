@@ -24,6 +24,10 @@ finish-args:
   # Media file access
   - --filesystem=xdg-music:ro
   - --filesystem=xdg-videos:ro
+  # Flatpak bwrap provides the outer container sandbox; explicitly opt out of
+  # Chromium's nested inner user-namespace sandbox and duplicate MPRIS session.
+  - --env=FLUTTER_CHROMIUM_WEBVIEW_ALLOW_CONTAINER_NO_SANDBOX=1
+  - --env=CEF_SYSTEM_MEDIA_CONTROLS=0
 
 modules:
   - name: libass
@@ -111,6 +115,7 @@ modules:
       - install -dm755 /app/ppplayer /app/bin /app/lib/ffmpeg
       - cp -r ppplayer-bundle/* /app/ppplayer/
       - chmod +x /app/ppplayer/ppplayer
+      - if [ -f /app/ppplayer/lib/flutter_chromium_webview_subprocess ]; then chmod +x /app/ppplayer/lib/flutter_chromium_webview_subprocess; fi
       - ln -s /app/ppplayer/ppplayer /app/bin/ppplayer
       # Install Desktop entry, Icon, and AppStream MetaInfo
       - install -Dm644 com.ppplayer.PPPlayer.desktop /app/share/applications/com.ppplayer.PPPlayer.desktop

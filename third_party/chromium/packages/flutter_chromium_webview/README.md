@@ -1,54 +1,138 @@
 # flutter_chromium_webview
 
-A Chromium web view for Flutter on Windows, macOS, Linux, iOS, and Android.
+A high-performance Chromium web view plugin for Flutter on **Windows**, **macOS**, **Linux**, and **Android**.
 
-Windows, macOS, and Linux bundle a pinned Chromium engine through
-[CEF](https://bitbucket.org/chromiumembedded/cef). Android uses the installed
-system Chromium WebView; its engine version follows the device's WebView updates.
-iOS uses a headless WKWebView implementation to comply with App Store rules.
+Desktop platforms bundle a pinned Chromium engine through [CEF (Chromium Embedded Framework)](https://bitbucket.org/chromiumembedded/cef) with Off-Screen Rendering (OSR) directly into Flutter textures. Android integrates the system Chromium WebView using Flutter's hybrid composition platform view.
 
-Desktop pages use CEF **off-screen rendering (OSR)**. Each frame is
-delivered to native code, copied into a pixel buffer and shown in Flutter
-through a **Flutter `Texture`**. This lets the web view behave like any other
-widget: it can be clipped, transformed, stacked and overlaid. Android renders
-through a native Flutter platform view with native touch and keyboard input.
-iOS evaluates JavaScript headlessly in the background.
+> **Target Release: `0.5.7`**
+> Companion platform interface: [`flutter_chromium_webview_platform_interface: ^0.1.7`](https://pub.dev/packages/flutter_chromium_webview_platform_interface)
 
-> Published version: **`0.5.1`**.
+---
 
-## Platform support
+## Table of Contents
 
-| Platform | Status |
-| --- | --- |
-| Linux x64 | Supported, validated on Ubuntu / WSLg |
-| Windows x64 | Supported, sandboxed CEF implementation |
-| macOS | Supported, native CEF implementation |
-| Android API 24+ | System Chromium WebView; see [Android requirements](ANDROID.md) |
-| iOS | Supported, headless WKWebView implementation |
-| Web | Not implemented |
+- [Platform Support & Status](#platform-support--status)
+- [Architecture Overview](#architecture-overview)
+- [Requirements](#requirements)
+  - [SDK Requirements](#sdk-requirements)
+  - [OS & Toolchain Requirements](#os--toolchain-requirements)
+- [Installation & Setup](#installation--setup)
+  - [macOS Configuration](#macos-configuration)
+  - [Windows Configuration](#windows-configuration)
+  - [Linux Configuration](#linux-configuration)
+  - [Android Configuration](#android-configuration)
+- [Quick Start](#quick-start)
+- [Core Features & Usage](#core-features--usage)
+  - [Lifecycle Management](#lifecycle-management)
+  - [Navigation & HTML Loading](#navigation--html-loading)
+  - [JavaScript Evaluation & Execution](#javascript-evaluation--execution)
+  - [Two-Way JavaScript Bridge](#two-way-javascript-bridge)
+  - [Cookies, Storage & Named Profiles](#cookies-storage--named-profiles)
+  - [Multiple Simultaneous WebViews](#multiple-simultaneous-webviews)
+  - [Input, Focus & Keyboard](#input-focus--keyboard)
+  - [JavaScript Dialogs & Context Menus](#javascript-dialogs--context-menus)
+  - [New Window Interception](#new-window-interception)
+  - [YouTube & Video Playback Integration](#youtube--video-playback-integration)
+  - [Crash Recovery & Fault Tolerance](#crash-recovery--fault-tolerance)
+- [Troubleshooting & Known Limitations](#troubleshooting--known-limitations)
+- [Packages in this Repository](#packages-in-this-repository)
+- [Contributing & License](#contributing--license)
 
-## Installation
+---
+
+## Platform Support & Status
+
+| Platform | Engine | Rendering Path | Status | Guide |
+|---|---|---|---|---|
+| **macOS 13+** | CEF 149 (Chromium 149) | Accelerated IOSurface via Metal | Supported (Apple Silicon `arm64` verified; Intel `x86_64` implementation target, unverified on physical Intel hardware) | [MACOS.md](MACOS.md) |
+| **Windows 10+** | CEF 149 (Chromium 149) | Software pixel buffer to Texture | Supported (`x64`, sandboxed bootstrap runner) | [WINDOWS.md](WINDOWS.md) |
+| **Linux** | CEF 149 (Chromium 149) | Software pixel buffer to Texture | Supported (`x64`, X11 / XWayland via GTK3) | [LINUX.md](LINUX.md) |
+| **Android (API 24+)** | System Chromium WebView | Native Platform View (Hybrid Composition) | Supported (ARM64, ARM32, x86_64) | [ANDROID.md](ANDROID.md) |
+| **iOS** | WebKit (`WKWebView`) | Headless prototype | Source only; **not registered or supported** | [IOS.md](IOS.md) |
+| **Web** | N/A | N/A | Not implemented | N/A |
+
+---
+
+## Architecture Overview
+
+On desktop operating systems, `flutter_chromium_webview` uses **Off-Screen Rendering (OSR)**:
+1. Chromium renders web contents completely off-screen in background helper processes.
+2. Rendered frames are passed to native host callbacks:
+   - On **macOS**, frames are delivered as hardware-accelerated **IOSurface** handles and bound to **Metal** textures.
+   - On **Windows** and **Linux**, pixel buffers are copied into a retained frame buffer and registered with the Flutter Engine's texture registry.
+3. The browser appears in your Flutter widget tree as a regular Flutter `Texture`. It can be seamlessly clipped (e.g. `ClipRRect`), transformed, stacked, animated, or overlaid with other Flutter widgets.
+4. On **Android**, rendering uses Flutter's native platform view mechanism (Hybrid Composition), providing native Android touch handling, accessibility, and virtual keyboard interaction.
+
+---
+
+## Requirements
+
+### SDK Requirements
+
+- **Dart SDK**: `>=3.12.0 <4.0.0`
+- **Flutter SDK**: `>=3.44.0`
+
+The package is engineered to be compatible with Dart `>=3.12.0`, allowing applications using Flutter 3.44+ (such as PPPlayer) to consume the published package without version conflicts. CI strictly tests across Flutter 3.47.4 / Dart 3.13.3.
+
+### OS & Toolchain Requirements
+
+- **macOS**: macOS 13 (Ventura) or newer, Xcode 15+, CMake 3.19+, Python 3, CocoaPods.
+- **Windows**: Windows 10/11 x64, Visual Studio 2022 (with C++ desktop development tools), CMake 3.19+.
+- **Linux**: Linux x64 with GTK 3, Clang, CMake 3.19+, Ninja, pkg-config, X11 or XWayland, PulseAudio.
+- **Android**: Android API 24+ (Android 7.0 Nougat), Android compile SDK 36, Java 17.
+
+---
+
+## Installation & Setup
+
+Add the package to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  flutter_chromium_webview: ^0.5.1
+  flutter_chromium_webview: ^0.5.7
 ```
 
-### Requirements (Linux)
+Because desktop platforms require native runtime bootstrapping, follow the platform-specific instructions below:
 
-- Flutter with Linux desktop support enabled.
-- A Linux x64 toolchain: Clang, CMake (3.19+), Ninja, `pkg-config`, GTK 3
-  development files.
-- Network access during the **first build**. The plugin does not ship CEF in
-  the pub.dev package; its CMake build downloads a pinned, SHA-256 verified CEF
-  `minimal` distribution (~100 MB) and builds the CEF wrapper library. Pre-download the
-  archive and point the `CEF_TARBALL` CMake cache variable at it for offline
-  builds.
-- An X11 display (the plugin selects the X11 backend).
+### macOS Configuration
 
-## Usage
+macOS requires host embedding and runner configuration outside Apple's App Sandbox. For complete instructions, see [MACOS.md](MACOS.md).
 
-Initialize the CEF runtime once, before creating any browser:
+1. In `pubspec.yaml`, disable Swift Package Manager for macOS:
+   ```yaml
+   flutter:
+     config:
+       enable-swift-package-manager: false
+   ```
+2. In `macos/Runner/Info.plist`, set `NSPrincipalClass` to `ChromiumWebViewApplication`.
+3. In `macos/Runner/DebugProfile.entitlements` and `macos/Runner/Release.entitlements`, set `com.apple.security.app-sandbox` to `<false/>`.
+4. Add the CEF preparation step to your `macos/Podfile` and the embedding script to your Xcode Runner build phase as detailed in [MACOS.md](MACOS.md).
+
+### Windows Configuration
+
+Windows uses CEF's sandboxed bootstrap executable runner. For complete instructions, see [WINDOWS.md](WINDOWS.md).
+
+1. In `windows/runner/CMakeLists.txt`, change the runner target to a shared library (`add_library(${BINARY_NAME} SHARED ...)`).
+2. In `windows/CMakeLists.txt`, add `chromium_webview_enable_sandbox(${BINARY_NAME})`.
+3. In `windows/runner/main.cpp`, export `RunWinMain` as described in [WINDOWS.md](WINDOWS.md).
+
+### Linux Configuration
+
+Ensure system packages are installed:
+```bash
+sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev pulseaudio
+```
+On first build, CMake automatically downloads and verifies the pinned CEF Linux distribution. See [LINUX.md](LINUX.md).
+
+### Android Configuration
+
+Ensure your `android/app/build.gradle` has `minSdkVersion 24` and Java 17 compatibility. Internet permission is included automatically by the plugin manifest. See [ANDROID.md](ANDROID.md).
+
+---
+
+## Quick Start
+
+Initialize the CEF runtime once in `main()` before creating any browser:
 
 ```dart
 import 'package:flutter/material.dart';
@@ -57,77 +141,305 @@ import 'package:path_provider/path_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize CEF runtime on desktop. On Android, this initializes the WebView provider.
   final cache = await getApplicationSupportDirectory();
-  await ChromiumWebViewController.initialize(cachePath: cache.path);
-  runApp(const MyApp());
+  final initialized = await ChromiumWebViewController.initialize(
+    cachePath: cache.path,
+  );
+  if (!initialized) {
+    throw StateError('Failed to initialize Chromium runtime');
+  }
+
+  runApp(const MaterialApp(home: WebViewDemo()));
 }
-```
 
-Then place a `ChromiumWebView` in your widget tree:
+class WebViewDemo extends StatefulWidget {
+  const WebViewDemo({super.key});
 
-```dart
-class _MyAppState extends State<MyApp> {
+  @override
+  State<WebViewDemo> createState() => _WebViewDemoState();
+}
+
+class _WebViewDemoState extends State<WebViewDemo> {
   final controller = ChromiumWebViewController();
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        body: ChromiumWebView(
-          controller: controller,
-          initialUrl: 'https://flutter.dev',
-        ),
+    return Scaffold(
+      appBar: AppBar(title: const Text('Chromium WebView')),
+      body: ChromiumWebView(
+        controller: controller,
+        initialUrl: 'https://flutter.dev',
       ),
     );
   }
 }
 ```
 
-The widget disposes its controller when removed from the tree. Pass
-`disposeController: false` if you manage the controller's lifetime yourself.
+---
 
-The controller offers `loadRequest`, `loadHtmlString`, `reload`, `goBack`,
-`goForward`, `executeJavaScript`, and exposes `currentUrl`, `pageTitle`,
-`isLoading`, `canGoBack` and `canGoForward` (it is a `ChangeNotifier`). It also
-supports origin-restricted JavaScript channels, new-window requests, JavaScript
-dialogs and context menus that you render with Flutter widgets.
+## Core Features & Usage
 
-You never need to deal with CEF handlers, GTK, native textures or pixel buffers.
+### Lifecycle Management
 
-## Example
+By default, the `ChromiumWebView` widget automatically disposes its controller when removed from the widget tree. If you want to keep the controller alive while navigating between tabs or screens, pass `disposeController: false`:
 
-See [`example/`](example) for a small browser with back, forward, reload, an
-address bar, a JavaScript execution button, and layout-driven resizing.
-
-```sh
-cd example
-flutter run -d linux
+```dart
+ChromiumWebView(
+  controller: controller,
+  disposeController: false, // You manage disposal explicitly
+  initialUrl: 'https://flutter.dev',
+);
 ```
 
-## Limitations
+When you are done with the controller:
+```dart
+await controller.dispose();
+```
 
-- Rendering uses the CPU (software compositing). GPU acceleration is disabled.
-- Standard CEF builds have no proprietary codecs (for example H.264).
-- Native drag and drop and IME candidate-window positioning are unfinished.
-- Once CEF is shut down the process must be restarted to use it again.
-- The binary size of an app grows by the size of Chromium.
+`dispose()` is idempotent, waits for any in-flight `createBrowser()` initialization to settle or cancel safely, rejects pending `evaluateJavaScript` futures immediately, and releases native browser, texture, and `IOSurface`/buffer resources before completing.
 
-## Packages
+### Rendering Throttling (`setRenderingActive`)
 
-- [`flutter_chromium_webview`](https://pub.dev/packages/flutter_chromium_webview): this package.
-- [`flutter_chromium_webview_platform_interface`](https://pub.dev/packages/flutter_chromium_webview_platform_interface):
-  the shared platform contract. Not intended for direct use by applications.
+When a desktop WebView is minimized, hidden, or paused while audio or background JavaScript should continue running, hint to the off-screen renderer to lower its frame rate:
 
-## Roadmap
+```dart
+// Lower windowless rendering to 1 FPS while keeping audio & JS bridge active
+await controller.setRenderingActive(false);
 
-- **0.1.x** – stabilize Linux, improve tests and documentation.
-- **0.2.x** – Windows backend.
-- **0.3.x** – macOS backend.
-- **Next Release** – SPM (Swift Package Manager) support for macOS.
-- **1.0.0** – stable multi-platform release.
+// Resume 60 FPS rendering and request an immediate repaint
+await controller.setRenderingActive(true);
+```
 
-## Contributing & license
+- **Windows & macOS**: Throttles CEF's windowless frame rate (`60 FPS → 1 FPS`) without calling `WasHidden(true)`, preserving uninterrupted audio playback and JS bridge events; restores `60 FPS` and calls `Invalidate(PET_VIEW)` when re-activated.
+- **Linux & Android**: Gracefully handled as a no-op (`MissingPluginException` caught internally) so callers can invoke `setRenderingActive()` uniformly across all platforms.
 
-See [CONTRIBUTING.md](https://github.com/devflier/flutter_chromium_webview/blob/main/CONTRIBUTING.md).
-Released under the MIT license; CEF and Chromium are covered by their own
-(BSD-style) licenses, which you must honor when distributing an app.
+### Navigation & HTML Loading
+
+```dart
+// Load an arbitrary URL
+await controller.loadUrl('https://dart.dev');
+
+// Load raw HTML with an explicit base URL for origin and relative assets
+await controller.loadHtmlString(
+  '<h1>Hello from Flutter!</h1><p>Running on Chromium.</p>',
+  baseUrl: 'https://example.com/app/',
+);
+
+// Navigation controls
+if (controller.canGoBack) await controller.goBack();
+if (controller.canGoForward) await controller.goForward();
+await controller.reload();
+await controller.stopLoading();
+```
+
+The controller extends `ChangeNotifier`, notifying listeners on URL changes, title changes, and progress updates:
+
+```dart
+ListenableBuilder(
+  listenable: controller,
+  builder: (context, _) {
+    return Text(controller.pageTitle ?? controller.currentUrl ?? 'Loading...');
+  },
+);
+```
+
+### JavaScript Evaluation & Execution
+
+Execute fire-and-forget scripts or evaluate expressions and receive structured results:
+
+```dart
+// Fire-and-forget
+await controller.executeJavaScript("console.log('Hello from Dart');");
+
+// Evaluate expression with returned value
+try {
+  final result = await controller.evaluateJavaScript('document.title');
+  print('Page title: $result');
+
+  // Objects and arrays are returned as parsed JSON structures
+  final dimensions = await controller.evaluateJavaScript('''
+    ({
+      width: window.innerWidth,
+      height: window.innerHeight,
+      userAgent: navigator.userAgent
+    })
+  ''');
+  print('Window info: $dimensions');
+} catch (e) {
+  print('JavaScript execution error: $e');
+}
+```
+
+### Two-Way JavaScript Bridge
+
+Communicate securely from web content back to Flutter using origin-restricted `JavaScriptChannel`s:
+
+```dart
+final channel = JavaScriptChannel(
+  name: 'FlutterBridge',
+  allowedOrigins: {'https://flutter.dev', 'https://dart.dev'},
+  onMessageReceived: (JavaScriptMessage msg) {
+    print('Received message: ${msg.message}');
+  },
+);
+
+final controller = ChromiumWebViewController(
+  javaScriptChannels: [channel],
+);
+```
+
+In the webpage JavaScript:
+```javascript
+// Send a message to Flutter
+FlutterBridge.postMessage(JSON.stringify({ event: 'button_clicked', id: 42 }));
+```
+
+Messages are protected by strict origin allowlists and capped at a maximum of 64 KiB UTF-8 to prevent buffer exhaustion.
+
+### Cookies, Storage & Named Profiles
+
+Configure isolation, cookies, user-agent, and media gesture policies at controller construction:
+
+```dart
+final controller = ChromiumWebViewController(
+  profileName: 'isolated_user_profile', // Dedicated storage partition
+  userAgent: 'MyCustomApp/1.0 (Flutter Desktop)',
+  mediaPlaybackRequiresUserGesture: false, // Enable autoplay
+  backgroundColor: const Color(0xFF1E1E1E), // Dark canvas during navigation
+);
+```
+
+- When `profileName` is provided (strictly `[a-zA-Z0-9_]`, up to 128 characters, preventing path traversal), desktop backends create a persistent on-disk `CefRequestContext` at `<cachePath>/profile_<profileName>` so cookies (including `HttpOnly`) and `localStorage` survive across full application restarts on Windows, Linux, and macOS.
+- When `profileName` is omitted (`null`), browsers remain isolated from named profiles (and `mediaPlaybackRequiresUserGesture: false` uses an ephemeral in-memory context that does not leak cookies or storage into named profiles).
+
+### Multiple Simultaneous WebViews
+
+You can run multiple independent WebView instances simultaneously. Each has its own texture, controller, and event dispatching:
+
+```dart
+Row(
+  children: [
+    Expanded(child: ChromiumWebView(controller: controllerA, initialUrl: 'https://flutter.dev')),
+    const VerticalDivider(),
+    Expanded(child: ChromiumWebView(controller: controllerB, initialUrl: 'https://dart.dev')),
+  ],
+)
+```
+
+### Input, Focus & Keyboard
+
+- **Mouse / Pointer**: Coordinates, high-DPI device pixel ratios, scroll wheels, and multi-click counts (double-clicks, triple-clicks) are forwarded automatically to the native browser.
+- **Keyboard & Shortcuts**: Key events, Cmd/Ctrl editing shortcuts (Copy, Cut, Paste, Select All), and IME composition are handled natively.
+
+### JavaScript Dialogs & Context Menus
+
+Customize the presentation of JavaScript dialogs (`alert`, `confirm`, `prompt`) and right-click context menus using Flutter UI:
+
+```dart
+controller.onJSDialog = (JSDialogRequest request) async {
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Text(request.type.name.toUpperCase()),
+      content: Text(request.message),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+        FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('OK')),
+      ],
+    ),
+  );
+  return JSDialogResponse(success: confirmed ?? false);
+};
+
+controller.onContextMenu = (List<ContextMenuItem> items) {
+  // Render Flutter popup or context menu using the provided command IDs
+};
+```
+
+### New Window Interception
+
+Intercept `window.open` or target `_blank` links:
+
+```dart
+controller.onNewWindowRequested = (NewWindowRequest request) {
+  print('Requested popup URL: ${request.url}');
+  // Open in a new tab, dialog, or external browser
+};
+```
+
+### YouTube & Video Playback Integration
+
+For video playback, the plugin includes a dedicated `ChromiumYoutubePlayerController` that wraps YouTube's IFrame API with native telemetry, autoplay support, and state synchronization:
+
+```dart
+import 'package:flutter_chromium_webview/chromium_youtube_player.dart';
+
+final player = ChromiumYoutubePlayerController(
+  documentUrl: 'https://example.com/player',
+  readyTimeout: const Duration(seconds: 15),
+);
+
+// In your widget:
+ChromiumWebView(
+  controller: player.webViewController,
+  disposeController: false,
+);
+
+// Control playback:
+await player.loadVideoById('dQw4w9WgXcQ');
+await player.play();
+await player.pause();
+await player.seekTo(Duration(seconds: 45));
+```
+
+Supported open video codecs: **VP8**, **VP9**, **AV1**, **Vorbis**, **Opus**. Standard CEF does not include proprietary codecs like H.264 or AAC.
+
+### Crash Recovery & Fault Tolerance
+
+If the Chromium renderer or GPU subprocess crashes, `flutter_chromium_webview` detects the failure across Windows, macOS, Linux, and Android and fires `onBrowserCrashed`:
+
+```dart
+final controller = ChromiumWebViewController(
+  automaticallyRecoverFromCrash: true, // Bounded automatic recovery (max 3 consecutive)
+  onBrowserCrashed: () {
+    // Handle crash notification or coordinate custom recovery.
+  },
+);
+```
+
+Set `automaticallyRecoverFromCrash: false` when the host coordinates its own browser lifecycle and recovery.
+
+### Runtime Environment Configuration
+
+- `FLUTTER_CHROMIUM_WEBVIEW_LOW_MEMORY=0`: Reverts the default validated low-memory Chromium profile (disabling spare renderers, MediaRouter, Translate, OptimizationHints, BackForwardCache, extensions, sync, and component updates) back to stock Chromium defaults for A/B testing across Windows, macOS, and Linux.
+- `CEF_SYSTEM_MEDIA_CONTROLS=0`: Disables Chromium's OS media session and hardware media-key handling (`HardwareMediaKeyHandling`, `MediaSessionService`) across Windows, macOS, and Linux when the host app owns OS media controls.
+- `FLUTTER_CHROMIUM_WEBVIEW_ALLOW_CONTAINER_NO_SANDBOX=1` (Linux only): Explicitly opts out of Chromium's inner user-namespace sandbox **only** when verified Snap or Flatpak outer confinement is detected. Ignored on ordinary Linux installations. See [LINUX.md](LINUX.md).
+- `FLUTTER_CHROMIUM_WEBVIEW_PASSWORD_STORE` (Linux testing only, opt-in): Overrides Chromium's `--password-store` backend (`basic`, `gnome-libsecret`, `kwallet`, `kwallet5`, `kwallet6`, `detect`). Never set by default; `basic` is intended strictly for headless/CI testing because it is less secure than OS keyring storage. See [LINUX.md](LINUX.md).
+
+---
+
+## Troubleshooting & Known Limitations
+
+- **Proprietary Codecs**: Stock CEF builds distributed by the project do not include H.264 or AAC codecs due to patent and licensing restrictions. Media encoded with VP8, VP9, or AV1 is recommended.
+- **Apple App Sandbox**: The macOS CEF backend currently requires direct distribution outside Apple's App Sandbox. See [MACOS.md](MACOS.md).
+- **Process Shutdown**: Once CEF has shut down via `CefShutdown()`, CEF cannot be reinitialized in the same process without restarting the host application.
+- **macOS Memory Bounds**: Extended validation confirms clean tracked resource disposal and zero surviving processes on shutdown. However, long-term leak freedom and physical 8 GB qualification remain open product items.
+- **Application Bundle Size**: Bundling Chromium and CEF increases the application distribution size by approximately 100–130 MB.
+
+---
+
+## Packages in this Repository
+
+- **[`flutter_chromium_webview`](https://pub.dev/packages/flutter_chromium_webview)**: The main Flutter plugin consumed by applications.
+- **[`flutter_chromium_webview_platform_interface`](https://pub.dev/packages/flutter_chromium_webview_platform_interface)**: The platform interface and method channel contracts.
+
+---
+
+## Contributing & License
+
+Contributions are welcome! Please review [CONTRIBUTING.md](https://github.com/devflier/flutter_chromium_webview/blob/main/CONTRIBUTING.md) and [docs/architecture.md](https://github.com/devflier/flutter_chromium_webview/blob/main/docs/architecture.md).
+
+This project is licensed under the **MIT License**.  
+Chromium and CEF are covered by their respective BSD-style licenses.

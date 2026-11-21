@@ -7,7 +7,7 @@ environment:
   sdk: ">=3.12.0 <4.0.0"
 
 dependencies:
-  flutter_chromium_webview: ^0.5.5
+  flutter_chromium_webview: ^0.5.7
   audio_service: ^0.18.18
   audio_session: ^0.2.3
   cached_network_image: ^4.0.0
@@ -62,7 +62,6 @@ dependencies:
   path: ^1.9.1
   metadata_god: ^1.1.0
   macos_file_open_handler: ^0.1.0
-  webview_win_floating: ^3.0.3
   windows_taskbar: ^1.1.2
   fullscreen_window: ^1.2.1
   http: ^1.6.0
@@ -106,7 +105,7 @@ flutter_launcher_icons:
   image_path: "assets/logo.png"
   adaptive_icon_background: "#FFFFFF"
   adaptive_icon_foreground: "assets/logo.png"
-  min_sdk_android: 21 # android min sdk
+  min_sdk_android: 24 # aligned with flutter_chromium_webview API 24+ requirement
 
 flutter:
   uses-material-design: true
@@ -142,8 +141,6 @@ dependency_overrides:
     path: lib/core/playback/packages/metadata_god
   freezed_annotation: ^3.1.0
   flutter_rust_bridge: 2.11.1
-  flutter_chromium_webview:
-    path: third_party/chromium/packages/flutter_chromium_webview
 
 msix_config:
   display_name: PPPlayer

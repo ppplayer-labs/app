@@ -77,17 +77,6 @@ foreach(EXTRACT_TARGET IN ITEMS
     add_dependencies(media_kit_video_plugin ${EXTRACT_TARGET})
   endif()
 endforeach()
-if(TARGET webview_win_floating_DEPENDENCIES_DOWNLOAD AND TARGET webview_win_floating_plugin)
-  add_dependencies(webview_win_floating_plugin
-    webview_win_floating_DEPENDENCIES_DOWNLOAD)
-  target_include_directories(webview_win_floating_plugin PRIVATE
-    "${CMAKE_BINARY_DIR}/packages/Microsoft.Web.WebView2/build/native/include"
-    "${CMAKE_BINARY_DIR}/packages/Microsoft.Windows.ImplementationLibrary/include"
-  )
-  target_link_libraries(webview_win_floating_plugin PRIVATE
-    "${CMAKE_BINARY_DIR}/packages/Microsoft.Web.WebView2/build/native/x64/WebView2Loader.dll.lib"
-  )
-endif()
 
 
 # === Installation ===

@@ -157,49 +157,55 @@ class PpPlayerAudioHandler extends BaseAudioHandler with QueueHandler {
     final playerState = _container.read(playerProvider);
     final isPlaying = playing ?? playerState.isPlaying;
 
-    WindowsTaskbar.setThumbnailToolbar([
-      ThumbnailToolbarButton(
-        ThumbnailToolbarAssetIcon(
-          isFav ? 'assets/icons/remove.ico' : 'assets/icons/add.ico',
+    try {
+      WindowsTaskbar.setThumbnailToolbar([
+        ThumbnailToolbarButton(
+          ThumbnailToolbarAssetIcon(
+            isFav ? 'assets/icons/remove.ico' : 'assets/icons/add.ico',
+          ),
+          isFav ? 'Remove from library' : 'Add to library',
+          () async {
+            final currentTrack = _container.read(playerProvider).currentTrack;
+            if (currentTrack != null) {
+              final currentFav =
+                  _container
+                      .read(
+                        favoritesStatusProvider((
+                          FavoriteType.track,
+                          currentTrack.spotifyId,
+                        )),
+                      )
+                      .value ??
+                  currentTrack.isFavorite;
+              await _container
+                  .read(favoritesControllerProvider.notifier)
+                  .toggleTrackFavorite(currentTrack, currentFav);
+            }
+          },
         ),
-        isFav ? 'Remove from library' : 'Add to library',
-        () async {
-          final currentTrack = _container.read(playerProvider).currentTrack;
-          if (currentTrack != null) {
-            final currentFav =
-                _container
-                    .read(
-                      favoritesStatusProvider((
-                        FavoriteType.track,
-                        currentTrack.spotifyId,
-                      )),
-                    )
-                    .value ??
-                currentTrack.isFavorite;
-            await _container
-                .read(favoritesControllerProvider.notifier)
-                .toggleTrackFavorite(currentTrack, currentFav);
-          }
-        },
-      ),
-      ThumbnailToolbarButton(
-        ThumbnailToolbarAssetIcon('assets/icons/previous.ico'),
-        'Previous',
-        () => skipToPrevious(),
-      ),
-      ThumbnailToolbarButton(
-        ThumbnailToolbarAssetIcon(
-          isPlaying ? 'assets/icons/pause.ico' : 'assets/icons/play.ico',
+        ThumbnailToolbarButton(
+          ThumbnailToolbarAssetIcon('assets/icons/previous.ico'),
+          'Previous',
+          () => skipToPrevious(),
         ),
-        isPlaying ? 'Pause' : 'Play',
-        () => isPlaying ? pause() : play(),
-      ),
-      ThumbnailToolbarButton(
-        ThumbnailToolbarAssetIcon('assets/icons/next.ico'),
-        'Next',
-        () => skipToNext(),
-      ),
-    ]);
+        ThumbnailToolbarButton(
+          ThumbnailToolbarAssetIcon(
+            isPlaying ? 'assets/icons/pause.ico' : 'assets/icons/play.ico',
+          ),
+          isPlaying ? 'Pause' : 'Play',
+          () => isPlaying ? pause() : play(),
+        ),
+        ThumbnailToolbarButton(
+          ThumbnailToolbarAssetIcon('assets/icons/next.ico'),
+          'Next',
+          () => skipToNext(),
+        ),
+      ]).catchError((Object e) {
+        debugPrint('[Taskbar] setThumbnailToolbar skipped or failed: $e');
+      });
+    } catch (e) {
+      debugPrint('[Taskbar] setThumbnailToolbar skipped or failed: $e');
+    }
   }
 
   /// Update the OS metadata (Title, Artist, Album, Image).

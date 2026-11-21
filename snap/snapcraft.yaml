@@ -62,6 +62,10 @@ apps:
       - browser-support
     environment:
       LD_LIBRARY_PATH: "$SNAP/lib:$SNAP/usr/lib/x86_64-linux-gnu:$SNAP/usr/lib/x86_64-linux-gnu/blas:$SNAP/usr/lib/x86_64-linux-gnu/lapack:$LD_LIBRARY_PATH"
+      # Strict Snap confinement provides the outer AppArmor/seccomp sandbox;
+      # explicitly opt out of Chromium's nested inner user-namespace sandbox.
+      FLUTTER_CHROMIUM_WEBVIEW_ALLOW_CONTAINER_NO_SANDBOX: "1"
+      CEF_SYSTEM_MEDIA_CONTROLS: "0"
 
 parts:
   bundle:

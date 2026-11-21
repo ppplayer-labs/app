@@ -51,9 +51,87 @@ class ChromiumPlaybackEngine implements PlaybackController {
   bool _started = false;
   bool _ended = false;
   bool _correctingPause = false;
+  bool _renderingActive = true;
+  bool _cefPermanentlyFailed = false;
+  Object? _cefPermanentError;
   int _generation = 0;
   Object? _durationRequest;
   DateTime? _durationAttempt;
+
+  /// Maximum bounded retry attempts for recoverable startup failures.
+  static const int maxStartupRetries = 3;
+
+  static bool _isExpectedDetachmentOrShutdown(
+    Object error, {
+    required bool closed,
+    ChromiumYoutubePlayerController? player,
+  }) {
+    if (closed) return true;
+    if (error is PlatformException) {
+      if (error.code == 'DETACHED') return true;
+      if (error.code == 'BROWSER_NOT_FOUND' &&
+          (player?.webViewController.isDetached == true ||
+              player?.webViewController.isDisposed == true)) {
+        return true;
+      }
+    }
+    if (error is JavaScriptException) {
+      return const {
+        'browser_closed',
+        'detached',
+        'cancelled',
+      }.contains(error.code);
+    }
+    if (error is StateError) {
+      return const {
+        'Browser detached',
+        'YouTube controller is disposed',
+        'WebView controller is disposed',
+        'YouTube player generation changed',
+        'YouTube player reloaded',
+      }.contains(error.message);
+    }
+    if (error is TimeoutException) {
+      return player?.webViewController.isDetached == true ||
+          player?.webViewController.isDisposed == true;
+    }
+    return false;
+  }
+
+  static bool _isPermanentCefInitFailure(Object error) {
+    if (error is PlatformException && error.code == 'INIT_FAILED') return true;
+    if (error is StateError && error.message == 'CEF initialization failed') {
+      return true;
+    }
+    return false;
+  }
+
+  static bool _isConfigurationFailure(Object error) {
+    if (error is ArgumentError || error is UnsupportedError) return true;
+    if (error is PlatformException &&
+        const {
+          'INVALID_ARGUMENT',
+          'SETTINGS_FAILED',
+          'INVALID_HTML',
+          'INVALID_URL',
+        }.contains(error.code)) {
+      return true;
+    }
+    return false;
+  }
+
+  static bool _isRecoverableStartupFailure(Object error) {
+    if (error is StateError && error.message == 'Browser crashed') return true;
+    if (error is PlatformException &&
+        const {
+          'HOST_FAILED',
+          'INIT_TIMEOUT',
+          'NOT_READY',
+        }.contains(error.code)) {
+      return true;
+    }
+    return false;
+  }
 
   @override
   Stream<PlaybackStatus> get statusStream => _statuses.stream;
@@ -64,6 +142,15 @@ class ChromiumPlaybackEngine implements PlaybackController {
   bool _valid(int generation) => !_closed && generation == _generation;
   void _checkOpen() {
     if (_closed) throw StateError('Chromium playback engine is disposed');
+  }
+
+  void _setRenderingActive(
+    ChromiumYoutubePlayerController player,
+    bool active,
+  ) {
+    if (_renderingActive == active) return;
+    _renderingActive = active;
+    unawaited(player.webViewController.setRenderingActive(active));
   }
 
   void _publish(PlaybackStatus status) {
@@ -189,14 +276,24 @@ class ChromiumPlaybackEngine implements PlaybackController {
       ChromiumYoutubePlayerController? player;
       while (true) {
         try {
+          if (_cefPermanentlyFailed) {
+            throw StateError(
+              'Chromium runtime initialization failed permanently; restart the application (${_cefPermanentError ?? 'INIT_FAILED'})',
+            );
+          }
           try {
             await (_cef ??= initializeCef());
           } catch (e) {
             _cef = null;
+            if (_isPermanentCefInitFailure(e)) {
+              _cefPermanentlyFailed = true;
+              _cefPermanentError = e;
+            }
             rethrow;
           }
           if (!_valid(generation)) return;
           player = _player = createPlayer();
+          _renderingActive = true;
           _playerSubscription = player.events.listen(
             (event) => _receive(event, generation, player!),
           );
@@ -236,23 +333,32 @@ class ChromiumPlaybackEngine implements PlaybackController {
           }
           break;
         } catch (e) {
-          final isCrash = e is StateError && e.message == 'Browser crashed';
-          final isPlatformFail =
-              e is PlatformException &&
-              const {
-                'INIT_FAILED',
-                'HOST_FAILED',
-                'INIT_TIMEOUT',
-                'NOT_READY',
-              }.contains(e.code);
-          if ((isCrash || isPlatformFail) && retries < 10) {
+          if (_isExpectedDetachmentOrShutdown(
+                e,
+                closed: _closed,
+                player: player,
+              ) ||
+              !_valid(generation)) {
+            await _playerSubscription?.cancel();
+            _playerSubscription = null;
+            await player?.dispose();
+            _player = null;
+            return;
+          }
+          if (_isPermanentCefInitFailure(e) || _isConfigurationFailure(e)) {
+            _cef = null;
+            rethrow;
+          }
+          if (_isRecoverableStartupFailure(e) && retries < maxStartupRetries) {
             _cef = null;
             retries++;
             await _playerSubscription?.cancel();
             _playerSubscription = null;
             await player?.dispose();
             _player = null;
-            await Future.delayed(const Duration(milliseconds: 500));
+            await Future.delayed(
+              Duration(milliseconds: 250 * (1 << (retries - 1))),
+            );
             if (!_valid(generation)) return;
             continue;
           }
@@ -261,7 +367,20 @@ class ChromiumPlaybackEngine implements PlaybackController {
         }
       }
     } catch (error) {
-      if (!_valid(generation)) return;
+      if (!_valid(generation) ||
+          _isExpectedDetachmentOrShutdown(
+            error,
+            closed: _closed,
+            player: _player,
+          )) {
+        final detachedPlayer = _player;
+        _player = null;
+        await _playerSubscription?.cancel();
+        _playerSubscription = null;
+        await detachedPlayer?.dispose();
+        await stopPlaybackService?.call();
+        return;
+      }
       final failedPlayer = _player;
       _player = null;
       await _playerSubscription?.cancel();
@@ -299,10 +418,16 @@ class ChromiumPlaybackEngine implements PlaybackController {
         _publish(_status.copyWith(duration: _seconds(duration)));
       }
     } on StateError {
-      // YouTube can return an undefined duration until video metadata arrives.
-      // Progress events retry it without failing a successfully started track.
+      // YouTube can return an undefined duration until video metadata arrives,
+      // or the controller may detach/dispose during shutdown.
     } catch (error) {
-      _fail(error, generation);
+      if (!_isExpectedDetachmentOrShutdown(
+        error,
+        closed: _closed,
+        player: player,
+      )) {
+        _fail(error, generation);
+      }
     } finally {
       if (identical(token, _durationRequest)) _durationRequest = null;
     }
@@ -391,7 +516,13 @@ class ChromiumPlaybackEngine implements PlaybackController {
               player
                   .pauseVideo()
                   .catchError((Object error) {
-                    _fail(error, generation);
+                    if (!_isExpectedDetachmentOrShutdown(
+                      error,
+                      closed: _closed,
+                      player: player,
+                    )) {
+                      _fail(error, generation);
+                    }
                   })
                   .whenComplete(() => _correctingPause = false),
             );
@@ -399,6 +530,9 @@ class ChromiumPlaybackEngine implements PlaybackController {
           return;
         }
         final previous = _status.state;
+        if ((state == 1 || state == 3) && _wantsPlaying) {
+          _setRenderingActive(player, true);
+        }
         _publish(_status.copyWith(state: mapped, clearError: state == 1));
         if (state == 1 && !_started) {
           _started = true;
@@ -488,10 +622,24 @@ class ChromiumPlaybackEngine implements PlaybackController {
       unawaited(
         acknowledgment.catchError((Object _) => const PlaybackStatus()),
       );
-    await player.pauseVideo();
+    try {
+      await player.pauseVideo();
+      if (!_wantsPlaying && !_closed && identical(player, _player)) {
+        _setRenderingActive(player, false);
+      }
+    } catch (error) {
+      if (_isExpectedDetachmentOrShutdown(
+        error,
+        closed: _closed,
+        player: player,
+      )) {
+        return;
+      }
+      rethrow;
+    }
     await acknowledgment;
     // Paused playback does not require a second service to remain foreground.
-    if (!_wantsPlaying) await stopPlaybackService?.call();
+    if (!_wantsPlaying && !_closed) await stopPlaybackService?.call();
   }
 
   @override
@@ -509,7 +657,19 @@ class ChromiumPlaybackEngine implements PlaybackController {
     }
     await startPlaybackService?.call();
     if (!_valid(generation) || !_wantsPlaying) return;
-    await player.playVideo();
+    try {
+      _setRenderingActive(player, true);
+      await player.playVideo();
+    } catch (error) {
+      if (_isExpectedDetachmentOrShutdown(
+        error,
+        closed: _closed,
+        player: player,
+      )) {
+        return;
+      }
+      rethrow;
+    }
   }
 
   @override
@@ -540,9 +700,22 @@ class ChromiumPlaybackEngine implements PlaybackController {
     if (position.isNegative) throw ArgumentError.value(position, 'position');
     if (!_chromium) return fallback.seekTo(position);
     final generation = _generation;
-    await (await _active())?.seekTo(
-      seconds: position.inMicroseconds / Duration.microsecondsPerSecond,
-    );
+    final player = await _active();
+    if (player == null) return;
+    try {
+      await player.seekTo(
+        seconds: position.inMicroseconds / Duration.microsecondsPerSecond,
+      );
+    } catch (error) {
+      if (_isExpectedDetachmentOrShutdown(
+        error,
+        closed: _closed,
+        player: player,
+      )) {
+        return;
+      }
+      rethrow;
+    }
     if (_valid(generation)) {
       _publish(_status.copyWith(position: position));
       _event(PlaybackEventType.positionDiscontinuity);
@@ -556,7 +729,20 @@ class ChromiumPlaybackEngine implements PlaybackController {
       throw ArgumentError.value(volume, 'volume');
     _publish(_status.copyWith(volume: volume));
     if (!_chromium) return fallback.setVolume(volume);
-    await (await _active())?.setVolume((volume * 100).round());
+    final player = await _active();
+    if (player == null) return;
+    try {
+      await player.setVolume((volume * 100).round());
+    } catch (error) {
+      if (_isExpectedDetachmentOrShutdown(
+        error,
+        closed: _closed,
+        player: player,
+      )) {
+        return;
+      }
+      rethrow;
+    }
   }
 
   @override
@@ -621,12 +807,29 @@ class ChromiumPlaybackEngine implements PlaybackController {
   Future<void> _dispose() async {
     _closed = true;
     ++_generation;
-    await _playerSubscription?.cancel();
-    await _player?.dispose();
-    await stopPlaybackService?.call();
+    final player = _player;
+    _player = null;
+    final playerSubscription = _playerSubscription;
+    _playerSubscription = null;
+    await playerSubscription?.cancel();
+    if (player != null) {
+      try {
+        await player.dispose();
+      } catch (_) {}
+    }
+    final pendingOpen = _opening;
+    if (pendingOpen != null) {
+      try {
+        await pendingOpen;
+      } catch (_) {}
+    }
+    try {
+      await stopPlaybackService?.call();
+    } catch (_) {}
     for (final subscription in _subscriptions) {
       await subscription.cancel();
     }
+    _subscriptions.clear();
     await fallback.dispose();
     await _statuses.close();
     await _events.close();

@@ -4,7 +4,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart' hide RepeatMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/playback/playback_providers.dart';
 import '../../core/player/player_provider.dart';
 import '../../core/player/video_layout_provider.dart';
@@ -173,14 +172,39 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
                     stablePadding.bottom +
                     72.0)); // 68 (nav) + 72 (miniplayer)
 
+    final defaultPlayerBounds = Rect.fromLTWH(
+      0,
+      stablePadding.top,
+      screenWidth,
+      screenSize.height - stablePadding.top,
+    );
+
+    // Validate videoLayout: On desktop, the player is never indented by the sidebar (dx <= 1.0).
+    // And its width must be either full screenWidth or screenWidth - queuePanel.
+    // If dx > 1.0 or the width is significantly stale compared to the current window size,
+    // we must fall back to defaultPlayerBounds rather than using corrupted background-route bounds.
+    final bool isVideoLayoutValid =
+        videoLayout.isReady &&
+        videoLayout.isVisible &&
+        (!isDesktop || videoLayout.position.dx <= 1.0) &&
+        videoLayout.size.width > 0 &&
+        videoLayout.size.height > 0 &&
+        (!isDesktop ||
+            (videoLayout.size.width - screenWidth).abs() <= 1.0 ||
+            (screenWidth - videoLayout.size.width >= 0 &&
+                screenWidth - videoLayout.size.width <=
+                    queue_ui.kMaxQueuePanelWidth + 20));
+
     if (isPlayerScreen) {
-      if (videoLayout.isVisible && videoLayout.isReady) {
-        var rect = Rect.fromLTWH(
-          videoLayout.position.dx,
-          videoLayout.position.dy,
-          videoLayout.size.width,
-          videoLayout.size.height,
-        );
+      if (showVideo && hasVideoId && settings.playerView == PlayerView.video) {
+        var rect = isVideoLayoutValid
+            ? Rect.fromLTWH(
+                videoLayout.position.dx,
+                videoLayout.position.dy,
+                videoLayout.size.width,
+                videoLayout.size.height,
+              )
+            : defaultPlayerBounds;
         // Only legacy floating WebView2 windows need room outside their bounds
         // for Flutter controls. Chromium's Widget renderer is composited below
         // PlayerOverlays, so it can fill the player behind those controls even
@@ -244,19 +268,14 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
       kMinW,
       kMinH,
     );
-    final expandedBounds = videoLayout.isReady && videoLayout.isVisible
+    final expandedBounds = isVideoLayoutValid
         ? Rect.fromLTWH(
             videoLayout.position.dx,
             videoLayout.position.dy,
             videoLayout.size.width,
             videoLayout.size.height,
           )
-        : Rect.fromLTWH(
-            0,
-            stablePadding.top,
-            screenWidth,
-            screenSize.height - stablePadding.top,
-          );
+        : defaultPlayerBounds;
     final routeTransition = ref.watch(playerRouteTransitionProvider);
     final animatePlayerRoute =
         showVideo &&
@@ -276,29 +295,33 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
             Expanded(
               child: Stack(
                 children: [
-                  // Gradient Background & Animated Mesh
+                  // Gradient Background & Cached Mesh
                   if (!isPlayerScreen)
                     Positioned(
                       top: 0,
                       right: 0,
-                      child: Container(
-                        width: 800,
-                        height: 600,
-                        decoration: BoxDecoration(
-                          gradient: RadialGradient(
-                            center: const Alignment(0.8, -0.8),
-                            radius: 1.5,
-                            colors: [
-                              const Color(
-                                0xFF4A1010,
-                              ).withValues(alpha: 0.5), // Dark red
-                              Colors.transparent,
-                            ],
+                      child: RepaintBoundary(
+                        child: Container(
+                          width: 800,
+                          height: 600,
+                          decoration: BoxDecoration(
+                            gradient: RadialGradient(
+                              center: const Alignment(0.8, -0.8),
+                              radius: 1.5,
+                              colors: [
+                                const Color(
+                                  0xFF4A1010,
+                                ).withValues(alpha: 0.5), // Dark red
+                                Colors.transparent,
+                              ],
+                            ),
                           ),
-                        ),
-                        child: CustomPaint(
-                          painter: _MeshPainter(
-                            primaryColor: Theme.of(context).colorScheme.primary,
+                          child: CustomPaint(
+                            painter: _MeshPainter(
+                              primaryColor: Theme.of(
+                                context,
+                              ).colorScheme.primary,
+                            ),
                           ),
                         ),
                       ),
@@ -377,7 +400,7 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
           ],
         ),
       ),
-      bottomNavigationBar: isPlayerScreen || isPipMode || isFullscreen
+      bottomNavigationBar: isPlayerScreen || pipPresentation || isFullscreen
           ? null
           : isDesktop
           ? const DesktopPlayerBar()
@@ -613,6 +636,7 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
                   key: const ValueKey('video_surface'),
                   routeTransition: routeTransition,
                   animatePlayerRoute: animatePlayerRoute,
+                  isPlayerScreen: true,
                   collapsedBounds: collapsedBounds,
                   expandedBounds: expandedBounds,
                   pipPresentation: pipPresentation,
@@ -662,6 +686,7 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
                   key: const ValueKey('video_surface'),
                   routeTransition: routeTransition,
                   animatePlayerRoute: animatePlayerRoute,
+                  isPlayerScreen: false,
                   collapsedBounds: collapsedBounds,
                   expandedBounds: expandedBounds,
                   pipPresentation: pipPresentation,
@@ -999,6 +1024,7 @@ class _PlaybackSurfaceLayer extends StatefulWidget {
     super.key,
     required this.routeTransition,
     required this.animatePlayerRoute,
+    required this.isPlayerScreen,
     required this.collapsedBounds,
     required this.expandedBounds,
     required this.pipPresentation,
@@ -1012,6 +1038,7 @@ class _PlaybackSurfaceLayer extends StatefulWidget {
 
   final PlayerRouteTransition routeTransition;
   final bool animatePlayerRoute;
+  final bool isPlayerScreen;
   final Rect collapsedBounds;
   final Rect expandedBounds;
   final bool pipPresentation;
@@ -1035,8 +1062,13 @@ class _PlaybackSurfaceLayerState extends State<_PlaybackSurfaceLayer> {
     return AnimatedBuilder(
       animation: widget.routeTransition,
       builder: (context, _) {
+        final transitionStatus = widget.routeTransition.status;
         final followsRoute =
-            widget.animatePlayerRoute && widget.routeTransition.isAttached;
+            widget.animatePlayerRoute &&
+            widget.routeTransition.isAttached &&
+            (widget.isPlayerScreen
+                ? (transitionStatus != AnimationStatus.dismissed)
+                : (transitionStatus == AnimationStatus.reverse));
         final progress = widget.routeTransition.progress;
         final radius = followsRoute
             ? lerpDouble(12, 24, progress)!
@@ -1325,6 +1357,13 @@ class _MiniPlayerBar extends ConsumerWidget {
                             'assets/logo.png',
                             width: 100,
                             height: 100,
+                            cacheWidth:
+                                (100 *
+                                        (MediaQuery.maybeDevicePixelRatioOf(
+                                              context,
+                                            ) ??
+                                            1.0))
+                                    .round(),
                             color: colorScheme.primary,
                           ),
                         ),
@@ -1608,22 +1647,18 @@ class _DesktopSidebar extends ConsumerWidget {
             child: Row(
               children: [
                 Hero(
-                      tag: 'app_logo',
-                      child: Image.asset(
-                        'assets/logo.png',
-                        height: 28,
-                        color: colorScheme.primary,
-                      ),
-                    )
-                    .animate(
-                      onPlay: (controller) => controller.repeat(reverse: true),
-                    )
-                    .scale(
-                      begin: const Offset(1, 1),
-                      end: const Offset(1.1, 1.1),
-                      duration: 2000.ms,
-                      curve: Curves.easeInOut,
-                    ),
+                  tag: 'app_logo',
+                  child: Image.asset(
+                    'assets/logo.png',
+                    height: 28,
+                    cacheHeight:
+                        (28 *
+                                (MediaQuery.maybeDevicePixelRatioOf(context) ??
+                                    1.0))
+                            .round(),
+                    color: colorScheme.primary,
+                  ),
+                ),
                 const SizedBox(width: 8),
                 Text(
                   AppLocalizations.of(context)!.appTitle,

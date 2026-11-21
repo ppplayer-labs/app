@@ -325,6 +325,7 @@ class _PlayerOverlaysState extends ConsumerState<PlayerOverlays> {
 
             // ── Auto-hiding controls ─────────────────────────────────────────
             AnimatedOpacity(
+              alwaysIncludeSemantics: true,
               opacity: showControls ? 1.0 : 0.0,
               duration: const Duration(milliseconds: 300),
               child: ExcludeFocus(
@@ -534,6 +535,9 @@ class _PlayerOverlaysState extends ConsumerState<PlayerOverlays> {
                                               color: isFav
                                                   ? colorScheme.primary
                                                   : Colors.white,
+                                              tooltip: AppLocalizations.of(
+                                                context,
+                                              )!.favorites,
                                               onTap: () {
                                                 _onInteraction();
                                                 playerNotifier.toggleFavorite(
@@ -890,6 +894,7 @@ class _PlayerOverlaysState extends ConsumerState<PlayerOverlays> {
                     size: 32,
                     color: Colors.white,
                     padding: EdgeInsets.zero,
+                    tooltip: AppLocalizations.of(context)!.goBack,
                     onTap: widget.onCollapse,
                   ),
                 ),

@@ -78,7 +78,11 @@ Future<T?> showPremiumModal<T>({
     transitionBuilder: (context, anim1, anim2, child) {
       return ScaleTransition(
         scale: CurvedAnimation(parent: anim1, curve: Curves.easeOutBack),
-        child: FadeTransition(opacity: anim1, child: child),
+        child: FadeTransition(
+          alwaysIncludeSemantics: true,
+          opacity: anim1,
+          child: child,
+        ),
       );
     },
   );

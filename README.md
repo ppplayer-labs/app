@@ -2,8 +2,18 @@
 
 PPPlayer is a Flutter media player for music discovery, local music and video libraries, network streams, and playlists. Spotify supplies catalog metadata; YouTube playback uses an embedded player. Local media uses the native playback engine.
 
-Candidate: **4.0.0+12 — unreleased, blocked pending platform acceptance**.
-See the [release audit](docs/RELEASE_AUDIT_2026-10-15.md) for the published 3.0.2 comparison, inventory and ordered release gates.
+Release candidate: **4.0.2+14** (targeting `v4.0.2`, awaiting final merge and release approval).
+See [CHANGELOG.md](CHANGELOG.md) for full `4.0.2` changes and [release audit](docs/RELEASE_AUDIT_2026-10-15.md) for historical `4.0.0` audit context.
+
+## Supported Platforms
+
+| Platform | Architecture | Playback Backend | Status |
+|---|---|---|---|
+| **Windows 10/11** | `x64` | `flutter_chromium_webview 0.5.7` (CEF 149) + MediaKit | Supported (MSIX + Release) |
+| **Linux** | `x86_64` | `flutter_chromium_webview 0.5.7` (CEF 149) + MediaKit | Supported (AppImage, `.deb`, `tar.gz`, Snap, Flatpak) |
+| **macOS 13+** | Apple Silicon (`arm64`) | `flutter_chromium_webview 0.5.7` (CEF 149) + MediaKit | Supported (ZIP/DMG; Intel `x86_64` not physically verified) |
+| **Android (API 24+)** | `arm64-v8a`, `x86_64` | System Chromium WebView + MediaKit | Supported (APK/AAB; physical device verification tracked separately) |
+| **iOS (15.0+)** | `arm64` | WebKit + MediaKit | Development only (not publicly released) |
 
 ## Current development features
 
@@ -75,7 +85,7 @@ flutter analyze
 flutter test
 ```
 
-Chromium resolves from pub.dev (`flutter_chromium_webview` ^0.5.5), including
+Chromium resolves from pub.dev (`flutter_chromium_webview` ^0.5.7), including
 its hosted platform interface. Use the checked-in `pubspec.lock` and avoid
 developer path overrides during release validation. The sources retained under
 `third_party/chromium` are a historical snapshot, not the active dependency.

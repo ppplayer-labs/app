@@ -99,6 +99,7 @@ class _VideoControlsOverlayState extends ConsumerState<VideoControlsOverlay> {
       onTap: _toggleVisibility,
       behavior: HitTestBehavior.opaque,
       child: AnimatedOpacity(
+        alwaysIncludeSemantics: true,
         opacity: _isVisible ? 1.0 : 0.0,
         duration: const Duration(milliseconds: 300),
         child: IgnorePointer(

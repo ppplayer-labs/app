@@ -14,6 +14,7 @@ class PPImage extends StatelessWidget {
   final Widget? errorWidget;
   final BorderRadius? borderRadius;
   final IconData? fallbackIcon;
+  final double maxCacheLogicalExtent;
 
   const PPImage({
     super.key,
@@ -27,7 +28,31 @@ class PPImage extends StatelessWidget {
     this.errorWidget,
     this.borderRadius,
     this.fallbackIcon,
+    this.maxCacheLogicalExtent = 320,
   });
+
+  int? _resolveCacheWidth(BuildContext context) {
+    final dpr = MediaQuery.maybeDevicePixelRatioOf(context) ?? 1.0;
+    final finiteW = (width != null && width!.isFinite && width! > 0)
+        ? width!
+        : null;
+    final finiteH = (height != null && height!.isFinite && height! > 0)
+        ? height!
+        : null;
+    // Pass only a single decode dimension to preserve source aspect ratio while
+    // capping GPU/RGBA texture size (e.g. 160px card @ 1.25x -> 200px instead of 640px).
+    final double logicalTarget;
+    if (finiteW != null && finiteH != null) {
+      logicalTarget = finiteW >= finiteH ? finiteW : finiteH;
+    } else if (finiteW != null) {
+      logicalTarget = finiteW;
+    } else if (finiteH != null) {
+      logicalTarget = finiteH;
+    } else {
+      logicalTarget = maxCacheLogicalExtent;
+    }
+    return (logicalTarget * dpr).round().clamp(32, 1024);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +64,8 @@ class PPImage extends StatelessWidget {
       return fallback;
     }
 
+    final int? decodeWidth = _resolveCacheWidth(context);
+
     Widget image;
     if (imageUrl!.startsWith('asset:')) {
       final assetPath = imageUrl!.substring(6); // Remove 'asset:'
@@ -46,6 +73,7 @@ class PPImage extends StatelessWidget {
         assetPath,
         width: width,
         height: height,
+        cacheWidth: decodeWidth,
         fit: fit,
         repeat: repeat,
         color: color,
@@ -60,6 +88,7 @@ class PPImage extends StatelessWidget {
         File(path),
         width: width,
         height: height,
+        cacheWidth: decodeWidth,
         fit: fit,
         repeat: repeat,
         color: color,
@@ -72,6 +101,7 @@ class PPImage extends StatelessWidget {
         imageUrl: imageUrl!,
         width: width,
         height: height,
+        memCacheWidth: decodeWidth,
         fit: fit,
         repeat: repeat,
         color: color,
