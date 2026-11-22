@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ppplayer/core/playback/playback_providers.dart';
-import 'package:ppplayer/main.dart' show AppShutdownCoordinator;
+import 'package:ppplayer/main.dart'
+    show AppShutdownCoordinator, shouldShutdownOnAppDetach;
 
 class _FakePlaybackController extends Fake implements PlaybackController {
   int disposeCalls = 0;
@@ -58,6 +60,42 @@ void main() {
       final coordinator = AppShutdownCoordinator(() => container);
       await coordinator.shutdown();
       expect(created, isFalse);
+    },
+  );
+
+  test(
+    'shouldShutdownOnAppDetach enables shutdown only on desktop platforms',
+    () {
+      expect(
+        shouldShutdownOnAppDetach(
+          platform: TargetPlatform.android,
+          isWeb: false,
+        ),
+        isFalse,
+      );
+      expect(
+        shouldShutdownOnAppDetach(platform: TargetPlatform.iOS, isWeb: false),
+        isFalse,
+      );
+      expect(
+        shouldShutdownOnAppDetach(
+          platform: TargetPlatform.windows,
+          isWeb: false,
+        ),
+        isTrue,
+      );
+      expect(
+        shouldShutdownOnAppDetach(platform: TargetPlatform.linux, isWeb: false),
+        isTrue,
+      );
+      expect(
+        shouldShutdownOnAppDetach(platform: TargetPlatform.macOS, isWeb: false),
+        isTrue,
+      );
+      expect(
+        shouldShutdownOnAppDetach(platform: TargetPlatform.macOS, isWeb: true),
+        isFalse,
+      );
     },
   );
 }

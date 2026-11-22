@@ -64,6 +64,22 @@ class AppShutdownCoordinator {
   }
 }
 
+/// Returns whether [AppLifecycleState.detached] should dispose the global
+/// Riverpod container and playback engines.
+///
+/// Desktop platforms detach only when the application is terminating, whereas
+/// Android (`AudioServiceActivity`) and iOS can detach/recreate the UI view
+/// while the cached Flutter engine and background audio service stay alive.
+bool shouldShutdownOnAppDetach({
+  required TargetPlatform platform,
+  bool isWeb = kIsWeb,
+}) {
+  if (isWeb) return false;
+  return platform == TargetPlatform.windows ||
+      platform == TargetPlatform.linux ||
+      platform == TargetPlatform.macOS;
+}
+
 late AppShutdownCoordinator appShutdownCoordinator;
 
 Future<void> _requestNotificationPermission() async {
@@ -263,9 +279,11 @@ class _AppLifecycleLoggerState extends State<_AppLifecycleLogger>
         await widget.shutdownCoordinator.shutdown();
         return AppExitResponse.exit;
       },
-      onDetach: () {
-        unawaited(widget.shutdownCoordinator.shutdown());
-      },
+      onDetach: shouldShutdownOnAppDetach(platform: defaultTargetPlatform)
+          ? () {
+              unawaited(widget.shutdownCoordinator.shutdown());
+            }
+          : null,
     );
   }
 
