@@ -232,16 +232,31 @@ class _LocalFilesChannel {
     }
   }
 
-  /// Returns the list of audio-file content URIs inside an Android document
+  /// Android only: launches SAF ACTION_OPEN_DOCUMENT_TREE, takes a persistable
+  /// read permission, and returns the content:// tree URI string (or null if
+  /// cancelled).
+  static Future<String?> pickDocumentTree() async {
+    try {
+      return await _ch.invokeMethod<String>('pickDocumentTree');
+    } on PlatformException {
+      return null;
+    } on MissingPluginException {
+      return null;
+    }
+  }
+
+  /// Returns the list of media-file content URIs inside an Android document
   /// tree URI, optionally recursively. Used by LocalLibraryService.importFolder.
   static Future<List<String>> listAudioFiles(
     String treeUri, {
     bool recursive = true,
+    String scope = 'audio',
   }) async {
     try {
       final result = await _ch.invokeListMethod<String>('listAudioFiles', {
         'treeUri': treeUri,
         'recursive': recursive,
+        'scope': scope,
       });
       return result ?? [];
     } on PlatformException {
@@ -270,12 +285,22 @@ class _LocalFilesChannel {
   }
 }
 
+/// Exposed for use by LocalLibraryService on Android to pick a SAF document tree.
+Future<String?> pickAndroidDocumentTree() {
+  return _LocalFilesChannel.pickDocumentTree();
+}
+
 /// Exposed for use by LocalLibraryService on Android for folder scanning.
 Future<List<String>> listAudioFilesInDocumentTree(
   String treeUri, {
   bool recursive = true,
+  String scope = 'audio',
 }) {
-  return _LocalFilesChannel.listAudioFiles(treeUri, recursive: recursive);
+  return _LocalFilesChannel.listAudioFiles(
+    treeUri,
+    recursive: recursive,
+    scope: scope,
+  );
 }
 
 /// Exposed for iOS/macOS bookmark creation at import time.

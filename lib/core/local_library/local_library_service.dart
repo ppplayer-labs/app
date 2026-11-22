@@ -280,9 +280,14 @@ class LocalLibraryService {
 
   Future<void> _pickAndImportFolder({required ImportMediaScope scope}) async {
     debugPrint('Opening FilePicker for directory (scope: ${scope.name})...');
-    final rootPath = await FilePicker.getDirectoryPath(
-      dialogTitle: 'Select folder to import',
-    );
+    final String? rootPath;
+    if (Platform.isAndroid) {
+      rootPath = await pickAndroidDocumentTree();
+    } else {
+      rootPath = await FilePicker.getDirectoryPath(
+        dialogTitle: 'Select folder to import',
+      );
+    }
     debugPrint('FilePicker returned: $rootPath');
     if (rootPath == null) return;
     await importFolderAtPath(rootPath, scope: scope);
@@ -300,7 +305,7 @@ class LocalLibraryService {
     TrackSourceType rootMechanism = TrackSourceType.absolutePath;
     String rootLocator = rootPath;
 
-    if (Platform.isAndroid) {
+    if (Platform.isAndroid && rootPath.startsWith('content://')) {
       rootMechanism = TrackSourceType.androidContentUri;
       rootLocator = rootPath;
     } else if (Platform.isIOS || Platform.isMacOS) {
@@ -682,7 +687,11 @@ class LocalLibraryService {
 
     if (mechanism == TrackSourceType.androidContentUri) {
       try {
-        files = await listAudioFilesInDocumentTree(locator, recursive: true);
+        files = await listAudioFilesInDocumentTree(
+          locator,
+          recursive: true,
+          scope: scope.name,
+        );
         debugPrint('Found ${files.length} media files (scope: ${scope.name})');
         await _importScannedFiles(
           files,
@@ -851,13 +860,19 @@ class LocalLibraryService {
       final fileMechanism = mechanism == TrackSourceType.androidContentUri
           ? TrackSourceType.androidContentUri
           : TrackSourceType.absolutePath;
-      final ext = AudioFormatRegistry.extensionOf(f);
+      final decodedPath = fileMechanism == TrackSourceType.androidContentUri
+          ? Uri.decodeFull(f)
+          : f;
+      final displayName = fileMechanism == TrackSourceType.androidContentUri
+          ? decodedPath.split('/').last
+          : f;
+      final ext = AudioFormatRegistry.extensionOf(decodedPath);
       final fileScope = AudioFormatRegistry.isVideoFormatCandidate(ext)
           ? ImportMediaScope.video
           : ImportMediaScope.audio;
       await _processDiscoveredFile(
         locator: f,
-        displayPath: f,
+        displayPath: displayName,
         mechanism: fileMechanism,
         importRootLocator: locator,
         scopeHint: fileScope,
@@ -897,7 +912,7 @@ class LocalLibraryService {
     }
     try {
       if (mechanism == TrackSourceType.androidContentUri) {
-        final temp = await copyContentUriToTempFile(locator, 'temp.audio');
+        final temp = await copyContentUriToTempFile(locator, displayPath);
         if (temp != null) {
           extractPath = temp;
           isTemp = true;
