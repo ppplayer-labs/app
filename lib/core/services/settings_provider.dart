@@ -117,6 +117,11 @@ class SettingsState {
 
 class SettingsNotifier extends Notifier<SettingsState> {
   bool _disposed = false;
+  Future<void> _loadWork = Future<void>.value();
+
+  /// Completes once initial Hive settings loading settles (for deterministic tests).
+  @visibleForTesting
+  Future<void> get loadSettled => _loadWork;
 
   @override
   SettingsState build() {
@@ -124,7 +129,7 @@ class SettingsNotifier extends Notifier<SettingsState> {
     ref.onDispose(() {
       _disposed = true;
     });
-    _loadSettings();
+    _loadWork = _loadSettings();
     return SettingsState(
       selectedCountry: 'US',
       showVideo: true,

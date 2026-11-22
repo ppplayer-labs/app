@@ -36,8 +36,7 @@ void main() {
       addTearDown(container.dispose);
 
       container.read(settingsProvider);
-      // Allow async _loadSettings() to complete.
-      await Future<void>.delayed(const Duration(milliseconds: 100));
+      await container.read(settingsProvider.notifier).loadSettled;
 
       final state = container.read(settingsProvider);
       expect(state.isLoaded, isTrue);
@@ -58,7 +57,7 @@ void main() {
     addTearDown(container.dispose);
 
     container.read(settingsProvider);
-    await Future<void>.delayed(const Duration(milliseconds: 100));
+    await container.read(settingsProvider.notifier).loadSettled;
 
     final state = container.read(settingsProvider);
     expect(state.isLoaded, isTrue);
@@ -70,8 +69,9 @@ void main() {
     () async {
       final container = ProviderContainer();
       container.read(settingsProvider);
+      final loadFuture = container.read(settingsProvider.notifier).loadSettled;
       container.dispose();
-      await Future<void>.delayed(const Duration(milliseconds: 100));
+      await loadFuture;
     },
   );
 }
