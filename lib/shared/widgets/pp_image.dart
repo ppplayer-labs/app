@@ -31,7 +31,39 @@ class PPImage extends StatelessWidget {
     this.maxCacheLogicalExtent = 320,
   });
 
-  int? _resolveCacheWidth(BuildContext context) {
+  static const List<int> _cacheWidthBuckets = <int>[
+    64,
+    128,
+    192,
+    256,
+    320,
+    512,
+    768,
+    1024,
+  ];
+
+  /// Quantizes a target physical pixel width into a small deterministic set of
+  /// decode buckets so identically-URL'd artwork shown across slightly different
+  /// card dimensions (e.g. 150px, 156px, 160px) shares a single [ResizeImage]
+  /// entry in Flutter's [ImageCache] instead of decoding and caching duplicates.
+  static int resolveCacheWidthForExtent(
+    double logicalExtent,
+    double devicePixelRatio,
+  ) {
+    final safeExtent = logicalExtent.isFinite && logicalExtent > 0
+        ? logicalExtent
+        : 320.0;
+    final safeDpr = devicePixelRatio.isFinite && devicePixelRatio > 0
+        ? devicePixelRatio
+        : 1.0;
+    final raw = (safeExtent * safeDpr).round().clamp(32, 1024);
+    for (final bucket in _cacheWidthBuckets) {
+      if (raw <= bucket) return bucket;
+    }
+    return _cacheWidthBuckets.last;
+  }
+
+  int _resolveCacheWidth(BuildContext context) {
     final dpr = MediaQuery.maybeDevicePixelRatioOf(context) ?? 1.0;
     final finiteW = (width != null && width!.isFinite && width! > 0)
         ? width!
@@ -40,7 +72,8 @@ class PPImage extends StatelessWidget {
         ? height!
         : null;
     // Pass only a single decode dimension to preserve source aspect ratio while
-    // capping GPU/RGBA texture size (e.g. 160px card @ 1.25x -> 200px instead of 640px).
+    // capping GPU/RGBA texture size (e.g. 160px card @ 1.25x -> 256px bucket
+    // instead of decoding the full 640px source).
     final double logicalTarget;
     if (finiteW != null && finiteH != null) {
       logicalTarget = finiteW >= finiteH ? finiteW : finiteH;
@@ -51,7 +84,7 @@ class PPImage extends StatelessWidget {
     } else {
       logicalTarget = maxCacheLogicalExtent;
     }
-    return (logicalTarget * dpr).round().clamp(32, 1024);
+    return resolveCacheWidthForExtent(logicalTarget, dpr);
   }
 
   @override
@@ -64,7 +97,7 @@ class PPImage extends StatelessWidget {
       return fallback;
     }
 
-    final int? decodeWidth = _resolveCacheWidth(context);
+    final int decodeWidth = _resolveCacheWidth(context);
 
     Widget image;
     if (imageUrl!.startsWith('asset:')) {
@@ -77,6 +110,7 @@ class PPImage extends StatelessWidget {
         fit: fit,
         repeat: repeat,
         color: color,
+        gaplessPlayback: true,
         errorBuilder: (context, error, stackTrace) =>
             errorWidget ?? _buildErrorWidget(context),
       );
@@ -92,6 +126,7 @@ class PPImage extends StatelessWidget {
         fit: fit,
         repeat: repeat,
         color: color,
+        gaplessPlayback: true,
         errorBuilder: (context, error, stackTrace) =>
             errorWidget ?? _buildErrorWidget(context),
       );
@@ -105,6 +140,9 @@ class PPImage extends StatelessWidget {
         fit: fit,
         repeat: repeat,
         color: color,
+        fadeInDuration: Duration.zero,
+        fadeOutDuration: Duration.zero,
+        placeholderFadeInDuration: Duration.zero,
         placeholder: (context, url) =>
             placeholder ?? _buildPlaceholder(context),
         errorWidget: (context, url, error) =>
@@ -132,17 +170,22 @@ class PPImage extends StatelessWidget {
   }
 
   Widget _buildErrorWidget(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final finiteExtent = (width != null && width!.isFinite && width! > 0)
+        ? width!
+        : (height != null && height!.isFinite && height! > 0)
+        ? height!
+        : maxCacheLogicalExtent;
+    final iconSize = (finiteExtent * 0.28).clamp(18.0, 44.0);
     return Container(
       width: width,
       height: height,
-      color: Theme.of(
-        context,
-      ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.1),
+      color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
+      alignment: Alignment.center,
       child: Icon(
         fallbackIcon ?? Icons.music_note_rounded,
-        color: Theme.of(
-          context,
-        ).colorScheme.onSurfaceVariant.withValues(alpha: 0.2),
+        size: iconSize,
+        color: colorScheme.onSurfaceVariant.withValues(alpha: 0.45),
       ),
     );
   }

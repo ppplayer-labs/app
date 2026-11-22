@@ -28,5 +28,28 @@ void main() {
       expect(decoded.albumImage, 'https://example.com/image.jpg');
       expect(decoded.isFavorite, false);
     });
+
+    test(
+      'Track.fromSpotify skips empty image entries to pick first valid artwork URL',
+      () {
+        final track = Track.fromSpotify({
+          'id': 't1',
+          'name': 'Fallback Art Track',
+          'artists': [
+            {'id': 'a1', 'name': 'Artist 1'},
+          ],
+          'album': {
+            'id': 'al1',
+            'name': 'Album 1',
+            'images': [
+              {'url': ''},
+              {'url': null},
+              {'url': 'https://i.scdn.co/image/valid_300'},
+            ],
+          },
+        });
+        expect(track.albumImage, 'https://i.scdn.co/image/valid_300');
+      },
+    );
   });
 }

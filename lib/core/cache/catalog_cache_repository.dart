@@ -54,6 +54,7 @@ class CatalogCacheRepository {
   }) async* {
     final policy = resourceType.policy;
     final now = DateTime.now();
+    bool yieldedStale = false;
 
     // 1. Check L1 Memory Cache
     final l1Entry = _l1Cache[key];
@@ -73,6 +74,7 @@ class CatalogCacheRepository {
         return;
       } else if (age < policy.usableFor) {
         _metrics.l1StaleHits++;
+        yieldedStale = true;
         yield CacheResult(
           data: l1Entry.data as T,
           source: CacheSource.staleMemory,
@@ -118,6 +120,7 @@ class CatalogCacheRepository {
                 return;
               } else {
                 _metrics.l2StaleHits++;
+                yieldedStale = true;
                 yield CacheResult(
                   data: decodedData,
                   source: CacheSource.stalePersistent,
@@ -171,15 +174,16 @@ class CatalogCacheRepository {
             DateTime.now(), // Approximated, technically inside _executeFetchAndCache
       );
     } catch (e) {
-      // If we yielded stale data previously, we just swallow the error
-      // and allow the UI to keep using the stale data.
-      // 429 rate limits should be handled upstream (SpotifyClient throws or defers).
-      // If this is the *first* emission (no stale data), rethrow the error.
+      // If we yielded stale data previously, swallow the background refresh
+      // error so the UI keeps displaying valid cached content offline.
+      // If this was the first emission (no stale data), rethrow the error.
       _inFlight.remove(
         key,
       ); // Ensure failed futures are removed immediately on error
       debugPrint('CatalogCacheRepository.watchOrFetch ERROR for key $key: $e');
-      rethrow;
+      if (!yieldedStale) {
+        rethrow;
+      }
     }
   }
 
