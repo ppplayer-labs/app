@@ -52,7 +52,7 @@ class PlaylistCover extends StatelessWidget {
 
     final double cellExtent = size.isFinite
         ? (images.length >= 2 ? size * 0.5 : size)
-        : (images.length >= 2 ? 96.0 : 180.0);
+        : (images.length >= 2 ? 80.0 : 160.0);
 
     if (images.length < 2) {
       return _Image(url: images.first, maxCacheLogicalExtent: cellExtent);

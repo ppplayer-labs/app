@@ -5,7 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'shimmer_placeholder.dart';
 export 'shimmer_placeholder.dart' show SectionShimmer, ShimmerPlaceholder;
 
-class SectionWrapper<T> extends StatelessWidget {
+class SectionWrapper<T> extends StatefulWidget {
   final String title;
   final AsyncValue<List<T>> asyncValue;
   final Widget Function(List<T> data) builder;
@@ -30,38 +30,65 @@ class SectionWrapper<T> extends StatelessWidget {
   });
 
   @override
+  State<SectionWrapper<T>> createState() => _SectionWrapperState<T>();
+}
+
+class _SectionWrapperState<T> extends State<SectionWrapper<T>> {
+  late bool _animateDataEntry;
+
+  @override
+  void initState() {
+    super.initState();
+    // Only animate when transitioning from a loading/empty state into data.
+    // When mounted with already-loaded data (e.g., scrolling back to a
+    // previously viewed section or returning to Home), render immediately so
+    // sections never blink invisible or replay fade-in animations.
+    _animateDataEntry = !widget.asyncValue.hasValue;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return asyncValue.when(
+    return widget.asyncValue.when(
+      skipLoadingOnRefresh: true,
+      skipLoadingOnReload: true,
       data: (data) {
         if (data.isEmpty) return const SizedBox.shrink();
 
-        return Padding(
-          padding: EdgeInsets.only(top: topPadding, bottom: bottomPadding),
+        final content = Padding(
+          padding: EdgeInsets.only(
+            top: widget.topPadding,
+            bottom: widget.bottomPadding,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (headerBuilder != null)
-                headerBuilder!(title)
+              if (widget.headerBuilder != null)
+                widget.headerBuilder!(widget.title)
               else
-                _DefaultHeader(title: title),
+                _DefaultHeader(title: widget.title),
               const SizedBox(height: 16),
-              builder(data),
+              widget.builder(data),
             ],
           ),
-        ).animate().fadeIn(duration: 400.ms);
+        );
+
+        if (!_animateDataEntry) {
+          return content;
+        }
+        return content.animate().fadeIn(duration: 250.ms);
       },
       loading: () =>
-          loadingWidget ??
+          widget.loadingWidget ??
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 20),
             child: ShimmerPlaceholder(height: 120),
           ),
       error: (e, _) =>
-          errorWidget ??
+          widget.errorWidget ??
           _SectionErrorWidget(
-            title: title,
-            topPadding: topPadding,
-            onRetry: onRetry,
+            title: widget.title,
+            topPadding: widget.topPadding,
+            onRetry: widget.onRetry,
           ),
     );
   }

@@ -91,6 +91,15 @@ Future<void> _requestNotificationPermission() async {
   }
 }
 
+/// Configures bounded desktop in-memory image caching so GPU-backed textures
+/// stay capped while comfortably holding the active Home/navigation working
+/// set on Retina/HiDPI displays without scroll-back eviction thrashing.
+@visibleForTesting
+void configureDesktopImageCache(ImageCache cache) {
+  cache.maximumSizeBytes = 80 * 1024 * 1024;
+  cache.maximumSize = 300;
+}
+
 void main() async {
   final startupWatch = Stopwatch()..start();
   void startupLog(String message) {
@@ -99,11 +108,8 @@ void main() async {
 
   startupLog('main() entered');
   WidgetsFlutterBinding.ensureInitialized();
-  // Cap desktop image cache so Impeller/ANGLE GPU-backed image allocations stay
-  // bounded without hurting scrolling responsiveness (resized covers use ~150 KB).
   if (!kIsWeb && (Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
-    PaintingBinding.instance.imageCache.maximumSizeBytes = 48 * 1024 * 1024;
-    PaintingBinding.instance.imageCache.maximumSize = 200;
+    configureDesktopImageCache(PaintingBinding.instance.imageCache);
   }
   startupLog('Flutter binding initialized');
   MediaKit.ensureInitialized();
