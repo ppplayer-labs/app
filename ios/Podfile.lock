@@ -15,13 +15,6 @@ PODS:
     - FlutterMacOS
   - google-cast-sdk (4.8.3):
     - Protobuf (~> 3.13)
-  - Google-Mobile-Ads-SDK (13.3.0):
-    - GoogleUserMessagingPlatform (>= 1.1)
-  - google_mobile_ads (9.0.0):
-    - Flutter
-    - Google-Mobile-Ads-SDK (~> 13.3.0)
-    - webview_flutter_wkwebview
-  - GoogleUserMessagingPlatform (3.1.0)
   - image_picker_ios (0.0.1):
     - Flutter
   - integration_test (0.0.1):
@@ -56,7 +49,6 @@ DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_secure_storage_darwin (from `.symlinks/plugins/flutter_secure_storage_darwin/darwin`)
   - google-cast-sdk (= 4.8.3)
-  - google_mobile_ads (from `.symlinks/plugins/google_mobile_ads/ios`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
   - integration_test (from `.symlinks/plugins/integration_test/ios`)
   - media_kit_libs_ios_video (from `.symlinks/plugins/media_kit_libs_ios_video/ios`)
@@ -72,8 +64,6 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - google-cast-sdk
-    - Google-Mobile-Ads-SDK
-    - GoogleUserMessagingPlatform
     - Protobuf
 
 EXTERNAL SOURCES:
@@ -89,8 +79,6 @@ EXTERNAL SOURCES:
     :path: Flutter
   flutter_secure_storage_darwin:
     :path: ".symlinks/plugins/flutter_secure_storage_darwin/darwin"
-  google_mobile_ads:
-    :path: ".symlinks/plugins/google_mobile_ads/ios"
   image_picker_ios:
     :path: ".symlinks/plugins/image_picker_ios/ios"
   integration_test:
@@ -119,13 +107,10 @@ SPEC CHECKSUMS:
   audio_session: 9bb7f6c970f21241b19f5a3658097ae459681ba0
   connectivity_plus: cb623214f4e1f6ef8fe7403d580fdad517d2f7dd
   file_picker_darwin: 4c2b9a50ea44cb3b071381ea0cf48591bdd80251
-  Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
+  Flutter: 71a624a5bc0c04062bf19101d501e466baf2fb47
   flutter_secure_storage_darwin: 46e401699982ee74142909676535e0f6a7321e58
   google-cast-sdk: 1fb6724e94cc5ff23b359176e0cf6360586bb97a
-  Google-Mobile-Ads-SDK: 7692126a35ed859f20635af281c50a2162be8bea
-  google_mobile_ads: bab325fd4e31c9705cab0cb298e4f5a9bdb7370f
-  GoogleUserMessagingPlatform: befe603da6501006420c206222acd449bba45a9c
-  image_picker_ios: e0ece4aa2a75771a7de3fa735d26d90817041326
+  image_picker_ios: c06ac6fe6dc36476da54dbe860dbf2a1ef20fe1e
   integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
   media_kit_libs_ios_video: 5a18affdb97d1f5d466dc79988b13eff6c5e2854
   media_kit_video: 1746e198cb697d1ffb734b1d05ec429d1fcd1474
@@ -138,6 +123,6 @@ SPEC CHECKSUMS:
   wakelock_plus: d4ca1e4e4bc9de42cb55d57b5bdc158af318e3c6
   webview_flutter_wkwebview: 8ebf4fded22593026f7dbff1fbff31ea98573c8d
 
-PODFILE CHECKSUM: c8a92700252d4a67972af1bc8873f45311741d77
+PODFILE CHECKSUM: 6c49900f4a3539bdec325536c3fea34cb24bcedb
 
 COCOAPODS: 1.16.2

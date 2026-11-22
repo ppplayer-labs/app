@@ -8,12 +8,9 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/player/player_provider.dart';
 import '../../shared/widgets/track_tile.dart';
-import '../../shared/widgets/banner_ad_widget.dart';
-import '../../shared/widgets/promotion_tile.dart';
 import '../../shared/widgets/tactile_buttons.dart';
 import '../../shared/widgets/shared_search_input.dart';
 import '../../shared/widgets/empty_results_widget.dart';
-import '../../core/services/ad_service.dart';
 import '../../core/providers/genre_providers.dart';
 import '../home/genre_details_screen.dart';
 import '../../shared/widgets/shimmer_placeholder.dart';
@@ -526,30 +523,13 @@ class _TrackResults extends ConsumerWidget {
         .map((j) => Track.fromSpotify(j as Map<String, dynamic>))
         .toList();
     return ListView.builder(
-      itemCount: tracks.length + (tracks.length / 8).ceil(),
+      itemCount: tracks.length,
       itemBuilder: (_, i) {
-        if (i % 9 == 0) {
-          final promoIndex = (i / 9).floor() % 3;
-          final promo = ref.read(adServiceProvider).getPromoData()[promoIndex];
-          return PromotionTile(
-            title: promo['title']!,
-            subtitle: promo['subtitle']!,
-            imageUrl: promo['image'],
-            ctaText: promo['cta']!,
-            type: PromotionType.vertical,
-          ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.1, end: 0);
-        }
-
-        final trackIndex = i - (i / 9).floor() - 1;
-        if (trackIndex >= tracks.length || trackIndex < 0) {
-          return const SizedBox.shrink();
-        }
-
         return TrackTile(
-              track: tracks[trackIndex],
+              track: tracks[i],
               onTap: () => ref
                   .read(playerProvider.notifier)
-                  .playTrack(tracks[trackIndex], queue: tracks),
+                  .playTrack(tracks[i], queue: tracks),
             )
             .animate(delay: (100 + i % 10 * 40).ms)
             .fadeIn(duration: 500.ms)
@@ -574,26 +554,9 @@ class _ArtistResults extends ConsumerWidget {
     }
     return ListView.builder(
       padding: const EdgeInsets.symmetric(vertical: 16),
-      itemCount: items.length + (items.length / 8).ceil(),
+      itemCount: items.length,
       itemBuilder: (_, i) {
-        if (i % 9 == 0 && i != 0) {
-          final promoIndex = (i / 9).floor() % 3;
-          final promo = ref.read(adServiceProvider).getPromoData()[promoIndex];
-          return PromotionTile(
-            title: promo['title']!,
-            subtitle: promo['subtitle']!,
-            imageUrl: promo['image'],
-            ctaText: promo['cta']!,
-            type: PromotionType.vertical,
-          );
-        }
-
-        final artistIndex = i - (i / 9).floor();
-        if (artistIndex >= items.length || artistIndex < 0) {
-          return const SizedBox.shrink();
-        }
-
-        final a = items[artistIndex] as Map<String, dynamic>;
+        final a = items[i] as Map<String, dynamic>;
         final images = (a['images'] as List?) ?? [];
         final imageUrl = images.isNotEmpty ? images[0]['url'] as String : '';
 
@@ -702,12 +665,6 @@ class _AlbumResults extends StatelessWidget {
     }
     return CustomScrollView(
       slivers: [
-        const SliverToBoxAdapter(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: BannerAdWidget(),
-          ),
-        ),
         SliverPadding(
           padding: const EdgeInsets.all(16),
           sliver: SliverGrid(
@@ -827,12 +784,6 @@ class _PlaylistResults extends StatelessWidget {
     }
     return CustomScrollView(
       slivers: [
-        const SliverToBoxAdapter(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: BannerAdWidget(),
-          ),
-        ),
         SliverPadding(
           padding: const EdgeInsets.all(16),
           sliver: SliverGrid(
