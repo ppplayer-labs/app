@@ -136,12 +136,28 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
     const double kMinW = 160;
     const double kMinH = 90;
     const double kPeek = 2.0; // px kept inside window to avoid JS suspension
-    // On Windows, the Win32 floating webview ignores Flutter layout constraints
-    // and clamps itself to the visible screen area. We must use a large negative
-    // top/left position to truly move it off-screen, while keeping kMinW x kMinH
-    // so the underlying JS engine stays alive.
     final isWindows = !kIsWeb && Platform.isWindows;
+    // Desktop Chromium/MediaKit render into Flutter textures, so parking the
+    // hidden surface off-screen at its constant mini-player size avoids
+    // leaving a visible peek corner AND prevents native surface reallocation /
+    // resize storms on rapid Hide/Show toggles. Mobile PlatformViews (WKWebView
+    // / Android WebView) keep a 2x2 corner inside the viewport while still
+    // preserving the constant kMinW x kMinH layout size so neither JS nor the
+    // backing surface is suspended or shrunk to 2x2.
+    final usesOffScreenHiddenBounds =
+        !kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.windows ||
+            defaultTargetPlatform == TargetPlatform.macOS ||
+            defaultTargetPlatform == TargetPlatform.linux);
     const double kOffScreen = -9999.0;
+    final hiddenBounds = usesOffScreenHiddenBounds
+        ? const Rect.fromLTWH(kOffScreen, kOffScreen, kMinW, kMinH)
+        : Rect.fromLTWH(
+            screenWidth - kPeek,
+            screenSize.height - kPeek,
+            kMinW,
+            kMinH,
+          );
 
     final pipPresentation =
         isPipMode ||
@@ -160,6 +176,7 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
     final queueTotalWidth = showQueuePanel ? (effectiveQueueWidth + 10.0) : 0.0;
 
     Rect? normalBounds;
+    bool isSurfaceVisible = false;
     bool showShadow = false;
     double renderRadius = 0;
 
@@ -197,6 +214,7 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
 
     if (isPlayerScreen) {
       if (showVideo && hasVideoId && settings.playerView == PlayerView.video) {
+        isSurfaceVisible = true;
         var rect = isVideoLayoutValid
             ? Rect.fromLTWH(
                 videoLayout.position.dx,
@@ -230,31 +248,18 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
         normalBounds = rect;
         renderRadius = 24;
       } else {
-        normalBounds = isWindows
-            ? const Rect.fromLTWH(kOffScreen, kOffScreen, kMinW, kMinH)
-            : Rect.fromLTWH(
-                screenWidth - kPeek,
-                screenSize.height - kPeek,
-                kPeek,
-                kPeek,
-              );
+        normalBounds = hiddenBounds;
       }
     } else {
       if (showVideo && hasVideoId) {
+        isSurfaceVisible = true;
         final left = screenWidth - queueTotalWidth - kMinW - 16;
         final top = screenSize.height - bottomBarHeight - kMinH - 8;
         normalBounds = Rect.fromLTWH(left, top, kMinW, kMinH);
         renderRadius = 12;
         showShadow = true;
       } else {
-        normalBounds = isWindows
-            ? const Rect.fromLTWH(kOffScreen, kOffScreen, kMinW, kMinH)
-            : Rect.fromLTWH(
-                screenWidth - kPeek,
-                screenSize.height - kPeek,
-                kPeek,
-                kPeek,
-              );
+        normalBounds = hiddenBounds;
       }
     }
 
@@ -410,7 +415,7 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
             ),
     );
 
-    if (!kIsWeb && Platform.isMacOS) {
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.macOS) {
       normalLayout = PlatformMenuBar(
         menus: [
           PlatformMenu(
@@ -637,13 +642,13 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
                   routeTransition: routeTransition,
                   animatePlayerRoute: animatePlayerRoute,
                   isPlayerScreen: true,
+                  isSurfaceVisible: isSurfaceVisible,
                   collapsedBounds: collapsedBounds,
                   expandedBounds: expandedBounds,
                   pipPresentation: pipPresentation,
                   normalBounds: normalBounds,
                   showShadow: showShadow,
                   renderRadius: renderRadius,
-                  isWindows: isWindows,
                   transparentBackground:
                       playbackStatus.track?.isLocal == true &&
                       !playbackStatus.hasVideo,
@@ -687,13 +692,13 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
                   routeTransition: routeTransition,
                   animatePlayerRoute: animatePlayerRoute,
                   isPlayerScreen: false,
+                  isSurfaceVisible: isSurfaceVisible,
                   collapsedBounds: collapsedBounds,
                   expandedBounds: expandedBounds,
                   pipPresentation: pipPresentation,
                   normalBounds: normalBounds,
                   showShadow: showShadow,
                   renderRadius: renderRadius,
-                  isWindows: isWindows,
                   transparentBackground:
                       playbackStatus.track?.isLocal == true &&
                       !playbackStatus.hasVideo,
@@ -1025,13 +1030,13 @@ class _PlaybackSurfaceLayer extends StatefulWidget {
     required this.routeTransition,
     required this.animatePlayerRoute,
     required this.isPlayerScreen,
+    required this.isSurfaceVisible,
     required this.collapsedBounds,
     required this.expandedBounds,
     required this.pipPresentation,
     required this.normalBounds,
     required this.showShadow,
     required this.renderRadius,
-    required this.isWindows,
     this.transparentBackground = false,
     required this.child,
   });
@@ -1039,13 +1044,13 @@ class _PlaybackSurfaceLayer extends StatefulWidget {
   final PlayerRouteTransition routeTransition;
   final bool animatePlayerRoute;
   final bool isPlayerScreen;
+  final bool isSurfaceVisible;
   final Rect collapsedBounds;
   final Rect expandedBounds;
   final bool pipPresentation;
   final Rect? normalBounds;
   final bool showShadow;
   final double renderRadius;
-  final bool isWindows;
   final bool transparentBackground;
   final Widget child;
 
@@ -1054,7 +1059,14 @@ class _PlaybackSurfaceLayer extends StatefulWidget {
 }
 
 class _PlaybackSurfaceLayerState extends State<_PlaybackSurfaceLayer> {
-  double _lastFinalTop = 0.0;
+  bool _isVisibilityTransition = false;
+
+  @override
+  void didUpdateWidget(covariant _PlaybackSurfaceLayer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _isVisibilityTransition =
+        oldWidget.isSurfaceVisible != widget.isSurfaceVisible;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1083,34 +1095,25 @@ class _PlaybackSurfaceLayerState extends State<_PlaybackSurfaceLayer> {
             ? Rect.fromLTWH(0, 0, screenSize.width, screenSize.height)
             : (widget.normalBounds ?? Rect.zero);
 
-        final isHidingTransition =
-            (bounds.top == -9999.0 || _lastFinalTop == -9999.0);
-
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
-            _lastFinalTop = bounds.top;
-          }
-        });
+        final effectiveVisible =
+            widget.isSurfaceVisible || widget.pipPresentation;
+        final animationDuration =
+            (followsRoute ||
+                widget.pipPresentation ||
+                !widget.isSurfaceVisible ||
+                _isVisibilityTransition)
+            ? Duration.zero
+            : const Duration(milliseconds: 250);
 
         return AnimatedPositioned(
-          duration:
-              (followsRoute ||
-                  widget.pipPresentation ||
-                  (widget.isWindows && isHidingTransition))
-              ? Duration.zero
-              : const Duration(milliseconds: 250),
+          duration: animationDuration,
           curve: Curves.easeOutQuart,
           left: bounds.left,
           top: bounds.top,
           width: bounds.width,
           height: bounds.height,
           child: AnimatedContainer(
-            duration:
-                (followsRoute ||
-                    widget.pipPresentation ||
-                    (widget.isWindows && isHidingTransition))
-                ? Duration.zero
-                : const Duration(milliseconds: 250),
+            duration: animationDuration,
             curve: Curves.easeOutQuart,
             decoration: BoxDecoration(
               color: widget.transparentBackground
@@ -1137,7 +1140,10 @@ class _PlaybackSurfaceLayerState extends State<_PlaybackSurfaceLayer> {
               borderRadius: BorderRadius.circular(
                 widget.pipPresentation ? 0 : radius,
               ),
-              child: widget.child,
+              child: IgnorePointer(
+                ignoring: !effectiveVisible,
+                child: widget.child,
+              ),
             ),
           ),
         );
@@ -3093,7 +3099,12 @@ class _StablePlaybackViewState extends State<_StablePlaybackView>
     super.build(context); // required for AutomaticKeepAliveClientMixin
     return Consumer(
       builder: (context, ref, child) {
-        final settings = ref.watch(settingsProvider);
+        final subtitleTextSize = ref.watch(
+          settingsProvider.select((s) => s.subtitleTextSize),
+        );
+        final subtitleBackgroundColor = ref.watch(
+          settingsProvider.select((s) => s.subtitleBackgroundColor),
+        );
         return RepaintBoundary(
           child: PlaybackView(
             controller: widget.controller,
@@ -3101,9 +3112,9 @@ class _StablePlaybackViewState extends State<_StablePlaybackView>
             fit: widget.fit,
             subtitleViewConfiguration: mk.SubtitleViewConfiguration(
               style: TextStyle(
-                fontSize: settings.subtitleTextSize,
+                fontSize: subtitleTextSize,
                 color: Colors.white,
-                backgroundColor: Color(settings.subtitleBackgroundColor),
+                backgroundColor: Color(subtitleBackgroundColor),
               ),
               padding: const EdgeInsets.all(24),
             ),

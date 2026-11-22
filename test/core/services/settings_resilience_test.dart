@@ -74,4 +74,75 @@ void main() {
       await loadFuture;
     },
   );
+
+  test(
+    'rapid concurrent toggleVideo calls update state deterministically without stale reversions',
+    () async {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      container.read(settingsProvider);
+      final notifier = container.read(settingsProvider.notifier);
+      await notifier.loadSettled;
+      expect(container.read(settingsProvider).showVideo, isTrue);
+      expect(container.read(settingsProvider).playerView, PlayerView.video);
+
+      // Fire 11 rapid toggles without awaiting between calls (odd -> hidden).
+      final oddBatch = <Future<void>>[];
+      for (var i = 0; i < 11; i++) {
+        oddBatch.add(notifier.toggleVideo());
+        final expectedShow = i.isOdd;
+        expect(container.read(settingsProvider).showVideo, expectedShow);
+        expect(
+          container.read(settingsProvider).playerView,
+          expectedShow ? PlayerView.video : PlayerView.artwork,
+        );
+      }
+      await Future.wait(oddBatch);
+
+      expect(container.read(settingsProvider).showVideo, isFalse);
+      expect(container.read(settingsProvider).playerView, PlayerView.artwork);
+
+      // Fire 10 rapid toggles (even -> stays hidden), then 1 more (-> visible).
+      final evenBatch = <Future<void>>[];
+      for (var i = 0; i < 11; i++) {
+        evenBatch.add(notifier.toggleVideo());
+      }
+      await Future.wait(evenBatch);
+
+      expect(container.read(settingsProvider).showVideo, isTrue);
+      expect(container.read(settingsProvider).playerView, PlayerView.video);
+
+      final box = await Hive.openBox('settings');
+      expect(box.get('show_video'), isTrue);
+      expect(box.get('player_view'), PlayerView.video.index);
+    },
+  );
+
+  test(
+    'rapid interleaved toggleVideo and setPlayerView keep final state and Hive consistent',
+    () async {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      container.read(settingsProvider);
+      final notifier = container.read(settingsProvider.notifier);
+      await notifier.loadSettled;
+
+      final futures = <Future<void>>[
+        notifier.toggleVideo(), // false / artwork
+        notifier.setPlayerView(PlayerView.video), // true / video
+        notifier.setPlayerView(PlayerView.artwork), // false / artwork
+        notifier.toggleVideo(), // true / video
+      ];
+      await Future.wait(futures);
+
+      expect(container.read(settingsProvider).showVideo, isTrue);
+      expect(container.read(settingsProvider).playerView, PlayerView.video);
+
+      final box = await Hive.openBox('settings');
+      expect(box.get('show_video'), isTrue);
+      expect(box.get('player_view'), PlayerView.video.index);
+    },
+  );
 }
