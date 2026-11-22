@@ -264,11 +264,32 @@ jobs:
           cd dist
           sha256sum -c SHA256SUMS
           test -x PPPlayer-Linux-x86_64.AppImage
+          test ! -f PPPlayer-Linux-x86_64.flatpak
           DEB=$(ls ppplayer_*_amd64.deb | head -n 1)
           dpkg-deb -c "$DEB" | grep -q "./etc/apparmor.d/ppplayer"
           dpkg-deb -c "$DEB" | grep -q "./opt/ppplayer/lib/flutter_chromium_webview_subprocess"
           dpkg-deb -c "$DEB" | grep -q "./opt/ppplayer/lib/libcef.so"
-          tar -tzf PPPlayer-Linux-x86_64.tar.gz | grep -q "PPPlayer/lib/libcef.so"
+
+          # Verify portable tarball layout, executable bits, and upstream desktop metadata
+          EXTRACT_DIR=$(mktemp -d)
+          tar -xzf PPPlayer-Linux-x86_64.tar.gz -C "$EXTRACT_DIR"
+          test -x "$EXTRACT_DIR/PPPlayer/ppplayer"
+          test -x "$EXTRACT_DIR/PPPlayer/lib/flutter_chromium_webview_subprocess"
+          test -f "$EXTRACT_DIR/PPPlayer/lib/libcef.so"
+          test -f "$EXTRACT_DIR/PPPlayer/share/applications/com.ppplayer.PPPlayer.desktop"
+          test -f "$EXTRACT_DIR/PPPlayer/share/metainfo/com.ppplayer.PPPlayer.metainfo.xml"
+          test -f "$EXTRACT_DIR/PPPlayer/share/icons/hicolor/512x512/apps/com.ppplayer.PPPlayer.png"
+          rm -rf "$EXTRACT_DIR"
+
+          # Verify staged Flatpak manifest preserved all third-party SHA-256 checksums
+          TAR_SHA=$(sha256sum PPPlayer-Linux-x86_64.tar.gz | awk '{print $1}')
+          grep -q "sha256: $TAR_SHA" flatpak/com.ppplayer.PPPlayer.yml
+          grep -q "sha256: a9afb52bf76a2569263fe2038896774c991b35c0968342a03be708e56ea60c3b" flatpak/com.ppplayer.PPPlayer.yml
+          grep -q "sha256: d029adbe55bba8aed7aed2c48b0b66081dddfb9d42683a709342e33aa666c544" flatpak/com.ppplayer.PPPlayer.yml
+          grep -q "sha256: ed06f67abd2c8b7697dfb714f80715903ab0507e3c5acc11e92477e4ea51033b" flatpak/com.ppplayer.PPPlayer.yml
+          grep -q "sha256: 61a70234dc7da467cceb07fcdd6dec1213d6143a1b6b19ccc5d7b64cc247ea47" flatpak/com.ppplayer.PPPlayer.yml
+          grep -q "sha256: 86d9ef40b6058732f67b46d0bbda24a074fae860b3eaae05bab3145041303066" flatpak/com.ppplayer.PPPlayer.yml
+
           ls -lh
           cat SHA256SUMS
 
