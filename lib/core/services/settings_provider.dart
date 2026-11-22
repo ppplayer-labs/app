@@ -121,10 +121,23 @@ class SettingsNotifier extends Notifier<SettingsState> {
   bool _playerViewTouched = false;
   Future<void> _loadWork = Future<void>.value();
   Future<void> _persistWork = Future<void>.value();
+  Object? _lastPersistError;
 
   /// Completes once initial Hive settings loading settles (for deterministic tests).
   @visibleForTesting
   Future<void> get loadSettled => _loadWork;
+
+  /// Completes once all queued Hive settings writes settle (for deterministic tests).
+  @visibleForTesting
+  Future<void> get persistSettled => _persistWork;
+
+  /// Most recent persistence error from [_persist], or null when the last write succeeded.
+  @visibleForTesting
+  Object? get lastPersistError => _lastPersistError;
+
+  @visibleForTesting
+  @protected
+  Future<Box<dynamic>> openSettingsBox() => Hive.openBox(_boxName);
 
   @override
   SettingsState build() {
@@ -132,6 +145,7 @@ class SettingsNotifier extends Notifier<SettingsState> {
     _showVideoTouched = false;
     _playerViewTouched = false;
     _persistWork = Future<void>.value();
+    _lastPersistError = null;
     ref.onDispose(() {
       _disposed = true;
     });
@@ -194,7 +208,7 @@ class SettingsNotifier extends Notifier<SettingsState> {
 
   Future<void> _loadSettings() async {
     try {
-      final box = await Hive.openBox(_boxName);
+      final box = await openSettingsBox();
       if (_disposed) return;
       final country = _readString(box, _countryKey, 'US');
       final showVideo = _readBool(box, _showVideoKey, true);
@@ -406,10 +420,14 @@ class SettingsNotifier extends Notifier<SettingsState> {
       try {
         await previous;
       } catch (_) {}
-      if (_disposed) return;
-      final box = await Hive.openBox(_boxName);
-      if (_disposed) return;
-      await write(box);
+      try {
+        final box = await openSettingsBox();
+        await write(box);
+        _lastPersistError = null;
+      } catch (e) {
+        _lastPersistError = e;
+        debugPrint('SettingsNotifier: failed to persist settings: $e');
+      }
     }();
     _persistWork = next;
     return next;

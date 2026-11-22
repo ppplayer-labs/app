@@ -1142,7 +1142,10 @@ class _PlaybackSurfaceLayerState extends State<_PlaybackSurfaceLayer> {
               ),
               child: IgnorePointer(
                 ignoring: !effectiveVisible,
-                child: widget.child,
+                child: ExcludeSemantics(
+                  excluding: !effectiveVisible,
+                  child: widget.child,
+                ),
               ),
             ),
           ),

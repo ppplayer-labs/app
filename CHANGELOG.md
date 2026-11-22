@@ -2,10 +2,17 @@
 
 All notable changes to PPPlayer will be documented in this file.
 
-## [4.0.2] - 2026-11-21
+## [4.0.2] - 2026-11-22
 
-Release metadata: **4.0.2+14**, Windows MSIX **4.0.2.0**.
+Release metadata: **4.0.2+14**, Windows MSIX **4.0.2.0** (ads-free build).
 Publisher: Devflier.
+
+### Compatibility
+
+- **macOS:** macOS 13+ on Apple Silicon (`arm64`) validated; Intel/universal builds are not qualified.
+- **Windows:** Windows x64 (`4.0.2.0` MSIX generated for Microsoft Partner Center / Microsoft Store submission, where Microsoft signs the package after certification).
+- **Linux:** Linux x86_64 (AppImage, `.deb`, portable `.tar.gz`, and Snap). Flathub distribution is pending separate review.
+- **Android:** Android API 24+ (`minSdk 24`, ARM64 and x86_64).
 
 ### Added & Improved
 
@@ -14,16 +21,22 @@ Publisher: Devflier.
 - **Rendering Throttling & Audio-Only Optimization:** Throttles inactive desktop Chromium off-screen rendering via `setRenderingActive(false/true)` when playback is paused/resumed without suspending audio or JavaScript events, caps desktop image cache allocations (`48 MB` / `200` images), and defers MediaKit video controller/texture allocation for audio-only playback.
 - **Persistent Chromium Sessions:** Preserves the named `ppplayer_youtube_session` profile (`HttpOnly` cookies, `document.cookie`, and `localStorage`) across full application restarts on Windows, Linux, and macOS.
 - **Windows Performance & Metadata:** Adopts Chromium 0.5.7's event-driven CEF message pump (`external_message_pump`) and bounded pooled SIMD texture path; customized CEF bootstrap launcher version resources and icons so PPPlayer displays correctly as "PPPlayer" across Windows Task Manager, Explorer file properties, and process lists instead of "CEF Bootstrap Application".
-- **Linux Lifecycle & Packaging:** Adopts Chromium 0.5.7's multi-threaded message loop (`MTML`) shutdown hardening, ships a narrowly scoped `.deb` AppArmor `userns` profile (`/etc/apparmor.d/ppplayer`) preserving Chromium's native sandbox on Ubuntu 24.04+/26.04, sets explicit container-verified sandbox opt-out only in strict Snap/Flatpak manifests, and suppresses duplicate MPRIS sessions via `CEF_SYSTEM_MEDIA_CONTROLS=0`.
+- **Linux Lifecycle, Packaging & Release Channels:** Adopts Chromium 0.5.7's multi-threaded message loop (`MTML`) shutdown hardening, ships a narrowly scoped `.deb` AppArmor `userns` profile (`/etc/apparmor.d/ppplayer`) preserving Chromium's native sandbox on Ubuntu 24.04+/26.04, bundles desktop/AppStream/icon metadata in portable `.tar.gz` archives, scopes Flatpak manifest SHA-256 updates without mutating unrelated manifests, fails non-zero when requested Flatpak builds lack required tooling, suppresses duplicate MPRIS sessions via `CEF_SYSTEM_MEDIA_CONTROLS=0`, and isolates independent publication channels (`GitHub Release` and `Snap Store`) behind explicit manual approval gates.
 - **macOS Lifecycle & Persistence:** Forwards `cachePath` into `ChromiumWebViewHost` for cross-restart session persistence, bounds Metal texture/IOSurface caches, retries host socket `listen()` races, removes legacy WebKit timer scanning, and preserves `CEF_SYSTEM_MEDIA_CONTROLS=0`.
-- **Android Compatibility:** Aligns `minSdk` to 24 matching `flutter_chromium_webview 0.5.7` and adopts `onRenderProcessGone` → `browserCrash` event handling with duplicate-registration fixes.
+- **Android Hardening & Compatibility:** Aligns `minSdk` to 24 matching `flutter_chromium_webview 0.5.7`, adopts `onRenderProcessGone` → `browserCrash` event handling with duplicate-registration fixes, hardens R8 keep rules and edge-to-edge insets, and preserves verified Picture-in-Picture (PiP) behavior.
+
+### Changed
+
+- **Advertising Temporarily Removed (Ads-Free Release):** Removed the Google Mobile Ads SDK, UMP consent flow, banner placements, and Android AdMob App ID so v4.0.2 ships completely ads-free while AdMob app verification is pending.
 
 ### Fixed
 
+- **Desktop Mini-Video Rapid Hide/Show Black-Screen & Surface Recovery:** Eliminated `160×90` ↔ `2×2` Chromium/CEF resize storms (`ResizeBrowser` / IOSurface reallocation cascades) during rapid Hide/Show toggling by keeping the playback surface at constant `160×90`, parking hidden desktop surfaces off-screen (`(-9999, -9999)`) with zero-duration visibility transitions while preserving mobile `2×2` peek behavior, and excluding hidden surfaces from pointer hit-testing and screen-reader semantics (`IgnorePointer` + `ExcludeSemantics`). Natively verified on Apple Silicon macOS (real CEF + Metal/IOSurface playback and live YouTube frames across 1x/10x/50x/100x rapid toggles, pause/resume, track switch, and mini/full transitions).
+- **Settings Persistence & Toggle Concurrency:** Made `SettingsNotifier.toggleVideo()` and `setPlayerView()` update state synchronously, serialize Hive writes, guard in-flight initial loads against clobbering user toggles, flush already-enqueued writes cleanly across disposal, and surface Hive write failures without unhandled async exceptions.
+- **Android Activity Detach Crash & SAF Folder Import:** Prevented `ProviderContainer` disposal crashes during Android Activity detach while Chromium playback is active, and restored Android Storage Access Framework (SAF) local folder import and persistent URI access.
 - **Clean Desktop Shutdown:** Added `AppShutdownCoordinator` for single-shot ordered playback and Riverpod container disposal before exit, eliminating orphaned Chromium subprocesses on Windows, Linux, and macOS.
 - **Desktop Accessibility:** Added route-local `PlayerRouteTransitionBoundary` preventing orphaned `OverlayPortal` / slider semantics traversal children on Windows.
-- **Release Automation Safety:** Moved `Publish to Snap Store` into the approval-gated `publish-release` job alongside GitHub Release creation (requiring `workflow_dispatch` with `approve_publication == true` and all 4 platform builds), added cross-platform PR validation CI (`.github/workflows/pr-validation.yml`), and added automated regression guards.
-- **macOS Headless Test Reliability:** Fixed `desktop_lazy_restore_test.dart` on macOS via cast-discovery channel mocking and a `@visibleForTesting` cache-manager override that does not alter production behavior.
+- **Release Automation Safety & CI:** Added cross-platform PR validation CI (`.github/workflows/pr-validation.yml`), automated packaging/release regression guards, and verified `desktop_lazy_restore_test.dart` on macOS.
 
 ## [4.0.1] - 2026-10-16
 

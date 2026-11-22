@@ -52,9 +52,12 @@ class _VideoSurfaceProbeState extends State<_VideoSurfaceProbe> {
             widget.metrics.layoutSizes.last != size) {
           widget.metrics.layoutSizes.add(size);
         }
-        return const ColoredBox(
-          key: ValueKey('probe_video_frame'),
-          color: Colors.green,
+        return Semantics(
+          label: 'probe_video_semantics',
+          child: const ColoredBox(
+            key: ValueKey('probe_video_frame'),
+            color: Colors.green,
+          ),
         );
       },
     );
@@ -65,9 +68,16 @@ class _FakePlaybackController implements PlaybackController {
   _FakePlaybackController(this.metrics, this._status);
 
   final _SurfaceProbeMetrics metrics;
-  final PlaybackStatus _status;
+  PlaybackStatus _status;
   final _statusController = StreamController<PlaybackStatus>.broadcast();
   final _eventController = StreamController<PlaybackEvent>.broadcast();
+
+  void emitStatus(PlaybackStatus next) {
+    _status = next;
+    if (!_statusController.isClosed) {
+      _statusController.add(next);
+    }
+  }
 
   @override
   Stream<PlaybackStatus> get statusStream => _statusController.stream;
@@ -153,13 +163,22 @@ class _FakePlaybackController implements PlaybackController {
 }
 
 class _FakePlayerNotifier extends PlayerNotifier {
+  _FakePlayerNotifier({
+    this.initialIsPlaying = true,
+    this.initialIsPipMode = false,
+  });
+
+  final bool initialIsPlaying;
+  final bool initialIsPipMode;
+
   @override
-  PlayerState build() => const PlayerState(
+  PlayerState build() => PlayerState(
     videoId: 'dQw4w9WgXcQ',
-    isPlaying: true,
-    duration: Duration(minutes: 3),
-    position: Duration(seconds: 30),
-    playbackQueue: PlaybackQueue(
+    isPlaying: initialIsPlaying,
+    isPipMode: initialIsPipMode,
+    duration: const Duration(minutes: 3),
+    position: const Duration(seconds: 30),
+    playbackQueue: const PlaybackQueue(
       tracks: [
         Track(
           spotifyId: 'track-1',
@@ -171,6 +190,14 @@ class _FakePlayerNotifier extends PlayerNotifier {
       ],
     ),
   );
+
+  void setPlaying(bool playing) {
+    state = state.copyWith(isPlaying: playing);
+  }
+
+  void setPip(bool pip) {
+    state = state.copyWith(isPipMode: pip);
+  }
 
   @override
   PlaybackTrack? get currentPlaybackTrack => null;
@@ -207,6 +234,18 @@ class _InMemorySettingsNotifier extends SettingsNotifier {
   }
 }
 
+class _ShellHarness {
+  _ShellHarness({
+    required this.router,
+    required this.controller,
+    required this.playerNotifier,
+  });
+
+  final GoRouter router;
+  final _FakePlaybackController controller;
+  final _FakePlayerNotifier playerNotifier;
+}
+
 void main() {
   late AppDatabase db;
 
@@ -218,34 +257,56 @@ void main() {
     await db.close();
   });
 
-  Future<GoRouter> pumpShell(
+  Future<_ShellHarness> pumpShell(
     WidgetTester tester, {
     required Size windowSize,
     required _SurfaceProbeMetrics metrics,
+    PlaybackState initialPlaybackState = PlaybackState.playing,
+    bool initialIsPlaying = true,
+    bool initialIsPipMode = false,
   }) async {
     tester.view.physicalSize = windowSize;
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    const status = PlaybackStatus(
-      state: PlaybackState.playing,
+    final status = PlaybackStatus(
+      state: initialPlaybackState,
       isIFrameMode: true,
       hasVideo: true,
       activeVideoId: 'dQw4w9WgXcQ',
     );
     final controller = _FakePlaybackController(metrics, status);
     addTearDown(controller.dispose);
+    final playerNotifier = _FakePlayerNotifier(
+      initialIsPlaying: initialIsPlaying,
+      initialIsPipMode: initialIsPipMode,
+    );
 
     final router = GoRouter(
       initialLocation: '/home',
       routes: [
-        GoRoute(
-          path: '/home',
-          builder: (context, state) => const ScaffoldWithNav(
-            location: '/home',
-            child: SizedBox.expand(),
-          ),
+        ShellRoute(
+          builder: (context, state, child) =>
+              ScaffoldWithNav(location: state.uri.path, child: child),
+          routes: [
+            GoRoute(
+              path: '/home',
+              builder: (context, state) => const SizedBox.expand(),
+            ),
+            GoRoute(
+              path: '/discover',
+              builder: (context, state) => const SizedBox.expand(),
+            ),
+            GoRoute(
+              path: '/search',
+              builder: (context, state) => const SizedBox.expand(),
+            ),
+            GoRoute(
+              path: '/player',
+              builder: (context, state) => const SizedBox.expand(),
+            ),
+          ],
         ),
       ],
     );
@@ -256,8 +317,8 @@ void main() {
         overrides: [
           appDatabaseProvider.overrideWithValue(db),
           playbackControllerProvider.overrideWithValue(controller),
-          playbackStatusProvider.overrideWith((_) => Stream.value(status)),
-          playerProvider.overrideWith(_FakePlayerNotifier.new),
+          playbackStatusProvider.overrideWith((_) => controller.statusStream),
+          playerProvider.overrideWith(() => playerNotifier),
           settingsProvider.overrideWith(_InMemorySettingsNotifier.new),
           networkOutputSnapshotProvider.overrideWith(
             (_) => const NetworkOutputState(),
@@ -270,13 +331,106 @@ void main() {
         ),
       ),
     );
+    controller.emitStatus(status);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
-    return router;
+    return _ShellHarness(
+      router: router,
+      controller: controller,
+      playerNotifier: playerNotifier,
+    );
+  }
+
+  Future<void> unmountCleanly(WidgetTester tester) async {
+    // Unmount before teardown so Drift's StreamQueryStore zero-duration
+    // close timer flushes inside the test frame.
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(milliseconds: 1));
+  }
+
+  Future<void> runDesktopToggleCycle(
+    WidgetTester tester, {
+    required int toggleCount,
+    required _SurfaceProbeMetrics metrics,
+    required Rect initialRect,
+    Duration frameInterval = const Duration(milliseconds: 16),
+  }) async {
+    final probeFinder = find.byKey(const ValueKey('probe_video_frame'));
+    var shown = true;
+    for (var i = 0; i < toggleCount; i++) {
+      final button = find.byTooltip(shown ? 'Hide video' : 'Show video');
+      expect(button, findsOneWidget);
+      await tester.tap(button);
+      await tester.pump(frameInterval);
+      shown = !shown;
+
+      final rect = tester.getRect(probeFinder);
+      expect(rect.size, const Size(160, 90));
+      if (!shown) {
+        expect(rect.left, -9999.0);
+        expect(rect.top, -9999.0);
+        expect(
+          find.byKey(const ValueKey('video_thumbnail_open')),
+          findsNothing,
+        );
+      } else {
+        expect(rect, initialRect);
+        expect(
+          find.byKey(const ValueKey('video_thumbnail_open')),
+          findsOneWidget,
+        );
+      }
+    }
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(metrics.initCount, 1);
+    expect(metrics.disposeCount, 0);
+    expect(metrics.layoutSizes, [const Size(160, 90)]);
+    expect(metrics.layoutSizes.contains(const Size(2, 2)), isFalse);
+  }
+
+  for (final count in [2, 5, 10, 50, 100]) {
+    testWidgets(
+      'desktop $count rapid Hide/Show toggles keep mini video mounted at constant 160x90 with zero resizes',
+      (tester) async {
+        debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+        try {
+          final metrics = _SurfaceProbeMetrics();
+          await pumpShell(
+            tester,
+            windowSize: const Size(1280, 800),
+            metrics: metrics,
+          );
+
+          final probeFinder = find.byKey(const ValueKey('probe_video_frame'));
+          final initialRect = tester.getRect(probeFinder);
+          expect(initialRect.size, const Size(160, 90));
+
+          await runDesktopToggleCycle(
+            tester,
+            toggleCount: count,
+            metrics: metrics,
+            initialRect: initialRect,
+          );
+
+          final finalRect = tester.getRect(probeFinder);
+          if (count.isEven) {
+            expect(finalRect, initialRect);
+          } else {
+            expect(finalRect.left, -9999.0);
+            expect(finalRect.top, -9999.0);
+          }
+
+          await unmountCleanly(tester);
+          expect(metrics.disposeCount, 1);
+        } finally {
+          debugDefaultTargetPlatformOverride = null;
+        }
+      },
+    );
   }
 
   testWidgets(
-    'desktop rapid Hide/Show toggling keeps mini video mounted at constant 160x90 with zero resizes',
+    'desktop single Hide -> Show cycle restores exact bounds and toggles IgnorePointer & ExcludeSemantics',
     (tester) async {
       debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
       try {
@@ -288,63 +442,47 @@ void main() {
         );
 
         final probeFinder = find.byKey(const ValueKey('probe_video_frame'));
-        expect(probeFinder, findsOneWidget);
-        expect(metrics.initCount, 1);
-        expect(metrics.disposeCount, 0);
-        expect(metrics.layoutSizes, [const Size(160, 90)]);
-
         final initialRect = tester.getRect(probeFinder);
-        expect(initialRect.size, const Size(160, 90));
-        expect(initialRect.left, greaterThan(0));
-        expect(initialRect.top, greaterThan(0));
-        expect(
-          find.byKey(const ValueKey('video_thumbnail_open')),
-          findsOneWidget,
+
+        ExcludeSemantics surfaceSemantics() => tester.widget<ExcludeSemantics>(
+          find
+              .ancestor(
+                of: probeFinder,
+                matching: find.byType(ExcludeSemantics),
+              )
+              .first,
+        );
+        IgnorePointer surfaceIgnorePointer() => tester.widget<IgnorePointer>(
+          find
+              .ancestor(of: probeFinder, matching: find.byType(IgnorePointer))
+              .first,
         );
 
-        // Rapidly toggle Hide/Show 12 times in quick succession (even -> shown).
-        for (var i = 0; i < 12; i++) {
-          final isCurrentlyShown = i.isEven;
-          final button = find.byTooltip(
-            isCurrentlyShown ? 'Hide video' : 'Show video',
-          );
-          expect(button, findsOneWidget);
-          await tester.tap(button);
-          // Pump short 16ms frames to simulate rapid clicking mid-transition.
-          await tester.pump(const Duration(milliseconds: 16));
+        expect(surfaceSemantics().excluding, isFalse);
+        expect(surfaceIgnorePointer().ignoring, isFalse);
 
-          final rect = tester.getRect(probeFinder);
-          expect(rect.size, const Size(160, 90));
-          if (isCurrentlyShown) {
-            // Just hidden: immediately parked off-screen on desktop.
-            expect(rect.left, -9999.0);
-            expect(rect.top, -9999.0);
-            expect(
-              find.byKey(const ValueKey('video_thumbnail_open')),
-              findsNothing,
-            );
-          } else {
-            // Just shown: immediately restored to mini-player bounds.
-            expect(rect, initialRect);
-            expect(
-              find.byKey(const ValueKey('video_thumbnail_open')),
-              findsOneWidget,
-            );
-          }
-        }
+        // Hide
+        await tester.tap(find.byTooltip('Hide video'));
+        await tester.pump(const Duration(milliseconds: 16));
+        expect(
+          tester.getRect(probeFinder),
+          const Rect.fromLTWH(-9999, -9999, 160, 90),
+        );
+        expect(surfaceSemantics().excluding, isTrue);
+        expect(surfaceIgnorePointer().ignoring, isTrue);
 
-        await tester.pump(const Duration(milliseconds: 300));
+        // Show
+        await tester.tap(find.byTooltip('Show video'));
+        await tester.pump(const Duration(milliseconds: 16));
+        expect(tester.getRect(probeFinder), initialRect);
+        expect(surfaceSemantics().excluding, isFalse);
+        expect(surfaceIgnorePointer().ignoring, isFalse);
 
-        // Surface must never have been recreated, disposed, or resized away from 160x90.
         expect(metrics.initCount, 1);
         expect(metrics.disposeCount, 0);
         expect(metrics.layoutSizes, [const Size(160, 90)]);
-        expect(tester.getRect(probeFinder), initialRect);
 
-        // Unmount before teardown so Drift's StreamQueryStore zero-duration
-        // close timer flushes inside the test frame.
-        await tester.pumpWidget(const SizedBox.shrink());
-        await tester.pump(const Duration(milliseconds: 1));
+        await unmountCleanly(tester);
       } finally {
         debugDefaultTargetPlatformOverride = null;
       }
@@ -352,55 +490,274 @@ void main() {
   );
 
   testWidgets(
-    'mobile rapid Hide/Show toggling preserves 2x2 peek without shrinking surface below 160x90',
+    'desktop Hide/Show toggles during loading, playing, and paused states never recreate or resize surface',
     (tester) async {
-      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
       try {
         final metrics = _SurfaceProbeMetrics();
-        const mobileSize = Size(400, 800);
-        await pumpShell(tester, windowSize: mobileSize, metrics: metrics);
+        final harness = await pumpShell(
+          tester,
+          windowSize: const Size(1280, 800),
+          metrics: metrics,
+          initialPlaybackState: PlaybackState.buffering,
+          initialIsPlaying: false,
+        );
 
         final probeFinder = find.byKey(const ValueKey('probe_video_frame'));
-        expect(probeFinder, findsOneWidget);
-        expect(metrics.initCount, 1);
-        expect(metrics.layoutSizes, [const Size(160, 90)]);
-
         final initialRect = tester.getRect(probeFinder);
-        expect(initialRect.size, const Size(160, 90));
 
-        // Rapidly toggle Hide/Show 10 times (even -> ends shown).
-        for (var i = 0; i < 10; i++) {
-          final isCurrentlyShown = i.isEven;
-          final button = find.byTooltip(
-            isCurrentlyShown ? 'Hide video' : 'Show video',
-          );
-          expect(button, findsOneWidget);
-          await tester.tap(button);
-          await tester.pump(const Duration(milliseconds: 16));
+        // 1. Loading state
+        await runDesktopToggleCycle(
+          tester,
+          toggleCount: 6,
+          metrics: metrics,
+          initialRect: initialRect,
+        );
 
-          final rect = tester.getRect(probeFinder);
-          // Layout size NEVER shrinks to 2x2; only position shifts to 2x2 peek.
-          expect(rect.size, const Size(160, 90));
-          if (isCurrentlyShown) {
-            expect(rect.left, mobileSize.width - 2.0);
-            expect(rect.top, mobileSize.height - 2.0);
-          } else {
-            expect(rect, initialRect);
-          }
-        }
+        // 2. Playing state
+        harness.playerNotifier.setPlaying(true);
+        harness.controller.emitStatus(
+          const PlaybackStatus(
+            state: PlaybackState.playing,
+            isIFrameMode: true,
+            hasVideo: true,
+            activeVideoId: 'dQw4w9WgXcQ',
+          ),
+        );
+        await tester.pump();
+        await runDesktopToggleCycle(
+          tester,
+          toggleCount: 6,
+          metrics: metrics,
+          initialRect: initialRect,
+        );
 
-        await tester.pump(const Duration(milliseconds: 300));
+        // 3. Paused state
+        harness.playerNotifier.setPlaying(false);
+        harness.controller.emitStatus(
+          const PlaybackStatus(
+            state: PlaybackState.paused,
+            isIFrameMode: true,
+            hasVideo: true,
+            activeVideoId: 'dQw4w9WgXcQ',
+          ),
+        );
+        await tester.pump();
+        await runDesktopToggleCycle(
+          tester,
+          toggleCount: 6,
+          metrics: metrics,
+          initialRect: initialRect,
+        );
 
         expect(metrics.initCount, 1);
         expect(metrics.disposeCount, 0);
         expect(metrics.layoutSizes, [const Size(160, 90)]);
-        expect(tester.getRect(probeFinder), initialRect);
 
-        await tester.pumpWidget(const SizedBox.shrink());
-        await tester.pump(const Duration(milliseconds: 1));
+        await unmountCleanly(tester);
       } finally {
         debugDefaultTargetPlatformOverride = null;
       }
     },
   );
+
+  testWidgets(
+    'desktop Hide/Show toggles during route navigation and window resizing preserve 160x90 with zero 2x2 sizes',
+    (tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+      try {
+        final metrics = _SurfaceProbeMetrics();
+        final harness = await pumpShell(
+          tester,
+          windowSize: const Size(1280, 800),
+          metrics: metrics,
+        );
+
+        final probeFinder = find.byKey(const ValueKey('probe_video_frame'));
+        expect(metrics.layoutSizes, [const Size(160, 90)]);
+
+        // Navigate across shell routes while toggling Hide/Show.
+        for (final route in ['/discover', '/search', '/home']) {
+          harness.router.go(route);
+          await tester.pump(const Duration(milliseconds: 16));
+          await tester.tap(find.byTooltip('Hide video'));
+          await tester.pump(const Duration(milliseconds: 16));
+          expect(tester.getRect(probeFinder).size, const Size(160, 90));
+          await tester.tap(find.byTooltip('Show video'));
+          await tester.pump(const Duration(milliseconds: 16));
+          expect(tester.getRect(probeFinder).size, const Size(160, 90));
+        }
+
+        // Resize window dynamically while toggling Hide/Show (including compact overflow bar).
+        for (final size in [
+          const Size(1024, 700),
+          const Size(1440, 900),
+          const Size(1100, 680),
+          const Size(1280, 800),
+        ]) {
+          tester.view.physicalSize = size;
+          await tester.pump(const Duration(milliseconds: 16));
+          await tester.tap(find.byTooltip('Hide video'));
+          await tester.pump(const Duration(milliseconds: 16));
+          expect(tester.getRect(probeFinder).size, const Size(160, 90));
+          await tester.tap(find.byTooltip('Show video'));
+          await tester.pump(const Duration(milliseconds: 16));
+          expect(tester.getRect(probeFinder).size, const Size(160, 90));
+        }
+
+        // Narrow desktop width switches player bar to compact mode (overflow menu).
+        tester.view.physicalSize = const Size(860, 760);
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
+        await tester.tap(find.byTooltip('More playback controls'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
+        await tester.tap(find.text('Hide video'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
+        expect(tester.getRect(probeFinder).size, const Size(160, 90));
+        expect(tester.getRect(probeFinder).left, -9999.0);
+        await tester.tap(find.byTooltip('More playback controls'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
+        await tester.tap(find.text('Show video'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
+        expect(tester.getRect(probeFinder).size, const Size(160, 90));
+        expect(tester.getRect(probeFinder).left, greaterThan(0));
+
+        await tester.pump(const Duration(milliseconds: 300));
+        expect(metrics.initCount, 1);
+        expect(metrics.disposeCount, 0);
+        expect(metrics.layoutSizes, [const Size(160, 90)]);
+        expect(metrics.layoutSizes.contains(const Size(2, 2)), isFalse);
+      } finally {
+        await unmountCleanly(tester);
+        debugDefaultTargetPlatformOverride = null;
+      }
+    },
+  );
+
+  testWidgets(
+    'desktop rapid Hide/Show toggle immediately followed by widget disposal does not throw or leak',
+    (tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+      try {
+        final metrics = _SurfaceProbeMetrics();
+        await pumpShell(
+          tester,
+          windowSize: const Size(1280, 800),
+          metrics: metrics,
+        );
+
+        await tester.tap(find.byTooltip('Hide video'));
+        await tester.pump(const Duration(milliseconds: 4));
+        await tester.tap(find.byTooltip('Show video'));
+        await tester.pump(const Duration(milliseconds: 4));
+        await tester.tap(find.byTooltip('Hide video'));
+        // Dispose immediately mid-frame without letting timers settle first.
+        await unmountCleanly(tester);
+
+        expect(metrics.initCount, 1);
+        expect(metrics.disposeCount, 1);
+        expect(metrics.layoutSizes, [const Size(160, 90)]);
+        expect(tester.takeException(), isNull);
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
+    },
+  );
+
+  for (final platform in [TargetPlatform.android, TargetPlatform.iOS]) {
+    testWidgets(
+      'mobile (${platform.name}) rapid Hide/Show preserves 2x2 peek at constant 160x90, blocks pointer/semantics, and preserves PiP',
+      (tester) async {
+        debugDefaultTargetPlatformOverride = platform;
+        try {
+          final metrics = _SurfaceProbeMetrics();
+          const mobileSize = Size(400, 800);
+          final harness = await pumpShell(
+            tester,
+            windowSize: mobileSize,
+            metrics: metrics,
+          );
+
+          final probeFinder = find.byKey(const ValueKey('probe_video_frame'));
+          expect(probeFinder, findsOneWidget);
+          expect(metrics.initCount, 1);
+          expect(metrics.layoutSizes, [const Size(160, 90)]);
+
+          final initialRect = tester.getRect(probeFinder);
+          expect(initialRect.size, const Size(160, 90));
+
+          // Rapidly toggle Hide/Show 10 times (even -> ends shown).
+          for (var i = 0; i < 10; i++) {
+            final isCurrentlyShown = i.isEven;
+            final button = find.byTooltip(
+              isCurrentlyShown ? 'Hide video' : 'Show video',
+            );
+            expect(button, findsOneWidget);
+            await tester.tap(button);
+            await tester.pump(const Duration(milliseconds: 16));
+
+            final rect = tester.getRect(probeFinder);
+            expect(rect.size, const Size(160, 90));
+            final ignorePointer = tester.widget<IgnorePointer>(
+              find
+                  .ancestor(
+                    of: probeFinder,
+                    matching: find.byType(IgnorePointer),
+                  )
+                  .first,
+            );
+            final excludeSemantics = tester.widget<ExcludeSemantics>(
+              find
+                  .ancestor(
+                    of: probeFinder,
+                    matching: find.byType(ExcludeSemantics),
+                  )
+                  .first,
+            );
+
+            if (isCurrentlyShown) {
+              expect(rect.left, mobileSize.width - 2.0);
+              expect(rect.top, mobileSize.height - 2.0);
+              expect(ignorePointer.ignoring, isTrue);
+              expect(excludeSemantics.excluding, isTrue);
+            } else {
+              expect(rect, initialRect);
+              expect(ignorePointer.ignoring, isFalse);
+              expect(excludeSemantics.excluding, isFalse);
+            }
+          }
+
+          // Hide video, then enter PiP: PiP must override hidden bounds and fill screen.
+          await tester.tap(find.byTooltip('Hide video'));
+          await tester.pump(const Duration(milliseconds: 16));
+          expect(tester.getRect(probeFinder).left, mobileSize.width - 2.0);
+
+          harness.playerNotifier.setPip(true);
+          await tester.pump(const Duration(milliseconds: 16));
+          expect(
+            tester.getRect(probeFinder),
+            Rect.fromLTWH(0, 0, mobileSize.width, mobileSize.height),
+          );
+
+          // Exit PiP: returns cleanly to hidden 2x2 peek without resizing to 2x2.
+          harness.playerNotifier.setPip(false);
+          await tester.pump(const Duration(milliseconds: 16));
+          expect(tester.getRect(probeFinder).size, const Size(160, 90));
+          expect(tester.getRect(probeFinder).left, mobileSize.width - 2.0);
+          expect(metrics.initCount, 1);
+          expect(metrics.disposeCount, 0);
+          expect(metrics.layoutSizes.contains(const Size(2, 2)), isFalse);
+          expect(tester.takeException(), isNull);
+
+          await unmountCleanly(tester);
+        } finally {
+          debugDefaultTargetPlatformOverride = null;
+        }
+      },
+    );
+  }
 }
