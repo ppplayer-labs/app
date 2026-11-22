@@ -663,5 +663,8 @@
   "folderAlreadyImported": "এই ফোল্ডারটি ইতিমধ্যে আমদানি করা হয়েছে — নতুন ফাইল খোঁজা হচ্ছে",
   "rescanCompleted": "লাইব্রেরি পুনরায় স্ক্যান সম্পন্ন হয়েছে",
   "rescanFailed": "ফোল্ডার পুনরায় স্ক্যান করতে ব্যর্থ হয়েছে: {error}",
-  "importedFolderFallback": "আমদানিকৃত ফোল্ডার"
+  "importedFolderFallback": "আমদানিকৃত ফোল্ডার",
+  "adPrivacyOptions": "বিজ্ঞাপনের গোপনীয়তা বিকল্প",
+  "adPrivacyOptionsSubtitle": "আপনার বিজ্ঞাপন সম্মতির পছন্দ পরিচালনা করুন",
+  "adPrivacyOptionsError": "এই মুহূর্তে গোপনীয়তা বিকল্প খোলা যাচ্ছে না। পরে আবার চেষ্টা করুন।"
 }

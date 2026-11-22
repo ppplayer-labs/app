@@ -1158,4 +1158,15 @@ class AppLocalizationsDa extends AppLocalizations {
 
   @override
   String get importedFolderFallback => 'Importeret mappe';
+
+  @override
+  String get adPrivacyOptions => 'Privatlivsindstillinger for annoncer';
+
+  @override
+  String get adPrivacyOptionsSubtitle =>
+      'Administrer dine samtykkevalg for annoncer';
+
+  @override
+  String get adPrivacyOptionsError =>
+      'Kunne ikke åbne privatlivsindstillinger lige nu. Prøv igen senere.';
 }

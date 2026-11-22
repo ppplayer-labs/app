@@ -663,5 +663,8 @@
   "folderAlreadyImported": "Denna mapp har redan importerats — söker efter nya filer",
   "rescanCompleted": "Omskanning av bibliotek klar",
   "rescanFailed": "Kunde inte skanna om mappen: {error}",
-  "importedFolderFallback": "Importerad mapp"
+  "importedFolderFallback": "Importerad mapp",
+  "adPrivacyOptions": "Sekretessinställningar för annonser",
+  "adPrivacyOptionsSubtitle": "Hantera dina samtyckesval för annonser",
+  "adPrivacyOptionsError": "Det gick inte att öppna sekretessinställningarna just nu. Försök igen senare."
 }

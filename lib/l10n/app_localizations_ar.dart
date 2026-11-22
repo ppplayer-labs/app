@@ -1153,4 +1153,14 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get importedFolderFallback => 'مجلد مستورد';
+
+  @override
+  String get adPrivacyOptions => 'خيارات خصوصية الإعلانات';
+
+  @override
+  String get adPrivacyOptionsSubtitle => 'إدارة اختيارات موافقتك على الإعلانات';
+
+  @override
+  String get adPrivacyOptionsError =>
+      'تعذّر فتح خيارات الخصوصية الآن. يرجى المحاولة لاحقًا.';
 }

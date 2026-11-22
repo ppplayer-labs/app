@@ -1169,4 +1169,14 @@ class AppLocalizationsUk extends AppLocalizations {
 
   @override
   String get importedFolderFallback => 'Імпортована папка';
+
+  @override
+  String get adPrivacyOptions => 'Параметри конфіденційності реклами';
+
+  @override
+  String get adPrivacyOptionsSubtitle => 'Керуйте вибором згоди на рекламу';
+
+  @override
+  String get adPrivacyOptionsError =>
+      'Зараз не вдалося відкрити параметри конфіденційності. Спробуйте пізніше.';
 }

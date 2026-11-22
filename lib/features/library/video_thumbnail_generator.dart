@@ -8,10 +8,27 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 class VideoThumbnailGenerator {
-  static Future<String?> generateAndSaveThumbnail(String filePath) async {
+  static Future<void> _serial = Future<void>.value();
+
+  static Future<String?> generateAndSaveThumbnail(String filePath) {
+    final previous = _serial;
+    final run = () async {
+      try {
+        await previous;
+      } catch (_) {}
+      return _generateAndSaveThumbnailInternal(filePath);
+    }();
+    _serial = run.then((_) {}, onError: (Object _, StackTrace _) {});
+    return run;
+  }
+
+  static Future<String?> _generateAndSaveThumbnailInternal(
+    String filePath,
+  ) async {
     final player = Player(
       configuration: const PlayerConfiguration(
         vo: 'null', // Don't try to render to a surface
+        logLevel: MPVLogLevel.error,
       ),
     );
     try {

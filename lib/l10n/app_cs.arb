@@ -663,5 +663,8 @@
   "folderAlreadyImported": "Tato složka je již importována – hledají se nové soubory",
   "rescanCompleted": "Znovunačtení knihovny dokončeno",
   "rescanFailed": "Opětovné prověření složky selhalo: {error}",
-  "importedFolderFallback": "Importovaná složka"
+  "importedFolderFallback": "Importovaná složka",
+  "adPrivacyOptions": "Možnosti soukromí reklam",
+  "adPrivacyOptionsSubtitle": "Správa voleb souhlasu s reklamami",
+  "adPrivacyOptionsError": "Možnosti soukromí se nyní nepodařilo otevřít. Zkuste to prosím později."
 }

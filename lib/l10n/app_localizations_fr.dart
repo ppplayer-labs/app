@@ -1168,4 +1168,15 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get importedFolderFallback => 'Dossier importé';
+
+  @override
+  String get adPrivacyOptions => 'Options de confidentialité des annonces';
+
+  @override
+  String get adPrivacyOptionsSubtitle =>
+      'Gérer vos choix de consentement publicitaire';
+
+  @override
+  String get adPrivacyOptionsError =>
+      'Impossible d’ouvrir les options de confidentialité pour le moment. Veuillez réessayer plus tard.';
 }

@@ -1164,4 +1164,15 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get importedFolderFallback => 'Импортированная папка';
+
+  @override
+  String get adPrivacyOptions => 'Настройки конфиденциальности рекламы';
+
+  @override
+  String get adPrivacyOptionsSubtitle =>
+      'Управление выбором согласия на рекламу';
+
+  @override
+  String get adPrivacyOptionsError =>
+      'Не удалось открыть настройки конфиденциальности. Повторите попытку позже.';
 }

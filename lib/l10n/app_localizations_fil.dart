@@ -1165,4 +1165,15 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get importedFolderFallback => 'Na-import na Folder';
+
+  @override
+  String get adPrivacyOptions => 'Mga opsyon sa privacy ng ad';
+
+  @override
+  String get adPrivacyOptionsSubtitle =>
+      'Pamahalaan ang iyong mga pagpipilian sa pahintulot ng ad';
+
+  @override
+  String get adPrivacyOptionsError =>
+      'Hindi mabuksan ang mga opsyon sa privacy ngayon. Subukan muli mamaya.';
 }

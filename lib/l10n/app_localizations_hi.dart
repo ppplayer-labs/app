@@ -1157,4 +1157,15 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get importedFolderFallback => 'आयातित फ़ोल्डर';
+
+  @override
+  String get adPrivacyOptions => 'विज्ञापन गोपनीयता विकल्प';
+
+  @override
+  String get adPrivacyOptionsSubtitle =>
+      'अपने विज्ञापन सहमति विकल्प प्रबंधित करें';
+
+  @override
+  String get adPrivacyOptionsError =>
+      'अभी गोपनीयता विकल्प खोले नहीं जा सके। कृपया बाद में पुनः प्रयास करें।';
 }

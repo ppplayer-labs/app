@@ -663,5 +663,8 @@
   "folderAlreadyImported": "此文件夹已导入 — 正在检查新文件",
   "rescanCompleted": "库重新扫描已完成",
   "rescanFailed": "重新扫描文件夹失败：{error}",
-  "importedFolderFallback": "已导入的文件夹"
+  "importedFolderFallback": "已导入的文件夹",
+  "adPrivacyOptions": "广告隐私选项",
+  "adPrivacyOptionsSubtitle": "管理您的广告同意选择",
+  "adPrivacyOptionsError": "暂时无法打开隐私选项，请稍后再试。"
 }

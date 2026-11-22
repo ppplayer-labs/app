@@ -663,5 +663,8 @@
   "folderAlreadyImported": "Questa cartella è già importata — controllo nuovi file",
   "rescanCompleted": "Nuova scansione della libreria completata",
   "rescanFailed": "Nuova scansione della cartella non riuscita: {error}",
-  "importedFolderFallback": "Cartella importata"
+  "importedFolderFallback": "Cartella importata",
+  "adPrivacyOptions": "Opzioni sulla privacy degli annunci",
+  "adPrivacyOptionsSubtitle": "Gestisci le tue scelte di consenso pubblicitario",
+  "adPrivacyOptionsError": "Impossibile aprire le opzioni sulla privacy in questo momento. Riprova più tardi."
 }

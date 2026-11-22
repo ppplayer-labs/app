@@ -663,5 +663,8 @@
   "folderAlreadyImported": "Эта папка уже импортирована — проверка новых файлов",
   "rescanCompleted": "Повторное сканирование медиатеки завершено",
   "rescanFailed": "Не удалось повторно отсканировать папку: {error}",
-  "importedFolderFallback": "Импортированная папка"
+  "importedFolderFallback": "Импортированная папка",
+  "adPrivacyOptions": "Настройки конфиденциальности рекламы",
+  "adPrivacyOptionsSubtitle": "Управление выбором согласия на рекламу",
+  "adPrivacyOptionsError": "Не удалось открыть настройки конфиденциальности. Повторите попытку позже."
 }

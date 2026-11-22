@@ -1165,4 +1165,14 @@ class AppLocalizationsHu extends AppLocalizations {
 
   @override
   String get importedFolderFallback => 'Importált mappa';
+
+  @override
+  String get adPrivacyOptions => 'Hirdetési adatvédelmi beállítások';
+
+  @override
+  String get adPrivacyOptionsSubtitle => 'Hirdetési hozzájárulások kezelése';
+
+  @override
+  String get adPrivacyOptionsError =>
+      'Az adatvédelmi beállítások jelenleg nem nyithatók meg. Próbálja újra később.';
 }

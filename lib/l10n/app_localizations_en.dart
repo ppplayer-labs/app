@@ -1157,4 +1157,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get importedFolderFallback => 'Imported Folder';
+
+  @override
+  String get adPrivacyOptions => 'Ad privacy options';
+
+  @override
+  String get adPrivacyOptionsSubtitle => 'Manage your ad consent choices';
+
+  @override
+  String get adPrivacyOptionsError =>
+      'Unable to open privacy options right now. Please try again later.';
 }

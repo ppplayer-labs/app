@@ -10,13 +10,15 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class LocalFilesPlugin : FlutterPlugin, MethodCallHandler {
     private var context: Context? = null
     private var methodChannel: MethodChannel? = null
-    private val coroutineScope = CoroutineScope(Dispatchers.Main)
+    private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         context = binding.applicationContext
@@ -48,11 +50,17 @@ class LocalFilesPlugin : FlutterPlugin, MethodCallHandler {
                     return
                 }
 
+                val appContext = context
+                if (appContext == null) {
+                    result.error("DETACHED", "Plugin is detached", null)
+                    return
+                }
+
                 coroutineScope.launch {
                     val files = withContext(Dispatchers.IO) {
                         val treeUri = Uri.parse(treeUriString)
                         val docTree = try {
-                            DocumentFile.fromTreeUri(context!!, treeUri)
+                            DocumentFile.fromTreeUri(appContext, treeUri)
                         } catch (e: Exception) {
                             null
                         }
@@ -62,7 +70,9 @@ class LocalFilesPlugin : FlutterPlugin, MethodCallHandler {
                         }
                         resultList
                     }
-                    result.success(files)
+                    if (context != null) {
+                        result.success(files)
+                    }
                 }
             }
             else -> result.notImplemented()
@@ -87,6 +97,7 @@ class LocalFilesPlugin : FlutterPlugin, MethodCallHandler {
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+        coroutineScope.cancel()
         methodChannel?.setMethodCallHandler(null)
         methodChannel = null
         context = null

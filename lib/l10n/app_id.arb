@@ -663,5 +663,8 @@
   "folderAlreadyImported": "Folder ini sudah diimpor — memeriksa berkas baru",
   "rescanCompleted": "Pemindaian ulang pustaka selesai",
   "rescanFailed": "Gagal memindai ulang folder: {error}",
-  "importedFolderFallback": "Folder yang Diimpor"
+  "importedFolderFallback": "Folder yang Diimpor",
+  "adPrivacyOptions": "Opsi privasi iklan",
+  "adPrivacyOptionsSubtitle": "Kelola pilihan persetujuan iklan Anda",
+  "adPrivacyOptionsError": "Tidak dapat membuka opsi privasi saat ini. Silakan coba lagi nanti."
 }

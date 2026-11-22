@@ -1159,4 +1159,15 @@ class AppLocalizationsSv extends AppLocalizations {
 
   @override
   String get importedFolderFallback => 'Importerad mapp';
+
+  @override
+  String get adPrivacyOptions => 'Sekretessinställningar för annonser';
+
+  @override
+  String get adPrivacyOptionsSubtitle =>
+      'Hantera dina samtyckesval för annonser';
+
+  @override
+  String get adPrivacyOptionsError =>
+      'Det gick inte att öppna sekretessinställningarna just nu. Försök igen senare.';
 }

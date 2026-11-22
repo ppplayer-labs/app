@@ -663,5 +663,8 @@
   "folderAlreadyImported": "यह फ़ोल्डर पहले से आयातित है — नई फ़ाइलों की जांच की जा रही है",
   "rescanCompleted": "लाइब्रेरी पुनः स्कैन पूरा हुआ",
   "rescanFailed": "फ़ोल्डर को पुनः स्कैन करने में विफल: {error}",
-  "importedFolderFallback": "आयातित फ़ोल्डर"
+  "importedFolderFallback": "आयातित फ़ोल्डर",
+  "adPrivacyOptions": "विज्ञापन गोपनीयता विकल्प",
+  "adPrivacyOptionsSubtitle": "अपने विज्ञापन सहमति विकल्प प्रबंधित करें",
+  "adPrivacyOptionsError": "अभी गोपनीयता विकल्प खोले नहीं जा सके। कृपया बाद में पुनः प्रयास करें।"
 }

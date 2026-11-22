@@ -353,5 +353,8 @@
   "folderAlreadyImported": "Acest dosar este deja importat — se verifică fișiere noi",
   "rescanCompleted": "Rescanarea bibliotecii a fost finalizată",
   "rescanFailed": "Rescanarea dosarului a eșuat: {error}",
-  "importedFolderFallback": "Dosar importat"
+  "importedFolderFallback": "Dosar importat",
+  "adPrivacyOptions": "Opțiuni de confidențialitate pentru reclame",
+  "adPrivacyOptionsSubtitle": "Gestionează alegerile de consimțământ pentru reclame",
+  "adPrivacyOptionsError": "Nu s-au putut deschide opțiunile de confidențialitate acum. Încearcă din nou mai târziu."
 }

@@ -50,6 +50,16 @@ class StreamAnalysisResult {
 }
 
 class NetworkStreamService {
+  static const Duration _httpTimeout = Duration(seconds: 15);
+
+  static String _safeDecodeComponent(String value) {
+    try {
+      return Uri.decodeComponent(value);
+    } on ArgumentError {
+      return value;
+    }
+  }
+
   final AppDatabase _db;
   final SecureCredentialsService _secureCredentialsService;
 
@@ -187,7 +197,7 @@ class NetworkStreamService {
               'key': apiKey,
             });
 
-        final response = await localClient.get(uri);
+        final response = await localClient.get(uri).timeout(_httpTimeout);
 
         if (response.statusCode == 403) {
           throw Exception('YouTube API Quota exceeded or invalid API Key.');
@@ -271,7 +281,7 @@ class NetworkStreamService {
         final eq = pair.indexOf('=');
         if (eq != -1) {
           final k = pair.substring(0, eq).trim();
-          final v = Uri.decodeComponent(pair.substring(eq + 1).trim());
+          final v = _safeDecodeComponent(pair.substring(eq + 1).trim());
           if (k.isNotEmpty && v.isNotEmpty) {
             headers[k] = v;
           }
@@ -291,18 +301,22 @@ class NetworkStreamService {
           videoId = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : null;
         } else {
           final segments = uri.pathSegments;
-          if (segments.contains('video')) {
-            videoId = segments[segments.indexOf('video') + 1];
+          final videoIdx = segments.indexOf('video');
+          if (videoIdx != -1 && videoIdx + 1 < segments.length) {
+            videoId = segments[videoIdx + 1];
           } else if (uri.queryParameters.containsKey('video')) {
             videoId = uri.queryParameters['video'];
           }
         }
-        if (videoId != null) {
-          final response = await http.get(
-            Uri.parse(
-              'https://www.dailymotion.com/player/metadata/video/$videoId',
-            ),
-          );
+        if (videoId != null && videoId.isNotEmpty) {
+          final response = await http
+              .get(
+                Uri.https(
+                  'www.dailymotion.com',
+                  '/player/metadata/video/$videoId',
+                ),
+              )
+              .timeout(_httpTimeout);
           if (response.statusCode == 200) {
             final data = json.decode(response.body);
             final qualities = data['qualities'] as Map<String, dynamic>?;
@@ -362,7 +376,9 @@ class NetworkStreamService {
                 'https://player.vimeo.com/video/$videoId${hashToken != null ? '?h=$hashToken' : ''}';
           }
 
-          final response = await http.get(Uri.parse(playerUrl));
+          final response = await http
+              .get(Uri.parse(playerUrl))
+              .timeout(_httpTimeout);
           if (response.statusCode == 200) {
             final body = response.body;
             // Parse window.playerConfig from the embed HTML
@@ -461,10 +477,11 @@ class NetworkStreamService {
     final localClient = client ?? http.Client();
     try {
       if (platform == VideoPlatform.youtube) {
-        final oembedUrl = Uri.parse(
-          'https://www.youtube.com/oembed?url=$url&format=json',
-        );
-        final res = await localClient.get(oembedUrl);
+        final oembedUrl = Uri.https('www.youtube.com', '/oembed', {
+          'url': url,
+          'format': 'json',
+        });
+        final res = await localClient.get(oembedUrl).timeout(_httpTimeout);
         if (res.statusCode == 200) {
           final data = json.decode(res.body);
           return VideoMetadata(
@@ -474,10 +491,10 @@ class NetworkStreamService {
           );
         }
       } else if (platform == VideoPlatform.vimeo) {
-        final oembedUrl = Uri.parse(
-          'https://vimeo.com/api/oembed.json?url=$url',
-        );
-        final res = await localClient.get(oembedUrl);
+        final oembedUrl = Uri.https('vimeo.com', '/api/oembed.json', {
+          'url': url,
+        });
+        final res = await localClient.get(oembedUrl).timeout(_httpTimeout);
         if (res.statusCode == 200) {
           final data = json.decode(res.body);
           return VideoMetadata(
@@ -487,13 +504,13 @@ class NetworkStreamService {
           );
         }
       } else if (platform == VideoPlatform.dailymotion) {
-        final oembedUrl = Uri.parse(
-          'https://www.dailymotion.com/services/oembed?url=$url&format=json',
-        );
-        final res = await localClient.get(
-          oembedUrl,
-          headers: {'User-Agent': 'Mozilla/5.0'},
-        );
+        final oembedUrl = Uri.https('www.dailymotion.com', '/services/oembed', {
+          'url': url,
+          'format': 'json',
+        });
+        final res = await localClient
+            .get(oembedUrl, headers: {'User-Agent': 'Mozilla/5.0'})
+            .timeout(_httpTimeout);
         if (res.statusCode == 200) {
           try {
             final data = json.decode(res.body);

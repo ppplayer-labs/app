@@ -1162,4 +1162,15 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get importedFolderFallback => 'Import qilingan jild';
+
+  @override
+  String get adPrivacyOptions => 'Reklama maxfiyligi sozlamalari';
+
+  @override
+  String get adPrivacyOptionsSubtitle =>
+      'Reklama roziligi tanlovlarini boshqaring';
+
+  @override
+  String get adPrivacyOptionsError =>
+      'Hozircha maxfiylik sozlamalarini ochib bo‘lmadi. Keyinroq qayta urinib ko‘ring.';
 }

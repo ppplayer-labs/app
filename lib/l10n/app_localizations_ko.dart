@@ -1138,4 +1138,14 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get importedFolderFallback => '가져온 폴더';
+
+  @override
+  String get adPrivacyOptions => '광고 개인정보 보호 옵션';
+
+  @override
+  String get adPrivacyOptionsSubtitle => '광고 동의 설정 관리';
+
+  @override
+  String get adPrivacyOptionsError =>
+      '지금은 개인정보 보호 옵션을 열 수 없습니다. 나중에 다시 시도해 주세요.';
 }

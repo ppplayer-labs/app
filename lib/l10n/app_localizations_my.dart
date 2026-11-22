@@ -1160,4 +1160,15 @@ class AppLocalizationsMy extends AppLocalizations {
 
   @override
   String get importedFolderFallback => 'သွင်းယူထားသော ဖိုင်တွဲ';
+
+  @override
+  String get adPrivacyOptions => 'ကြော်ငြာ ကိုယ်ရေးလုံခြုံမှု ရွေးချယ်စရာများ';
+
+  @override
+  String get adPrivacyOptionsSubtitle =>
+      'သင့်ကြော်ငြာ သဘောတူညီချက် ရွေးချယ်မှုများကို စီမံခန့်ခွဲပါ';
+
+  @override
+  String get adPrivacyOptionsError =>
+      'ယခုအချိန်တွင် ကိုယ်ရေးလုံခြုံမှု ရွေးချယ်စရာများကို ဖွင့်၍မရပါ။ နောက်မှ ထပ်မံကြိုးစားပါ။';
 }

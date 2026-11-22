@@ -23,6 +23,7 @@ import android.app.Presentation
 import android.os.Bundle
 import android.view.WindowManager
 import android.graphics.PixelFormat
+import org.json.JSONObject
 
 class CustomWebViewService : Service() {
 
@@ -84,19 +85,8 @@ class CustomWebViewService : Service() {
                 DisplayManager.VIRTUAL_DISPLAY_FLAG_PRESENTATION
             )
             
-            presentation = object : Presentation(this, virtualDisplay!!.display) {
-                override fun onCreate(savedInstanceState: Bundle?) {
-                    super.onCreate(savedInstanceState)
-                    window?.setType(
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-                        else WindowManager.LayoutParams.TYPE_SYSTEM_ALERT
-                    ) // Presentation windows don't strictly require SYSTEM_ALERT_WINDOW if they are on a private virtual display!
-                    // Actually, setting type might crash if we don't have permission. Let's rely on Presentation's default window type!
-                }
-            }
-            
-            // Re-create without custom window type to avoid permission crashes
+            // Rely on Presentation's default window type on the private virtual display
+            // to avoid SYSTEM_ALERT_WINDOW permission crashes.
             presentation = object : Presentation(this, virtualDisplay!!.display) {
                 override fun onCreate(savedInstanceState: Bundle?) {
                     super.onCreate(savedInstanceState)
@@ -304,11 +294,13 @@ class CustomWebViewService : Service() {
     
     // Commands to send JS — each includes the Dart-allocated commandId for staleness detection.
     fun loadVideo(videoId: String, startSeconds: Double = 0.0, commandId: Int = 0) {
-        runJs("loadVideo('$videoId', $startSeconds, $commandId)")
+        val safeStart = if (startSeconds.isFinite() && startSeconds >= 0.0) startSeconds else 0.0
+        runJs("loadVideo(${JSONObject.quote(videoId)}, $safeStart, $commandId)")
     }
 
     fun prepareVideo(videoId: String, startSeconds: Double = 0.0, commandId: Int = 0) {
-        runJs("cueVideo('$videoId', $startSeconds, $commandId)")
+        val safeStart = if (startSeconds.isFinite() && startSeconds >= 0.0) startSeconds else 0.0
+        runJs("cueVideo(${JSONObject.quote(videoId)}, $safeStart, $commandId)")
     }
     
     fun playVideo() {
@@ -337,7 +329,7 @@ class CustomWebViewService : Service() {
     inner class WebViewInterface {
         @JavascriptInterface
         fun log(message: String) {
-            Log.d(TAG, "JS Log: \$message")
+            Log.d(TAG, "JS Log: $message")
         }
 
         @JavascriptInterface

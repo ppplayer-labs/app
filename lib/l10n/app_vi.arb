@@ -353,5 +353,8 @@
   "folderAlreadyImported": "Thư mục này đã được nhập — đang kiểm tra các tệp mới",
   "rescanCompleted": "Đã hoàn tất quét lại thư viện",
   "rescanFailed": "Không thể quét lại thư mục: {error}",
-  "importedFolderFallback": "Thư mục đã nhập"
+  "importedFolderFallback": "Thư mục đã nhập",
+  "adPrivacyOptions": "Tùy chọn quyền riêng tư quảng cáo",
+  "adPrivacyOptionsSubtitle": "Quản lý lựa chọn đồng ý quảng cáo của bạn",
+  "adPrivacyOptionsError": "Không thể mở tùy chọn quyền riêng tư lúc này. Vui lòng thử lại sau."
 }

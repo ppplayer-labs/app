@@ -1160,4 +1160,14 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get importedFolderFallback => 'İçe Aktarılan Klasör';
+
+  @override
+  String get adPrivacyOptions => 'Reklam gizlilik seçenekleri';
+
+  @override
+  String get adPrivacyOptionsSubtitle => 'Reklam izin tercihlerinizi yönetin';
+
+  @override
+  String get adPrivacyOptionsError =>
+      'Gizlilik seçenekleri şu anda açılamıyor. Lütfen daha sonra tekrar deneyin.';
 }

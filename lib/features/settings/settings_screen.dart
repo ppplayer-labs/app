@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:ppplayer/l10n/app_localizations.dart';
 import 'dart:ui';
@@ -8,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/api/spotify_client.dart';
+import '../../core/services/ad_service.dart';
 import '../../core/services/settings_provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/db/app_database.dart' as db;
@@ -75,9 +77,13 @@ class SettingsScreen extends ConsumerWidget {
                       builder: (context, ref, _) {
                         final settings = ref.watch(settingsProvider);
                         final themeColor =
-                            AppTheme.themeColors[settings.themeIndex];
+                            AppTheme.themeColors[settings.themeIndex.clamp(
+                              0,
+                              AppTheme.themeColors.length - 1,
+                            )];
                         final avatarColor =
-                            AppTheme.themeColors[settings.userAvatarColorIndex];
+                            AppTheme.themeColors[settings.userAvatarColorIndex
+                                .clamp(0, AppTheme.themeColors.length - 1)];
                         return _SettingsHero(
                           themeColor: themeColor,
                           avatarColor: avatarColor,
@@ -259,6 +265,7 @@ class SettingsScreen extends ConsumerWidget {
                       .slideY(begin: 0.1, curve: Curves.easeOutCubic),
                   const SizedBox(height: 12),
                 ],
+                const _AdPrivacyOptionsTile(),
                 TactileSettingTile(
                       title: AppLocalizations.of(context)!.clearRecentlyPlayed,
                       subtitle: AppLocalizations.of(
@@ -961,6 +968,88 @@ class SettingsScreen extends ConsumerWidget {
           },
         ),
       ),
+    );
+  }
+}
+
+class _AdPrivacyOptionsTile extends ConsumerStatefulWidget {
+  const _AdPrivacyOptionsTile();
+
+  @override
+  ConsumerState<_AdPrivacyOptionsTile> createState() =>
+      _AdPrivacyOptionsTileState();
+}
+
+class _AdPrivacyOptionsTileState extends ConsumerState<_AdPrivacyOptionsTile> {
+  late final AdService _adService;
+  bool _isOpeningForm = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _adService = ref.read(adServiceProvider);
+    if (_adService.isMobileAdsSupported) {
+      unawaited(_syncPrivacyOptionsStatus(_adService));
+    }
+  }
+
+  Future<void> _syncPrivacyOptionsStatus(AdService adService) async {
+    try {
+      await adService.initialization;
+      await adService.isPrivacyOptionsRequired();
+    } catch (_) {}
+  }
+
+  Future<void> _openPrivacyOptions() async {
+    if (_isOpeningForm) return;
+    setState(() {
+      _isOpeningForm = true;
+    });
+    bool succeeded = false;
+    try {
+      succeeded = await _adService.showPrivacyOptionsForm();
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isOpeningForm = false;
+        });
+      }
+    }
+    if (!succeeded && mounted) {
+      final messenger = ScaffoldMessenger.maybeOf(context);
+      messenger?.showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.adPrivacyOptionsError),
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final adService = ref.watch(adServiceProvider);
+    if (!adService.isMobileAdsSupported) {
+      return const SizedBox.shrink();
+    }
+    return ValueListenableBuilder<bool>(
+      valueListenable: adService.privacyOptionsRequiredListenable,
+      builder: (context, isRequired, _) {
+        if (!isRequired) {
+          return const SizedBox.shrink();
+        }
+        final l10n = AppLocalizations.of(context)!;
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: TactileSettingTile(
+            title: l10n.adPrivacyOptions,
+            subtitle: _isOpeningForm
+                ? l10n.loading
+                : l10n.adPrivacyOptionsSubtitle,
+            icon: Icons.privacy_tip_outlined,
+            onTap: _isOpeningForm ? null : _openPrivacyOptions,
+          ),
+        );
+      },
     );
   }
 }

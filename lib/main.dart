@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_ce_flutter/hive_ce_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:media_kit/media_kit.dart';
@@ -123,13 +122,6 @@ void main() async {
     await Hive.initFlutter();
   }
   startupLog('Hive init complete');
-
-  // Initialize Ads if on mobile - delay to avoid startup contention
-  if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-    Future.delayed(const Duration(seconds: 10), () {
-      MobileAds.instance.initialize();
-    });
-  }
 
   startupLog('AppDatabase init start');
   final appDatabase = AppDatabase(dbPath);
@@ -305,7 +297,11 @@ class PpPlayerApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
     final settings = ref.watch(settingsProvider);
-    final themeColor = AppTheme.themeColors[settings.themeIndex];
+    final safeThemeIndex = settings.themeIndex.clamp(
+      0,
+      AppTheme.themeColors.length - 1,
+    );
+    final themeColor = AppTheme.themeColors[safeThemeIndex];
 
     return MaterialApp.router(
       title: 'PPPlayer',

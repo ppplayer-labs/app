@@ -663,5 +663,8 @@
   "folderAlreadyImported": "Ko ñongatuha oñegueruma kuri — ojeheka marandu pyahu",
   "rescanCompleted": "Omohu'ã jey jeheka purahéi atýpe",
   "rescanFailed": "Oiko jejavy ñongatuha jeheka jeýpe: {error}",
-  "importedFolderFallback": "Ñongatuha oñegueruva'ekue"
+  "importedFolderFallback": "Ñongatuha oñegueruva'ekue",
+  "adPrivacyOptions": "Marandu ñemigua poravopyrã",
+  "adPrivacyOptionsSubtitle": "Eñangareko ne marandu ñemoneĩ poravokuérare",
+  "adPrivacyOptionsError": "Ndaikatúi ojepe'a ko'ág̃a ñemigua poravopyrã. Eha'ã jey ag̃ave."
 }

@@ -663,5 +663,8 @@
   "folderAlreadyImported": "Bu klasör zaten içe aktarılmış — yeni dosyalar denetleniyor",
   "rescanCompleted": "Kitaplığı yeniden tarama tamamlandı",
   "rescanFailed": "Klasör yeniden taranamadı: {error}",
-  "importedFolderFallback": "İçe Aktarılan Klasör"
+  "importedFolderFallback": "İçe Aktarılan Klasör",
+  "adPrivacyOptions": "Reklam gizlilik seçenekleri",
+  "adPrivacyOptionsSubtitle": "Reklam izin tercihlerinizi yönetin",
+  "adPrivacyOptionsError": "Gizlilik seçenekleri şu anda açılamıyor. Lütfen daha sonra tekrar deneyin."
 }

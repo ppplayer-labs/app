@@ -663,5 +663,8 @@
   "folderAlreadyImported": "Dis folder already import — dey check for new files",
   "rescanCompleted": "Library rescan complete",
   "rescanFailed": "Rescan fail for folder: {error}",
-  "importedFolderFallback": "Imported Folder"
+  "importedFolderFallback": "Imported Folder",
+  "adPrivacyOptions": "Ad privacy options",
+  "adPrivacyOptionsSubtitle": "Manage how you gree for ads",
+  "adPrivacyOptionsError": "We no fit open privacy options right now. Abeg try again later."
 }

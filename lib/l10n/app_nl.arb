@@ -353,5 +353,8 @@
   "folderAlreadyImported": "Deze map is al geïmporteerd — controleren op nieuwe bestanden",
   "rescanCompleted": "Bibliotheek opnieuw scannen voltooid",
   "rescanFailed": "Kan map niet opnieuw scannen: {error}",
-  "importedFolderFallback": "Geïmporteerde map"
+  "importedFolderFallback": "Geïmporteerde map",
+  "adPrivacyOptions": "Privacyopties voor advertenties",
+  "adPrivacyOptionsSubtitle": "Beheer uw toestemmingskeuzes voor advertenties",
+  "adPrivacyOptionsError": "Kan privacyopties momenteel niet openen. Probeer het later opnieuw."
 }

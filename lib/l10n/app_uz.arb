@@ -663,5 +663,8 @@
   "folderAlreadyImported": "Ushbu jild allaqachon import qilingan — yangi fayllar tekshirilmoqda",
   "rescanCompleted": "Kutubxonani qayta tekshirish yakunlandi",
   "rescanFailed": "Jildni qayta tekshirish amalga oshmadi: {error}",
-  "importedFolderFallback": "Import qilingan jild"
+  "importedFolderFallback": "Import qilingan jild",
+  "adPrivacyOptions": "Reklama maxfiyligi sozlamalari",
+  "adPrivacyOptionsSubtitle": "Reklama roziligi tanlovlarini boshqaring",
+  "adPrivacyOptionsError": "Hozircha maxfiylik sozlamalarini ochib bo‘lmadi. Keyinroq qayta urinib ko‘ring."
 }

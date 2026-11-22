@@ -663,5 +663,8 @@
   "folderAlreadyImported": "Ova je mapa već uvezena — provjera novih datoteka",
   "rescanCompleted": "Ponovno skeniranje biblioteke dovršeno",
   "rescanFailed": "Neuspjelo ponovno skeniranje mape: {error}",
-  "importedFolderFallback": "Uvezena mapa"
+  "importedFolderFallback": "Uvezena mapa",
+  "adPrivacyOptions": "Opcije privatnosti oglasa",
+  "adPrivacyOptionsSubtitle": "Upravljajte svojim izborima privole za oglase",
+  "adPrivacyOptionsError": "Trenutačno nije moguće otvoriti opcije privatnosti. Pokušajte ponovno kasnije."
 }

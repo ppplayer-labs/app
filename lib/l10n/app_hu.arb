@@ -663,5 +663,8 @@
   "folderAlreadyImported": "Ez a mappa már importálva van — új fájlok keresése",
   "rescanCompleted": "Könyvtár újraolvasása kész",
   "rescanFailed": "Mappa újraolvasása sikertelen: {error}",
-  "importedFolderFallback": "Importált mappa"
+  "importedFolderFallback": "Importált mappa",
+  "adPrivacyOptions": "Hirdetési adatvédelmi beállítások",
+  "adPrivacyOptionsSubtitle": "Hirdetési hozzájárulások kezelése",
+  "adPrivacyOptionsError": "Az adatvédelmi beállítások jelenleg nem nyithatók meg. Próbálja újra később."
 }

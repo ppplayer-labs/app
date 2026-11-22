@@ -663,5 +663,8 @@
   "folderAlreadyImported": "Dieser Ordner ist bereits importiert – suche nach neuen Dateien",
   "rescanCompleted": "Bibliotheks-Suchlauf abgeschlossen",
   "rescanFailed": "Ordner-Suchlauf fehlgeschlagen: {error}",
-  "importedFolderFallback": "Importierter Ordner"
+  "importedFolderFallback": "Importierter Ordner",
+  "adPrivacyOptions": "Datenschutzoptionen für Werbung",
+  "adPrivacyOptionsSubtitle": "Werbeeinwilligungen verwalten",
+  "adPrivacyOptionsError": "Datenschutzoptionen können derzeit nicht geöffnet werden. Bitte versuche es später erneut."
 }

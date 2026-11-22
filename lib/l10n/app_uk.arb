@@ -353,5 +353,8 @@
   "folderAlreadyImported": "Цю папку вже імпортовано — перевірка нових файлів",
   "rescanCompleted": "Повторне сканування медіатеки завершено",
   "rescanFailed": "Не вдалося повторно просканувати папку: {error}",
-  "importedFolderFallback": "Імпортована папка"
+  "importedFolderFallback": "Імпортована папка",
+  "adPrivacyOptions": "Параметри конфіденційності реклами",
+  "adPrivacyOptionsSubtitle": "Керуйте вибором згоди на рекламу",
+  "adPrivacyOptionsError": "Зараз не вдалося відкрити параметри конфіденційності. Спробуйте пізніше."
 }

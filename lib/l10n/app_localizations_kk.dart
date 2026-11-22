@@ -1162,4 +1162,14 @@ class AppLocalizationsKk extends AppLocalizations {
 
   @override
   String get importedFolderFallback => 'Импортталған қалта';
+
+  @override
+  String get adPrivacyOptions => 'Жарнама құпиялылығы параметрлері';
+
+  @override
+  String get adPrivacyOptionsSubtitle => 'Жарнама келісімі таңдауларын басқару';
+
+  @override
+  String get adPrivacyOptionsError =>
+      'Қазір құпиялылық параметрлерін ашу мүмкін болмады. Кейінірек қайталап көріңіз.';
 }

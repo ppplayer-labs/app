@@ -663,5 +663,8 @@
   "folderAlreadyImported": "See kaust on juba imporditud — kontrollitakse uusi faile",
   "rescanCompleted": "Teegi uuesti skannimine lõpetatud",
   "rescanFailed": "Kausta uuesti skannimine ebaõnnestus: {error}",
-  "importedFolderFallback": "Imporditud kaust"
+  "importedFolderFallback": "Imporditud kaust",
+  "adPrivacyOptions": "Reklaamide privaatsusvalikud",
+  "adPrivacyOptionsSubtitle": "Halda oma reklaamide nõusoleku valikuid",
+  "adPrivacyOptionsError": "Privaatsusvalikuid ei õnnestunud praegu avada. Palun proovi hiljem uuesti."
 }

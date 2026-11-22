@@ -1156,4 +1156,15 @@ class AppLocalizationsEt extends AppLocalizations {
 
   @override
   String get importedFolderFallback => 'Imporditud kaust';
+
+  @override
+  String get adPrivacyOptions => 'Reklaamide privaatsusvalikud';
+
+  @override
+  String get adPrivacyOptionsSubtitle =>
+      'Halda oma reklaamide nõusoleku valikuid';
+
+  @override
+  String get adPrivacyOptionsError =>
+      'Privaatsusvalikuid ei õnnestunud praegu avada. Palun proovi hiljem uuesti.';
 }

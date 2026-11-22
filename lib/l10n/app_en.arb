@@ -846,5 +846,11 @@
     }
   },
   "importedFolderFallback": "Imported Folder",
-  "@importedFolderFallback": {}
+  "@importedFolderFallback": {},
+  "adPrivacyOptions": "Ad privacy options",
+  "@adPrivacyOptions": {},
+  "adPrivacyOptionsSubtitle": "Manage your ad consent choices",
+  "@adPrivacyOptionsSubtitle": {},
+  "adPrivacyOptionsError": "Unable to open privacy options right now. Please try again later.",
+  "@adPrivacyOptionsError": {}
 }

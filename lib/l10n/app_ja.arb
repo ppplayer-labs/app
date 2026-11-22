@@ -663,5 +663,8 @@
   "folderAlreadyImported": "このフォルダは既にインポートされています — 新しいファイルを確認中",
   "rescanCompleted": "ライブラリの再スキャンが完了しました",
   "rescanFailed": "フォルダの再スキャンに失敗しました: {error}",
-  "importedFolderFallback": "インポート済みフォルダ"
+  "importedFolderFallback": "インポート済みフォルダ",
+  "adPrivacyOptions": "広告のプライバシー設定",
+  "adPrivacyOptionsSubtitle": "広告の同意設定を管理する",
+  "adPrivacyOptionsError": "現在プライバシー設定を開けません。しばらくしてからもう一度お試しください。"
 }

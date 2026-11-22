@@ -187,19 +187,23 @@ class PlayerNotifier extends Notifier<PlayerState> {
       }
     });
 
-    PipHandler.addPipModeListener((isPipMode) {
+    void onPipModeChanged(bool isPipMode) {
+      if (_disposed) return;
       state = state.copyWith(isPipMode: isPipMode);
-    });
+    }
 
-    PipHandler.addPipEntryRequestedListener(() {
+    void onPipEntryRequested() {
+      if (_disposed) return;
       state = state.copyWith(isPipRequestPending: true);
-    });
+    }
 
-    PipHandler.addPipEntryFailedListener(() {
+    void onPipEntryFailed() {
+      if (_disposed) return;
       state = state.copyWith(isPipRequestPending: false);
-    });
+    }
 
-    PipHandler.addActivityStoppedListener(() {
+    void onActivityStopped() {
+      if (_disposed) return;
       final status = ref.read(playbackStatusProvider).value;
       final ts = DateTime.now().toIso8601String();
       debugPrint(
@@ -221,6 +225,18 @@ class PlayerNotifier extends Notifier<PlayerState> {
           );
         }
       }
+    }
+
+    PipHandler.addPipModeListener(onPipModeChanged);
+    PipHandler.addPipEntryRequestedListener(onPipEntryRequested);
+    PipHandler.addPipEntryFailedListener(onPipEntryFailed);
+    PipHandler.addActivityStoppedListener(onActivityStopped);
+
+    ref.onDispose(() {
+      PipHandler.removePipModeListener(onPipModeChanged);
+      PipHandler.removePipEntryRequestedListener(onPipEntryRequested);
+      PipHandler.removePipEntryFailedListener(onPipEntryFailed);
+      PipHandler.removeActivityStoppedListener(onActivityStopped);
     });
 
     ref.listen(settingsProvider, (previous, next) {
@@ -764,6 +780,7 @@ class PlayerNotifier extends Notifier<PlayerState> {
           final extracted = await ref
               .read(networkStreamServiceProvider)
               .extractDirectStreamUrl(resolvedTrack.networkStreamUrl!);
+          if (_disposed || myGen != _playbackGeneration) return;
           if (extracted != null) {
             resolvedTrack = resolvedTrack.copyWith(
               networkStreamUrl: extracted.url,
@@ -954,6 +971,7 @@ class PlayerNotifier extends Notifier<PlayerState> {
     final tracks = await ref
         .read(playbackServiceProvider)
         .getPlaylistTracks(playlistId);
+    if (_disposed) return;
     if (tracks.isNotEmpty) {
       await playTracks(tracks);
     }
@@ -963,6 +981,7 @@ class PlayerNotifier extends Notifier<PlayerState> {
     final tracks = await ref
         .read(playbackServiceProvider)
         .getRadioTracks(artistId);
+    if (_disposed) return;
     if (tracks.isNotEmpty) {
       await playTrack(tracks.first, queue: tracks);
     }
@@ -1069,6 +1088,11 @@ class PlayerNotifier extends Notifier<PlayerState> {
 
   void skipPrevious() {
     final prevQueue = state.playbackQueue.previous(state.position);
+    if (prevQueue.tracks.isEmpty ||
+        prevQueue.currentIndex < 0 ||
+        prevQueue.currentIndex >= prevQueue.tracks.length) {
+      return;
+    }
     final track = prevQueue.tracks[prevQueue.currentIndex];
     playTrack(
       track,
@@ -1217,6 +1241,7 @@ class PlayerNotifier extends Notifier<PlayerState> {
   Future<void> toggleFavorite(Track track) async {
     final newValue = !track.isFavorite;
     await ref.read(playbackServiceProvider).toggleFavorite(track, newValue);
+    if (_disposed) return;
 
     final newQueue = state.queue.map((t) {
       if (t.spotifyId == track.spotifyId) {
@@ -1286,6 +1311,7 @@ class PlayerNotifier extends Notifier<PlayerState> {
             limit: 30,
           )
           .first;
+      if (_disposed) return;
       final candidates = cacheResult.data;
 
       final queueIds = queue.tracks.map((t) => t.spotifyId).toSet();

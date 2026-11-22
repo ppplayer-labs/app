@@ -3,9 +3,11 @@ package com.ppplayer.app
 import android.app.PictureInPictureParams
 import android.content.res.Configuration
 import android.os.Build
+import android.os.Bundle
 import android.util.Rational
 import android.content.pm.PackageManager
 import android.util.Log
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import com.ryanheise.audioservice.AudioServiceActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -16,6 +18,13 @@ class MainActivity : AudioServiceActivity() {
     private var isPipEnabled = false
     private var currentAspectRatio: Double = 16.0 / 9.0
     private var methodChannel: MethodChannel? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // Use modern WindowCompat edge-to-edge handling across Android 10–16 without
+        // invoking deprecated statusBarColor / navigationBarColor APIs.
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+    }
 
     private fun getSafeAspectRatio(ratio: Double): Rational {
         // Clamp to valid Android PiP range (approx 1:2.39 to 2.39:1)

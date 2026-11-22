@@ -1157,4 +1157,14 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get importedFolderFallback => 'پوشه وارد شده';
+
+  @override
+  String get adPrivacyOptions => 'گزینه‌های حریم خصوصی تبلیغات';
+
+  @override
+  String get adPrivacyOptionsSubtitle => 'مدیریت انتخاب‌های رضایت تبلیغات';
+
+  @override
+  String get adPrivacyOptionsError =>
+      'در حال حاضر امکان باز کردن گزینه‌های حریم خصوصی وجود ندارد. لطفاً بعداً دوباره تلاش کنید.';
 }

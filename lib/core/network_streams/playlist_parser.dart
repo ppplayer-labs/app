@@ -233,9 +233,12 @@ class PlaylistParser {
         }
       } else if (!line.startsWith('#')) {
         var streamUrl = line;
-        if ((streamUrl.startsWith('"') && streamUrl.endsWith('"')) ||
-            (streamUrl.startsWith("'") && streamUrl.endsWith("'"))) {
+        if (streamUrl.length >= 2 &&
+            ((streamUrl.startsWith('"') && streamUrl.endsWith('"')) ||
+                (streamUrl.startsWith("'") && streamUrl.endsWith("'")))) {
           streamUrl = streamUrl.substring(1, streamUrl.length - 1).trim();
+        } else if (streamUrl == '"' || streamUrl == "'") {
+          streamUrl = '';
         }
 
         // Parse pipe syntax: url|Header=Val&...
@@ -247,30 +250,35 @@ class PlaylistParser {
             final eq = pair.indexOf('=');
             if (eq != -1) {
               final k = pair.substring(0, eq).trim();
-              final v = Uri.decodeComponent(pair.substring(eq + 1).trim());
-              currentHeaders ??= {};
-              currentHeaders[k] = v;
+              final v = _safeDecodeComponent(pair.substring(eq + 1).trim());
+              if (k.isNotEmpty) {
+                currentHeaders ??= {};
+                currentHeaders[k] = v;
+              }
             }
           }
           streamUrl = rawUrl;
         }
 
-        final resolvedUrl = _resolveUrl(normalizeUrl(streamUrl), baseUrl);
+        if (streamUrl.isNotEmpty) {
+          final resolvedUrl = _resolveUrl(normalizeUrl(streamUrl), baseUrl);
 
-        if (!seenUrls.contains(resolvedUrl)) {
-          seenUrls.add(resolvedUrl);
-          channels.add(
-            PlaylistItem(
-              title: currentTitle ?? 'Stream ${channels.length + 1}',
-              url: resolvedUrl,
-              tvgId: currentTvgId,
-              tvgLogo: currentTvgLogo,
-              groupTitle: currentGroupTitle,
-              httpHeaders: currentHeaders != null
-                  ? Map.from(currentHeaders)
-                  : null,
-            ),
-          );
+          if (_isAllowedStreamUrl(resolvedUrl) &&
+              !seenUrls.contains(resolvedUrl)) {
+            seenUrls.add(resolvedUrl);
+            channels.add(
+              PlaylistItem(
+                title: currentTitle ?? 'Stream ${channels.length + 1}',
+                url: resolvedUrl,
+                tvgId: currentTvgId,
+                tvgLogo: currentTvgLogo,
+                groupTitle: currentGroupTitle,
+                httpHeaders: currentHeaders != null
+                    ? Map.from(currentHeaders)
+                    : null,
+              ),
+            );
+          }
         }
 
         currentTitle = null;
@@ -315,7 +323,8 @@ class PlaylistParser {
         final match = RegExp(r'^([a-z]+)(\d+)$').firstMatch(key);
         if (match != null) {
           final prefix = match.group(1)!;
-          final index = int.parse(match.group(2)!);
+          final index = int.tryParse(match.group(2)!);
+          if (index == null) continue;
 
           if (!entries.containsKey(index)) {
             entries[index] = {};
@@ -330,12 +339,15 @@ class PlaylistParser {
       final entry = entries[index]!;
       final file = entry['file'];
       if (file != null) {
-        channels.add(
-          PlaylistItem(
-            title: entry['title'] ?? 'Stream $index',
-            url: _resolveUrl(normalizeUrl(file), baseUrl),
-          ),
-        );
+        final resolvedUrl = _resolveUrl(normalizeUrl(file), baseUrl);
+        if (_isAllowedStreamUrl(resolvedUrl)) {
+          channels.add(
+            PlaylistItem(
+              title: entry['title'] ?? 'Stream $index',
+              url: resolvedUrl,
+            ),
+          );
+        }
       }
     }
 
@@ -365,13 +377,15 @@ class PlaylistParser {
 
         final resolvedUrl = _resolveUrl(normalizeUrl(location), baseUrl);
 
-        channels.add(
-          PlaylistItem(
-            title: title ?? creator ?? 'Stream',
-            url: resolvedUrl,
-            tvgLogo: image,
-          ),
-        );
+        if (_isAllowedStreamUrl(resolvedUrl)) {
+          channels.add(
+            PlaylistItem(
+              title: title ?? creator ?? 'Stream',
+              url: resolvedUrl,
+              tvgLogo: image,
+            ),
+          );
+        }
       }
     }
 
@@ -417,7 +431,11 @@ class PlaylistParser {
 
         final resolvedUrl = _resolveUrl(normalizeUrl(href), baseUrl);
 
-        channels.add(PlaylistItem(title: title ?? 'Stream', url: resolvedUrl));
+        if (_isAllowedStreamUrl(resolvedUrl)) {
+          channels.add(
+            PlaylistItem(title: title ?? 'Stream', url: resolvedUrl),
+          );
+        }
       }
     }
 
@@ -429,6 +447,31 @@ class PlaylistParser {
       type: PlaylistType.channelList,
       channels: channels,
     );
+  }
+
+  static String _safeDecodeComponent(String value) {
+    try {
+      return Uri.decodeComponent(value);
+    } on ArgumentError {
+      return value;
+    }
+  }
+
+  static const Set<String> _blockedStreamSchemes = {
+    'file',
+    'javascript',
+    'data',
+    'content',
+    'blob',
+    'about',
+  };
+
+  static bool _isAllowedStreamUrl(String url) {
+    final trimmed = url.trim();
+    if (trimmed.isEmpty) return false;
+    final parsed = Uri.tryParse(trimmed);
+    if (parsed == null || !parsed.hasScheme) return false;
+    return !_blockedStreamSchemes.contains(parsed.scheme.toLowerCase());
   }
 
   static String _resolveUrl(String url, String baseUrl) {
@@ -450,11 +493,17 @@ class PlaylistParser {
     Duration timeout = const Duration(seconds: 15),
   }) async {
     final url = normalizeUrl(rawUrl);
+    final parsedUri = Uri.tryParse(url);
+    if (parsedUri == null ||
+        !{'http', 'https'}.contains(parsedUri.scheme.toLowerCase()) ||
+        parsedUri.host.isEmpty) {
+      throw const FormatException('Playlist URL must use http or https');
+    }
     final internalClient = client ?? http.Client();
     StreamSubscription? subscription;
 
     try {
-      final request = http.Request('GET', Uri.parse(url));
+      final request = http.Request('GET', parsedUri);
 
       bool timedOut = false;
       final responseFuture = internalClient.send(request);

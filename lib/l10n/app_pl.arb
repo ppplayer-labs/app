@@ -663,5 +663,8 @@
   "folderAlreadyImported": "Ten folder został już zaimportowany — sprawdzanie nowych plików",
   "rescanCompleted": "Zakończono ponowne skanowanie biblioteki",
   "rescanFailed": "Nie udało się ponownie przeskanować folderu: {error}",
-  "importedFolderFallback": "Zaimportowany folder"
+  "importedFolderFallback": "Zaimportowany folder",
+  "adPrivacyOptions": "Opcje prywatności reklam",
+  "adPrivacyOptionsSubtitle": "Zarządzaj wyborami zgody na reklamy",
+  "adPrivacyOptionsError": "Nie można teraz otworzyć opcji prywatności. Spróbuj ponownie później."
 }

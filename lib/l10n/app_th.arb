@@ -353,5 +353,8 @@
   "folderAlreadyImported": "โฟลเดอร์นี้ถูกนำเข้าแล้ว — กำลังตรวจสอบไฟล์ใหม่",
   "rescanCompleted": "สแกนคลังใหม่อีกครั้งเสร็จสิ้น",
   "rescanFailed": "ไม่สามารถสแกนโฟลเดอร์ใหม่ได้: {error}",
-  "importedFolderFallback": "โฟลเดอร์ที่นำเข้า"
+  "importedFolderFallback": "โฟลเดอร์ที่นำเข้า",
+  "adPrivacyOptions": "ตัวเลือกความเป็นส่วนตัวของโฆษณา",
+  "adPrivacyOptionsSubtitle": "จัดการตัวเลือกความยินยอมเกี่ยวกับโฆษณาของคุณ",
+  "adPrivacyOptionsError": "ไม่สามารถเปิดตัวเลือกความเป็นส่วนตัวได้ในขณะนี้ โปรดลองอีกครั้งในภายหลัง"
 }

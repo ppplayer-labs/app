@@ -1163,4 +1163,15 @@ class AppLocalizationsNl extends AppLocalizations {
 
   @override
   String get importedFolderFallback => 'Geïmporteerde map';
+
+  @override
+  String get adPrivacyOptions => 'Privacyopties voor advertenties';
+
+  @override
+  String get adPrivacyOptionsSubtitle =>
+      'Beheer uw toestemmingskeuzes voor advertenties';
+
+  @override
+  String get adPrivacyOptionsError =>
+      'Kan privacyopties momenteel niet openen. Probeer het later opnieuw.';
 }

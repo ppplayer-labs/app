@@ -663,5 +663,8 @@
   "folderAlreadyImported": "هذا المجلد مستورد بالفعل — جارٍ البحث عن ملفات جديدة",
   "rescanCompleted": "اكتملت إعادة فحص المكتبة",
   "rescanFailed": "فشلت إعادة فحص المجلد: {error}",
-  "importedFolderFallback": "مجلد مستورد"
+  "importedFolderFallback": "مجلد مستورد",
+  "adPrivacyOptions": "خيارات خصوصية الإعلانات",
+  "adPrivacyOptionsSubtitle": "إدارة اختيارات موافقتك على الإعلانات",
+  "adPrivacyOptionsError": "تعذّر فتح خيارات الخصوصية الآن. يرجى المحاولة لاحقًا."
 }

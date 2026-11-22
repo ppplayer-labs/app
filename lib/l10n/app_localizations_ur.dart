@@ -1162,4 +1162,15 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get importedFolderFallback => 'درآمد شدہ فولڈر';
+
+  @override
+  String get adPrivacyOptions => 'اشتہارات کی رازداری کے اختیارات';
+
+  @override
+  String get adPrivacyOptionsSubtitle =>
+      'اپنے اشتہاری رضامندی کے انتخاب کا نظم کریں';
+
+  @override
+  String get adPrivacyOptionsError =>
+      'اس وقت رازداری کے اختیارات نہیں کھل سکے۔ براہ کرم بعد میں دوبارہ کوشش کریں۔';
 }

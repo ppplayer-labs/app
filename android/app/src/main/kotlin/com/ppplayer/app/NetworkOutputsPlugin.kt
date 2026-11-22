@@ -281,7 +281,11 @@ class NetworkOutputsPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Eve
         val request = MediaLoadRequestData.Builder().setMediaInfo(infoBuilder.build())
             .setAutoplay(call.argument<Boolean>("autoplay") != false)
             .setCurrentTime(if (live) 0 else call.argument<Number>("positionMs")?.toLong() ?: 0).build()
-        session.remoteMediaClient!!.load(request).setResultCallback { outcome ->
+        val client = session.remoteMediaClient ?: run {
+            result.error("STALE_SESSION", "This playback session is no longer active.", null)
+            return
+        }
+        client.load(request).setResultCallback { outcome ->
             if (stamps[session] !== stamp || desiredStamp?.sessionId != stamp.sessionId) {
                 result.error("STALE_SESSION", "A newer output selection replaced this load.", null)
             } else if (outcome.status.isSuccess) {
@@ -291,7 +295,10 @@ class NetworkOutputsPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, Eve
     }
     private fun control(call: MethodCall, result: MethodChannel.Result) {
         val session = active(call, result, true) ?: return
-        val client = session.remoteMediaClient!!
+        val client = session.remoteMediaClient ?: run {
+            result.error("STALE_SESSION", "This playback session is no longer active.", null)
+            return
+        }
         try {
             if (call.method == "setVolume" || call.method == "setMute") {
                 if (call.method == "setVolume") session.volume = (call.argument<Number>("volume")?.toDouble() ?: 1.0).coerceIn(0.0, 1.0)
