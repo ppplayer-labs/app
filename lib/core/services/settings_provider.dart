@@ -117,15 +117,35 @@ class SettingsState {
 
 class SettingsNotifier extends Notifier<SettingsState> {
   bool _disposed = false;
+  bool _showVideoTouched = false;
+  bool _playerViewTouched = false;
   Future<void> _loadWork = Future<void>.value();
+  Future<void> _persistWork = Future<void>.value();
+  Object? _lastPersistError;
 
   /// Completes once initial Hive settings loading settles (for deterministic tests).
   @visibleForTesting
   Future<void> get loadSettled => _loadWork;
 
+  /// Completes once all queued Hive settings writes settle (for deterministic tests).
+  @visibleForTesting
+  Future<void> get persistSettled => _persistWork;
+
+  /// Most recent persistence error from [_persist], or null when the last write succeeded.
+  @visibleForTesting
+  Object? get lastPersistError => _lastPersistError;
+
+  @visibleForTesting
+  @protected
+  Future<Box<dynamic>> openSettingsBox() => Hive.openBox(_boxName);
+
   @override
   SettingsState build() {
     _disposed = false;
+    _showVideoTouched = false;
+    _playerViewTouched = false;
+    _persistWork = Future<void>.value();
+    _lastPersistError = null;
     ref.onDispose(() {
       _disposed = true;
     });
@@ -188,7 +208,7 @@ class SettingsNotifier extends Notifier<SettingsState> {
 
   Future<void> _loadSettings() async {
     try {
-      final box = await Hive.openBox(_boxName);
+      final box = await openSettingsBox();
       if (_disposed) return;
       final country = _readString(box, _countryKey, 'US');
       final showVideo = _readBool(box, _showVideoKey, true);
@@ -241,9 +261,13 @@ class SettingsNotifier extends Notifier<SettingsState> {
 
       state = state.copyWith(
         selectedCountry: country,
-        showVideo: showVideo,
-        playerView: PlayerView
-            .values[playerViewIndex.clamp(0, PlayerView.values.length - 1)],
+        showVideo: _showVideoTouched ? state.showVideo : showVideo,
+        playerView: _playerViewTouched
+            ? state.playerView
+            : PlayerView.values[playerViewIndex.clamp(
+                0,
+                PlayerView.values.length - 1,
+              )],
         themeIndex: themeIndex,
         performanceMode: performanceModeIndex == -1
             ? defaultMode
@@ -390,17 +414,40 @@ class SettingsNotifier extends Notifier<SettingsState> {
     state = state.copyWith(continuePlaybackInPip: enabled);
   }
 
-  Future<void> toggleVideo() async {
-    final box = await Hive.openBox(_boxName);
-    final newValue = !state.showVideo;
-    await box.put(_showVideoKey, newValue);
-    state = state.copyWith(showVideo: newValue);
+  Future<void> _persist(Future<void> Function(Box<dynamic> box) write) {
+    final previous = _persistWork;
+    final next = () async {
+      try {
+        await previous;
+      } catch (_) {}
+      try {
+        final box = await openSettingsBox();
+        await write(box);
+        _lastPersistError = null;
+      } catch (e) {
+        _lastPersistError = e;
+        debugPrint('SettingsNotifier: failed to persist settings: $e');
+      }
+    }();
+    _persistWork = next;
+    return next;
+  }
 
-    if (newValue) {
-      setPlayerView(PlayerView.video);
-    } else if (state.playerView == PlayerView.video) {
-      setPlayerView(PlayerView.artwork);
-    }
+  Future<void> toggleVideo() {
+    if (_disposed) return Future<void>.value();
+    final newValue = !state.showVideo;
+    final nextView = newValue
+        ? PlayerView.video
+        : (state.playerView == PlayerView.video
+              ? PlayerView.artwork
+              : state.playerView);
+    _showVideoTouched = true;
+    _playerViewTouched = true;
+    state = state.copyWith(showVideo: newValue, playerView: nextView);
+    return _persist((box) async {
+      await box.put(_showVideoKey, newValue);
+      await box.put(_playerViewKey, nextView.index);
+    });
   }
 
   Future<void> toggleLowDataMode() async {
@@ -410,18 +457,24 @@ class SettingsNotifier extends Notifier<SettingsState> {
     state = state.copyWith(lowDataMode: newValue);
   }
 
-  Future<void> setPlayerView(PlayerView view) async {
-    final box = await Hive.openBox(_boxName);
-    await box.put(_playerViewKey, view.index);
-    state = state.copyWith(playerView: view);
-
-    if (view == PlayerView.video && !state.showVideo) {
-      await box.put(_showVideoKey, true);
-      state = state.copyWith(showVideo: true);
-    } else if (view == PlayerView.artwork && state.showVideo) {
-      await box.put(_showVideoKey, false);
-      state = state.copyWith(showVideo: false);
+  Future<void> setPlayerView(PlayerView view) {
+    if (_disposed) return Future<void>.value();
+    final nextShowVideo = switch (view) {
+      PlayerView.video => true,
+      PlayerView.artwork => false,
+      PlayerView.queue => state.showVideo,
+    };
+    _playerViewTouched = true;
+    if (view != PlayerView.queue) {
+      _showVideoTouched = true;
     }
+    state = state.copyWith(playerView: view, showVideo: nextShowVideo);
+    return _persist((box) async {
+      await box.put(_playerViewKey, view.index);
+      if (view != PlayerView.queue) {
+        await box.put(_showVideoKey, nextShowVideo);
+      }
+    });
   }
 
   Future<void> setVideoFitMode(VideoFitMode mode) async {
