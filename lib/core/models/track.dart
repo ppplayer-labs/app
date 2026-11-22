@@ -225,9 +225,10 @@ abstract class Track with _$Track {
           : 'Unknown Artist',
       albumId: album['id']?.toString(),
       albumName: album['name']?.toString(),
-      albumImage: images.isNotEmpty && images[0] is Map
-          ? (images[0] as Map)['url']?.toString()
-          : null,
+      albumImage: images
+          .whereType<Map>()
+          .map((i) => i['url']?.toString())
+          .firstWhere((u) => u != null && u.isNotEmpty, orElse: () => null),
       durationMs: json['duration_ms'] as int?,
     );
   }

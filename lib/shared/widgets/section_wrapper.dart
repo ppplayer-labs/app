@@ -48,9 +48,13 @@ class _SectionWrapperState<T> extends State<SectionWrapper<T>> {
 
   @override
   Widget build(BuildContext context) {
+    // Preserve displayed content during background refresh/reload when valid
+    // data is already available, while still showing a loading shimmer when
+    // retrying after an error (where hasValue is false).
+    final hasPreviousData = widget.asyncValue.hasValue;
     return widget.asyncValue.when(
-      skipLoadingOnRefresh: true,
-      skipLoadingOnReload: true,
+      skipLoadingOnRefresh: hasPreviousData,
+      skipLoadingOnReload: hasPreviousData,
       data: (data) {
         if (data.isEmpty) return const SizedBox.shrink();
 

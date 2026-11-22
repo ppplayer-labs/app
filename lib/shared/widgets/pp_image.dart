@@ -170,17 +170,22 @@ class PPImage extends StatelessWidget {
   }
 
   Widget _buildErrorWidget(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final finiteExtent = (width != null && width!.isFinite && width! > 0)
+        ? width!
+        : (height != null && height!.isFinite && height! > 0)
+        ? height!
+        : maxCacheLogicalExtent;
+    final iconSize = (finiteExtent * 0.28).clamp(18.0, 44.0);
     return Container(
       width: width,
       height: height,
-      color: Theme.of(
-        context,
-      ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.1),
+      color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
+      alignment: Alignment.center,
       child: Icon(
         fallbackIcon ?? Icons.music_note_rounded,
-        color: Theme.of(
-          context,
-        ).colorScheme.onSurfaceVariant.withValues(alpha: 0.2),
+        size: iconSize,
+        color: colorScheme.onSurfaceVariant.withValues(alpha: 0.45),
       ),
     );
   }

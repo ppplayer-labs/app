@@ -27,21 +27,24 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  test('resolveCacheWidthForExtent buckets similar card extents identically', () {
-    // 150px, 156px, and 160px cards must share the exact same decode bucket so
-    // identical artwork across Home sections hits a single ImageCache entry.
-    for (final dpr in [1.0, 1.5, 2.0, 3.0]) {
-      final w150 = PPImage.resolveCacheWidthForExtent(150, dpr);
-      final w156 = PPImage.resolveCacheWidthForExtent(156, dpr);
-      final w160 = PPImage.resolveCacheWidthForExtent(160, dpr);
-      expect(w156, equals(w160), reason: 'dpr=$dpr');
-      expect(w150, equals(w160), reason: 'dpr=$dpr');
-    }
-    expect(PPImage.resolveCacheWidthForExtent(160, 2.0), equals(320));
-    expect(PPImage.resolveCacheWidthForExtent(160, 1.25), equals(256));
-    expect(PPImage.resolveCacheWidthForExtent(160, 1.0), equals(192));
-    expect(PPImage.resolveCacheWidthForExtent(2000, 2.0), equals(1024));
-  });
+  test(
+    'resolveCacheWidthForExtent buckets similar card extents identically',
+    () {
+      // 150px, 156px, and 160px cards must share the exact same decode bucket so
+      // identical artwork across Home sections hits a single ImageCache entry.
+      for (final dpr in [1.0, 1.5, 2.0, 3.0]) {
+        final w150 = PPImage.resolveCacheWidthForExtent(150, dpr);
+        final w156 = PPImage.resolveCacheWidthForExtent(156, dpr);
+        final w160 = PPImage.resolveCacheWidthForExtent(160, dpr);
+        expect(w156, equals(w160), reason: 'dpr=$dpr');
+        expect(w150, equals(w160), reason: 'dpr=$dpr');
+      }
+      expect(PPImage.resolveCacheWidthForExtent(160, 2.0), equals(320));
+      expect(PPImage.resolveCacheWidthForExtent(160, 1.25), equals(256));
+      expect(PPImage.resolveCacheWidthForExtent(160, 1.0), equals(192));
+      expect(PPImage.resolveCacheWidthForExtent(2000, 2.0), equals(1024));
+    },
+  );
 
   testWidgets(
     'HTTP PPImage disables slow fade-in/out animations that cause scroll flicker',
@@ -64,10 +67,7 @@ void main() {
       expect(cachedImage.placeholderFadeInDuration, Duration.zero);
       expect(
         cachedImage.memCacheWidth,
-        PPImage.resolveCacheWidthForExtent(
-          156,
-          tester.view.devicePixelRatio,
-        ),
+        PPImage.resolveCacheWidthForExtent(156, tester.view.devicePixelRatio),
       );
     },
   );
@@ -102,7 +102,11 @@ void main() {
                 width: 156,
                 height: 156,
                 child: PlaylistCover(
-                  images: ['https://example.com/a.jpg', 'https://example.com/b.jpg', 'https://example.com/c.jpg'],
+                  images: [
+                    'https://example.com/a.jpg',
+                    'https://example.com/b.jpg',
+                    'https://example.com/c.jpg',
+                  ],
                   size: 156,
                 ),
               ),
@@ -110,7 +114,11 @@ void main() {
                 width: 172,
                 height: 172,
                 child: PlaylistCover(
-                  images: ['https://example.com/a.jpg', 'https://example.com/b.jpg', 'https://example.com/c.jpg'],
+                  images: [
+                    'https://example.com/a.jpg',
+                    'https://example.com/b.jpg',
+                    'https://example.com/c.jpg',
+                  ],
                   size: double.infinity,
                 ),
               ),
@@ -135,5 +143,46 @@ void main() {
     configureDesktopImageCache(cache);
     expect(cache.maximumSizeBytes, 80 * 1024 * 1024);
     expect(cache.maximumSize, 300);
+  });
+
+  testWidgets('PPImage updates memCacheWidth bucket cleanly when DPR changes', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: PPImage(
+          imageUrl: 'https://example.com/dpr_test.jpg',
+          width: 160,
+          height: 160,
+        ),
+      ),
+    );
+    expect(
+      tester
+          .widget<CachedNetworkImage>(find.byType(CachedNetworkImage))
+          .memCacheWidth,
+      192,
+    );
+
+    tester.view.devicePixelRatio = 1.5;
+    await tester.pump();
+    expect(
+      tester
+          .widget<CachedNetworkImage>(find.byType(CachedNetworkImage))
+          .memCacheWidth,
+      256,
+    );
+
+    tester.view.devicePixelRatio = 2.0;
+    await tester.pump();
+    expect(
+      tester
+          .widget<CachedNetworkImage>(find.byType(CachedNetworkImage))
+          .memCacheWidth,
+      320,
+    );
   });
 }

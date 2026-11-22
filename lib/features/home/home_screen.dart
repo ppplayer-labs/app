@@ -233,6 +233,14 @@ final suggestedStationsProvider = StreamProvider<List<Map<String, dynamic>>>((
   yield radios;
 });
 
+/// Lightweight session-scoped storage bucket holding only primitive scroll
+/// offsets (`double`) for the Home screen so vertical and horizontal scroll
+/// positions survive top-level route switches (Home -> Discover/Library -> Home)
+/// without retaining any off-screen widgets or render objects.
+final homePageStorageBucketProvider = Provider<PageStorageBucket>(
+  (ref) => PageStorageBucket(),
+);
+
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
@@ -276,338 +284,313 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ? l10n.greetingWithName(greeting, firstName)
         : greeting;
 
+    final scrollBucket = ref.watch(homePageStorageBucketProvider);
+
     return Scaffold(
       backgroundColor: colorScheme.surface,
-      body: CustomScrollView(
-        key: const PageStorageKey<String>('home_scroll_view'),
-        scrollCacheExtent: const ScrollCacheExtent.pixels(600),
-        slivers: [
-          SliverToBoxAdapter(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final compactHeader = constraints.maxWidth < 700;
-                return Padding(
-                  padding: EdgeInsets.only(
-                    left: compactHeader ? 16.0 : 32.0,
-                    top: compactHeader ? 32.0 : 56.0,
-                    right: compactHeader ? 16.0 : 32.0,
-                    bottom: compactHeader ? 16.0 : 24.0,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              greetingText,
-                              style: TextStyle(
-                                fontSize: compactHeader ? 28 : 40,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: -1.5,
-                                color: Theme.of(context).colorScheme.onSurface,
+      body: PageStorage(
+        bucket: scrollBucket,
+        child: CustomScrollView(
+          key: const PageStorageKey<String>('home_scroll_view'),
+          scrollCacheExtent: const ScrollCacheExtent.pixels(600),
+          slivers: [
+            SliverToBoxAdapter(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final compactHeader = constraints.maxWidth < 700;
+                  return Padding(
+                    padding: EdgeInsets.only(
+                      left: compactHeader ? 16.0 : 32.0,
+                      top: compactHeader ? 32.0 : 56.0,
+                      right: compactHeader ? 16.0 : 32.0,
+                      bottom: compactHeader ? 16.0 : 24.0,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                greetingText,
+                                style: TextStyle(
+                                  fontSize: compactHeader ? 28 : 40,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: -1.5,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              l10n.yourMusicIsWaiting,
-                              style: TextStyle(
-                                fontSize: compactHeader ? 14 : 18,
-                                fontWeight: FontWeight.w500,
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurface.withValues(alpha: 0.6),
+                              const SizedBox(height: 8),
+                              Text(
+                                l10n.yourMusicIsWaiting,
+                                style: TextStyle(
+                                  fontSize: compactHeader ? 14 : 18,
+                                  fontWeight: FontWeight.w500,
+                                  color: Theme.of(context).colorScheme.onSurface
+                                      .withValues(alpha: 0.6),
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                        ),
-                      ),
-                      if (MediaQuery.of(context).size.width <
-                          600) // Show on mobile/tablet
-                        Padding(
-                          padding: const EdgeInsets.only(left: 12.0),
-                          child: TactileIconButton(
-                            icon: Icons.settings_outlined,
-                            size: 24,
-                            onTap: () => context.push('/settings'),
-                            color: Theme.of(context).colorScheme.onSurface,
-                            hoverColor: Theme.of(context).colorScheme.primary,
-                            tooltip: AppLocalizations.of(context)!.settings,
+                            ],
                           ),
                         ),
-                    ],
-                  ),
-                );
-              },
+                        if (MediaQuery.of(context).size.width <
+                            600) // Show on mobile/tablet
+                          Padding(
+                            padding: const EdgeInsets.only(left: 12.0),
+                            child: TactileIconButton(
+                              icon: Icons.settings_outlined,
+                              size: 24,
+                              onTap: () => context.push('/settings'),
+                              color: Theme.of(context).colorScheme.onSurface,
+                              hoverColor: Theme.of(context).colorScheme.primary,
+                              tooltip: AppLocalizations.of(context)!.settings,
+                            ),
+                          ),
+                      ],
+                    ),
+                  );
+                },
+              ),
             ),
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 32.0),
-            sliver: SliverList.list(
-              children: [
-                StaggeredHomeSection<Track>(
-                  key: const ValueKey<String>('home_section_continue_listening'),
-                  title: AppLocalizations.of(context)!.continueListening,
-                  provider: recentlyPlayedProvider,
-                  delay: Duration.zero,
-                  staggerOrigin: _mountedAt,
-                  topPadding: 24,
-                  builder: (context, ref, tracks) => SizedBox(
-                    height: 240,
-                    child: ListView.builder(
-                      key: const PageStorageKey<String>(
-                        'home_list_continue_listening',
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 32.0),
+              sliver: SliverList.list(
+                children: [
+                  StaggeredHomeSection<Track>(
+                    key: const ValueKey<String>(
+                      'home_section_continue_listening',
+                    ),
+                    title: AppLocalizations.of(context)!.continueListening,
+                    provider: recentlyPlayedProvider,
+                    delay: Duration.zero,
+                    staggerOrigin: _mountedAt,
+                    topPadding: 24,
+                    builder: (context, ref, tracks) => SizedBox(
+                      height: 240,
+                      child: ListView.builder(
+                        key: const PageStorageKey<String>(
+                          'home_list_continue_listening',
+                        ),
+                        scrollDirection: Axis.horizontal,
+                        scrollCacheExtent: const ScrollCacheExtent.pixels(320),
+                        itemCount: tracks.length.clamp(0, 10),
+                        itemBuilder: (context, index) {
+                          final track = tracks[index];
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 16.0),
+                            child: _HistoryCard(
+                              track: track,
+                              onTap: () => ref
+                                  .read(playerProvider.notifier)
+                                  .playTrack(track, queue: tracks),
+                            ),
+                          );
+                        },
                       ),
-                      scrollDirection: Axis.horizontal,
-                      scrollCacheExtent: const ScrollCacheExtent.pixels(320),
-                      itemCount: tracks.length.clamp(0, 10),
-                      itemBuilder: (context, index) {
-                        final track = tracks[index];
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 16.0),
-                          child: _HistoryCard(
-                            track: track,
-                            onTap: () => ref
-                                .read(playerProvider.notifier)
-                                .playTrack(track, queue: tracks),
-                          ),
-                        );
-                      },
                     ),
                   ),
-                ),
-                const SizedBox(height: 32),
-                StaggeredHomeSection<Map<String, dynamic>>(
-                  key: const ValueKey<String>('home_section_popular_artists'),
-                  title: AppLocalizations.of(context)!.popularArtists,
-                  provider: popularArtistsProvider,
-                  delay: const Duration(milliseconds: 500),
-                  staggerOrigin: _mountedAt,
-                  builder: (context, ref, artists) => SizedBox(
-                    height: 170,
-                    child: ListView.builder(
-                      key: const PageStorageKey<String>(
-                        'home_list_popular_artists',
+                  const SizedBox(height: 32),
+                  StaggeredHomeSection<Map<String, dynamic>>(
+                    key: const ValueKey<String>('home_section_popular_artists'),
+                    title: AppLocalizations.of(context)!.popularArtists,
+                    provider: popularArtistsProvider,
+                    delay: const Duration(milliseconds: 500),
+                    staggerOrigin: _mountedAt,
+                    builder: (context, ref, artists) => SizedBox(
+                      height: 170,
+                      child: ListView.builder(
+                        key: const PageStorageKey<String>(
+                          'home_list_popular_artists',
+                        ),
+                        scrollDirection: Axis.horizontal,
+                        scrollCacheExtent: const ScrollCacheExtent.pixels(320),
+                        itemCount: artists.length,
+                        itemBuilder: (context, index) {
+                          final artist = artists[index];
+                          final imageUrl =
+                              (artist['images'] as List?)
+                                  ?.firstOrNull?['url'] ??
+                              '';
+                          return _ArtistCircle(
+                            id: artist['id'],
+                            name: artist['name'],
+                            imageUrl: imageUrl,
+                            onTap: () =>
+                                context.push('/artist/${artist['id']}'),
+                          );
+                        },
                       ),
-                      scrollDirection: Axis.horizontal,
-                      scrollCacheExtent: const ScrollCacheExtent.pixels(320),
-                      itemCount: artists.length,
-                      itemBuilder: (context, index) {
-                        final artist = artists[index];
-                        final imageUrl =
-                            (artist['images'] as List?)?.firstOrNull?['url'] ??
-                            '';
-                        return _ArtistCircle(
-                          id: artist['id'],
-                          name: artist['name'],
-                          imageUrl: imageUrl,
-                          onTap: () => context.push('/artist/${artist['id']}'),
-                        );
-                      },
                     ),
                   ),
-                ),
-                const SizedBox(height: 32),
-                StaggeredHomeSection<Map<String, dynamic>>(
-                  key: const ValueKey<String>('home_section_made_for_you'),
-                  title: AppLocalizations.of(context)!.madeForYou,
-                  provider: madeForYouMixesProvider,
-                  delay: const Duration(seconds: 1),
-                  staggerOrigin: _mountedAt,
-                  builder: (context, ref, mixes) => SizedBox(
-                    height: 138,
-                    child: ListView.builder(
-                      key: const PageStorageKey<String>(
-                        'home_list_made_for_you',
-                      ),
-                      scrollDirection: Axis.horizontal,
-                      scrollCacheExtent: const ScrollCacheExtent.pixels(320),
-                      itemCount: mixes.length,
-                      itemBuilder: (context, index) {
-                        final mix = mixes[index];
-                        String mixTitle = mix['title'];
-                        if (mixTitle == 'Daily Mix 1') {
-                          mixTitle = l10n.dailyMix('1');
-                        } else if (mixTitle == 'Daily Mix 2') {
-                          mixTitle = l10n.dailyMix('2');
-                        } else if (mixTitle == 'Discover Weekly') {
-                          mixTitle = l10n.discoverWeekly;
-                        } else if (mixTitle == 'Release Radar') {
-                          mixTitle = l10n.releaseRadar;
-                        } else if (mixTitle == 'Chill Mix') {
-                          mixTitle = l10n.chillMix;
-                        } else if (mixTitle == 'Focus Mix') {
-                          mixTitle = l10n.focusMix;
-                        }
+                  const SizedBox(height: 32),
+                  StaggeredHomeSection<Map<String, dynamic>>(
+                    key: const ValueKey<String>('home_section_made_for_you'),
+                    title: AppLocalizations.of(context)!.madeForYou,
+                    provider: madeForYouMixesProvider,
+                    delay: const Duration(seconds: 1),
+                    staggerOrigin: _mountedAt,
+                    builder: (context, ref, mixes) => SizedBox(
+                      height: 138,
+                      child: ListView.builder(
+                        key: const PageStorageKey<String>(
+                          'home_list_made_for_you',
+                        ),
+                        scrollDirection: Axis.horizontal,
+                        scrollCacheExtent: const ScrollCacheExtent.pixels(320),
+                        itemCount: mixes.length,
+                        itemBuilder: (context, index) {
+                          final mix = mixes[index];
+                          String mixTitle = mix['title'];
+                          if (mixTitle == 'Daily Mix 1') {
+                            mixTitle = l10n.dailyMix('1');
+                          } else if (mixTitle == 'Daily Mix 2') {
+                            mixTitle = l10n.dailyMix('2');
+                          } else if (mixTitle == 'Discover Weekly') {
+                            mixTitle = l10n.discoverWeekly;
+                          } else if (mixTitle == 'Release Radar') {
+                            mixTitle = l10n.releaseRadar;
+                          } else if (mixTitle == 'Chill Mix') {
+                            mixTitle = l10n.chillMix;
+                          } else if (mixTitle == 'Focus Mix') {
+                            mixTitle = l10n.focusMix;
+                          }
 
-                        String mixSubtitle = mix['subtitle'];
-                        if (mixSubtitle ==
-                            'Your favorites\nand new discoveries') {
-                          mixSubtitle = l10n.yourFavoritesAndNewDiscoveries;
-                        } else if (mixSubtitle == 'Made for you') {
-                          mixSubtitle = l10n.madeForYou;
-                        } else if (mixSubtitle == 'New music\njust for you') {
-                          mixSubtitle = l10n.newMusicJustForYou;
-                        } else if (mixSubtitle == 'Relax and unwind') {
-                          mixSubtitle = l10n.relaxAndUnwind;
-                        } else if (mixSubtitle ==
-                            'Deep focus\nand productivity') {
-                          mixSubtitle = l10n.deepFocusAndProductivity;
-                        }
+                          String mixSubtitle = mix['subtitle'];
+                          if (mixSubtitle ==
+                              'Your favorites\nand new discoveries') {
+                            mixSubtitle = l10n.yourFavoritesAndNewDiscoveries;
+                          } else if (mixSubtitle == 'Made for you') {
+                            mixSubtitle = l10n.madeForYou;
+                          } else if (mixSubtitle == 'New music\njust for you') {
+                            mixSubtitle = l10n.newMusicJustForYou;
+                          } else if (mixSubtitle == 'Relax and unwind') {
+                            mixSubtitle = l10n.relaxAndUnwind;
+                          } else if (mixSubtitle ==
+                              'Deep focus\nand productivity') {
+                            mixSubtitle = l10n.deepFocusAndProductivity;
+                          }
 
-                        return _MixCard(
-                          title: mixTitle,
-                          subtitle: mixSubtitle,
-                          imageAsset: mix['imageAsset'] as String,
-                          color1: mix['color1'] as Color,
-                          color2: mix['color2'] as Color,
-                          contextTarget: RadioContextTarget(
-                            seedId: mix['id'],
-                            seedType: mix['type'] ?? 'genre',
+                          return _MixCard(
                             title: mixTitle,
-                            imageUrl: mix['imageUrl'] ?? mix['imageAsset'],
-                          ),
-                          onTap: () => context.push(
-                            Uri(
-                              path: '/radio/${mix['type']}/${mix['id']}',
-                              queryParameters: {
-                                'title': mix['title'],
-                                'imageUrl':
-                                    mix['imageUrl'] ?? mix['imageAsset'] ?? '',
-                                'subtitle': mix['subtitle'] ?? '',
+                            subtitle: mixSubtitle,
+                            imageAsset: mix['imageAsset'] as String,
+                            color1: mix['color1'] as Color,
+                            color2: mix['color2'] as Color,
+                            contextTarget: RadioContextTarget(
+                              seedId: mix['id'],
+                              seedType: mix['type'] ?? 'genre',
+                              title: mixTitle,
+                              imageUrl: mix['imageUrl'] ?? mix['imageAsset'],
+                            ),
+                            onTap: () => context.push(
+                              Uri(
+                                path: '/radio/${mix['type']}/${mix['id']}',
+                                queryParameters: {
+                                  'title': mix['title'],
+                                  'imageUrl':
+                                      mix['imageUrl'] ??
+                                      mix['imageAsset'] ??
+                                      '',
+                                  'subtitle': mix['subtitle'] ?? '',
+                                },
+                              ).toString(),
+                              extra: <String, dynamic>{
+                                'color1': mix['color1'],
+                                'color2': mix['color2'],
                               },
-                            ).toString(),
-                            extra: <String, dynamic>{
-                              'color1': mix['color1'],
-                              'color2': mix['color2'],
-                            },
-                          ),
-                        );
-                      },
+                            ),
+                          );
+                        },
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 32),
-                StaggeredHomeSection<Map<String, dynamic>>(
-                  key: const ValueKey<String>(
-                    'home_section_suggested_stations',
-                  ),
-                  title: AppLocalizations.of(context)!.suggestedStations,
-                  provider: suggestedStationsProvider,
-                  delay: const Duration(milliseconds: 1500),
-                  staggerOrigin: _mountedAt,
-                  builder: (context, ref, radios) => SizedBox(
-                    height: 230,
-                    child: ListView.builder(
-                      key: const PageStorageKey<String>(
-                        'home_list_suggested_stations',
-                      ),
-                      scrollDirection: Axis.horizontal,
-                      scrollCacheExtent: const ScrollCacheExtent.pixels(320),
-                      itemCount: radios.length,
-                      itemBuilder: (context, index) {
-                        final radio = radios[index];
-                        return _RadioCard(
-                          title: radio['title'],
-                          imageUrl: radio['imageUrl'],
-                          contextTarget: RadioContextTarget(
-                            seedId: radio['id'],
-                            seedType: radio['type'] ?? 'genre',
+                  const SizedBox(height: 32),
+                  StaggeredHomeSection<Map<String, dynamic>>(
+                    key: const ValueKey<String>(
+                      'home_section_suggested_stations',
+                    ),
+                    title: AppLocalizations.of(context)!.suggestedStations,
+                    provider: suggestedStationsProvider,
+                    delay: const Duration(milliseconds: 1500),
+                    staggerOrigin: _mountedAt,
+                    builder: (context, ref, radios) => SizedBox(
+                      height: 230,
+                      child: ListView.builder(
+                        key: const PageStorageKey<String>(
+                          'home_list_suggested_stations',
+                        ),
+                        scrollDirection: Axis.horizontal,
+                        scrollCacheExtent: const ScrollCacheExtent.pixels(320),
+                        itemCount: radios.length,
+                        itemBuilder: (context, index) {
+                          final radio = radios[index];
+                          return _RadioCard(
                             title: radio['title'],
                             imageUrl: radio['imageUrl'],
-                          ),
-                          onTap: () => context.push(
-                            Uri(
-                              path: '/radio/${radio['type']}/${radio['id']}',
-                              queryParameters: {
-                                'title': radio['title'],
-                                'imageUrl': radio['imageUrl'],
-                              },
-                            ).toString(),
-                          ),
-                        );
-                      },
+                            contextTarget: RadioContextTarget(
+                              seedId: radio['id'],
+                              seedType: radio['type'] ?? 'genre',
+                              title: radio['title'],
+                              imageUrl: radio['imageUrl'],
+                            ),
+                            onTap: () => context.push(
+                              Uri(
+                                path: '/radio/${radio['type']}/${radio['id']}',
+                                queryParameters: {
+                                  'title': radio['title'],
+                                  'imageUrl': radio['imageUrl'],
+                                },
+                              ).toString(),
+                            ),
+                          );
+                        },
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 32),
-                StaggeredHomeSection<Map<String, dynamic>>(
-                  key: const ValueKey<String>('home_section_popular_albums'),
-                  title: AppLocalizations.of(context)!.popularAlbums,
-                  provider: marketPopularAlbumsProvider,
-                  delay: const Duration(seconds: 2),
-                  staggerOrigin: _mountedAt,
-                  builder: (context, ref, albums) => _HorizontalList(
-                    storageKey: 'home_list_popular_albums',
-                    items: albums,
-                    onTap: (item) => context.push("/album/${item['id']}"),
+                  const SizedBox(height: 32),
+                  StaggeredHomeSection<Map<String, dynamic>>(
+                    key: const ValueKey<String>('home_section_popular_albums'),
+                    title: AppLocalizations.of(context)!.popularAlbums,
+                    provider: marketPopularAlbumsProvider,
+                    delay: const Duration(seconds: 2),
+                    staggerOrigin: _mountedAt,
+                    builder: (context, ref, albums) => _HorizontalList(
+                      storageKey: 'home_list_popular_albums',
+                      items: albums,
+                      onTap: (item) => context.push("/album/${item['id']}"),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 32),
-                StaggeredHomeSection<Map<String, dynamic>>(
-                  key: const ValueKey<String>('home_section_popular_genres'),
-                  title: AppLocalizations.of(context)!.popularGenres,
-                  provider: browseCategoriesProvider,
-                  delay: const Duration(milliseconds: 2500),
-                  staggerOrigin: _mountedAt,
-                  builder: (context, ref, items) => LayoutBuilder(
-                    builder: (context, constraints) {
-                      if (constraints.maxWidth >= 600) {
-                        final crossAxisCount = (constraints.maxWidth / 160)
-                            .floor()
-                            .clamp(2, 6);
-                        return GridView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: crossAxisCount,
-                                crossAxisSpacing: 12,
-                                mainAxisSpacing: 12,
-                                childAspectRatio: 1.6,
-                              ),
-                          itemCount: items.length.clamp(0, 12),
-                          itemBuilder: (context, index) {
-                            final category = items[index];
-                            final id = category['id'] as String;
-                            final name = category['name'] as String;
-                            final imageUrl =
-                                (category['icons'] as List?)
-                                    ?.firstOrNull?['url'] ??
-                                '';
-                            return _GenreCard(
-                              name: name,
-                              imageUrl: imageUrl,
-                              onTap: () => context.push(
-                                Uri(
-                                  path: '/genre/$id',
-                                  queryParameters: {'name': name},
-                                ).toString(),
-                              ),
-                            );
-                          },
-                        );
-                      } else {
-                        return SizedBox(
-                          height: 96,
-                          child: GridView.builder(
-                            key: const PageStorageKey<String>(
-                              'home_list_popular_genres',
-                            ),
-                            scrollDirection: Axis.horizontal,
-                            scrollCacheExtent: const ScrollCacheExtent.pixels(320),
+                  const SizedBox(height: 32),
+                  StaggeredHomeSection<Map<String, dynamic>>(
+                    key: const ValueKey<String>('home_section_popular_genres'),
+                    title: AppLocalizations.of(context)!.popularGenres,
+                    provider: browseCategoriesProvider,
+                    delay: const Duration(milliseconds: 2500),
+                    staggerOrigin: _mountedAt,
+                    builder: (context, ref, items) => LayoutBuilder(
+                      builder: (context, constraints) {
+                        if (constraints.maxWidth >= 600) {
+                          final crossAxisCount = (constraints.maxWidth / 160)
+                              .floor()
+                              .clamp(2, 6);
+                          return GridView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
                             gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 1,
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: crossAxisCount,
+                                  crossAxisSpacing: 12,
                                   mainAxisSpacing: 12,
-                                  childAspectRatio: 0.6,
+                                  childAspectRatio: 1.6,
                                 ),
-                            itemCount: items.length,
+                            itemCount: items.length.clamp(0, 12),
                             itemBuilder: (context, index) {
                               final category = items[index];
                               final id = category['id'] as String;
@@ -627,88 +610,127 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                 ),
                               );
                             },
-                          ),
-                        );
-                      }
-                    },
-                  ),
-                  loadingWidget: const SectionShimmer(
-                    height: 140,
-                    childAspectRatio: 0.45,
-                    isGrid: true,
-                    count: 6,
-                  ),
-                ),
-                const SizedBox(height: 32),
-                StaggeredHomeSection<Map<String, dynamic>>(
-                  key: const ValueKey<String>('home_section_new_releases'),
-                  title: AppLocalizations.of(context)!.newReleases,
-                  provider: newReleasesProvider,
-                  delay: const Duration(seconds: 3),
-                  staggerOrigin: _mountedAt,
-                  builder: (context, ref, items) => _HorizontalList(
-                    storageKey: 'home_list_new_releases',
-                    items: items,
-                    onTap: (item) => context.push("/album/${item['id']}"),
-                  ),
-                ),
-                const SizedBox(height: 32),
-                StaggeredHomeSection<Map<String, dynamic>>(
-                  key: const ValueKey<String>(
-                    'home_section_featured_playlists',
-                  ),
-                  title: AppLocalizations.of(context)!.featuredPlaylists,
-                  provider: featuredPlaylistsProvider,
-                  delay: const Duration(milliseconds: 3500),
-                  staggerOrigin: _mountedAt,
-                  builder: (context, ref, items) => _HorizontalList(
-                    storageKey: 'home_list_featured_playlists',
-                    items: items,
-                    isPlaylist: true,
-                    onTap: (item) => context.push(
-                      Uri(
-                        path: '/playlist/remote/${item['id']}',
-                        queryParameters: {'name': item['name']},
-                      ).toString(),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 32),
-                StaggeredHomeSection<Track>(
-                  key: const ValueKey<String>('home_section_popular_tracks'),
-                  title: AppLocalizations.of(context)!.popularTracks,
-                  provider: popularTracksProvider,
-                  delay: const Duration(seconds: 4),
-                  staggerOrigin: _mountedAt,
-                  builder: (context, ref, tracks) => SizedBox(
-                    height: 230,
-                    child: ListView.builder(
-                      key: const PageStorageKey<String>(
-                        'home_list_popular_tracks',
-                      ),
-                      scrollDirection: Axis.horizontal,
-                      scrollCacheExtent: const ScrollCacheExtent.pixels(320),
-                      itemCount: tracks.length,
-                      itemBuilder: (context, index) {
-                        final track = tracks[index];
-                        return _AlbumCard(
-                          title: track.name,
-                          subtitle: track.artistName,
-                          imageUrl: track.albumImage ?? '',
-                          contextTarget: TrackContextTarget(track),
-                          onTap: () => ref
-                              .read(playerProvider.notifier)
-                              .playTrack(track, queue: tracks),
-                          artistId: track.artistId,
-                        );
+                          );
+                        } else {
+                          return SizedBox(
+                            height: 96,
+                            child: GridView.builder(
+                              key: const PageStorageKey<String>(
+                                'home_list_popular_genres',
+                              ),
+                              scrollDirection: Axis.horizontal,
+                              scrollCacheExtent: const ScrollCacheExtent.pixels(
+                                320,
+                              ),
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 1,
+                                    mainAxisSpacing: 12,
+                                    childAspectRatio: 0.6,
+                                  ),
+                              itemCount: items.length,
+                              itemBuilder: (context, index) {
+                                final category = items[index];
+                                final id = category['id'] as String;
+                                final name = category['name'] as String;
+                                final imageUrl =
+                                    (category['icons'] as List?)
+                                        ?.firstOrNull?['url'] ??
+                                    '';
+                                return _GenreCard(
+                                  name: name,
+                                  imageUrl: imageUrl,
+                                  onTap: () => context.push(
+                                    Uri(
+                                      path: '/genre/$id',
+                                      queryParameters: {'name': name},
+                                    ).toString(),
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                        }
                       },
                     ),
+                    loadingWidget: const SectionShimmer(
+                      height: 140,
+                      childAspectRatio: 0.45,
+                      isGrid: true,
+                      count: 6,
+                    ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 32),
+                  StaggeredHomeSection<Map<String, dynamic>>(
+                    key: const ValueKey<String>('home_section_new_releases'),
+                    title: AppLocalizations.of(context)!.newReleases,
+                    provider: newReleasesProvider,
+                    delay: const Duration(seconds: 3),
+                    staggerOrigin: _mountedAt,
+                    builder: (context, ref, items) => _HorizontalList(
+                      storageKey: 'home_list_new_releases',
+                      items: items,
+                      onTap: (item) => context.push("/album/${item['id']}"),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  StaggeredHomeSection<Map<String, dynamic>>(
+                    key: const ValueKey<String>(
+                      'home_section_featured_playlists',
+                    ),
+                    title: AppLocalizations.of(context)!.featuredPlaylists,
+                    provider: featuredPlaylistsProvider,
+                    delay: const Duration(milliseconds: 3500),
+                    staggerOrigin: _mountedAt,
+                    builder: (context, ref, items) => _HorizontalList(
+                      storageKey: 'home_list_featured_playlists',
+                      items: items,
+                      isPlaylist: true,
+                      onTap: (item) => context.push(
+                        Uri(
+                          path: '/playlist/remote/${item['id']}',
+                          queryParameters: {'name': item['name']},
+                        ).toString(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  StaggeredHomeSection<Track>(
+                    key: const ValueKey<String>('home_section_popular_tracks'),
+                    title: AppLocalizations.of(context)!.popularTracks,
+                    provider: popularTracksProvider,
+                    delay: const Duration(seconds: 4),
+                    staggerOrigin: _mountedAt,
+                    builder: (context, ref, tracks) => SizedBox(
+                      height: 230,
+                      child: ListView.builder(
+                        key: const PageStorageKey<String>(
+                          'home_list_popular_tracks',
+                        ),
+                        scrollDirection: Axis.horizontal,
+                        scrollCacheExtent: const ScrollCacheExtent.pixels(320),
+                        itemCount: tracks.length,
+                        itemBuilder: (context, index) {
+                          final track = tracks[index];
+                          return _AlbumCard(
+                            title: track.name,
+                            subtitle: track.artistName,
+                            imageUrl: track.albumImage ?? '',
+                            contextTarget: TrackContextTarget(track),
+                            onTap: () => ref
+                                .read(playerProvider.notifier)
+                                .playTrack(track, queue: tracks),
+                            artistId: track.artistId,
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -761,12 +783,11 @@ class _HorizontalList extends ConsumerWidget {
 
   Widget _buildCard(Map<String, dynamic> item, {required bool isGridItem}) {
     final rawImages = (item['images'] as List?) ?? const [];
-    final imageUrl =
-        rawImages
-            .whereType<Map>()
-            .map((i) => i['url'])
-            .whereType<String>()
-            .firstWhere((u) => u.isNotEmpty, orElse: () => '');
+    final imageUrl = rawImages
+        .whereType<Map>()
+        .map((i) => i['url'])
+        .whereType<String>()
+        .firstWhere((u) => u.isNotEmpty, orElse: () => '');
     final collageImages = extractHomeCollageImages(
       rawImages,
       isPlaylist: isPlaylist,
@@ -1203,6 +1224,7 @@ class _AlbumCardState extends ConsumerState<_AlbumCard> {
                         isHovered: _isHovered,
                         size: 40,
                         child: Stack(
+                          fit: StackFit.expand,
                           children: [
                             imageWidget,
                             Positioned.fill(
