@@ -1163,4 +1163,14 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get importedFolderFallback => 'Zaimportowany folder';
+
+  @override
+  String get adPrivacyOptions => 'Opcje prywatności reklam';
+
+  @override
+  String get adPrivacyOptionsSubtitle => 'Zarządzaj wyborami zgody na reklamy';
+
+  @override
+  String get adPrivacyOptionsError =>
+      'Nie można teraz otworzyć opcji prywatności. Spróbuj ponownie później.';
 }

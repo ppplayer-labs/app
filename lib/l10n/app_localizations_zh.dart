@@ -1137,4 +1137,13 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get importedFolderFallback => '已导入的文件夹';
+
+  @override
+  String get adPrivacyOptions => '广告隐私选项';
+
+  @override
+  String get adPrivacyOptionsSubtitle => '管理您的广告同意选择';
+
+  @override
+  String get adPrivacyOptionsError => '暂时无法打开隐私选项，请稍后再试。';
 }

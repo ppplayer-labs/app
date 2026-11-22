@@ -663,5 +663,8 @@
   "folderAlreadyImported": "Бұл қалта импортталған — жаңа файлдар тексерілуде",
   "rescanCompleted": "Кітапхананы қайта сканерлеу аяқталды",
   "rescanFailed": "Қалтаны қайта сканерлеу сәтсіз аяқталды: {error}",
-  "importedFolderFallback": "Импортталған қалта"
+  "importedFolderFallback": "Импортталған қалта",
+  "adPrivacyOptions": "Жарнама құпиялылығы параметрлері",
+  "adPrivacyOptionsSubtitle": "Жарнама келісімі таңдауларын басқару",
+  "adPrivacyOptionsError": "Қазір құпиялылық параметрлерін ашу мүмкін болмады. Кейінірек қайталап көріңіз."
 }

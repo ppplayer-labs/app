@@ -1152,4 +1152,15 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get importedFolderFallback => 'โฟลเดอร์ที่นำเข้า';
+
+  @override
+  String get adPrivacyOptions => 'ตัวเลือกความเป็นส่วนตัวของโฆษณา';
+
+  @override
+  String get adPrivacyOptionsSubtitle =>
+      'จัดการตัวเลือกความยินยอมเกี่ยวกับโฆษณาของคุณ';
+
+  @override
+  String get adPrivacyOptionsError =>
+      'ไม่สามารถเปิดตัวเลือกความเป็นส่วนตัวได้ในขณะนี้ โปรดลองอีกครั้งในภายหลัง';
 }

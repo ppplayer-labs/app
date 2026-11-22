@@ -663,5 +663,8 @@
   "folderAlreadyImported": "Ce dossier est déjà importé — recherche de nouveaux fichiers",
   "rescanCompleted": "Analyse de la bibliothèque terminée",
   "rescanFailed": "Échec de la réanalyse du dossier : {error}",
-  "importedFolderFallback": "Dossier importé"
+  "importedFolderFallback": "Dossier importé",
+  "adPrivacyOptions": "Options de confidentialité des annonces",
+  "adPrivacyOptionsSubtitle": "Gérer vos choix de consentement publicitaire",
+  "adPrivacyOptionsError": "Impossible d’ouvrir les options de confidentialité pour le moment. Veuillez réessayer plus tard."
 }

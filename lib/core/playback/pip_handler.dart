@@ -89,7 +89,7 @@ class PipHandler {
             'old=$oldMode new=$inPip hadPending=$hadPending '
             'activityStopped=$_isActivityStopped',
           );
-          for (final l in _pipModeListeners) {
+          for (final l in List<void Function(bool)>.of(_pipModeListeners)) {
             l(inPip);
           }
         } else if (call.method == 'onPipEntryRequested') {
@@ -114,7 +114,9 @@ class PipHandler {
               '$time [PipDebug][HANDLER] event=onPipEntryRequested '
               'pendingArmed=true activityStopped=$_isActivityStopped',
             );
-            for (final l in _pipEntryRequestedListeners) {
+            for (final l in List<void Function()>.of(
+              _pipEntryRequestedListeners,
+            )) {
               l();
             }
           }
@@ -127,7 +129,7 @@ class PipHandler {
             'old=$oldState new=$_isActivityStopped '
             'inPip=$_isInPipMode pipRequestPending=$_pipRequestPending',
           );
-          for (final l in _activityStoppedListeners) {
+          for (final l in List<void Function()>.of(_activityStoppedListeners)) {
             l();
           }
         } else if (call.method == 'onActivityStarted') {
@@ -139,7 +141,7 @@ class PipHandler {
             'old=$oldState new=$_isActivityStopped '
             'inPip=$_isInPipMode pipRequestPending=$_pipRequestPending',
           );
-          for (final l in _activityStartedListeners) {
+          for (final l in List<void Function()>.of(_activityStartedListeners)) {
             l();
           }
         } else if (call.method == 'onPipEntryFailed') {
@@ -213,7 +215,7 @@ class PipHandler {
       '$time [PipDebug][HANDLER] event=enterPip_requested '
       'inPip=$_isInPipMode activityStopped=$_isActivityStopped',
     );
-    for (final l in _pipEntryRequestedListeners) {
+    for (final l in List<void Function()>.of(_pipEntryRequestedListeners)) {
       l();
     }
 
@@ -267,7 +269,7 @@ class PipHandler {
       '$time [PipDebug][HANDLER] event=notifyPipEntryFailed '
       'activityStopped=$_isActivityStopped',
     );
-    for (final l in _pipEntryFailedListeners) {
+    for (final l in List<void Function()>.of(_pipEntryFailedListeners)) {
       l();
     }
   }
@@ -278,7 +280,7 @@ class PipHandler {
   @visibleForTesting
   static void simulateActivityStopped() {
     _isActivityStopped = true;
-    for (final l in _activityStoppedListeners) {
+    for (final l in List<void Function()>.of(_activityStoppedListeners)) {
       l();
     }
   }
@@ -286,7 +288,7 @@ class PipHandler {
   @visibleForTesting
   static void simulateActivityStarted() {
     _isActivityStopped = false;
-    for (final l in _activityStartedListeners) {
+    for (final l in List<void Function()>.of(_activityStartedListeners)) {
       l();
     }
   }
@@ -295,7 +297,7 @@ class PipHandler {
   static void simulatePipModeChanged(bool inPip) {
     _resolvePipRequest();
     _isInPipMode = inPip;
-    for (final l in _pipModeListeners) {
+    for (final l in List<void Function(bool)>.of(_pipModeListeners)) {
       l(inPip);
     }
   }
@@ -304,6 +306,9 @@ class PipHandler {
   static void simulatePipEntryRequested() {
     if (_pipRequestPending) return;
     _pipRequestPending = true;
+    for (final l in List<void Function()>.of(_pipEntryRequestedListeners)) {
+      l();
+    }
   }
 
   @visibleForTesting
@@ -342,5 +347,6 @@ class PipHandler {
     _activityStoppedListeners.clear();
     _activityStartedListeners.clear();
     _pipEntryFailedListeners.clear();
+    _pipEntryRequestedListeners.clear();
   }
 }

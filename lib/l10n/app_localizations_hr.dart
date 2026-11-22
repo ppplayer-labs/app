@@ -1165,4 +1165,15 @@ class AppLocalizationsHr extends AppLocalizations {
 
   @override
   String get importedFolderFallback => 'Uvezena mapa';
+
+  @override
+  String get adPrivacyOptions => 'Opcije privatnosti oglasa';
+
+  @override
+  String get adPrivacyOptionsSubtitle =>
+      'Upravljajte svojim izborima privole za oglase';
+
+  @override
+  String get adPrivacyOptionsError =>
+      'Trenutačno nije moguće otvoriti opcije privatnosti. Pokušajte ponovno kasnije.';
 }

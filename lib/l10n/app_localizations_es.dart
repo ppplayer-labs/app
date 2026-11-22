@@ -1168,4 +1168,15 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get importedFolderFallback => 'Carpeta importada';
+
+  @override
+  String get adPrivacyOptions => 'Opciones de privacidad de anuncios';
+
+  @override
+  String get adPrivacyOptionsSubtitle =>
+      'Administra tus preferencias de consentimiento de anuncios';
+
+  @override
+  String get adPrivacyOptionsError =>
+      'No se pudieron abrir las opciones de privacidad ahora. Inténtalo de nuevo más tarde.';
 }

@@ -663,5 +663,8 @@
   "copyYouTubeId": "Copiar ID de YouTube",
   "idCopied": "ID copiado",
   "queueNowPlaying": "Reproduciendo ahora",
-  "queueUpNext": "A continuación"
+  "queueUpNext": "A continuación",
+  "adPrivacyOptions": "Opciones de privacidad de anuncios",
+  "adPrivacyOptionsSubtitle": "Administra tus preferencias de consentimiento de anuncios",
+  "adPrivacyOptionsError": "No se pudieron abrir las opciones de privacidad ahora. Inténtalo de nuevo más tarde."
 }

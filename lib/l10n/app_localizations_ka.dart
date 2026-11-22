@@ -1162,4 +1162,14 @@ class AppLocalizationsKa extends AppLocalizations {
 
   @override
   String get importedFolderFallback => 'იმპორტირებული საქაღალდე';
+
+  @override
+  String get adPrivacyOptions => 'რეკლამის კონფიდენციალურობის პარამეტრები';
+
+  @override
+  String get adPrivacyOptionsSubtitle => 'მართეთ რეკლამის თანხმობის არჩევანი';
+
+  @override
+  String get adPrivacyOptionsError =>
+      'კონფიდენციალურობის პარამეტრების გახსნა ახლა ვერ მოხერხდა. სცადეთ მოგვიანებით.';
 }

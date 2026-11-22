@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_ce/hive_ce.dart';
+import '../theme/app_theme.dart';
 
 enum PlayerView { video, artwork, queue }
 
@@ -115,8 +116,14 @@ class SettingsState {
 }
 
 class SettingsNotifier extends Notifier<SettingsState> {
+  bool _disposed = false;
+
   @override
   SettingsState build() {
+    _disposed = false;
+    ref.onDispose(() {
+      _disposed = true;
+    });
     _loadSettings();
     return SettingsState(
       selectedCountry: 'US',
@@ -126,6 +133,34 @@ class SettingsNotifier extends Notifier<SettingsState> {
       lowDataMode: false,
       autoplayEnabled: true,
     );
+  }
+
+  static String _readString(Box<dynamic> box, String key, String fallback) {
+    final value = box.get(key);
+    return value is String ? value : fallback;
+  }
+
+  static String? _readNullableString(Box<dynamic> box, String key) {
+    final value = box.get(key);
+    return value is String ? value : null;
+  }
+
+  static bool _readBool(Box<dynamic> box, String key, bool fallback) {
+    final value = box.get(key);
+    return value is bool ? value : fallback;
+  }
+
+  static int _readInt(Box<dynamic> box, String key, int fallback) {
+    final value = box.get(key);
+    if (value is int) return value;
+    if (value is num && value.isFinite) return value.round();
+    return fallback;
+  }
+
+  static double _readDouble(Box<dynamic> box, String key, double fallback) {
+    final value = box.get(key);
+    if (value is num && value.isFinite) return value.toDouble();
+    return fallback;
   }
 
   static const _boxName = 'settings';
@@ -147,95 +182,105 @@ class SettingsNotifier extends Notifier<SettingsState> {
   static const _videoFitModeKey = 'video_fit_mode';
 
   Future<void> _loadSettings() async {
-    final box = await Hive.openBox(_boxName);
-    final country = box.get(_countryKey, defaultValue: 'US') as String;
-    final showVideo = box.get(_showVideoKey, defaultValue: true) as bool;
-    final playerViewIndex = box.get(_playerViewKey, defaultValue: 0) as int;
-    final themeIndex = box.get(_themeIndexKey, defaultValue: 0) as int;
+    try {
+      final box = await Hive.openBox(_boxName);
+      if (_disposed) return;
+      final country = _readString(box, _countryKey, 'US');
+      final showVideo = _readBool(box, _showVideoKey, true);
+      final playerViewIndex = _readInt(box, _playerViewKey, 0);
+      final rawThemeIndex = _readInt(box, _themeIndexKey, 0);
+      final themeIndex = rawThemeIndex.clamp(
+        0,
+        AppTheme.themeColors.length - 1,
+      );
 
-    // Auto-detect default performance mode based on platform if not set
-    final performanceModeIndex =
-        box.get(_performanceModeKey, defaultValue: -1) as int;
-    final PerformanceMode defaultMode =
-        (defaultTargetPlatform == TargetPlatform.android)
-        ? PerformanceMode.balanced
-        : PerformanceMode.high;
-    final lowDataMode = box.get(_lowDataModeKey, defaultValue: false) as bool;
-    final userName = box.get(_userNameKey, defaultValue: '') as String;
-    final userAvatarColorIndex =
-        box.get(_userAvatarColorIndexKey, defaultValue: 0) as int;
-    final userAvatarBase64 = box.get(_userAvatarPathKey) as String?;
+      // Auto-detect default performance mode based on platform if not set
+      final performanceModeIndex = _readInt(box, _performanceModeKey, -1);
+      final PerformanceMode defaultMode =
+          (defaultTargetPlatform == TargetPlatform.android)
+          ? PerformanceMode.balanced
+          : PerformanceMode.high;
+      final lowDataMode = _readBool(box, _lowDataModeKey, false);
+      final userName = _readString(box, _userNameKey, '');
+      final userAvatarColorIndex = _readInt(box, _userAvatarColorIndexKey, 0);
+      final userAvatarBase64 = _readNullableString(box, _userAvatarPathKey);
 
-    // Provider settings
-    final spotifyProviderIndex =
-        box.get(
-              _spotifyProviderKey,
-              defaultValue: SpotifyProviderType.ppplayer.index,
-            )
-            as int;
-    final youtubeSearchMethodIndex =
-        box.get(
-              _youtubeSearchMethodKey,
-              defaultValue: YoutubeSearchMethod.scraping.index,
-            )
-            as int;
-    final youtubeApiProviderIndex =
-        box.get(
-              _youtubeApiProviderKey,
-              defaultValue: YoutubeApiProviderType.ppplayer.index,
-            )
-            as int;
-    final autoplayEnabled =
-        box.get(_autoplayEnabledKey, defaultValue: true) as bool;
-    final continuePlaybackInPip =
-        box.get(_continuePlaybackInPipKey, defaultValue: false) as bool;
-    final languageCode = box.get(_languageCodeKey) as String?;
-    final videoFitModeIndex =
-        box.get(_videoFitModeKey, defaultValue: VideoFitMode.fit.index) as int;
+      // Provider settings
+      final spotifyProviderIndex = _readInt(
+        box,
+        _spotifyProviderKey,
+        SpotifyProviderType.ppplayer.index,
+      );
+      final youtubeSearchMethodIndex = _readInt(
+        box,
+        _youtubeSearchMethodKey,
+        YoutubeSearchMethod.scraping.index,
+      );
+      final youtubeApiProviderIndex = _readInt(
+        box,
+        _youtubeApiProviderKey,
+        YoutubeApiProviderType.ppplayer.index,
+      );
+      final autoplayEnabled = _readBool(box, _autoplayEnabledKey, true);
+      final continuePlaybackInPip = _readBool(
+        box,
+        _continuePlaybackInPipKey,
+        false,
+      );
+      final languageCode = _readNullableString(box, _languageCodeKey);
+      final videoFitModeIndex = _readInt(
+        box,
+        _videoFitModeKey,
+        VideoFitMode.fit.index,
+      );
 
-    state = state.copyWith(
-      selectedCountry: country,
-      showVideo: showVideo,
-      playerView: PlayerView
-          .values[playerViewIndex.clamp(0, PlayerView.values.length - 1)],
-      themeIndex: themeIndex,
-      performanceMode: performanceModeIndex == -1
-          ? defaultMode
-          : PerformanceMode.values[performanceModeIndex.clamp(
+      state = state.copyWith(
+        selectedCountry: country,
+        showVideo: showVideo,
+        playerView: PlayerView
+            .values[playerViewIndex.clamp(0, PlayerView.values.length - 1)],
+        themeIndex: themeIndex,
+        performanceMode: performanceModeIndex == -1
+            ? defaultMode
+            : PerformanceMode.values[performanceModeIndex.clamp(
+                0,
+                PerformanceMode.values.length - 1,
+              )],
+        lowDataMode: lowDataMode,
+        userName: userName,
+        userAvatarColorIndex: userAvatarColorIndex,
+        userAvatarBase64: userAvatarBase64,
+        spotifyProvider:
+            SpotifyProviderType.values[spotifyProviderIndex.clamp(
               0,
-              PerformanceMode.values.length - 1,
+              SpotifyProviderType.values.length - 1,
             )],
-      lowDataMode: lowDataMode,
-      userName: userName,
-      userAvatarColorIndex: userAvatarColorIndex,
-      userAvatarBase64: userAvatarBase64,
-      spotifyProvider:
-          SpotifyProviderType.values[spotifyProviderIndex.clamp(
-            0,
-            SpotifyProviderType.values.length - 1,
-          )],
-      youtubeSearchMethod:
-          YoutubeSearchMethod.values[youtubeSearchMethodIndex.clamp(
-            0,
-            YoutubeSearchMethod.values.length - 1,
-          )],
-      youtubeApiProvider:
-          YoutubeApiProviderType.values[youtubeApiProviderIndex.clamp(
-            0,
-            YoutubeApiProviderType.values.length - 1,
-          )],
-      autoplayEnabled: autoplayEnabled,
-      continuePlaybackInPip: continuePlaybackInPip,
-      languageCode: languageCode,
-      videoFitMode: VideoFitMode
-          .values[videoFitModeIndex.clamp(0, VideoFitMode.values.length - 1)],
-      subtitleTextSize:
-          box.get('subtitle_text_size', defaultValue: 24.0) as double,
-      subtitleBackgroundColor:
-          box.get('subtitle_bg_color', defaultValue: 0x80000000) as int,
-      subtitleLanguage: box.get('subtitle_language') as String?,
-      isLoaded: true,
-    );
+        youtubeSearchMethod:
+            YoutubeSearchMethod.values[youtubeSearchMethodIndex.clamp(
+              0,
+              YoutubeSearchMethod.values.length - 1,
+            )],
+        youtubeApiProvider:
+            YoutubeApiProviderType.values[youtubeApiProviderIndex.clamp(
+              0,
+              YoutubeApiProviderType.values.length - 1,
+            )],
+        autoplayEnabled: autoplayEnabled,
+        continuePlaybackInPip: continuePlaybackInPip,
+        languageCode: languageCode,
+        videoFitMode: VideoFitMode
+            .values[videoFitModeIndex.clamp(0, VideoFitMode.values.length - 1)],
+        subtitleTextSize: _readDouble(box, 'subtitle_text_size', 24.0),
+        subtitleBackgroundColor: _readInt(box, 'subtitle_bg_color', 0x80000000),
+        subtitleLanguage: _readNullableString(box, 'subtitle_language'),
+        isLoaded: true,
+      );
+    } catch (e) {
+      debugPrint('SettingsNotifier: failed to load settings: $e');
+      if (!_disposed) {
+        state = state.copyWith(isLoaded: true);
+      }
+    }
   }
 
   Future<void> setPerformanceMode(PerformanceMode mode) async {

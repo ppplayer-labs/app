@@ -1166,4 +1166,15 @@ class AppLocalizationsRo extends AppLocalizations {
 
   @override
   String get importedFolderFallback => 'Dosar importat';
+
+  @override
+  String get adPrivacyOptions => 'Opțiuni de confidențialitate pentru reclame';
+
+  @override
+  String get adPrivacyOptionsSubtitle =>
+      'Gestionează alegerile de consimțământ pentru reclame';
+
+  @override
+  String get adPrivacyOptionsError =>
+      'Nu s-au putut deschide opțiunile de confidențialitate acum. Încearcă din nou mai târziu.';
 }

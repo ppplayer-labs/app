@@ -1157,4 +1157,15 @@ class AppLocalizationsGn extends AppLocalizations {
 
   @override
   String get importedFolderFallback => 'Ñongatuha oñegueruva\'ekue';
+
+  @override
+  String get adPrivacyOptions => 'Marandu ñemigua poravopyrã';
+
+  @override
+  String get adPrivacyOptionsSubtitle =>
+      'Eñangareko ne marandu ñemoneĩ poravokuérare';
+
+  @override
+  String get adPrivacyOptionsError =>
+      'Ndaikatúi ojepe\'a ko\'ág̃a ñemigua poravopyrã. Eha\'ã jey ag̃ave.';
 }

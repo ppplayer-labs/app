@@ -56,10 +56,13 @@ class PpPlayerAudioHandler extends BaseAudioHandler with QueueHandler {
           case 'previous':
             await skipToPrevious();
           case 'seek':
-            final arguments = call.arguments as Map;
-            await seek(
-              Duration(milliseconds: (arguments['positionMs'] as num).round()),
-            );
+            final arguments = call.arguments;
+            if (arguments is Map && arguments['positionMs'] is num) {
+              final ms = (arguments['positionMs'] as num);
+              if (ms.isFinite && ms >= 0) {
+                await seek(Duration(milliseconds: ms.round()));
+              }
+            }
           default:
             throw MissingPluginException(
               'Unknown Apple media command: ${call.method}',
@@ -227,7 +230,7 @@ class PpPlayerAudioHandler extends BaseAudioHandler with QueueHandler {
         displayTitle: title,
         displaySubtitle: artist,
         artUri: (artUri != null && artUri.isNotEmpty)
-            ? Uri.parse(artUri)
+            ? Uri.tryParse(artUri)
             : null,
         duration: duration,
         extras: (artCacheFile != null && artCacheFile.isNotEmpty)

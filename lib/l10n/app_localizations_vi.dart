@@ -1153,4 +1153,15 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get importedFolderFallback => 'Thư mục đã nhập';
+
+  @override
+  String get adPrivacyOptions => 'Tùy chọn quyền riêng tư quảng cáo';
+
+  @override
+  String get adPrivacyOptionsSubtitle =>
+      'Quản lý lựa chọn đồng ý quảng cáo của bạn';
+
+  @override
+  String get adPrivacyOptionsError =>
+      'Không thể mở tùy chọn quyền riêng tư lúc này. Vui lòng thử lại sau.';
 }

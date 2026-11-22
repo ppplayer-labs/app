@@ -292,45 +292,70 @@ class ChromiumPlaybackEngine implements PlaybackController {
             rethrow;
           }
           if (!_valid(generation)) return;
-          player = _player = createPlayer();
+          final createdPlayer = createPlayer();
+          player = _player = createdPlayer;
           _renderingActive = true;
-          _playerSubscription = player.events.listen(
-            (event) => _receive(event, generation, player!),
+          final createdSubscription = createdPlayer.events.listen(
+            (event) => _receive(event, generation, createdPlayer),
           );
-          await player.initialize();
-          if (!_valid(generation)) return;
-          await player.setVolume((_status.volume * 100).round());
-          if (!_valid(generation)) return;
+          _playerSubscription = createdSubscription;
+          Future<void> discardStalePlayer() async {
+            if (identical(_playerSubscription, createdSubscription)) {
+              _playerSubscription = null;
+            }
+            await createdSubscription.cancel();
+            if (identical(_player, createdPlayer)) {
+              _player = null;
+              await createdPlayer.dispose();
+            }
+          }
+
+          await createdPlayer.initialize();
+          if (!_valid(generation)) {
+            await discardStalePlayer();
+            return;
+          }
+          await createdPlayer.setVolume((_status.volume * 100).round());
+          if (!_valid(generation)) {
+            await discardStalePlayer();
+            return;
+          }
           final seconds = start.inMicroseconds / Duration.microsecondsPerSecond;
           if (_wantsPlaying) {
             if (track.youtubeSourceType == YoutubeSourceType.playlist) {
-              await player.loadPlaylist(
+              await createdPlayer.loadPlaylist(
                 playlistId: track.id,
                 startSeconds: seconds,
               );
             } else {
-              await player.loadVideoById(
+              await createdPlayer.loadVideoById(
                 videoId: track.id,
                 startSeconds: seconds,
               );
             }
           } else {
             if (track.youtubeSourceType == YoutubeSourceType.playlist) {
-              await player.cuePlaylist(
+              await createdPlayer.cuePlaylist(
                 playlistId: track.id,
                 startSeconds: seconds,
               );
             } else {
-              await player.cueVideoById(
+              await createdPlayer.cueVideoById(
                 videoId: track.id,
                 startSeconds: seconds,
               );
             }
           }
-          if (_valid(generation)) {
-            if (!_wantsPlaying) await player.pauseVideo();
-            await _readDuration(player, generation);
+          if (!_valid(generation)) {
+            await discardStalePlayer();
+            return;
           }
+          if (!_wantsPlaying) await createdPlayer.pauseVideo();
+          if (!_valid(generation)) {
+            await discardStalePlayer();
+            return;
+          }
+          await _readDuration(createdPlayer, generation);
           break;
         } catch (e) {
           if (_isExpectedDetachmentOrShutdown(
@@ -555,7 +580,12 @@ class ChromiumPlaybackEngine implements PlaybackController {
     if (event['VideoState'] is String) {
       if (_status.duration == Duration.zero)
         unawaited(_readDuration(player, generation));
-      final progress = jsonDecode(event['VideoState'] as String);
+      final Object? progress;
+      try {
+        progress = jsonDecode(event['VideoState'] as String);
+      } on FormatException {
+        return;
+      }
       if (progress is Map && progress['currentTime'] is num) {
         final time = progress['currentTime'] as num;
         final fraction = progress['loadedFraction'];

@@ -663,5 +663,8 @@
   "folderAlreadyImported": "Denne mappe er allerede importeret – søger efter nye filer",
   "rescanCompleted": "Genscanning af bibliotek fuldført",
   "rescanFailed": "Kunne ikke genscanne mappe: {error}",
-  "importedFolderFallback": "Importeret mappe"
+  "importedFolderFallback": "Importeret mappe",
+  "adPrivacyOptions": "Privatlivsindstillinger for annoncer",
+  "adPrivacyOptionsSubtitle": "Administrer dine samtykkevalg for annoncer",
+  "adPrivacyOptionsError": "Kunne ikke åbne privatlivsindstillinger lige nu. Prøv igen senere."
 }

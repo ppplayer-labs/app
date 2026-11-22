@@ -353,5 +353,8 @@
   "folderAlreadyImported": "یہ فولڈر پہلے ہی درآمد شدہ ہے — نئی فائلوں کی جانچ ہو رہی ہے",
   "rescanCompleted": "لائبریری کی دوبارہ اسکیننگ مکمل ہوگئی",
   "rescanFailed": "فولڈر کو دوبارہ اسکین کرنے میں ناکامی: {error}",
-  "importedFolderFallback": "درآمد شدہ فولڈر"
+  "importedFolderFallback": "درآمد شدہ فولڈر",
+  "adPrivacyOptions": "اشتہارات کی رازداری کے اختیارات",
+  "adPrivacyOptionsSubtitle": "اپنے اشتہاری رضامندی کے انتخاب کا نظم کریں",
+  "adPrivacyOptionsError": "اس وقت رازداری کے اختیارات نہیں کھل سکے۔ براہ کرم بعد میں دوبارہ کوشش کریں۔"
 }

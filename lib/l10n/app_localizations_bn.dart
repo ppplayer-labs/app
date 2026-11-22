@@ -1158,4 +1158,15 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get importedFolderFallback => 'আমদানিকৃত ফোল্ডার';
+
+  @override
+  String get adPrivacyOptions => 'বিজ্ঞাপনের গোপনীয়তা বিকল্প';
+
+  @override
+  String get adPrivacyOptionsSubtitle =>
+      'আপনার বিজ্ঞাপন সম্মতির পছন্দ পরিচালনা করুন';
+
+  @override
+  String get adPrivacyOptionsError =>
+      'এই মুহূর্তে গোপনীয়তা বিকল্প খোলা যাচ্ছে না। পরে আবার চেষ্টা করুন।';
 }

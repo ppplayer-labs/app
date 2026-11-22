@@ -1160,4 +1160,15 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get importedFolderFallback => 'Folder yang Diimpor';
+
+  @override
+  String get adPrivacyOptions => 'Opsi privasi iklan';
+
+  @override
+  String get adPrivacyOptionsSubtitle =>
+      'Kelola pilihan persetujuan iklan Anda';
+
+  @override
+  String get adPrivacyOptionsError =>
+      'Tidak dapat membuka opsi privasi saat ini. Silakan coba lagi nanti.';
 }

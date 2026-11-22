@@ -1160,4 +1160,14 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get importedFolderFallback => 'Importovaná složka';
+
+  @override
+  String get adPrivacyOptions => 'Možnosti soukromí reklam';
+
+  @override
+  String get adPrivacyOptionsSubtitle => 'Správa voleb souhlasu s reklamami';
+
+  @override
+  String get adPrivacyOptionsError =>
+      'Možnosti soukromí se nyní nepodařilo otevřít. Zkuste to prosím později.';
 }

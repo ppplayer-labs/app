@@ -42,7 +42,9 @@ enum VideoProbeResult {
 /// will remain silent (not surfaced in either library for that import session)
 /// — the user can open it via "Open File" to import it as audio.
 class VideoProbeService {
-  static const int maxConcurrent = 2;
+  // Serialize short-lived libmpv probes so concurrent mpv_create /
+  // mpv_terminate_destroy calls never race with each other on Android.
+  static const int maxConcurrent = 1;
   static const Duration probeTimeout = Duration(seconds: 8);
 
   /// Semaphore-style counter to limit parallel probes.
@@ -65,23 +67,28 @@ class VideoProbeService {
     }
 
     // Wait for a slot in the concurrency window.
-    if (_active >= maxConcurrent) {
+    while (_active >= maxConcurrent) {
       final waiter = Completer<void>();
       _queue.add(waiter);
       await waiter.future;
-    }
-
-    if (cancellationToken?.isCancelled == true) {
-      _release();
-      return VideoProbeResult.cancelled;
+      if (cancellationToken?.isCancelled == true) {
+        if (_queue.isNotEmpty) {
+          _queue.removeAt(0).complete();
+        }
+        return VideoProbeResult.cancelled;
+      }
     }
 
     _active++;
     Player? player;
+    StreamSubscription<Tracks>? tracksSub;
+    StreamSubscription<String>? errSub;
 
     try {
       MediaKit.ensureInitialized();
-      player = Player();
+      player = Player(
+        configuration: const PlayerConfiguration(logLevel: MPVLogLevel.error),
+      );
       // NOTE: deliberately no VideoController.  Without a mounted Video
       // widget a controller makes Player.open() wait forever for a render
       // target.  Demuxer track metadata is available without rendering.
@@ -101,8 +108,8 @@ class VideoProbeService {
         if (realVideo(t)) completer.complete(VideoProbeResult.hasVideo);
       }
 
-      final tracksSub = player.stream.tracks.listen(evaluate);
-      final errSub = player.stream.error.listen((err) {
+      tracksSub = player.stream.tracks.listen(evaluate);
+      errSub = player.stream.error.listen((err) {
         if (completer.isCompleted) return;
         completer.complete(VideoProbeResult.probeFailed);
       });
@@ -134,9 +141,6 @@ class VideoProbeService {
         );
       }
 
-      await tracksSub.cancel();
-      await errSub.cancel();
-
       if (cancellationToken?.isCancelled == true) {
         return VideoProbeResult.cancelled;
       }
@@ -145,6 +149,8 @@ class VideoProbeService {
       debugPrint('VideoProbeService: probe failed for $mediaUri: $e');
       return VideoProbeResult.probeFailed;
     } finally {
+      await tracksSub?.cancel();
+      await errSub?.cancel();
       try {
         await player?.dispose().timeout(const Duration(seconds: 3));
       } catch (_) {}

@@ -2293,6 +2293,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Imported Folder'**
   String get importedFolderFallback;
+
+  /// No description provided for @adPrivacyOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Ad privacy options'**
+  String get adPrivacyOptions;
+
+  /// No description provided for @adPrivacyOptionsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage your ad consent choices'**
+  String get adPrivacyOptionsSubtitle;
+
+  /// No description provided for @adPrivacyOptionsError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to open privacy options right now. Please try again later.'**
+  String get adPrivacyOptionsError;
 }
 
 class _AppLocalizationsDelegate

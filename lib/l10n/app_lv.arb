@@ -663,5 +663,8 @@
   "folderAlreadyImported": "Šī mape jau ir importēta — tiek meklēti jauni faili",
   "rescanCompleted": "Bibliotēkas atkārtota skenēšana pabeigta",
   "rescanFailed": "Neizdevās atkārtoti skenēt mapi: {error}",
-  "importedFolderFallback": "Importētā mape"
+  "importedFolderFallback": "Importētā mape",
+  "adPrivacyOptions": "Reklāmu konfidencialitātes opcijas",
+  "adPrivacyOptionsSubtitle": "Pārvaldiet savas reklāmu piekrišanas izvēles",
+  "adPrivacyOptionsError": "Pašlaik nevar atvērt konfidencialitātes opcijas. Lūdzu, mēģiniet vēlāk."
 }

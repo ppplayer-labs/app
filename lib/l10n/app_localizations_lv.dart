@@ -1165,4 +1165,15 @@ class AppLocalizationsLv extends AppLocalizations {
 
   @override
   String get importedFolderFallback => 'Importētā mape';
+
+  @override
+  String get adPrivacyOptions => 'Reklāmu konfidencialitātes opcijas';
+
+  @override
+  String get adPrivacyOptionsSubtitle =>
+      'Pārvaldiet savas reklāmu piekrišanas izvēles';
+
+  @override
+  String get adPrivacyOptionsError =>
+      'Pašlaik nevar atvērt konfidencialitātes opcijas. Lūdzu, mēģiniet vēlāk.';
 }

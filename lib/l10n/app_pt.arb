@@ -663,5 +663,8 @@
   "folderAlreadyImported": "Esta pasta já foi importada — procurando novos arquivos",
   "rescanCompleted": "Verificação da biblioteca concluída",
   "rescanFailed": "Falha ao verificar pasta novamente: {error}",
-  "importedFolderFallback": "Pasta importada"
+  "importedFolderFallback": "Pasta importada",
+  "adPrivacyOptions": "Opções de privacidade de anúncios",
+  "adPrivacyOptionsSubtitle": "Gerencie suas escolhas de consentimento de anúncios",
+  "adPrivacyOptionsError": "Não foi possível abrir as opções de privacidade agora. Tente novamente mais tarde."
 }

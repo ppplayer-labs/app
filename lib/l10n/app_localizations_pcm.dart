@@ -1151,4 +1151,14 @@ class AppLocalizationsPcm extends AppLocalizations {
 
   @override
   String get importedFolderFallback => 'Imported Folder';
+
+  @override
+  String get adPrivacyOptions => 'Ad privacy options';
+
+  @override
+  String get adPrivacyOptionsSubtitle => 'Manage how you gree for ads';
+
+  @override
+  String get adPrivacyOptionsError =>
+      'We no fit open privacy options right now. Abeg try again later.';
 }

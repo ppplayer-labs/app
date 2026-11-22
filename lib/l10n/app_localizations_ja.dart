@@ -1139,4 +1139,13 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get importedFolderFallback => 'インポート済みフォルダ';
+
+  @override
+  String get adPrivacyOptions => '広告のプライバシー設定';
+
+  @override
+  String get adPrivacyOptionsSubtitle => '広告の同意設定を管理する';
+
+  @override
+  String get adPrivacyOptionsError => '現在プライバシー設定を開けません。しばらくしてからもう一度お試しください。';
 }

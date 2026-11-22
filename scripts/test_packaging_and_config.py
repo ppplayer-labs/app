@@ -34,6 +34,49 @@ class PackagingAndConfigTests(unittest.TestCase):
         self.assertIn('24', gradle)
         self.assertIn('min_sdk_android: 24', app_pubspec)
 
+    def test_android_admob_uses_production_ids(self):
+        manifest = (ROOT / 'android/app/src/main/AndroidManifest.xml').read_text(encoding='utf-8')
+        ad_service = (ROOT / 'lib/core/services/ad_service.dart').read_text(encoding='utf-8')
+        main_dart = (ROOT / 'lib/main.dart').read_text(encoding='utf-8')
+        self.assertNotIn('ca-app-pub-3940256099942544~3347511713', manifest)
+        self.assertIn('ca-app-pub-3432071939645868~8695536023', manifest)
+        self.assertIn('ca-app-pub-3432071939645868/7074619663', ad_service)
+        self.assertIn('kReleaseMode', ad_service)
+        self.assertIn('ConsentInformation.instance', ad_service)
+        self.assertIn('loadAndShowConsentFormIfRequired', ad_service)
+        self.assertIn('canRequestAds', ad_service)
+        self.assertNotIn('MobileAds.instance.initialize', main_dart)
+
+    def test_android_webview_quotes_video_id_for_js_safety(self):
+        service_kt = (
+            ROOT / 'android/app/src/main/kotlin/com/ppplayer/app/CustomWebViewService.kt'
+        ).read_text(encoding='utf-8')
+        self.assertIn('JSONObject.quote(videoId)', service_kt)
+        self.assertNotIn("loadVideo('$videoId'", service_kt)
+        self.assertNotIn("cueVideo('$videoId'", service_kt)
+
+    def test_android_v35_styles_use_modern_edge_to_edge_cutout_mode(self):
+        for rel in (
+            'android/app/src/main/res/values-v35/styles.xml',
+            'android/app/src/main/res/values-night-v35/styles.xml',
+        ):
+            xml = (ROOT / rel).read_text(encoding='utf-8')
+            self.assertIn('>always<', xml)
+            self.assertNotIn('>shortEdges<', xml)
+            self.assertNotIn('windowDrawsSystemBarBackgrounds', xml)
+
+    def test_android_release_enables_r8_optimization_and_symbols(self):
+        gradle = (ROOT / 'android/app/build.gradle.kts').read_text(encoding='utf-8')
+        props = (ROOT / 'android/gradle.properties').read_text(encoding='utf-8')
+        proguard = (ROOT / 'android/app/proguard-rules.pro').read_text(encoding='utf-8')
+        self.assertIn('isMinifyEnabled = true', gradle)
+        self.assertIn('isShrinkResources = true', gradle)
+        self.assertIn('proguard-android-optimize.txt', gradle)
+        self.assertIn('debugSymbolLevel = "SYMBOL_TABLE"', gradle)
+        self.assertNotIn('android.r8.optimizedResourceShrinking=false', props)
+        self.assertIn('PPPlayerCastOptionsProvider', proguard)
+        self.assertIn('JavascriptInterface', proguard)
+
     def test_linux_packaging_sandbox_and_media_controls_configured(self):
         snap = (ROOT / 'snap/snapcraft.yaml').read_text(encoding='utf-8')
         flatpak = (ROOT / 'packaging/linux/flatpak/com.ppplayer.PPPlayer.yml').read_text(encoding='utf-8')

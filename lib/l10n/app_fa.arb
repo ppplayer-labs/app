@@ -663,5 +663,8 @@
   "folderAlreadyImported": "این پوشه قبلاً وارد شده است — در حال بررسی پرونده‌های جدید",
   "rescanCompleted": "اسکن مجدد کتابخانه به پایان رسید",
   "rescanFailed": "اسکن مجدد پوشه ناموفق بود: {error}",
-  "importedFolderFallback": "پوشه وارد شده"
+  "importedFolderFallback": "پوشه وارد شده",
+  "adPrivacyOptions": "گزینه‌های حریم خصوصی تبلیغات",
+  "adPrivacyOptionsSubtitle": "مدیریت انتخاب‌های رضایت تبلیغات",
+  "adPrivacyOptionsError": "در حال حاضر امکان باز کردن گزینه‌های حریم خصوصی وجود ندارد. لطفاً بعداً دوباره تلاش کنید."
 }

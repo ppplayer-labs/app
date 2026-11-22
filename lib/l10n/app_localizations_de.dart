@@ -1163,4 +1163,14 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get importedFolderFallback => 'Importierter Ordner';
+
+  @override
+  String get adPrivacyOptions => 'Datenschutzoptionen für Werbung';
+
+  @override
+  String get adPrivacyOptionsSubtitle => 'Werbeeinwilligungen verwalten';
+
+  @override
+  String get adPrivacyOptionsError =>
+      'Datenschutzoptionen können derzeit nicht geöffnet werden. Bitte versuche es später erneut.';
 }
