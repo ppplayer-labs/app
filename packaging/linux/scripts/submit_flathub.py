@@ -66,26 +66,30 @@ def prepare_submission():
             
     validate_metainfo(metainfo_path)
     
-    # Check for release tarball in dist/
+    # Require a verified local release tarball so placeholder hashes are never emitted.
     tarball = DIST_DIR / "PPPlayer-Linux-x86_64.tar.gz"
-    tarball_sha256 = ""
-    if tarball.is_file():
-        tarball_sha256 = hashlib.sha256(tarball.read_bytes()).hexdigest()
-        print(f"Found local release tarball: {tarball.name}")
-        print(f"SHA-256: {tarball_sha256}")
-    else:
-        print("Note: dist/PPPlayer-Linux-x86_64.tar.gz not found locally. Using placeholder or CI release hash.")
-        tarball_sha256 = "0" * 64
-        
+    if not tarball.is_file():
+        raise FileNotFoundError(
+            f"Missing release tarball {tarball}; build PPPlayer Linux packages first so a verified SHA-256 can be computed."
+        )
+    tarball_sha256 = hashlib.sha256(tarball.read_bytes()).hexdigest()
+    print(f"Found local release tarball: {tarball.name}")
+    print(f"SHA-256: {tarball_sha256}")
+
     out_dir = DIST_DIR / "flathub-submission"
     out_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Write updated manifest
-    manifest_content = manifest_path.read_text(encoding="utf-8")
-    manifest_content = re.sub(r"download/v[0-9.]*", f"download/v{version}", manifest_content)
-    if tarball_sha256 != "0" * 64:
-        manifest_content = re.sub(r"sha256:\s*0{64}", f"sha256: {tarball_sha256}", manifest_content)
-        
+
+    # Update ONLY the PPPlayer archive URL and SHA-256 via the strict updater.
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from update_flatpak_manifest import update_manifest_content
+
+    manifest_content = update_manifest_content(
+        manifest_path.read_text(encoding="utf-8"),
+        version=version,
+        sha256=tarball_sha256,
+        archive_name=tarball.name,
+    )
+
     (out_dir / "com.ppplayer.PPPlayer.yml").write_text(manifest_content, encoding="utf-8")
     (out_dir / "com.ppplayer.PPPlayer.metainfo.xml").write_bytes(metainfo_path.read_bytes())
     (out_dir / "com.ppplayer.PPPlayer.desktop").write_bytes(desktop_path.read_bytes())

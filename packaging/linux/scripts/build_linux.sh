@@ -1,8 +1,55 @@
 #!/bin/bash
-set -e
+set -euo pipefail
+
+# Usage:
+#   build_linux.sh [--build-flatpak] [--flatpak-manifest PATH] [PROJECT_ROOT]
+#
+# Environment variables:
+#   PPPLAYER_BUILD_FLATPAK=1      Explicitly request an optional local Flatpak
+#                                 bundle build (disabled by default so normal
+#                                 Linux packaging never depends on unpublished
+#                                 Flathub release URLs or conceals build errors).
+#   PPPLAYER_FLATPAK_MANIFEST     Optional manifest override when building Flatpak.
+BUILD_FLATPAK="${PPPLAYER_BUILD_FLATPAK:-0}"
+FLATPAK_MANIFEST_OVERRIDE="${PPPLAYER_FLATPAK_MANIFEST:-}"
+PROJECT_ROOT=""
+
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        --build-flatpak)
+            BUILD_FLATPAK="1"
+            shift
+            ;;
+        --flatpak-manifest)
+            if [ "$#" -lt 2 ]; then
+                echo "Error: --flatpak-manifest requires a file path." >&2
+                exit 1
+            fi
+            FLATPAK_MANIFEST_OVERRIDE="$2"
+            shift 2
+            ;;
+        --flatpak-manifest=*)
+            FLATPAK_MANIFEST_OVERRIDE="${1#*=}"
+            shift
+            ;;
+        -*)
+            echo "Error: Unknown option: $1" >&2
+            exit 1
+            ;;
+        *)
+            if [ -n "$PROJECT_ROOT" ]; then
+                echo "Error: Unexpected extra argument: $1" >&2
+                exit 1
+            fi
+            PROJECT_ROOT="$1"
+            shift
+            ;;
+    esac
+done
 
 # Default to current directory if not specified
-PROJECT_ROOT="${1:-$(pwd)}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="${PROJECT_ROOT:-$(pwd)}"
 cd "$PROJECT_ROOT"
 
 if [ ! -f "pubspec.yaml" ]; then
@@ -43,12 +90,46 @@ fi
 DIST_DIR="dist"
 mkdir -p "$DIST_DIR"
 
-# 3. Build Portable tar.gz
+# 3. Build Portable tar.gz (including upstream desktop metadata & 512x512 icon)
 TAR_NAME="PPPlayer-Linux-x86_64.tar.gz"
 echo "Building portable tarball: $TAR_NAME"
-mkdir -p "build/linux/x64/tarball/PPPlayer"
-cp -r "$BUNDLE_DIR/"* "build/linux/x64/tarball/PPPlayer/"
-tar -czf "$DIST_DIR/$TAR_NAME" -C "build/linux/x64/tarball" "PPPlayer"
+TARBALL_STAGE_DIR="build/linux/x64/tarball/PPPlayer"
+rm -rf "$TARBALL_STAGE_DIR"
+mkdir -p "$TARBALL_STAGE_DIR"
+cp -r "$BUNDLE_DIR/"* "$TARBALL_STAGE_DIR/"
+chmod 0755 "$TARBALL_STAGE_DIR/ppplayer"
+if [ -f "$TARBALL_STAGE_DIR/lib/flutter_chromium_webview_subprocess" ]; then
+    chmod 0755 "$TARBALL_STAGE_DIR/lib/flutter_chromium_webview_subprocess"
+fi
+
+# Package upstream desktop entry, AppStream MetaInfo, and 512x512 icon inside
+# standard share/ paths while keeping executable and lib/ in their portable root.
+for meta_file in \
+    "packaging/linux/flatpak/com.ppplayer.PPPlayer.desktop" \
+    "packaging/linux/flatpak/com.ppplayer.PPPlayer.metainfo.xml" \
+    "packaging/linux/flatpak/com.ppplayer.PPPlayer.png"; do
+    if [ ! -f "$meta_file" ]; then
+        echo "Error: Missing required upstream desktop metadata asset: $meta_file" >&2
+        exit 1
+    fi
+done
+mkdir -p \
+    "$TARBALL_STAGE_DIR/share/applications" \
+    "$TARBALL_STAGE_DIR/share/metainfo" \
+    "$TARBALL_STAGE_DIR/share/icons/hicolor/512x512/apps"
+install -m 0644 "packaging/linux/flatpak/com.ppplayer.PPPlayer.desktop" \
+    "$TARBALL_STAGE_DIR/share/applications/com.ppplayer.PPPlayer.desktop"
+install -m 0644 "packaging/linux/flatpak/com.ppplayer.PPPlayer.metainfo.xml" \
+    "$TARBALL_STAGE_DIR/share/metainfo/com.ppplayer.PPPlayer.metainfo.xml"
+install -m 0644 "packaging/linux/flatpak/com.ppplayer.PPPlayer.png" \
+    "$TARBALL_STAGE_DIR/share/icons/hicolor/512x512/apps/com.ppplayer.PPPlayer.png"
+
+if tar --help 2>&1 | grep -q -- '--sort'; then
+    tar --sort=name --owner=0 --group=0 --numeric-owner \
+        -czf "$DIST_DIR/$TAR_NAME" -C "build/linux/x64/tarball" "PPPlayer"
+else
+    tar -czf "$DIST_DIR/$TAR_NAME" -C "build/linux/x64/tarball" "PPPlayer"
+fi
 
 # 4. Build Debian Package
 DEB_NAME="ppplayer_${DEB_VERSION}_amd64.deb"
@@ -130,13 +211,15 @@ chmod -R 755 "$DEB_BUILD_DIR/opt/ppplayer" "$DEB_BUILD_DIR/usr"
 chmod 0644 "$DEB_BUILD_DIR/etc/apparmor.d/ppplayer" "$DEB_BUILD_DIR/DEBIAN/control"
 chmod 0755 "$DEB_BUILD_DIR/DEBIAN" "$DEB_BUILD_DIR/DEBIAN/postinst" "$DEB_BUILD_DIR/DEBIAN/postrm"
 # Workaround for WSL filesystem permission issues with dpkg-deb:
-# Build the deb in /tmp, then move it to the output directory.
-cp -r "$DEB_BUILD_DIR" "/tmp/ppplayer_deb_build"
-chmod 0755 "/tmp/ppplayer_deb_build/DEBIAN" "/tmp/ppplayer_deb_build/DEBIAN/postinst" "/tmp/ppplayer_deb_build/DEBIAN/postrm"
-chmod 0644 "/tmp/ppplayer_deb_build/DEBIAN/control" "/tmp/ppplayer_deb_build/etc/apparmor.d/ppplayer"
-dpkg-deb --build "/tmp/ppplayer_deb_build"
-mv "/tmp/ppplayer_deb_build.deb" "$DIST_DIR/$DEB_NAME"
-rm -rf "/tmp/ppplayer_deb_build"
+# Build the deb in an isolated temp directory, preserving symlinks, then move it out.
+DEB_TMP_PARENT=$(mktemp -d)
+DEB_TMP_DIR="$DEB_TMP_PARENT/ppplayer_${DEB_VERSION}_amd64"
+cp -R -P "$DEB_BUILD_DIR" "$DEB_TMP_DIR"
+chmod 0755 "$DEB_TMP_DIR/DEBIAN" "$DEB_TMP_DIR/DEBIAN/postinst" "$DEB_TMP_DIR/DEBIAN/postrm"
+chmod 0644 "$DEB_TMP_DIR/DEBIAN/control" "$DEB_TMP_DIR/etc/apparmor.d/ppplayer"
+dpkg-deb --build "$DEB_TMP_DIR"
+mv "$DEB_TMP_DIR.deb" "$DIST_DIR/$DEB_NAME"
+rm -rf "$DEB_TMP_PARENT"
 
 # 5. Build AppImage
 APPIMAGE_NAME="PPPlayer-Linux-x86_64.AppImage"
@@ -182,34 +265,70 @@ fi
 # ARCH=x86_64 required for appimagetool to set the right architecture internally
 ARCH=x86_64 $APPIMAGETOOL "$APPDIR" "$DIST_DIR/$APPIMAGE_NAME"
 
-# 6. Prepare Flathub / Flatpak Package
-echo "Preparing Flathub / Flatpak artifacts..."
+# 6. Prepare Flathub / Flatpak Metadata & Optional Local Flatpak Bundle Build
+echo "Preparing Flathub / Flatpak metadata artifacts..."
 FLATPAK_DIST_DIR="$DIST_DIR/flatpak"
+rm -rf "$FLATPAK_DIST_DIR"
 mkdir -p "$FLATPAK_DIST_DIR"
 
-TAR_SHA256=$(sha256sum "$DIST_DIR/$TAR_NAME" | awk '{print $1}')
-echo "Tarball SHA-256 for Flathub: $TAR_SHA256"
+if command -v sha256sum &> /dev/null; then
+    TAR_SHA256=$(sha256sum "$DIST_DIR/$TAR_NAME" | awk '{print $1}')
+else
+    TAR_SHA256=$(shasum -a 256 "$DIST_DIR/$TAR_NAME" | awk '{print $1}')
+fi
+echo "Tarball SHA-256 for Flatpak staging: $TAR_SHA256"
 
-# Copy Flathub metadata files
+# Copy upstream Flatpak metadata assets
 cp packaging/linux/flatpak/com.ppplayer.PPPlayer.desktop "$FLATPAK_DIST_DIR/"
 cp packaging/linux/flatpak/com.ppplayer.PPPlayer.metainfo.xml "$FLATPAK_DIST_DIR/"
 cp packaging/linux/flatpak/com.ppplayer.PPPlayer.png "$FLATPAK_DIST_DIR/"
+for patch_file in packaging/linux/flatpak/*.patch; do
+    if [ -f "$patch_file" ]; then
+        cp "$patch_file" "$FLATPAK_DIST_DIR/"
+    fi
+done
 
-# Generate manifest with exact release version and computed sha256
-sed -e "s|download/v[0-9.]*|download/v${VERSION}|g" \
-    -e "s|sha256: [0-9a-fA-F]*|sha256: ${TAR_SHA256}|g" \
-    packaging/linux/flatpak/com.ppplayer.PPPlayer.yml > "$FLATPAK_DIST_DIR/com.ppplayer.PPPlayer.yml"
+# Deterministically update ONLY the PPPlayer archive URL and SHA-256 while
+# preserving every third-party dependency checksum unchanged.
+MANIFEST_UPDATER="$SCRIPT_DIR/update_flatpak_manifest.py"
+if [ ! -f "$MANIFEST_UPDATER" ]; then
+    MANIFEST_UPDATER="packaging/linux/scripts/update_flatpak_manifest.py"
+fi
+python3 "$MANIFEST_UPDATER" \
+    --input "packaging/linux/flatpak/com.ppplayer.PPPlayer.yml" \
+    --output "$FLATPAK_DIST_DIR/com.ppplayer.PPPlayer.yml" \
+    --version "$VERSION" \
+    --sha256 "$TAR_SHA256" \
+    --archive-name "$TAR_NAME"
 
-# If flatpak-builder is available, build standalone .flatpak bundle
+# Optional Flatpak bundle build:
+#   - Not requested (default): do not invoke flatpak-builder.
+#   - Requested + tooling unavailable: skip explicitly and report not executed.
+#   - Requested + tooling available: execute strictly (fail on any error; never mask).
 FLATPAK_BUNDLE_NAME="PPPlayer-Linux-x86_64.flatpak"
-if command -v flatpak-builder &> /dev/null; then
-    echo "Building Flatpak bundle: $FLATPAK_BUNDLE_NAME"
+if [ "$BUILD_FLATPAK" != "1" ]; then
+    echo "Flatpak bundle build not requested (pass --build-flatpak or set PPPLAYER_BUILD_FLATPAK=1 to enable); staged Flatpak metadata only."
+elif ! command -v flatpak-builder &> /dev/null || ! command -v flatpak &> /dev/null; then
+    echo "SKIPPED: Flatpak tooling (flatpak-builder/flatpak) unavailable; optional Flatpak bundle build was not executed."
+else
+    FLATPAK_MANIFEST_TO_BUILD="${FLATPAK_MANIFEST_OVERRIDE:-$FLATPAK_DIST_DIR/com.ppplayer.PPPlayer.yml}"
+    if [ ! -f "$FLATPAK_MANIFEST_TO_BUILD" ]; then
+        echo "Error: Requested Flatpak manifest does not exist: $FLATPAK_MANIFEST_TO_BUILD" >&2
+        exit 1
+    fi
+    echo "Building Flatpak bundle ($FLATPAK_BUNDLE_NAME) from $FLATPAK_MANIFEST_TO_BUILD..."
     FLATPAK_BUILD_DIR="build/linux/x64/flatpak"
     rm -rf "$FLATPAK_BUILD_DIR"
     mkdir -p "$FLATPAK_BUILD_DIR"
-    flatpak-builder --force-clean --repo="$FLATPAK_BUILD_DIR/repo" "$FLATPAK_BUILD_DIR/build" "$FLATPAK_DIST_DIR/com.ppplayer.PPPlayer.yml" || true
-    if [ -d "$FLATPAK_BUILD_DIR/repo" ]; then
-        flatpak build-bundle "$FLATPAK_BUILD_DIR/repo" "$DIST_DIR/$FLATPAK_BUNDLE_NAME" com.ppplayer.PPPlayer || true
+    flatpak-builder --force-clean --repo="$FLATPAK_BUILD_DIR/repo" \
+        "$FLATPAK_BUILD_DIR/build" "$FLATPAK_MANIFEST_TO_BUILD" \
+        2>&1 | tee "$FLATPAK_BUILD_DIR/flatpak-builder.log"
+    flatpak build-bundle "$FLATPAK_BUILD_DIR/repo" \
+        "$DIST_DIR/$FLATPAK_BUNDLE_NAME" com.ppplayer.PPPlayer \
+        2>&1 | tee "$FLATPAK_BUILD_DIR/flatpak-bundle.log"
+    if [ ! -s "$DIST_DIR/$FLATPAK_BUNDLE_NAME" ]; then
+        echo "Error: Flatpak build-bundle did not produce a non-empty bundle: $DIST_DIR/$FLATPAK_BUNDLE_NAME" >&2
+        exit 1
     fi
 fi
 
@@ -220,7 +339,11 @@ HASH_TARGETS=("$APPIMAGE_NAME" "$DEB_NAME" "$TAR_NAME")
 if [ -f "$FLATPAK_BUNDLE_NAME" ]; then
     HASH_TARGETS+=("$FLATPAK_BUNDLE_NAME")
 fi
-sha256sum "${HASH_TARGETS[@]}" > SHA256SUMS
+if command -v sha256sum &> /dev/null; then
+    sha256sum "${HASH_TARGETS[@]}" > SHA256SUMS
+else
+    shasum -a 256 "${HASH_TARGETS[@]}" > SHA256SUMS
+fi
 cd ..
 
 echo "Done! Artifacts are in $DIST_DIR/"

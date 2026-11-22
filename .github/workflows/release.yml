@@ -6,11 +6,29 @@ on:
       - main
   workflow_dispatch:
     inputs:
-      approve_publication:
-        description: "Publish only after final platform validation and explicit release approval"
+      publish_github_release:
+        description: "Approve creating a public GitHub Release for this exact commit/version"
         type: boolean
         required: true
         default: false
+      publish_snap_store:
+        description: "Approve publishing the built Snap package to the Snap Store stable channel"
+        type: boolean
+        required: true
+        default: false
+      expected_version:
+        description: "Required tag guard when publishing (e.g. v4.0.2); must match pubspec.yaml"
+        type: string
+        required: false
+        default: ""
+      expected_sha:
+        description: "Required 40-char commit SHA guard when publishing; must match HEAD"
+        type: string
+        required: false
+        default: ""
+
+permissions:
+  contents: read
 
 jobs:
   validate-and-test:
@@ -18,7 +36,9 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       is_new_version: ${{ steps.version_check.outputs.is_new_version }}
+      should_build: ${{ steps.version_check.outputs.should_build }}
       version: ${{ steps.version_check.outputs.version }}
+      source_sha: ${{ steps.version_check.outputs.source_sha }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -28,20 +48,27 @@ jobs:
         run: |
           VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //g' | tr -d ' ' | tr -d '\r' | awk -F'+' '{print $1}')
           TAG="v$VERSION"
-          echo "version=$TAG" >> $GITHUB_OUTPUT
-          
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-             echo "Manual trigger. Proceeding with build."
-             echo "is_new_version=true" >> $GITHUB_OUTPUT
-             exit 0
-          fi
-          
-          if git ls-remote --tags origin | grep -q "refs/tags/$TAG"; then
-            echo "Release $TAG already exists. Skipping."
-            echo "is_new_version=false" >> $GITHUB_OUTPUT
+          SOURCE_SHA=$(git rev-parse HEAD)
+          echo "version=$TAG" >> "$GITHUB_OUTPUT"
+          echo "source_sha=$SOURCE_SHA" >> "$GITHUB_OUTPUT"
+
+          if git ls-remote --tags origin | grep -q "refs/tags/$TAG$"; then
+            echo "Release tag $TAG already exists on origin."
+            echo "is_new_version=false" >> "$GITHUB_OUTPUT"
+            IS_NEW=false
           else
-            echo "New version detected: $TAG. Proceeding with release."
-            echo "is_new_version=true" >> $GITHUB_OUTPUT
+            echo "New version detected: $TAG."
+            echo "is_new_version=true" >> "$GITHUB_OUTPUT"
+            IS_NEW=true
+          fi
+
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "Manual dispatch triggered. Proceeding with build verification."
+            echo "should_build=true" >> "$GITHUB_OUTPUT"
+          elif [ "$IS_NEW" = "true" ]; then
+            echo "should_build=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_build=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Setup Flutter
@@ -83,7 +110,7 @@ jobs:
   build-android:
     name: Build Android App
     needs: validate-and-test
-    if: needs.validate-and-test.outputs.is_new_version == 'true'
+    if: needs.validate-and-test.outputs.should_build == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -153,7 +180,7 @@ jobs:
   build-macos:
     name: Build macOS App
     needs: validate-and-test
-    if: needs.validate-and-test.outputs.is_new_version == 'true'
+    if: needs.validate-and-test.outputs.should_build == 'true'
     runs-on: macos-latest
     steps:
       - name: Checkout Repository
@@ -300,7 +327,7 @@ jobs:
   build-windows:
     name: Build Windows App
     needs: validate-and-test
-    if: needs.validate-and-test.outputs.is_new_version == 'true'
+    if: needs.validate-and-test.outputs.should_build == 'true'
     runs-on: windows-latest
     steps:
       - name: Checkout Repository
@@ -331,7 +358,7 @@ jobs:
   build-linux:
     name: Build Linux App
     needs: validate-and-test
-    if: needs.validate-and-test.outputs.is_new_version == 'true'
+    if: needs.validate-and-test.outputs.should_build == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -354,10 +381,17 @@ jobs:
           chmod +x packaging/linux/scripts/build_linux.sh
           ./packaging/linux/scripts/build_linux.sh
 
-      - name: Validate Checksums
+      - name: Validate Checksums & Tarball Metadata
         run: |
           cd dist
           sha256sum -c SHA256SUMS
+          tar -tzf PPPlayer-Linux-x86_64.tar.gz | grep -q "^PPPlayer/ppplayer$"
+          tar -tzf PPPlayer-Linux-x86_64.tar.gz | grep -q "^PPPlayer/lib/libcef.so$"
+          tar -tzf PPPlayer-Linux-x86_64.tar.gz | grep -q "^PPPlayer/lib/flutter_chromium_webview_subprocess$"
+          tar -tzf PPPlayer-Linux-x86_64.tar.gz | grep -q "^PPPlayer/share/applications/com.ppplayer.PPPlayer.desktop$"
+          tar -tzf PPPlayer-Linux-x86_64.tar.gz | grep -q "^PPPlayer/share/metainfo/com.ppplayer.PPPlayer.metainfo.xml$"
+          tar -tzf PPPlayer-Linux-x86_64.tar.gz | grep -q "^PPPlayer/share/icons/hicolor/512x512/apps/com.ppplayer.PPPlayer.png$"
+          test ! -f PPPlayer-Linux-x86_64.flatpak
 
       - name: Upload Linux Artifacts
         uses: actions/upload-artifact@v4
@@ -377,30 +411,55 @@ jobs:
           name: PPPlayer-Linux-Snap
           path: ${{ steps.snapcraft.outputs.snap }}
 
-  publish-release:
+  publish-github-release:
     name: Publish GitHub Release
     needs: [validate-and-test, build-android, build-macos, build-windows, build-linux]
-    if: github.event_name == 'workflow_dispatch' && inputs.approve_publication == true && needs.validate-and-test.outputs.is_new_version == 'true'
+    if: github.event_name == 'workflow_dispatch' && inputs.publish_github_release == true && needs.validate-and-test.outputs.should_build == 'true'
     runs-on: ubuntu-latest
-    env:
-      SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
     permissions:
-      contents: write # Scope: only the publish job has write access to create the release
+      contents: write # Scope: only the GitHub Release job has write access to create releases
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Download Artifacts
+      - name: Verify Source Commit, Version & Non-Duplicate Release
+        env:
+          EXPECTED_VERSION: ${{ inputs.expected_version }}
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+          VALIDATED_VERSION: ${{ needs.validate-and-test.outputs.version }}
+          VALIDATED_SHA: ${{ needs.validate-and-test.outputs.source_sha }}
+          IS_NEW_VERSION: ${{ needs.validate-and-test.outputs.is_new_version }}
+        run: |
+          set -euo pipefail
+          ACTUAL_VERSION="v$(grep '^version:' pubspec.yaml | sed 's/version: //g' | tr -d ' ' | tr -d '\r' | awk -F'+' '{print $1}')"
+          ACTUAL_SHA="$(git rev-parse HEAD)"
+
+          if [ -z "$EXPECTED_VERSION" ] || [ "$EXPECTED_VERSION" != "$VALIDATED_VERSION" ] || [ "$ACTUAL_VERSION" != "$VALIDATED_VERSION" ]; then
+            echo "::error::Version guard failed (expected='$EXPECTED_VERSION', validated='$VALIDATED_VERSION', actual='$ACTUAL_VERSION')."
+            exit 1
+          fi
+          if [ -z "$EXPECTED_SHA" ] || [ "$EXPECTED_SHA" != "$VALIDATED_SHA" ] || [ "$ACTUAL_SHA" != "$VALIDATED_SHA" ]; then
+            echo "::error::Source SHA guard failed (expected='$EXPECTED_SHA', validated='$VALIDATED_SHA', actual='$ACTUAL_SHA')."
+            exit 1
+          fi
+          if [ "$IS_NEW_VERSION" != "true" ] || git ls-remote --tags origin | grep -q "refs/tags/${VALIDATED_VERSION}$"; then
+            echo "::error::Tag ${VALIDATED_VERSION} already exists; refusing to overwrite or duplicate an existing public GitHub Release."
+            exit 1
+          fi
+          echo "Verified GitHub Release target: ${VALIDATED_VERSION} at ${VALIDATED_SHA}"
+
+      - name: Download Public GitHub Release Artifacts
         uses: actions/download-artifact@v4
         with:
           path: artifacts
+          pattern: PPPlayer-*
 
       - name: Check Artifacts Existence
         id: check_artifacts
         run: |
+          set -euo pipefail
           ls -R artifacts/
-          
-          # Require every expected asset to exist
+
           if [ ! -f "artifacts/PPPlayer-Android/app-release.apk" ]; then
              echo "::error::Android APK artifact is missing!"
              exit 1
@@ -410,20 +469,14 @@ jobs:
              echo "::error::Android AAB artifact is missing!"
              exit 1
           fi
-          
+
           if [ ! -f "artifacts/PPPlayer-macOS-zip/PPPlayer-macOS.zip" ]; then
              echo "::error::macOS ZIP artifact is missing!"
              exit 1
           fi
-          
+
           if [ ! -f "artifacts/PPPlayer-macOS-dmg/PPPlayer-macOS.dmg" ]; then
              echo "::error::macOS DMG artifact is missing!"
-             exit 1
-          fi
-
-          MSIX_FILE=$(find artifacts/PPPlayer-Windows-MSIX -name "*.msix" | head -n 1)
-          if [ -z "$MSIX_FILE" ]; then
-             echo "::error::Windows MSIX artifact is missing!"
              exit 1
           fi
 
@@ -432,26 +485,37 @@ jobs:
              exit 1
           fi
 
-          SNAP_FILE=$(find artifacts/PPPlayer-Linux-Snap -maxdepth 2 -name "*.snap" | head -n 1)
-          if [ -z "$SNAP_FILE" ]; then
-             echo "::error::Linux Snap artifact is missing!"
+          if [ ! -f "artifacts/PPPlayer-Linux/PPPlayer-Linux-x86_64.tar.gz" ]; then
+             echo "::error::Linux tar.gz artifact is missing!"
              exit 1
           fi
-          echo "snap_path=$SNAP_FILE" >> "$GITHUB_OUTPUT"
+
+          if ! ls artifacts/PPPlayer-Linux/ppplayer_*_amd64.deb >/dev/null 2>&1; then
+             echo "::error::Linux DEB artifact is missing!"
+             exit 1
+          fi
+
+          echo "Note: Store-targeted PPPlayer-Windows-MSIX is retained as a protected CI artifact for Microsoft Partner Center and excluded from public GitHub Release assets."
 
       - name: Prepare Assets & Checksums
         run: |
+          set -euo pipefail
           mkdir -p release-assets
           cp artifacts/PPPlayer-Android/app-release.apk release-assets/PPPlayer-Android.apk
           cp artifacts/PPPlayer-Android-AAB/app-release.aab release-assets/PPPlayer-Android.aab
           cp artifacts/PPPlayer-macOS-zip/PPPlayer-macOS.zip release-assets/PPPlayer-macOS.zip
           cp artifacts/PPPlayer-macOS-dmg/PPPlayer-macOS.dmg release-assets/PPPlayer-macOS.dmg
-          cp artifacts/PPPlayer-Windows-MSIX/*.msix release-assets/PPPlayer-Windows.msix
           cp artifacts/PPPlayer-Linux/PPPlayer-Linux-x86_64.AppImage release-assets/
           cp artifacts/PPPlayer-Linux/PPPlayer-Linux-x86_64.tar.gz release-assets/
           cp artifacts/PPPlayer-Linux/ppplayer_*_amd64.deb release-assets/
           cp artifacts/PPPlayer-Linux/SHA256SUMS release-assets/SHA256SUMS
-          
+
+          # Fail closed if an unsigned Store-targeted MSIX ever enters public GitHub Release assets.
+          if find release-assets -iname "*.msix" | grep -q .; then
+            echo "::error::Unsigned Store-targeted MSIX packages must not be published in public GitHub Release assets."
+            exit 1
+          fi
+
           cd release-assets
           shasum -a 256 * > checksums.txt
           cat checksums.txt
@@ -461,29 +525,25 @@ jobs:
         run: |
           TAG_NAME="${{ needs.validate-and-test.outputs.version }}"
           TAG_VERSION="${TAG_NAME#v}"
-          
-          # Remove suffix (e.g. -test) for changelog extraction
           BASE_VERSION=$(echo "$TAG_VERSION" | cut -d'-' -f1)
-          
-          # Extract the section for this version
+
           awk -v ver="## [$BASE_VERSION]" '
             index($0, ver) == 1 { found=1; next }
             /^## \[/ && found { exit }
             found { print }
           ' CHANGELOG.md > extracted_notes.md
-          
+
           cat extracted_notes.md
 
       - name: Determine Prerelease Flag
         id: prerelease_check
         run: |
-          # If the tag contains a hyphen (e.g., v1.0.4-test), mark as prerelease
           if [[ "${{ needs.validate-and-test.outputs.version }}" == *"-"* ]]; then
-            echo "is_prerelease=true" >> $GITHUB_OUTPUT
-            echo "make_latest=false" >> $GITHUB_OUTPUT
+            echo "is_prerelease=true" >> "$GITHUB_OUTPUT"
+            echo "make_latest=false" >> "$GITHUB_OUTPUT"
           else
-            echo "is_prerelease=false" >> $GITHUB_OUTPUT
-            echo "make_latest=true" >> $GITHUB_OUTPUT
+            echo "is_prerelease=false" >> "$GITHUB_OUTPUT"
+            echo "make_latest=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Create Release
@@ -495,14 +555,76 @@ jobs:
           prerelease: ${{ steps.prerelease_check.outputs.is_prerelease }}
           make_latest: ${{ steps.prerelease_check.outputs.make_latest }}
           generate_release_notes: true
+          fail_on_unmatched_files: true
           files: |
             release-assets/*
 
+  publish-snap:
+    name: Publish to Snap Store
+    needs: [validate-and-test, build-linux]
+    if: github.event_name == 'workflow_dispatch' && inputs.publish_snap_store == true && needs.validate-and-test.outputs.should_build == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Verify Snap Store Credentials, Source Commit & Version
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
+          EXPECTED_VERSION: ${{ inputs.expected_version }}
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+          VALIDATED_VERSION: ${{ needs.validate-and-test.outputs.version }}
+          VALIDATED_SHA: ${{ needs.validate-and-test.outputs.source_sha }}
+        run: |
+          set -euo pipefail
+          if [ -z "$SNAPCRAFT_STORE_CREDENTIALS" ]; then
+            echo "::error::SNAPCRAFT_STORE_CREDENTIALS secret is missing; cannot publish requested Snap release."
+            exit 1
+          fi
+
+          ACTUAL_VERSION="v$(grep '^version:' pubspec.yaml | sed 's/version: //g' | tr -d ' ' | tr -d '\r' | awk -F'+' '{print $1}')"
+          SNAP_VERSION="v$(grep '^version:' snap/snapcraft.yaml | sed "s/version://g" | tr -d " '\"" | tr -d '\r')"
+          ACTUAL_SHA="$(git rev-parse HEAD)"
+
+          if [ -z "$EXPECTED_VERSION" ] || [ "$EXPECTED_VERSION" != "$VALIDATED_VERSION" ] || [ "$ACTUAL_VERSION" != "$VALIDATED_VERSION" ] || [ "$SNAP_VERSION" != "$VALIDATED_VERSION" ]; then
+            echo "::error::Snap version guard failed (expected='$EXPECTED_VERSION', validated='$VALIDATED_VERSION', pubspec='$ACTUAL_VERSION', snapcraft='$SNAP_VERSION')."
+            exit 1
+          fi
+          if [ -z "$EXPECTED_SHA" ] || [ "$EXPECTED_SHA" != "$VALIDATED_SHA" ] || [ "$ACTUAL_SHA" != "$VALIDATED_SHA" ]; then
+            echo "::error::Snap source SHA guard failed (expected='$EXPECTED_SHA', validated='$VALIDATED_SHA', actual='$ACTUAL_SHA')."
+            exit 1
+          fi
+          echo "Verified Snap Store publish target: ${VALIDATED_VERSION} at ${VALIDATED_SHA}"
+
+      - name: Download Snap Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: PPPlayer-Linux-Snap
+          path: snap-artifact
+
+      - name: Verify Snap Artifact Matches Version
+        id: check_snap
+        env:
+          VALIDATED_VERSION: ${{ needs.validate-and-test.outputs.version }}
+        run: |
+          set -euo pipefail
+          BASE_VERSION="${VALIDATED_VERSION#v}"
+          SNAP_FILE=$(find snap-artifact -maxdepth 2 -name "ppplayer_${BASE_VERSION}_*.snap" | head -n 1)
+          if [ -z "$SNAP_FILE" ] || [ ! -s "$SNAP_FILE" ]; then
+            echo "::error::Expected non-empty Snap artifact matching ppplayer_${BASE_VERSION}_*.snap not found."
+            ls -R snap-artifact/
+            exit 1
+          fi
+          echo "snap_path=$SNAP_FILE" >> "$GITHUB_OUTPUT"
+          ls -lh "$SNAP_FILE"
+          sha256sum "$SNAP_FILE"
+
       - name: Publish to Snap Store
-        if: github.event_name == 'workflow_dispatch' && inputs.approve_publication == true && env.SNAPCRAFT_STORE_CREDENTIALS != ''
         uses: snapcore/action-publish@v1
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
         with:
-          snap: ${{ steps.check_artifacts.outputs.snap_path }}
+          snap: ${{ steps.check_snap.outputs.snap_path }}
           release: stable

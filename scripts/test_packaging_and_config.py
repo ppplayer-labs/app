@@ -108,14 +108,11 @@ class PackagingAndConfigTests(unittest.TestCase):
         self.assertIn('CEF_SYSTEM_MEDIA_CONTROLS', win_main)
         self.assertIn('CEF_SYSTEM_MEDIA_CONTROLS', linux_app)
 
-    def test_release_workflow_gates_all_publication_behind_explicit_approval(self):
-        workflow = (ROOT / '.github/workflows/release.yml').read_text(encoding='utf-8')
-
-        # Split top-level jobs under `jobs:` without requiring third-party YAML libs.
-        jobs_section = workflow.split('\njobs:\n', 1)[1]
-        jobs = {}
+    def _split_workflow_jobs(self, workflow_text: str) -> dict[str, str]:
+        jobs_section = workflow_text.split('\njobs:\n', 1)[1]
+        jobs: dict[str, str] = {}
         current_job = None
-        current_lines = []
+        current_lines: list[str] = []
         for line in jobs_section.splitlines():
             if line.startswith('  ') and not line.startswith('   ') and line.rstrip().endswith(':'):
                 if current_job is not None:
@@ -126,51 +123,155 @@ class PackagingAndConfigTests(unittest.TestCase):
                 current_lines.append(line)
         if current_job is not None:
             jobs[current_job] = '\n'.join(current_lines)
+        return jobs
+
+    def test_linux_packaging_has_no_masked_flatpak_errors_or_global_sha_sed(self):
+        build_sh = (ROOT / 'packaging/linux/scripts/build_linux.sh').read_text(encoding='utf-8')
+        self.assertNotIn('flatpak-builder ', build_sh.split('|| true')[0] if '|| true' in build_sh else '')
+        for line in build_sh.splitlines():
+            if 'flatpak-builder' in line or 'flatpak build-bundle' in line:
+                self.assertNotIn('|| true', line, f'Masked Flatpak error found: {line}')
+        self.assertNotIn('s|sha256: [0-9a-fA-F]*|', build_sh)
+        self.assertIn('update_flatpak_manifest.py', build_sh)
+
+    def test_release_workflow_separates_github_and_snap_publication_with_strict_guards(self):
+        workflow = (ROOT / '.github/workflows/release.yml').read_text(encoding='utf-8')
+        jobs = self._split_workflow_jobs(workflow)
 
         self.assertIn('build-linux', jobs)
-        self.assertIn('publish-release', jobs)
+        self.assertIn('build-windows', jobs)
+        self.assertIn('publish-github-release', jobs)
+        self.assertIn('publish-snap', jobs)
+        self.assertNotIn('publish-release', jobs)
 
-        # Ordinary build jobs (which run on push to main) must still build & upload
-        # artifacts, including the Snap package, but MUST NEVER publish or receive
-        # store publishing credentials.
+        # Workflow inputs must expose independent, default-false publication controls + version/SHA guards.
+        on_section = workflow.split('\njobs:\n', 1)[0]
+        self.assertNotIn('approve_publication:', on_section)
+        self.assertIn('publish_github_release:', on_section)
+        self.assertIn('publish_snap_store:', on_section)
+        self.assertIn('expected_version:', on_section)
+        self.assertIn('expected_sha:', on_section)
+        self.assertEqual(on_section.count('default: false'), 2)
+
+        # Build jobs must NEVER publish or receive Snap Store credentials.
         for job_name, job_body in jobs.items():
-            if job_name == 'publish-release':
-                continue
-            self.assertNotIn(
-                'snapcore/action-publish',
-                job_body,
-                f'{job_name} must not publish to Snap Store outside publish-release',
-            )
-            self.assertNotIn(
-                'softprops/action-gh-release',
-                job_body,
-                f'{job_name} must not create GitHub Releases outside publish-release',
-            )
-            self.assertNotIn(
-                'SNAPCRAFT_STORE_CREDENTIALS',
-                job_body,
-                f'{job_name} must not receive Snap Store publishing credentials',
-            )
+            if job_name not in ('publish-github-release', 'publish-snap'):
+                self.assertNotIn('snapcore/action-publish', job_body)
+                self.assertNotIn('softprops/action-gh-release', job_body)
+                self.assertNotIn('SNAPCRAFT_STORE_CREDENTIALS', job_body)
 
         self.assertIn('snapcore/action-build@v1', jobs['build-linux'])
         self.assertIn('PPPlayer-Linux-Snap', jobs['build-linux'])
 
-        # publish-release must require all platform builds AND explicit workflow_dispatch approval.
-        publish_job = jobs['publish-release']
+        # GitHub Release job: independent of Snap, requires all platform builds, guards version/SHA/tag.
+        gh_job = jobs['publish-github-release']
         self.assertIn(
             'needs: [validate-and-test, build-android, build-macos, build-windows, build-linux]',
-            publish_job,
+            gh_job,
         )
         self.assertIn(
-            "if: github.event_name == 'workflow_dispatch' && inputs.approve_publication == true && needs.validate-and-test.outputs.is_new_version == 'true'",
-            publish_job,
+            "if: github.event_name == 'workflow_dispatch' && inputs.publish_github_release == true && needs.validate-and-test.outputs.should_build == 'true'",
+            gh_job,
         )
-        self.assertIn('snapcore/action-publish@v1', publish_job)
+        self.assertIn('contents: write', gh_job)
+        self.assertIn('softprops/action-gh-release@v2', gh_job)
+        self.assertNotIn('snapcore/action-publish', gh_job)
+        self.assertNotIn('SNAPCRAFT_STORE_CREDENTIALS', gh_job)
+        self.assertIn('EXPECTED_VERSION', gh_job)
+        self.assertIn('EXPECTED_SHA', gh_job)
+        self.assertIn('git ls-remote --tags origin', gh_job)
+
+        # Snap Store job: independent of GitHub Release, requires validate + build-linux, read-only repo perms.
+        snap_job = jobs['publish-snap']
+        self.assertIn('needs: [validate-and-test, build-linux]', snap_job)
         self.assertIn(
-            "if: github.event_name == 'workflow_dispatch' && inputs.approve_publication == true && env.SNAPCRAFT_STORE_CREDENTIALS != ''",
-            publish_job,
+            "if: github.event_name == 'workflow_dispatch' && inputs.publish_snap_store == true && needs.validate-and-test.outputs.should_build == 'true'",
+            snap_job,
         )
-        self.assertIn('softprops/action-gh-release@v2', publish_job)
+        self.assertIn('contents: read', snap_job)
+        self.assertNotIn('contents: write', snap_job)
+        self.assertIn('snapcore/action-publish@v1', snap_job)
+        self.assertNotIn('softprops/action-gh-release', snap_job)
+        self.assertIn('if [ -z "$SNAPCRAFT_STORE_CREDENTIALS" ]; then', snap_job)
+        self.assertNotIn('echo "$SNAPCRAFT_STORE_CREDENTIALS"', snap_job)
+        self.assertIn('EXPECTED_VERSION', snap_job)
+        self.assertIn('EXPECTED_SHA', snap_job)
+
+        # Evaluate the workflow decision matrix across all publication combinations.
+        def eval_channels(
+            *,
+            event: str,
+            publish_github: bool = False,
+            publish_snap: bool = False,
+            builds_ok: bool = True,
+            linux_ok: bool = True,
+            should_build: bool = True,
+        ) -> tuple[bool, bool]:
+            gh_runs = (
+                event == 'workflow_dispatch'
+                and publish_github
+                and should_build
+                and builds_ok
+                and linux_ok
+            )
+            snap_runs = (
+                event == 'workflow_dispatch'
+                and publish_snap
+                and should_build
+                and linux_ok
+            )
+            return gh_runs, snap_runs
+
+        self.assertEqual(eval_channels(event='push'), (False, False))
+        self.assertEqual(eval_channels(event='pull_request'), (False, False))
+        self.assertEqual(eval_channels(event='workflow_dispatch'), (False, False))
+        self.assertEqual(
+            eval_channels(event='workflow_dispatch', publish_github=True, publish_snap=False),
+            (True, False),
+        )
+        self.assertEqual(
+            eval_channels(event='workflow_dispatch', publish_github=False, publish_snap=True),
+            (False, True),
+        )
+        self.assertEqual(
+            eval_channels(event='workflow_dispatch', publish_github=True, publish_snap=True),
+            (True, True),
+        )
+        self.assertEqual(
+            eval_channels(
+                event='workflow_dispatch',
+                publish_github=True,
+                publish_snap=True,
+                builds_ok=False,
+                linux_ok=True,
+            ),
+            (False, True),
+        )
+        self.assertEqual(
+            eval_channels(
+                event='workflow_dispatch',
+                publish_github=True,
+                publish_snap=True,
+                builds_ok=False,
+                linux_ok=False,
+            ),
+            (False, False),
+        )
+
+    def test_release_workflow_excludes_unsigned_windows_msix_from_public_github_release(self):
+        workflow = (ROOT / '.github/workflows/release.yml').read_text(encoding='utf-8')
+        jobs = self._split_workflow_jobs(workflow)
+
+        # Microsoft Partner Center packaging job remains intact and uploads CI artifact.
+        win_job = jobs['build-windows']
+        self.assertIn('dart run msix:create', win_job)
+        self.assertIn('name: PPPlayer-Windows-MSIX', win_job)
+
+        # Public GitHub Release job must NEVER copy or ship *.msix files.
+        gh_job = jobs['publish-github-release']
+        self.assertNotIn('PPPlayer-Windows.msix', gh_job)
+        self.assertNotIn('cp artifacts/PPPlayer-Windows-MSIX', gh_job)
+        self.assertIn('find release-assets -iname "*.msix"', gh_job)
 
     def test_pr_validation_workflow_cannot_publish_or_access_release_secrets(self):
         pr_workflow = (ROOT / '.github/workflows/pr-validation.yml').read_text(encoding='utf-8')
