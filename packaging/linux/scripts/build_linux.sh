@@ -302,15 +302,26 @@ python3 "$MANIFEST_UPDATER" \
     --archive-name "$TAR_NAME"
 
 # Optional Flatpak bundle build:
-#   - Not requested (default): do not invoke flatpak-builder.
-#   - Requested + tooling unavailable: skip explicitly and report not executed.
-#   - Requested + tooling available: execute strictly (fail on any error; never mask).
+#   - Not requested (default): skip normally; Linux packaging succeeds.
+#   - Explicitly requested + tooling missing: fail with a clear nonzero exit.
+#   - Explicitly requested + tooling available: execute strictly (never mask errors),
+#     preserve logs, verify non-empty output bundle, and include in SHA256SUMS.
 FLATPAK_BUNDLE_NAME="PPPlayer-Linux-x86_64.flatpak"
 if [ "$BUILD_FLATPAK" != "1" ]; then
     echo "Flatpak bundle build not requested (pass --build-flatpak or set PPPLAYER_BUILD_FLATPAK=1 to enable); staged Flatpak metadata only."
-elif ! command -v flatpak-builder &> /dev/null || ! command -v flatpak &> /dev/null; then
-    echo "SKIPPED: Flatpak tooling (flatpak-builder/flatpak) unavailable; optional Flatpak bundle build was not executed."
 else
+    MISSING_FLATPAK_TOOLS=()
+    if ! command -v flatpak-builder &> /dev/null; then
+        MISSING_FLATPAK_TOOLS+=("flatpak-builder")
+    fi
+    if ! command -v flatpak &> /dev/null; then
+        MISSING_FLATPAK_TOOLS+=("flatpak")
+    fi
+    if [ "${#MISSING_FLATPAK_TOOLS[@]}" -gt 0 ]; then
+        echo "Error: Flatpak build was explicitly requested, but required tooling is missing: ${MISSING_FLATPAK_TOOLS[*]}." >&2
+        exit 1
+    fi
+
     FLATPAK_MANIFEST_TO_BUILD="${FLATPAK_MANIFEST_OVERRIDE:-$FLATPAK_DIST_DIR/com.ppplayer.PPPlayer.yml}"
     if [ ! -f "$FLATPAK_MANIFEST_TO_BUILD" ]; then
         echo "Error: Requested Flatpak manifest does not exist: $FLATPAK_MANIFEST_TO_BUILD" >&2

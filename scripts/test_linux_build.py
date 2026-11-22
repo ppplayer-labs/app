@@ -407,7 +407,7 @@ class LinuxBuildTests(unittest.TestCase):
                     f'Staged manifest corrupted third-party SHA-256 for {dep_name}',
                 )
 
-    def test_flatpak_requested_when_tooling_unavailable_skips_explicitly(self):
+    def test_flatpak_requested_when_tooling_unavailable_fails_nonzero(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             fake_bin, calls = _make_fake_project(root, include_flatpak_tools=False)
@@ -418,10 +418,56 @@ class LinuxBuildTests(unittest.TestCase):
                 capture_output=True,
                 text=True,
             )
-            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-            self.assertIn('SKIPPED: Flatpak tooling', result.stdout)
+            self.assertNotEqual(result.returncode, 0, 'Missing tooling must fail when Flatpak build is explicitly requested')
+            self.assertIn('required tooling is missing', result.stderr)
+            self.assertIn('flatpak-builder', result.stderr)
+            self.assertIn('flatpak', result.stderr)
             self.assertNotIn('flatpak-builder', calls.read_text(encoding='utf-8'))
             self.assertFalse((root / 'dist/PPPlayer-Linux-x86_64.flatpak').exists())
+
+            # Also verify env-var trigger fails identically when tooling is unavailable
+            env_var = dict(env, PPPLAYER_BUILD_FLATPAK='1')
+            result_env = subprocess.run(
+                ['bash', str(SCRIPT), str(root)],
+                env=env_var,
+                capture_output=True,
+                text=True,
+            )
+            self.assertNotEqual(result_env.returncode, 0)
+            self.assertIn('required tooling is missing', result_env.stderr)
+
+    def test_flatpak_requested_when_bundle_is_missing_or_empty_fails(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            fake_bin, _calls = _make_fake_project(root, include_flatpak_tools=True)
+            # Replace flatpak stub so build-bundle exits 0 but writes an empty file
+            flatpak_stub = fake_bin / 'flatpak'
+            flatpak_stub.write_text(
+                '#!/bin/sh\nif [ "$1" = "build-bundle" ]; then : > "$3"; fi\n',
+                encoding='utf-8',
+            )
+            flatpak_stub.chmod(0o755)
+            env = _isolated_env(fake_bin)
+            result = subprocess.run(
+                ['bash', str(SCRIPT), '--build-flatpak', str(root)],
+                env=env,
+                capture_output=True,
+                text=True,
+            )
+            self.assertNotEqual(result.returncode, 0, 'Empty Flatpak bundle must fail validation')
+            self.assertIn('did not produce a non-empty bundle', result.stderr)
+
+            # Also test missing bundle (build-bundle exits 0 without creating the file)
+            flatpak_stub.write_text('#!/bin/sh\nexit 0\n', encoding='utf-8')
+            flatpak_stub.chmod(0o755)
+            result_missing = subprocess.run(
+                ['bash', str(SCRIPT), '--build-flatpak', str(root)],
+                env=env,
+                capture_output=True,
+                text=True,
+            )
+            self.assertNotEqual(result_missing.returncode, 0, 'Missing Flatpak bundle must fail validation')
+            self.assertIn('did not produce a non-empty bundle', result_missing.stderr)
 
     def test_flatpak_requested_when_tooling_available_fails_on_builder_error(self):
         with tempfile.TemporaryDirectory() as directory:
