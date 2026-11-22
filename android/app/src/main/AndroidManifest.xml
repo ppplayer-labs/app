@@ -76,9 +76,6 @@
         <meta-data
             android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
             android:value="com.ppplayer.app.PPPlayerCastOptionsProvider" />
-        <meta-data
-            android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3432071939645868~8695536023"/>
     </application>
     <queries>
         <intent>

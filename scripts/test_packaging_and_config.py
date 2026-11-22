@@ -34,17 +34,25 @@ class PackagingAndConfigTests(unittest.TestCase):
         self.assertIn('24', gradle)
         self.assertIn('min_sdk_android: 24', app_pubspec)
 
-    def test_android_admob_uses_production_ids(self):
+    def test_temporary_ads_free_release_has_no_admob_sdk_or_ids(self):
+        pubspec = (ROOT / 'pubspec.yaml').read_text(encoding='utf-8')
+        pubspec_lock = (ROOT / 'pubspec.lock').read_text(encoding='utf-8')
         manifest = (ROOT / 'android/app/src/main/AndroidManifest.xml').read_text(encoding='utf-8')
+        info_plist = (ROOT / 'ios/Runner/Info.plist').read_text(encoding='utf-8')
         ad_service = (ROOT / 'lib/core/services/ad_service.dart').read_text(encoding='utf-8')
+        banner_widget = (ROOT / 'lib/shared/widgets/banner_ad_widget.dart').read_text(encoding='utf-8')
         main_dart = (ROOT / 'lib/main.dart').read_text(encoding='utf-8')
-        self.assertNotIn('ca-app-pub-3940256099942544~3347511713', manifest)
-        self.assertIn('ca-app-pub-3432071939645868~8695536023', manifest)
-        self.assertIn('ca-app-pub-3432071939645868/7074619663', ad_service)
-        self.assertIn('kReleaseMode', ad_service)
-        self.assertIn('ConsentInformation.instance', ad_service)
-        self.assertIn('loadAndShowConsentFormIfRequired', ad_service)
-        self.assertIn('canRequestAds', ad_service)
+
+        self.assertNotIn('google_mobile_ads', pubspec)
+        self.assertNotIn('google_mobile_ads', pubspec_lock)
+        self.assertNotIn('com.google.android.gms.ads.APPLICATION_ID', manifest)
+        self.assertNotIn('ca-app-pub-', manifest)
+        self.assertNotIn('GADApplicationIdentifier', info_plist)
+        self.assertNotIn('SKAdNetworkItems', info_plist)
+        self.assertNotIn('google_mobile_ads', ad_service)
+        self.assertNotIn('ca-app-pub-', ad_service)
+        self.assertNotIn('ConsentInformation', ad_service)
+        self.assertNotIn('google_mobile_ads', banner_widget)
         self.assertNotIn('MobileAds.instance.initialize', main_dart)
 
     def test_android_webview_quotes_video_id_for_js_safety(self):

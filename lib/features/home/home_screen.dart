@@ -8,10 +8,7 @@ import '../../shared/widgets/playlist_cover.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/player/player_provider.dart';
 import '../../core/playback/playback_service.dart';
-import '../../shared/widgets/banner_ad_widget.dart';
-import '../../shared/widgets/promotion_tile.dart';
 import '../../shared/widgets/tactile_buttons.dart';
-import '../../core/services/ad_service.dart';
 import '../../core/providers/genre_providers.dart';
 import '../../shared/widgets/section_wrapper.dart';
 import '../../core/theme/app_theme.dart';
@@ -622,8 +619,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                const BannerAdWidget(),
-                const SizedBox(height: 32),
                 StaggeredHomeSection<Map<String, dynamic>>(
                   title: AppLocalizations.of(context)!.newReleases,
                   provider: newReleasesProvider,
@@ -658,30 +653,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     height: 230,
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
-                      itemCount: tracks.length + 1,
+                      itemCount: tracks.length,
                       itemBuilder: (context, index) {
-                        if (index == 4) {
-                          final promo = ref
-                              .read(adServiceProvider)
-                              .getPromoData()[0];
-                          return PromotionTile(
-                                title: promo['title']!,
-                                subtitle: promo['subtitle']!,
-                                imageUrl: promo['image'],
-                                ctaText: promo['cta']!,
-                                type: PromotionType.horizontal,
-                              )
-                              .animate()
-                              .fadeIn(delay: (index * 100).ms)
-                              .scale(begin: const Offset(0.9, 0.9));
-                        }
-
-                        final trackIndex = index > 4 ? index - 1 : index;
-                        if (trackIndex >= tracks.length) {
-                          return const SizedBox.shrink();
-                        }
-
-                        final track = tracks[trackIndex];
+                        final track = tracks[index];
                         return _AlbumCard(
                               title: track.name,
                               subtitle: track.artistName,
@@ -779,23 +753,9 @@ class _HorizontalList extends ConsumerWidget {
             height: 230,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: items.length + 1,
+              itemCount: items.length,
               itemBuilder: (context, index) {
-                if (index == 3) {
-                  final promo = ref.read(adServiceProvider).getPromoData()[1];
-                  return PromotionTile(
-                    title: promo['title']!,
-                    subtitle: promo['subtitle']!,
-                    imageUrl: promo['image'],
-                    ctaText: promo['cta']!,
-                    type: PromotionType.horizontal,
-                  );
-                }
-
-                final itemIndex = index > 3 ? index - 1 : index;
-                if (itemIndex >= items.length) return const SizedBox.shrink();
-
-                final item = items[itemIndex];
+                final item = items[index];
                 final rawImages = (item['images'] as List?) ?? [];
                 final images = rawImages
                     .map((i) => i['url'] as String)
