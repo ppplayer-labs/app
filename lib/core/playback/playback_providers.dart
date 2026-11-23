@@ -214,6 +214,7 @@ final localPlaybackControllerProvider = Provider<PlaybackController>((ref) {
         fallback: engine,
         startPlaybackService: null,
         stopPlaybackService: null,
+        idleBrowserReleaseDelay: const Duration(seconds: 60),
         initializeCef: () async {
           final directory = await getApplicationSupportDirectory();
           if (!await ChromiumWebViewController.initialize(

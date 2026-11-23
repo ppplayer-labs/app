@@ -223,7 +223,8 @@ class _TactilePlayerPlayPauseButtonState
       value: widget.isPlaying ? 1.0 : 0.0,
     );
 
-    // Continuous 3.6-second living Material 3 Expressive undulation during playback
+    // Keep steady-state playing static after the one-shot Brand Ignition burst
+    // so playback does not schedule 60 FPS blur repaints while audio plays.
     _loopController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 3600),
@@ -233,10 +234,6 @@ class _TactilePlayerPlayPauseButtonState
       vsync: this,
       duration: const Duration(milliseconds: 1200),
     );
-
-    if (widget.isPlaying) {
-      _loopController.repeat();
-    }
 
     if (widget.isLoading) {
       _loadingController.repeat();
@@ -249,10 +246,8 @@ class _TactilePlayerPlayPauseButtonState
     if (widget.isPlaying != oldWidget.isPlaying) {
       if (widget.isPlaying) {
         _transitionController.forward(from: 0.0);
-        _loopController.repeat();
       } else {
         _transitionController.reverse();
-        _loopController.stop();
       }
     }
 
@@ -295,12 +290,13 @@ class _TactilePlayerPlayPauseButtonState
             ? AppLocalizations.of(context)!.pause
             : AppLocalizations.of(context)!.play);
 
-    Widget buttonContent = AnimatedBuilder(
-      animation: Listenable.merge([
-        _transitionController,
-        _loopController,
-        _loadingController,
-      ]),
+    Widget buttonContent = RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: Listenable.merge([
+          _transitionController,
+          _loopController,
+          _loadingController,
+        ]),
       builder: (context, _) {
         final transition = _transitionController.value;
         final isReversing =
@@ -534,6 +530,7 @@ class _TactilePlayerPlayPauseButtonState
           ),
         );
       },
+      ),
     );
 
     return Semantics(

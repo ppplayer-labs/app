@@ -93,18 +93,10 @@ class RecentlyPlayedScreen extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
-                              Icons.history_rounded,
-                              color: colorScheme.onSurface.withValues(
-                                alpha: 0.1,
-                              ),
-                              size: 80,
-                            )
-                            .animate(onPlay: (c) => c.repeat(reverse: true))
-                            .scale(
-                              duration: 2.seconds,
-                              begin: const Offset(0.9, 0.9),
-                              end: const Offset(1.1, 1.1),
-                            ),
+                          Icons.history_rounded,
+                          color: colorScheme.onSurface.withValues(alpha: 0.1),
+                          size: 80,
+                        ).animate().fadeIn(duration: 400.ms),
                         const SizedBox(height: 24),
                         Text(
                           AppLocalizations.of(context)!.noTracksFound,

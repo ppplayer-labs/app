@@ -597,157 +597,123 @@ class _LikedSongsCard extends StatelessWidget {
               ),
             ),
             clipBehavior: Clip.antiAlias,
-            child: Stack(
-              children: [
-                // Mesh Blobs
-                Positioned(
-                  right: -40,
-                  top: -40,
-                  child:
-                      Container(
-                            width: 180,
-                            height: 180,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: RadialGradient(
-                                colors: [
-                                  Theme.of(
-                                    context,
-                                  ).colorScheme.primary.withValues(alpha: 0.4),
-                                  Colors.transparent,
-                                ],
-                              ),
-                            ),
-                          )
-                          .animate(onPlay: (c) => c.repeat(reverse: true))
-                          .move(end: const Offset(20, 20), duration: 4.seconds),
-                ),
-                Positioned(
-                  left: -20,
-                  bottom: -20,
-                  child:
-                      Container(
-                            width: 120,
-                            height: 120,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: RadialGradient(
-                                colors: [
-                                  Theme.of(context).colorScheme.secondary
-                                      .withValues(alpha: 0.2),
-                                  Colors.transparent,
-                                ],
-                              ),
-                            ),
-                          )
-                          .animate(onPlay: (c) => c.repeat(reverse: true))
-                          .move(
-                            end: const Offset(-10, -10),
-                            duration: 3.seconds,
-                          ),
-                ),
-                // Decorative Heart Background
-                // Background Visual Flair
-                Positioned(
-                      right: -30,
-                      top: -20,
-                      child: Container(
-                        width: 200,
-                        height: 200,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: RadialGradient(
-                            colors: [
-                              Theme.of(
-                                context,
-                              ).colorScheme.tertiary.withValues(alpha: 0.15),
-                              Colors.transparent,
-                            ],
-                          ),
-                        ),
-                      ),
-                    )
-                    .animate(onPlay: (c) => c.repeat(reverse: true))
-                    .scale(
-                      begin: const Offset(1, 1),
-                      end: const Offset(1.3, 1.3),
-                      duration: 5.seconds,
-                      curve: Curves.easeInOut,
-                    ),
-                Positioned(
-                      left: -20,
-                      bottom: -30,
-                      child: Container(
-                        width: 150,
-                        height: 150,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: RadialGradient(
-                            colors: [
-                              Theme.of(
-                                context,
-                              ).colorScheme.primary.withValues(alpha: 0.1),
-                              Colors.transparent,
-                            ],
-                          ),
-                        ),
-                      ),
-                    )
-                    .animate(onPlay: (c) => c.repeat(reverse: true))
-                    .scale(
-                      begin: const Offset(1.2, 1.2),
-                      end: const Offset(1, 1),
-                      duration: 7.seconds,
-                      curve: Curves.easeInOut,
-                    ),
-                // Content
-                Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 92,
-                        height: 92,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              Theme.of(context).colorScheme.primary,
-                              Theme.of(context).colorScheme.primaryContainer,
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(24),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.primary.withValues(alpha: 0.4),
-                              blurRadius: 20,
-                              offset: const Offset(0, 8),
-                            ),
+            child: RepaintBoundary(
+              child: Stack(
+                children: [
+                  // Mesh Blobs (static layered radial gradients)
+                  Positioned(
+                    right: -40,
+                    top: -40,
+                    child: Container(
+                      width: 180,
+                      height: 180,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: RadialGradient(
+                          colors: [
+                            Theme.of(
+                              context,
+                            ).colorScheme.primary.withValues(alpha: 0.4),
+                            Colors.transparent,
                           ],
                         ),
-                        child: Center(
-                          child:
-                              Icon(
-                                    Icons.favorite_rounded,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onPrimary,
-                                    size: 42,
-                                  )
-                                  .animate(
-                                    onPlay: (c) => c.repeat(reverse: true),
-                                  )
-                                  .scale(
-                                    begin: const Offset(1, 1),
-                                    end: const Offset(1.15, 1.15),
-                                    duration: 1200.ms,
-                                    curve: Curves.easeInOut,
-                                  ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    left: -20,
+                    bottom: -20,
+                    child: Container(
+                      width: 120,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: RadialGradient(
+                          colors: [
+                            Theme.of(
+                              context,
+                            ).colorScheme.secondary.withValues(alpha: 0.2),
+                            Colors.transparent,
+                          ],
                         ),
                       ),
+                    ),
+                  ),
+                  // Background Visual Flair
+                  Positioned(
+                    right: -30,
+                    top: -20,
+                    child: Container(
+                      width: 200,
+                      height: 200,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: RadialGradient(
+                          colors: [
+                            Theme.of(
+                              context,
+                            ).colorScheme.tertiary.withValues(alpha: 0.15),
+                            Colors.transparent,
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    left: -20,
+                    bottom: -30,
+                    child: Container(
+                      width: 150,
+                      height: 150,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: RadialGradient(
+                          colors: [
+                            Theme.of(
+                              context,
+                            ).colorScheme.primary.withValues(alpha: 0.1),
+                            Colors.transparent,
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Content
+                  Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 92,
+                          height: 92,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                Theme.of(context).colorScheme.primary,
+                                Theme.of(context).colorScheme.primaryContainer,
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(24),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.primary.withValues(alpha: 0.4),
+                                blurRadius: 20,
+                                offset: const Offset(0, 8),
+                              ),
+                            ],
+                          ),
+                          child: Center(
+                            child: Icon(
+                              Icons.favorite_rounded,
+                              color: Theme.of(context).colorScheme.onPrimary,
+                              size: 42,
+                            ),
+                          ),
+                        ),
                       const SizedBox(width: 24),
                       Expanded(
                         child: Column(
@@ -843,8 +809,9 @@ class _LikedSongsCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                ),
-              ],
+                  ),
+                ],
+              ),
             ),
           ),
         );
@@ -895,156 +862,122 @@ class _LocalMusicCard extends StatelessWidget {
               ),
             ),
             clipBehavior: Clip.antiAlias,
-            child: Stack(
-              children: [
-                // Mesh Blobs
-                Positioned(
-                  right: -40,
-                  top: -40,
-                  child:
-                      Container(
-                            width: 180,
-                            height: 180,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: RadialGradient(
-                                colors: [
-                                  Theme.of(
-                                    context,
-                                  ).colorScheme.tertiary.withValues(alpha: 0.4),
-                                  Colors.transparent,
-                                ],
-                              ),
-                            ),
-                          )
-                          .animate(onPlay: (c) => c.repeat(reverse: true))
-                          .move(end: const Offset(20, 20), duration: 4.seconds),
-                ),
-                Positioned(
-                  left: -20,
-                  bottom: -20,
-                  child:
-                      Container(
-                            width: 120,
-                            height: 120,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: RadialGradient(
-                                colors: [
-                                  Theme.of(
-                                    context,
-                                  ).colorScheme.tertiary.withValues(alpha: 0.2),
-                                  Colors.transparent,
-                                ],
-                              ),
-                            ),
-                          )
-                          .animate(onPlay: (c) => c.repeat(reverse: true))
-                          .move(
-                            end: const Offset(-10, -10),
-                            duration: 3.seconds,
-                          ),
-                ),
-                Positioned(
-                      right: -30,
-                      top: -20,
-                      child: Container(
-                        width: 200,
-                        height: 200,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: RadialGradient(
-                            colors: [
-                              Theme.of(
-                                context,
-                              ).colorScheme.primary.withValues(alpha: 0.15),
-                              Colors.transparent,
-                            ],
-                          ),
-                        ),
-                      ),
-                    )
-                    .animate(onPlay: (c) => c.repeat(reverse: true))
-                    .scale(
-                      begin: const Offset(1, 1),
-                      end: const Offset(1.3, 1.3),
-                      duration: 5.seconds,
-                      curve: Curves.easeInOut,
-                    ),
-                Positioned(
-                      left: -20,
-                      bottom: -30,
-                      child: Container(
-                        width: 150,
-                        height: 150,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: RadialGradient(
-                            colors: [
-                              Theme.of(
-                                context,
-                              ).colorScheme.secondary.withValues(alpha: 0.1),
-                              Colors.transparent,
-                            ],
-                          ),
-                        ),
-                      ),
-                    )
-                    .animate(onPlay: (c) => c.repeat(reverse: true))
-                    .scale(
-                      begin: const Offset(1.2, 1.2),
-                      end: const Offset(1, 1),
-                      duration: 7.seconds,
-                      curve: Curves.easeInOut,
-                    ),
-                // Content
-                Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 92,
-                        height: 92,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              Theme.of(context).colorScheme.tertiary,
-                              Theme.of(context).colorScheme.tertiaryContainer,
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(24),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.tertiary.withValues(alpha: 0.4),
-                              blurRadius: 20,
-                              offset: const Offset(0, 8),
-                            ),
+            child: RepaintBoundary(
+              child: Stack(
+                children: [
+                  // Mesh Blobs (static layered radial gradients)
+                  Positioned(
+                    right: -40,
+                    top: -40,
+                    child: Container(
+                      width: 180,
+                      height: 180,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: RadialGradient(
+                          colors: [
+                            Theme.of(
+                              context,
+                            ).colorScheme.tertiary.withValues(alpha: 0.4),
+                            Colors.transparent,
                           ],
                         ),
-                        child: Center(
-                          child:
-                              Icon(
-                                    Icons.library_music_rounded,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onTertiary,
-                                    size: 42,
-                                  )
-                                  .animate(
-                                    onPlay: (c) => c.repeat(reverse: true),
-                                  )
-                                  .scale(
-                                    begin: const Offset(1, 1),
-                                    end: const Offset(1.15, 1.15),
-                                    duration: 1200.ms,
-                                    curve: Curves.easeInOut,
-                                  ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    left: -20,
+                    bottom: -20,
+                    child: Container(
+                      width: 120,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: RadialGradient(
+                          colors: [
+                            Theme.of(
+                              context,
+                            ).colorScheme.tertiary.withValues(alpha: 0.2),
+                            Colors.transparent,
+                          ],
                         ),
                       ),
+                    ),
+                  ),
+                  Positioned(
+                    right: -30,
+                    top: -20,
+                    child: Container(
+                      width: 200,
+                      height: 200,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: RadialGradient(
+                          colors: [
+                            Theme.of(
+                              context,
+                            ).colorScheme.primary.withValues(alpha: 0.15),
+                            Colors.transparent,
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    left: -20,
+                    bottom: -30,
+                    child: Container(
+                      width: 150,
+                      height: 150,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: RadialGradient(
+                          colors: [
+                            Theme.of(
+                              context,
+                            ).colorScheme.secondary.withValues(alpha: 0.1),
+                            Colors.transparent,
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Content
+                  Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 92,
+                          height: 92,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                Theme.of(context).colorScheme.tertiary,
+                                Theme.of(context).colorScheme.tertiaryContainer,
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(24),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.tertiary.withValues(alpha: 0.4),
+                                blurRadius: 20,
+                                offset: const Offset(0, 8),
+                              ),
+                            ],
+                          ),
+                          child: Center(
+                            child: Icon(
+                              Icons.library_music_rounded,
+                              color: Theme.of(context).colorScheme.onTertiary,
+                              size: 42,
+                            ),
+                          ),
+                        ),
                       const SizedBox(width: 24),
                       Expanded(
                         child: Column(
@@ -1131,8 +1064,9 @@ class _LocalMusicCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                ),
-              ],
+                  ),
+                ],
+              ),
             ),
           ),
         );
@@ -1184,154 +1118,122 @@ class _LocalVideoCard extends StatelessWidget {
               ),
             ),
             clipBehavior: Clip.antiAlias,
-            child: Stack(
-              children: [
-                // Mesh Blobs
-                Positioned(
-                  right: -40,
-                  top: -40,
-                  child:
-                      Container(
-                            width: 180,
-                            height: 180,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: RadialGradient(
-                                colors: [
-                                  Theme.of(context).colorScheme.primaryContainer
-                                      .withValues(alpha: 0.4),
-                                  Colors.transparent,
-                                ],
-                              ),
-                            ),
-                          )
-                          .animate(onPlay: (c) => c.repeat(reverse: true))
-                          .move(end: const Offset(20, 20), duration: 4.seconds),
-                ),
-                Positioned(
-                  left: -20,
-                  bottom: -20,
-                  child:
-                      Container(
-                            width: 120,
-                            height: 120,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: RadialGradient(
-                                colors: [
-                                  Theme.of(context).colorScheme.primaryContainer
-                                      .withValues(alpha: 0.2),
-                                  Colors.transparent,
-                                ],
-                              ),
-                            ),
-                          )
-                          .animate(onPlay: (c) => c.repeat(reverse: true))
-                          .move(
-                            end: const Offset(-10, -10),
-                            duration: 3.seconds,
-                          ),
-                ),
-                Positioned(
-                      right: -30,
-                      top: -20,
-                      child: Container(
-                        width: 200,
-                        height: 200,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: RadialGradient(
-                            colors: [
-                              Theme.of(
-                                context,
-                              ).colorScheme.secondary.withValues(alpha: 0.15),
-                              Colors.transparent,
-                            ],
-                          ),
-                        ),
-                      ),
-                    )
-                    .animate(onPlay: (c) => c.repeat(reverse: true))
-                    .scale(
-                      begin: const Offset(1, 1),
-                      end: const Offset(1.3, 1.3),
-                      duration: 5.seconds,
-                      curve: Curves.easeInOut,
-                    ),
-                Positioned(
-                      left: -20,
-                      bottom: -30,
-                      child: Container(
-                        width: 150,
-                        height: 150,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: RadialGradient(
-                            colors: [
-                              Theme.of(
-                                context,
-                              ).colorScheme.tertiary.withValues(alpha: 0.1),
-                              Colors.transparent,
-                            ],
-                          ),
-                        ),
-                      ),
-                    )
-                    .animate(onPlay: (c) => c.repeat(reverse: true))
-                    .scale(
-                      begin: const Offset(1.2, 1.2),
-                      end: const Offset(1, 1),
-                      duration: 7.seconds,
-                      curve: Curves.easeInOut,
-                    ),
-                // Content
-                Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 92,
-                        height: 92,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              Theme.of(context).colorScheme.primary,
-                              Theme.of(context).colorScheme.primaryContainer,
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(24),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.primary.withValues(alpha: 0.4),
-                              blurRadius: 20,
-                              offset: const Offset(0, 8),
-                            ),
+            child: RepaintBoundary(
+              child: Stack(
+                children: [
+                  // Mesh Blobs (static layered radial gradients)
+                  Positioned(
+                    right: -40,
+                    top: -40,
+                    child: Container(
+                      width: 180,
+                      height: 180,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: RadialGradient(
+                          colors: [
+                            Theme.of(
+                              context,
+                            ).colorScheme.primaryContainer.withValues(alpha: 0.4),
+                            Colors.transparent,
                           ],
                         ),
-                        child: Center(
-                          child:
-                              Icon(
-                                    Icons.video_library_rounded,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onPrimary,
-                                    size: 42,
-                                  )
-                                  .animate(
-                                    onPlay: (c) => c.repeat(reverse: true),
-                                  )
-                                  .scale(
-                                    begin: const Offset(1, 1),
-                                    end: const Offset(1.15, 1.15),
-                                    duration: 1200.ms,
-                                    curve: Curves.easeInOut,
-                                  ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    left: -20,
+                    bottom: -20,
+                    child: Container(
+                      width: 120,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: RadialGradient(
+                          colors: [
+                            Theme.of(
+                              context,
+                            ).colorScheme.primaryContainer.withValues(alpha: 0.2),
+                            Colors.transparent,
+                          ],
                         ),
                       ),
+                    ),
+                  ),
+                  Positioned(
+                    right: -30,
+                    top: -20,
+                    child: Container(
+                      width: 200,
+                      height: 200,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: RadialGradient(
+                          colors: [
+                            Theme.of(
+                              context,
+                            ).colorScheme.secondary.withValues(alpha: 0.15),
+                            Colors.transparent,
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    left: -20,
+                    bottom: -30,
+                    child: Container(
+                      width: 150,
+                      height: 150,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: RadialGradient(
+                          colors: [
+                            Theme.of(
+                              context,
+                            ).colorScheme.tertiary.withValues(alpha: 0.1),
+                            Colors.transparent,
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Content
+                  Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 92,
+                          height: 92,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                Theme.of(context).colorScheme.primary,
+                                Theme.of(context).colorScheme.primaryContainer,
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(24),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.primary.withValues(alpha: 0.4),
+                                blurRadius: 20,
+                                offset: const Offset(0, 8),
+                              ),
+                            ],
+                          ),
+                          child: Center(
+                            child: Icon(
+                              Icons.video_library_rounded,
+                              color: Theme.of(context).colorScheme.onPrimary,
+                              size: 42,
+                            ),
+                          ),
+                        ),
                       const SizedBox(width: 24),
                       Expanded(
                         child: Column(
@@ -1425,6 +1327,7 @@ class _LocalVideoCard extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
             ),
           ),
         );

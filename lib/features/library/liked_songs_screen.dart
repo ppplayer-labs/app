@@ -204,30 +204,14 @@ class _LikedSongsScreenState extends ConsumerState<LikedSongsScreen> {
                                     ),
                                   ),
                                   child: Center(
-                                    child:
-                                        Icon(
-                                              Icons.favorite,
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .onSurface
-                                                  .withValues(alpha: 0.1),
-                                              size: 140,
-                                            )
-                                            .animate(
-                                              onPlay: (controller) => controller
-                                                  .repeat(reverse: true),
-                                            )
-                                            .scale(
-                                              begin: const Offset(1, 1),
-                                              end: const Offset(1.15, 1.15),
-                                              duration: 3.seconds,
-                                              curve: Curves.easeInOut,
-                                            )
-                                            .blurXY(
-                                              begin: 0,
-                                              end: 10,
-                                              duration: 3.seconds,
-                                            ),
+                                    child: Icon(
+                                      Icons.favorite,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface
+                                          .withValues(alpha: 0.1),
+                                      size: 140,
+                                    ),
                                   ),
                                 ),
                                 // Lush Premium Gradient Overlay
@@ -435,30 +419,23 @@ class _LikedSongsScreenState extends ConsumerState<LikedSongsScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Container(
-                              padding: const EdgeInsets.all(24),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurface.withValues(alpha: 0.03),
-                              ),
-                              child: Icon(
-                                _searchQuery.isNotEmpty
-                                    ? Icons.search_off_rounded
-                                    : Icons.favorite_rounded,
-                                size: 64,
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurface.withValues(alpha: 0.1),
-                              ),
-                            )
-                            .animate(onPlay: (c) => c.repeat(reverse: true))
-                            .scale(
-                              begin: const Offset(1, 1),
-                              end: const Offset(1.1, 1.1),
-                              duration: 2.seconds,
-                            )
-                            .fadeIn(duration: 600.ms),
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.03),
+                          ),
+                          child: Icon(
+                            _searchQuery.isNotEmpty
+                                ? Icons.search_off_rounded
+                                : Icons.favorite_rounded,
+                            size: 64,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.1),
+                          ),
+                        ).animate().fadeIn(duration: 400.ms),
                         const SizedBox(height: 32),
                         Text(
                               _searchQuery.isNotEmpty

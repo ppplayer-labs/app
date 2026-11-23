@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/services.dart';
 
 import 'package:flutter_chromium_webview/chromium_youtube_player.dart';
@@ -16,6 +17,7 @@ class ChromiumPlaybackEngine implements PlaybackController {
     this.stopPlaybackService,
     this.showBrowser = true,
     this.youtubeEnabled = true,
+    this.idleBrowserReleaseDelay,
   }) {
     _subscriptions.add(
       fallback.statusStream.listen((status) {
@@ -36,11 +38,17 @@ class ChromiumPlaybackEngine implements PlaybackController {
   final Future<void> Function()? stopPlaybackService;
   final bool showBrowser;
   final bool youtubeEnabled;
+
+  /// Optional delay after pausing or ending Chromium playback before disposing
+  /// the idle browser instance to reclaim renderer memory. Resume transparently
+  /// re-opens the paused track at its saved position.
+  final Duration? idleBrowserReleaseDelay;
   final _statuses = StreamController<PlaybackStatus>.broadcast();
   final _events = StreamController<PlaybackEvent>.broadcast();
   final _subscriptions = <StreamSubscription<dynamic>>[];
   StreamSubscription<Map<String, Object?>>? _playerSubscription;
   ChromiumYoutubePlayerController? _player;
+  Timer? _idleReleaseTimer;
   Future<void>? _opening;
   Future<void>? _cef;
   Future<void>? _disposing;
@@ -52,11 +60,20 @@ class ChromiumPlaybackEngine implements PlaybackController {
   bool _ended = false;
   bool _correctingPause = false;
   bool _renderingActive = true;
+  bool _surfaceVisible = true;
   bool _cefPermanentlyFailed = false;
   Object? _cefPermanentError;
   int _generation = 0;
   Object? _durationRequest;
   DateTime? _durationAttempt;
+
+  /// Whether a Chromium browser controller is currently allocated.
+  @visibleForTesting
+  bool get hasActiveBrowser => _player != null;
+
+  /// Whether off-screen browser frame rendering is currently requested.
+  @visibleForTesting
+  bool get isRenderingActive => _renderingActive;
 
   /// Maximum bounded retry attempts for recoverable startup failures.
   static const int maxStartupRetries = 3;
@@ -150,7 +167,71 @@ class ChromiumPlaybackEngine implements PlaybackController {
   ) {
     if (_renderingActive == active) return;
     _renderingActive = active;
-    unawaited(player.webViewController.setRenderingActive(active));
+    unawaited(
+      player.webViewController.setRenderingActive(active).catchError((
+        Object _,
+      ) {
+        // Older or platform-specific plugin builds may return not_implemented.
+      }),
+    );
+  }
+
+  bool get _shouldRenderSurface =>
+      _surfaceVisible &&
+      _wantsPlaying &&
+      (_status.state == PlaybackState.playing ||
+          _status.state == PlaybackState.buffering ||
+          _status.state == PlaybackState.preparing);
+
+  void _syncRenderingActive(ChromiumYoutubePlayerController player) {
+    _setRenderingActive(player, _shouldRenderSurface);
+  }
+
+  /// Updates whether the host UI currently shows the Chromium video surface
+  /// (for example, false when the mini-video is hidden or the desktop window is
+  /// minimized). Audio playback continues unaffected.
+  void setSurfaceVisible(bool visible) {
+    if (_surfaceVisible == visible) return;
+    _surfaceVisible = visible;
+    final player = _player;
+    if (!_closed && _chromium && player != null) {
+      _syncRenderingActive(player);
+    }
+  }
+
+  void _cancelIdleRelease() {
+    _idleReleaseTimer?.cancel();
+    _idleReleaseTimer = null;
+  }
+
+  void _scheduleIdleRelease() {
+    _cancelIdleRelease();
+    final delay = idleBrowserReleaseDelay;
+    if (delay == null || _closed || !_chromium || _wantsPlaying) return;
+    if (_player == null) return;
+    final generation = _generation;
+    _idleReleaseTimer = Timer(delay, () {
+      _idleReleaseTimer = null;
+      if (!_valid(generation) || !_chromium || _wantsPlaying) return;
+      final player = _player;
+      if (player == null) return;
+      _player = null;
+      final subscription = _playerSubscription;
+      _playerSubscription = null;
+      // Serialize idle browser disposal so a subsequent resume/play/seek waits
+      // for clean teardown before allocating a new browser instance.
+      final previousOpening = _opening;
+      _opening = () async {
+        try {
+          await previousOpening;
+        } catch (_) {}
+        await subscription?.cancel();
+        try {
+          await player.dispose();
+        } catch (_) {}
+      }();
+      unawaited(_opening!.catchError((Object _) {}));
+    });
   }
 
   void _publish(PlaybackStatus status) {
@@ -193,6 +274,7 @@ class ChromiumPlaybackEngine implements PlaybackController {
       return _rejectYoutube(track, startAt);
     }
     final generation = ++_generation;
+    _cancelIdleRelease();
     _durationRequest = null;
     _durationAttempt = null;
     _chromium = online;
@@ -350,7 +432,17 @@ class ChromiumPlaybackEngine implements PlaybackController {
             await discardStalePlayer();
             return;
           }
-          if (!_wantsPlaying) await createdPlayer.pauseVideo();
+          if (!_wantsPlaying) {
+            await createdPlayer.pauseVideo();
+            if (!_valid(generation)) {
+              await discardStalePlayer();
+              return;
+            }
+            _setRenderingActive(createdPlayer, false);
+            _scheduleIdleRelease();
+          } else if (!_surfaceVisible) {
+            _setRenderingActive(createdPlayer, false);
+          }
           if (!_valid(generation)) {
             await discardStalePlayer();
             return;
@@ -465,6 +557,7 @@ class ChromiumPlaybackEngine implements PlaybackController {
   ) {
     if (!_valid(generation) || !identical(player, _player)) return;
     if (event['BrowserCrashed'] == true) {
+      _cancelIdleRelease();
       final subscription = _playerSubscription;
       _playerSubscription = null;
       _player = null;
@@ -556,7 +649,13 @@ class ChromiumPlaybackEngine implements PlaybackController {
         }
         final previous = _status.state;
         if ((state == 1 || state == 3) && _wantsPlaying) {
-          _setRenderingActive(player, true);
+          _cancelIdleRelease();
+          _setRenderingActive(player, _surfaceVisible);
+        } else if (state == 2 || state == 0 || state == 5) {
+          _setRenderingActive(player, false);
+          if (!_wantsPlaying || state == 0) {
+            _scheduleIdleRelease();
+          }
         }
         _publish(_status.copyWith(state: mapped, clearError: state == 1));
         if (state == 1 && !_started) {
@@ -669,13 +768,17 @@ class ChromiumPlaybackEngine implements PlaybackController {
     }
     await acknowledgment;
     // Paused playback does not require a second service to remain foreground.
-    if (!_wantsPlaying && !_closed) await stopPlaybackService?.call();
+    if (!_wantsPlaying && !_closed) {
+      await stopPlaybackService?.call();
+      _scheduleIdleRelease();
+    }
   }
 
   @override
   Future<void> resume() async {
     _checkOpen();
     _wantsPlaying = true;
+    _cancelIdleRelease();
     if (!_chromium) return fallback.resume();
     final generation = _generation;
     final player = await _active();
@@ -688,7 +791,7 @@ class ChromiumPlaybackEngine implements PlaybackController {
     await startPlaybackService?.call();
     if (!_valid(generation) || !_wantsPlaying) return;
     try {
-      _setRenderingActive(player, true);
+      _setRenderingActive(player, _surfaceVisible);
       await player.playVideo();
     } catch (error) {
       if (_isExpectedDetachmentOrShutdown(
@@ -707,6 +810,7 @@ class ChromiumPlaybackEngine implements PlaybackController {
     _checkOpen();
     final generation = ++_generation;
     _wantsPlaying = false;
+    _cancelIdleRelease();
     final player = _player;
     _player = null;
     final subscription = _playerSubscription;
@@ -731,7 +835,15 @@ class ChromiumPlaybackEngine implements PlaybackController {
     if (!_chromium) return fallback.seekTo(position);
     final generation = _generation;
     final player = await _active();
-    if (player == null) return;
+    if (player == null) {
+      // If the idle browser was reclaimed while paused, preserve the target
+      // seek position so the next resume() starts at the requested timestamp.
+      if (_valid(generation) && _chromium && _status.track != null) {
+        _publish(_status.copyWith(position: position));
+        _event(PlaybackEventType.positionDiscontinuity);
+      }
+      return;
+    }
     try {
       await player.seekTo(
         seconds: position.inMicroseconds / Duration.microsecondsPerSecond,
@@ -837,6 +949,7 @@ class ChromiumPlaybackEngine implements PlaybackController {
   Future<void> _dispose() async {
     _closed = true;
     ++_generation;
+    _cancelIdleRelease();
     final player = _player;
     _player = null;
     final playerSubscription = _playerSubscription;

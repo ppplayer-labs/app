@@ -258,6 +258,7 @@ void main() {
           ),
         );
         await tester.pump();
+        await tester.pump();
 
         await tester.tap(find.byKey(const ValueKey('playback_options_button')));
         await _flush(tester);

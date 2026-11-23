@@ -1,7 +1,7 @@
 import '../../shared/widgets/pp_image.dart';
 import '../../shared/widgets/animated_equalizer.dart';
 import 'dart:io';
-import 'dart:ui' show lerpDouble;
+import 'dart:ui' show ImageFilter, lerpDouble;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:ppplayer/core/local_library/local_library_service.dart';
@@ -443,10 +443,11 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final playerState = ref.watch(playerProvider);
+    final track = ref.watch(playerProvider.select((s) => s.currentTrack));
+    final isPipMode = ref.watch(playerProvider.select((s) => s.isPipMode));
+    final isPlaying = ref.watch(playerProvider.select((s) => s.isPlaying));
     final settings = ref.watch(settingsProvider);
     final isFullscreen = ref.watch(isFullscreenProvider);
-    final track = playerState.currentTrack;
 
     // Trigger surface init whenever we have track info and the screen is
     // already showing the video slot. This covers the case where the Player
@@ -528,10 +529,16 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
         : settings.playerView;
     final isVideoView = actualMainViewInBuild == PlayerView.video;
     final colorScheme = Theme.of(context).colorScheme;
-    final isPowerSaver = settings.performanceMode == PerformanceMode.powerSaver;
-    final isPipMode = playerState.isPipMode;
-    final status = ref.watch(playbackStatusProvider).asData?.value;
-    final hasVideo = status?.hasVideo ?? false;
+    final (hasVideo, isPreparing, isIFrameMode) = ref.watch(
+      playbackStatusProvider.select((s) {
+        final v = s.asData?.value;
+        return (
+          v?.hasVideo ?? false,
+          v?.state == PlaybackState.preparing,
+          v?.isIFrameMode ?? false,
+        );
+      }),
+    );
     final isDesktop = MediaQuery.sizeOf(context).width >= 1000;
     final showDesktopQueuePanel =
         isDesktop && isQueueView && !isPipMode && !isFullscreen;
@@ -607,37 +614,19 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
               if (!isPipMode && (!hasVideo || !isVideoView)) ...[
                 Positioned.fill(
                   child: RepaintBoundary(
-                    child:
-                        PPImage(
-                              imageUrl: track.albumImage ?? '',
-                              fit: BoxFit.cover,
-                              maxCacheLogicalExtent: 256,
-                            )
-                            .animate(
-                              onPlay: (controller) => isPowerSaver
-                                  ? null
-                                  : controller.repeat(reverse: true),
-                            )
-                            .scale(
-                              begin: const Offset(1.1, 1.1),
-                              end: const Offset(1.5, 1.5),
-                              duration: 25.seconds,
-                              curve: Curves.easeInOutSine,
-                            )
-                            .move(
-                              begin: const Offset(-60, -30),
-                              end: const Offset(60, 30),
-                              duration: 22.seconds,
-                              curve: Curves.easeInOutSine,
-                            )
-                            .blur(
-                              begin: const Offset(80, 80),
-                              end: isPowerSaver
-                                  ? const Offset(80, 80)
-                                  : const Offset(120, 120),
-                              duration: 25.seconds,
-                              curve: Curves.easeInOutSine,
-                            ),
+                    child: ClipRect(
+                      child: ImageFiltered(
+                        imageFilter: ImageFilter.blur(sigmaX: 80, sigmaY: 80),
+                        child: Transform.scale(
+                          scale: 1.2,
+                          child: PPImage(
+                            imageUrl: track.albumImage ?? '',
+                            fit: BoxFit.cover,
+                            maxCacheLogicalExtent: 256,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
                 Positioned.fill(
@@ -658,34 +647,18 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
                   ),
                 ),
                 Positioned.fill(
-                  child:
-                      Container(
-                            decoration: BoxDecoration(
-                              gradient: RadialGradient(
-                                center: Alignment.center,
-                                radius: 1.5,
-                                colors: [
-                                  colorScheme.primary.withValues(alpha: 0.08),
-                                  Colors.transparent,
-                                ],
-                              ),
-                            ),
-                          )
-                          .animate(
-                            onPlay: (controller) => isPowerSaver
-                                ? null
-                                : controller.repeat(reverse: true),
-                          )
-                          .fadeIn(
-                            duration: 4.seconds,
-                            curve: Curves.easeInOutSine,
-                          )
-                          .scale(
-                            begin: const Offset(0.8, 0.8),
-                            end: const Offset(1.4, 1.4),
-                            duration: 10.seconds,
-                            curve: Curves.easeInOutSine,
-                          ),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: RadialGradient(
+                        center: Alignment.center,
+                        radius: 1.5,
+                        colors: [
+                          colorScheme.primary.withValues(alpha: 0.08),
+                          Colors.transparent,
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
                 Positioned.fill(
                   child: Opacity(
@@ -702,16 +675,11 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
 
               videoSlotContainer,
 
-              if (!isPipMode &&
-                  (!hasVideo || !isVideoView) &&
-                  status?.state != PlaybackState.preparing)
+              if (!isPipMode && (!hasVideo || !isVideoView) && !isPreparing)
                 _VinylArtwork(
                   key: const ValueKey('artwork_view'),
-                  imageUrl:
-                      playerState.currentTrack?.albumImage ??
-                      playerState.currentTrack?.localArtworkPath ??
-                      '',
-                  isPlaying: playerState.isPlaying,
+                  imageUrl: track.albumImage ?? track.localArtworkPath ?? '',
+                  isPlaying: isPlaying,
                 ),
 
               if (!isPipMode)
@@ -724,7 +692,7 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
                       (!isFullscreen &&
                           !kIsWeb &&
                           Platform.isWindows &&
-                          (status?.isIFrameMode ?? false)),
+                          isIFrameMode),
                   onToggleFullscreen: () => _setFullscreen(!isFullscreen),
                   onCollapse: () {
                     if (isFullscreen) {
@@ -737,9 +705,11 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
                 ),
 
               if (!isDesktop && isQueueView && !isPipMode && !isFullscreen)
-                _NarrowQueueOverlay(
-                  playerState: playerState,
-                  onClose: _closeQueue,
+                Consumer(
+                  builder: (context, ref, _) => _NarrowQueueOverlay(
+                    playerState: ref.watch(playerProvider),
+                    onClose: _closeQueue,
+                  ),
                 ),
             ],
           ),
@@ -750,10 +720,12 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
             width: 320,
             child: Material(
               color: colorScheme.surfaceContainerLow,
-              child: _QueueView(
-                playerState: playerState,
-                compact: true,
-                onClose: _closeQueue,
+              child: Consumer(
+                builder: (context, ref, _) => _QueueView(
+                  playerState: ref.watch(playerProvider),
+                  compact: true,
+                  onClose: _closeQueue,
+                ),
               ),
             ),
           ),
