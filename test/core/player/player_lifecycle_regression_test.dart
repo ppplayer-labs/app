@@ -158,6 +158,7 @@ void main() {
   test(
     'PlayerNotifier unregisters all PipHandler listeners on dispose across 100 cycles',
     () async {
+      final pendingPersistence = <Future<void>>[];
       for (var i = 0; i < 100; i++) {
         final controller = _RecordingPlaybackController();
         final container = ProviderContainer(
@@ -171,10 +172,15 @@ void main() {
           ],
         );
 
-        container.read(playerProvider);
+        final notifier = container.read(playerProvider.notifier);
+        pendingPersistence.add(notifier.persistenceSettled);
         container.dispose();
         await controller.dispose();
       }
+
+      // Wait for all fire-and-forget Hive restore futures to settle before
+      // tearDown closes Hive and deletes the Windows temp directory.
+      await Future.wait(pendingPersistence);
 
       // If any disposed PlayerNotifier closure remained registered, these calls
       // would throw StateError from mutating a disposed Riverpod Notifier.
@@ -197,12 +203,13 @@ void main() {
         settingsProvider.overrideWith(_NoOpSettingsNotifier.new),
       ],
     );
+    final notifier = container.read(playerProvider.notifier);
     addTearDown(() async {
       container.dispose();
+      await notifier.persistenceSettled;
       await controller.dispose();
     });
 
-    final notifier = container.read(playerProvider.notifier);
     expect(() => notifier.skipPrevious(), returnsNormally);
     expect(controller.calls, isEmpty);
   });
@@ -223,12 +230,12 @@ void main() {
           settingsProvider.overrideWith(_NoOpSettingsNotifier.new),
         ],
       );
+      final notifier = container.read(playerProvider.notifier);
       addTearDown(() async {
         container.dispose();
+        await notifier.persistenceSettled;
         await controller.dispose();
       });
-
-      final notifier = container.read(playerProvider.notifier);
       final slowTrack = Track(
         spotifyId: 'stream_slow',
         name: 'Slow Stream',
