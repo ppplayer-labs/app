@@ -210,8 +210,9 @@ jobs:
       - name: Build Windows Release
         run: flutter build windows --release
 
-      - name: Create MSIX Package
-        run: dart run msix:create
+      - name: Create Store MSIX Package (WACK-Hardened)
+        shell: powershell
+        run: powershell -ExecutionPolicy Bypass -File scripts/build_windows_msix.ps1
 
       - name: Verify Windows Release Bundle & MSIX
         shell: pwsh
@@ -220,6 +221,9 @@ jobs:
           foreach ($f in @("ppplayer.exe", "libcef.dll", "icudtl.dat", "flutter_chromium_webview_plugin.dll")) {
             $p = Join-Path $rel $f
             if (!(Test-Path $p)) { throw "Missing required Windows runtime file: $p" }
+          }
+          if (Test-Path (Join-Path $rel "zlib.dll")) {
+            throw "Unexpected debug-CRT zlib.dll found in $rel"
           }
           $msix = Get-ChildItem -Path $rel -Filter "*.msix" | Select-Object -First 1
           if (!$msix) { throw "Missing MSIX package in $rel" }

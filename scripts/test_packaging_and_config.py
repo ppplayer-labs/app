@@ -264,7 +264,7 @@ class PackagingAndConfigTests(unittest.TestCase):
 
         # Microsoft Partner Center packaging job remains intact and uploads CI artifact.
         win_job = jobs['build-windows']
-        self.assertIn('dart run msix:create', win_job)
+        self.assertIn('scripts/build_windows_msix.ps1', win_job)
         self.assertIn('name: PPPlayer-Windows-MSIX', win_job)
 
         # Public GitHub Release job must NEVER copy or ship *.msix files.
@@ -377,6 +377,24 @@ class PackagingAndConfigTests(unittest.TestCase):
         self.assertIn('assert confinement == "strict"', wf)
         self.assertIn('snap info ppplayer', wf)
         self.assertNotIn('echo "$SNAPCRAFT_STORE_CREDENTIALS"', wf)
+
+    def test_windows_wack_hardening_removes_debug_zlib_and_normalizes_badge_and_dpi(self):
+        cmake = (ROOT / 'windows/CMakeLists.txt').read_text(encoding='utf-8')
+        win_res = (ROOT / 'windows/runner/resources/update_exe_resources.ps1').read_text(
+            encoding='utf-8'
+        )
+        msix_script = (ROOT / 'scripts/build_windows_msix.ps1').read_text(encoding='utf-8')
+        pr_wf = (ROOT / '.github/workflows/pr-validation.yml').read_text(encoding='utf-8')
+        rel_wf = (ROOT / '.github/workflows/release.yml').read_text(encoding='utf-8')
+
+        self.assertIn('zlib.dll', cmake)
+        self.assertIn('file(REMOVE', cmake)
+        self.assertIn('PerMonitorV2', win_res)
+        self.assertIn('RT_MANIFEST', win_res)
+        self.assertIn('BadgeLogo*.png', msix_script)
+        self.assertIn('VCRUNTIME140D', msix_script)
+        self.assertIn('scripts/build_windows_msix.ps1', pr_wf)
+        self.assertIn('scripts/build_windows_msix.ps1', rel_wf)
 
 
 if __name__ == '__main__':

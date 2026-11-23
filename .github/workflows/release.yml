@@ -346,8 +346,9 @@ jobs:
       - name: Build Windows App
         run: flutter build windows --release
 
-      - name: Create MSIX Package
-        run: dart run msix:create
+      - name: Create Store MSIX Package (WACK-Hardened)
+        shell: powershell
+        run: powershell -ExecutionPolicy Bypass -File scripts/build_windows_msix.ps1
 
       - name: Upload Windows MSIX
         uses: actions/upload-artifact@v4
