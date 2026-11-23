@@ -617,6 +617,14 @@ class PortableLibraryBundlerTests(unittest.TestCase):
             'libpipewire-0.3.so.0',
             'libdbus-1.so.3',
             'libsecret-1.so.0',
+            'libOpenCL.so.1',
+            'libapparmor.so.1',
+            'libseccomp.so.2',
+            'libacl.so.1',
+            'libcups.so.2',
+            'libnss3.so',
+            'libnspr4.so',
+            'libkrb5support.so.0',
         ):
             self.assertTrue(
                 portable_bundler.is_excluded_host_library(host_lib),

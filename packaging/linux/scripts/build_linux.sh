@@ -279,7 +279,7 @@ Depends: libgtk-3-0, libgl1, libegl1, libx11-6, libxcb1, libstdc++6, libvulkan1,
 EOF
 
 # Normalize deterministic directory/file permissions (0755 dirs & executables, 0644 data/metadata/icons)
-find "$DEB_BUILD_DIR/opt/ppplayer" "$DEB_BUILD_DIR/usr" "$DEB_BUILD_DIR/etc" -type d -exec chmod 0755 {} +
+find "$DEB_BUILD_DIR" -type d -exec chmod 0755 {} +
 find "$DEB_BUILD_DIR/opt/ppplayer" "$DEB_BUILD_DIR/usr" "$DEB_BUILD_DIR/etc" -type f -exec chmod 0644 {} +
 chmod 0755 "$DEB_BUILD_DIR/opt/ppplayer/ppplayer"
 if [ -f "$DEB_BUILD_DIR/opt/ppplayer/lib/flutter_chromium_webview_subprocess" ]; then
@@ -293,7 +293,7 @@ chmod 0755 "$DEB_BUILD_DIR/DEBIAN" "$DEB_BUILD_DIR/DEBIAN/postinst" "$DEB_BUILD_
 DEB_TMP_PARENT=$(mktemp -d)
 DEB_TMP_DIR="$DEB_TMP_PARENT/ppplayer_${DEB_VERSION}_amd64"
 cp -R -P "$DEB_BUILD_DIR" "$DEB_TMP_DIR"
-find "$DEB_TMP_DIR/opt/ppplayer" "$DEB_TMP_DIR/usr" "$DEB_TMP_DIR/etc" -type d -exec chmod 0755 {} +
+find "$DEB_TMP_DIR" -type d -exec chmod 0755 {} +
 find "$DEB_TMP_DIR/opt/ppplayer" "$DEB_TMP_DIR/usr" "$DEB_TMP_DIR/etc" -type f -exec chmod 0644 {} +
 chmod 0755 "$DEB_TMP_DIR/opt/ppplayer/ppplayer"
 if [ -f "$DEB_TMP_DIR/opt/ppplayer/lib/flutter_chromium_webview_subprocess" ]; then
