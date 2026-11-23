@@ -617,7 +617,6 @@ class PortableLibraryBundlerTests(unittest.TestCase):
             'libpipewire-0.3.so.0',
             'libdbus-1.so.3',
             'libsecret-1.so.0',
-            'libOpenCL.so.1',
             'libapparmor.so.1',
             'libseccomp.so.2',
             'libacl.so.1',
@@ -646,6 +645,7 @@ class PortableLibraryBundlerTests(unittest.TestCase):
             'libmujs.so.3',
             'librubberband.so.2',
             'libzimg.so.2',
+            'libOpenCL.so.1',
         ):
             self.assertFalse(
                 portable_bundler.is_excluded_host_library(media_lib),

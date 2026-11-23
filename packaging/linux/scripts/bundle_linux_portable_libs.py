@@ -65,7 +65,10 @@ CORE_HOST_EXCLUDELIST: tuple[str, ...] = (
     'libdrm_*.so*',
     'libgbm.so*',
     'libvulkan.so*',
-    'libOpenCL.so*',
+    # Note: Do NOT exclude libOpenCL.so*: FFmpeg/libavutil links libOpenCL.so.1
+    # directly, and clean Ubuntu desktops without libmpv2 do not install
+    # ocl-icd-libopencl1. The Khronos ICD loader shim is safe to bundle and
+    # cleanly falls back to CPU decode when no host OpenCL ICD is present.
     'libepoxy.so*',
     'libX11.so*',
     'libX11-xcb.so*',
