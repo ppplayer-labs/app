@@ -2,6 +2,20 @@
 
 All notable changes to PPPlayer will be documented in this file.
 
+## [4.0.3] - Unreleased
+
+Release metadata: **4.0.3+15**, Windows MSIX **4.0.3.0** (ads-free build).
+Publisher: Devflier.
+
+### Fixed & Improved
+
+- **Windows Store Version Progression & Accessibility:** Incremented release version to `4.0.3+15` / Windows MSIX `4.0.3.0` (preserving Microsoft Store identity `LucasVeneno.25880C6F60D2E` and publisher `CN=191B0E6A-B98A-4AB5-B2FC-9EBDA47DA56E` to resolve the live Store `4.0.2.0` version collision) and added `ExcludeFocus` to hidden desktop mini-video surfaces alongside `IgnorePointer` and `ExcludeSemantics` so hidden surfaces never capture keyboard focus.
+- **Linux AppImage FUSE3 Portability:** Replaced legacy `AppImageKit` `appimagetool` with pinned, SHA-256-verified `AppImage/appimagetool` (`1.9.1`) and static FUSE3-compatible `AppImage/type2-runtime` (`20251108`) so `PPPlayer-Linux-x86_64.AppImage` executes directly on Ubuntu 24.04+/26.04 without `libfuse2` while preserving `--appimage-extract-and-run`.
+- **Linux Portable `libmpv.so.2` Bundling & Licensing:** Added deterministic `libmpv.so.2` and compatible non-core transitive library bundling (with `$ORIGIN` RPATH patching, ABI system-library excludelist, and third-party copyright notices under `share/licenses/bundled/`) for both `PPPlayer-Linux-x86_64.AppImage` and `PPPlayer-Linux-x86_64.tar.gz` so local media playback works on clean Linux systems without system `libmpv2`.
+- **Linux Chromium Sandbox Preflight Diagnostics:** Added non-destructive user-namespace preflight diagnostics in AppImage `AppRun` and portable `tar.gz` launchers (plus `README-LINUX.txt`) distinguishing app startup/local playback from Ubuntu AppArmor `userns`-restricted Chromium rendering and recommending `.deb` or Snap without weakening AppArmor or adding unrestricted `--no-sandbox` fallbacks.
+- **Debian Packaging Hygiene:** Built `.deb` archives with `dpkg-deb --root-owner-group`, normalized file permissions (`0755` for executables/directories, `0644` for icons, `.desktop`, libraries, and `/etc/apparmor.d/ppplayer`), and enforced automated archive ownership/permission audits.
+- **Dedicated Snap Candidate Workflow:** Added a standalone `.github/workflows/snap-candidate.yml` workflow restricted strictly to `latest/candidate` with required run ID, SHA-256, Snap metadata verification, and post-upload revision auditing while keeping stable publication isolated in `.github/workflows/release.yml`.
+
 ## [4.0.2] - 2026-11-22
 
 Release metadata: **4.0.2+14**, Windows MSIX **4.0.2.0** (ads-free build).

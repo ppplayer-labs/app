@@ -26,9 +26,9 @@ if (-not $DllPath -or -not (Test-Path $DllPath)) {
 # Resolve version from pubspec.yaml if needed for fallback synthesis
 $vMajor = 4
 $vMinor = 0
-$vPatch = 2
-$vBuild = 14
-$fileVersionStr = "4.0.2+14"
+$vPatch = 3
+$vBuild = 15
+$fileVersionStr = "4.0.3+15"
 
 $dir = $PSScriptRoot
 while ($dir -and (Test-Path $dir)) {

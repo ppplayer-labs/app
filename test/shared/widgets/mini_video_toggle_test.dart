@@ -54,9 +54,12 @@ class _VideoSurfaceProbeState extends State<_VideoSurfaceProbe> {
         }
         return Semantics(
           label: 'probe_video_semantics',
-          child: const ColoredBox(
-            key: ValueKey('probe_video_frame'),
-            color: Colors.green,
+          child: Focus(
+            debugLabel: 'probe_video_focus',
+            child: const ColoredBox(
+              key: ValueKey('probe_video_frame'),
+              color: Colors.green,
+            ),
           ),
         );
       },
@@ -760,4 +763,97 @@ void main() {
       },
     );
   }
+
+  testWidgets(
+    'Windows hidden mini-video excludes keyboard focus without regressing IgnorePointer, ExcludeSemantics, or rapid Hide/Show recovery',
+    (tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+      try {
+        final metrics = _SurfaceProbeMetrics();
+        final harness = await pumpShell(
+          tester,
+          windowSize: const Size(1280, 800),
+          metrics: metrics,
+        );
+
+        final probeFinder = find.byKey(const ValueKey('probe_video_frame'));
+        expect(probeFinder, findsOneWidget);
+
+        ExcludeFocus readExcludeFocus() => tester.widget<ExcludeFocus>(
+          find
+              .ancestor(of: probeFinder, matching: find.byType(ExcludeFocus))
+              .first,
+        );
+        IgnorePointer readIgnorePointer() => tester.widget<IgnorePointer>(
+          find
+              .ancestor(of: probeFinder, matching: find.byType(IgnorePointer))
+              .first,
+        );
+        ExcludeSemantics readExcludeSemantics() =>
+            tester.widget<ExcludeSemantics>(
+              find
+                  .ancestor(
+                    of: probeFinder,
+                    matching: find.byType(ExcludeSemantics),
+                  )
+                  .first,
+            );
+
+        FocusNode findProbeFocusNode() => Focus.of(tester.element(probeFinder));
+
+        // Visible state: focus, pointer, and semantics are enabled.
+        expect(readExcludeFocus().excluding, isFalse);
+        expect(readIgnorePointer().ignoring, isFalse);
+        expect(readExcludeSemantics().excluding, isFalse);
+
+        final probeFocusNode = findProbeFocusNode();
+        probeFocusNode.requestFocus();
+        await tester.pump();
+        expect(probeFocusNode.hasFocus, isTrue);
+
+        // Hide video: ExcludeFocus, IgnorePointer, and ExcludeSemantics must all activate.
+        await tester.tap(find.byTooltip('Hide video'));
+        await tester.pump(const Duration(milliseconds: 16));
+        expect(readExcludeFocus().excluding, isTrue);
+        expect(readIgnorePointer().ignoring, isTrue);
+        expect(readExcludeSemantics().excluding, isTrue);
+        expect(probeFocusNode.hasFocus, isFalse);
+
+        // Requesting focus while hidden must not steal keyboard focus.
+        probeFocusNode.requestFocus();
+        await tester.pump();
+        expect(probeFocusNode.hasFocus, isFalse);
+
+        // Rapid Hide/Show toggling restores focusability cleanly at constant 160x90.
+        await tester.tap(find.byTooltip('Show video'));
+        await tester.pump(const Duration(milliseconds: 16));
+        expect(readExcludeFocus().excluding, isFalse);
+        expect(readIgnorePointer().ignoring, isFalse);
+        expect(readExcludeSemantics().excluding, isFalse);
+
+        probeFocusNode.requestFocus();
+        await tester.pump();
+        expect(probeFocusNode.hasFocus, isTrue);
+
+        // Full-player route transition preserves surface & focusability.
+        harness.router.go('/player');
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
+        expect(readExcludeFocus().excluding, isFalse);
+        expect(metrics.initCount, 1);
+        expect(metrics.disposeCount, 0);
+
+        harness.router.go('/home');
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
+        expect(readExcludeFocus().excluding, isFalse);
+        expect(tester.getRect(probeFinder).size, const Size(160, 90));
+        expect(tester.takeException(), isNull);
+
+        await unmountCleanly(tester);
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
+    },
+  );
 }

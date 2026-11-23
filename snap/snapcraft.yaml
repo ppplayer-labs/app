@@ -1,7 +1,7 @@
 name: ppplayer
 title: PPPlayer
 base: core24
-version: '4.0.2'
+version: '4.0.3'
 summary: Discover, stream, and enjoy music and videos in one modern media player.
 description: |
   PPPlayer is a modern, beautifully designed media player built with Flutter, bringing music, videos, and online streams together in one seamless experience.

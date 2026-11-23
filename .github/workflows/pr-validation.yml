@@ -245,7 +245,7 @@ jobs:
       - name: Install System Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev libgl1-mesa-dev libegl1-mesa-dev libx11-dev libxcb1-dev libstdc++-11-dev libvulkan-dev libsecret-1-dev libjsoncpp-dev libmpv-dev libepoxy-dev
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev libgl1-mesa-dev libegl1-mesa-dev libx11-dev libxcb1-dev libstdc++-11-dev libvulkan-dev libsecret-1-dev libjsoncpp-dev libmpv-dev libepoxy-dev patchelf file
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -266,16 +266,20 @@ jobs:
           test -x PPPlayer-Linux-x86_64.AppImage
           test ! -f PPPlayer-Linux-x86_64.flatpak
           DEB=$(ls ppplayer_*_amd64.deb | head -n 1)
-          dpkg-deb -c "$DEB" | grep -q "./etc/apparmor.d/ppplayer"
-          dpkg-deb -c "$DEB" | grep -q "./opt/ppplayer/lib/flutter_chromium_webview_subprocess"
+          dpkg-deb -c "$DEB" | grep -q "^-rw-r--r-- root/root .* ./etc/apparmor.d/ppplayer$"
+          dpkg-deb -c "$DEB" | grep -q "^-rwxr-xr-x root/root .* ./opt/ppplayer/lib/flutter_chromium_webview_subprocess$"
           dpkg-deb -c "$DEB" | grep -q "./opt/ppplayer/lib/libcef.so"
 
-          # Verify portable tarball layout, executable bits, and upstream desktop metadata
+          # Verify portable tarball layout, bundled libmpv, executable bits, and upstream desktop metadata
           EXTRACT_DIR=$(mktemp -d)
           tar -xzf PPPlayer-Linux-x86_64.tar.gz -C "$EXTRACT_DIR"
           test -x "$EXTRACT_DIR/PPPlayer/ppplayer"
+          test -x "$EXTRACT_DIR/PPPlayer/ppplayer-portable"
           test -x "$EXTRACT_DIR/PPPlayer/lib/flutter_chromium_webview_subprocess"
           test -f "$EXTRACT_DIR/PPPlayer/lib/libcef.so"
+          test -f "$EXTRACT_DIR/PPPlayer/lib/libmpv.so.2"
+          test -f "$EXTRACT_DIR/PPPlayer/share/licenses/bundled/THIRD_PARTY_LICENSES.txt"
+          test -f "$EXTRACT_DIR/PPPlayer/README-LINUX.txt"
           test -f "$EXTRACT_DIR/PPPlayer/share/applications/com.ppplayer.PPPlayer.desktop"
           test -f "$EXTRACT_DIR/PPPlayer/share/metainfo/com.ppplayer.PPPlayer.metainfo.xml"
           test -f "$EXTRACT_DIR/PPPlayer/share/icons/hicolor/512x512/apps/com.ppplayer.PPPlayer.png"

@@ -90,7 +90,8 @@ fi
 DIST_DIR="dist"
 mkdir -p "$DIST_DIR"
 
-# 3. Build Portable tar.gz (including upstream desktop metadata & 512x512 icon)
+# 3. Build Portable tar.gz (including bundled libmpv + transitive non-core libs,
+#    upstream desktop metadata, 512x512 icon, and sandbox preflight wrapper)
 TAR_NAME="PPPlayer-Linux-x86_64.tar.gz"
 echo "Building portable tarball: $TAR_NAME"
 TARBALL_STAGE_DIR="build/linux/x64/tarball/PPPlayer"
@@ -101,6 +102,79 @@ chmod 0755 "$TARBALL_STAGE_DIR/ppplayer"
 if [ -f "$TARBALL_STAGE_DIR/lib/flutter_chromium_webview_subprocess" ]; then
     chmod 0755 "$TARBALL_STAGE_DIR/lib/flutter_chromium_webview_subprocess"
 fi
+
+PORTABLE_BUNDLER="$SCRIPT_DIR/bundle_linux_portable_libs.py"
+if [ ! -f "$PORTABLE_BUNDLER" ]; then
+    PORTABLE_BUNDLER="packaging/linux/scripts/bundle_linux_portable_libs.py"
+fi
+if [ -f "$PORTABLE_BUNDLER" ]; then
+    echo "Bundling portable native libraries (libmpv + compatible transitive deps) into tarball..."
+    python3 "$PORTABLE_BUNDLER" --bundle-dir "$TARBALL_STAGE_DIR"
+fi
+
+# Portable launcher wrapper with CWD-independent library resolution and
+# non-destructive Ubuntu AppArmor user-namespace diagnostic for Chromium/CEF.
+cat <<'EOF' > "$TARBALL_STAGE_DIR/ppplayer-portable"
+#!/bin/sh
+set -eu
+HERE="$(dirname "$(readlink -f "${0}")")"
+export LD_LIBRARY_PATH="${HERE}/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
+if [ -f "${HERE}/lib/libmpv.so.2" ] && [ -z "${LIBMPV_LIBRARY_PATH:-}" ]; then
+    export LIBMPV_LIBRARY_PATH="${HERE}/lib/libmpv.so.2"
+fi
+export CEF_SYSTEM_MEDIA_CONTROLS="${CEF_SYSTEM_MEDIA_CONTROLS:-0}"
+
+# Non-destructive preflight diagnostic: launching PPPlayer and local media
+# playback work without user namespaces, whereas Chromium's sandboxed web
+# renderer requires unprivileged user namespaces on Ubuntu 24.04+/26.04.
+if [ -z "${SNAP:-}" ] && [ -z "${FLATPAK_ID:-}" ] && [ -r /proc/sys/kernel/apparmor_restrict_unprivileged_userns ]; then
+    if [ "$(cat /proc/sys/kernel/apparmor_restrict_unprivileged_userns 2>/dev/null || echo 0)" = "1" ]; then
+        if command -v unshare >/dev/null 2>&1 && ! unshare -Ur true >/dev/null 2>&1; then
+            echo "[PPPlayer] Notice: Ubuntu AppArmor restricts unprivileged user namespaces for portable binaries." >&2
+            echo "[PPPlayer]   - App UI and local audio/video playback work normally." >&2
+            echo "[PPPlayer]   - Chromium/YouTube web video requires a scoped AppArmor profile (included automatically in the official .deb) or strict Snap confinement." >&2
+            echo "[PPPlayer]   - Recommended on Ubuntu 24.04+/26.04: install the official .deb or Snap package (see README-LINUX.txt)." >&2
+        fi
+    fi
+fi
+
+exec "${HERE}/ppplayer" "$@"
+EOF
+chmod 0755 "$TARBALL_STAGE_DIR/ppplayer-portable"
+
+cat <<'EOF' > "$TARBALL_STAGE_DIR/README-LINUX.txt"
+PPPlayer — Portable Linux x86_64 Distribution
+=============================================
+
+Quick Start
+-----------
+Run from any working directory:
+  ./ppplayer-portable
+or directly:
+  ./ppplayer
+
+Bundled Native Libraries & Licenses
+-----------------------------------
+libmpv.so.2 and its compatible non-core media dependencies are bundled under
+lib/ with $ORIGIN RUNPATH resolution. Third-party library copyright notices
+are located under share/licenses/bundled/.
+
+Chromium / YouTube Sandbox Notice (Ubuntu 24.04+ / 26.04+)
+----------------------------------------------------------
+PPPlayer preserves Chromium's native OS sandbox and does NOT disable AppArmor
+or pass unrestricted --no-sandbox flags outside verified Snap/Flatpak containers.
+
+On Ubuntu 24.04+ / 26.04+ with kernel.apparmor_restrict_unprivileged_userns=1:
+  * App startup, browsing, and local audio/video playback (MediaKit/libmpv)
+    work out-of-the-box with zero elevated permissions.
+  * Chromium/YouTube web playback requires unprivileged user namespaces.
+    Because portable archives do not have a fixed system install path, we
+    strongly recommend installing either:
+      1. The official Debian package (ppplayer_*_amd64.deb), which installs a
+         narrowly scoped /etc/apparmor.d/ppplayer profile automatically, OR
+      2. The official strict-confined Snap package (sudo snap install ppplayer).
+EOF
+chmod 0644 "$TARBALL_STAGE_DIR/README-LINUX.txt"
 
 # Package upstream desktop entry, AppStream MetaInfo, and 512x512 icon inside
 # standard share/ paths while keeping executable and lib/ in their portable root.
@@ -145,16 +219,13 @@ mkdir -p "$DEB_BUILD_DIR/etc/apparmor.d"
 
 # Copy App Files
 cp -r "$BUNDLE_DIR/"* "$DEB_BUILD_DIR/opt/ppplayer/"
-if [ -f "$DEB_BUILD_DIR/opt/ppplayer/lib/flutter_chromium_webview_subprocess" ]; then
-    chmod +x "$DEB_BUILD_DIR/opt/ppplayer/lib/flutter_chromium_webview_subprocess"
-fi
 
 # Create Launcher symlink
 ln -s /opt/ppplayer/ppplayer "$DEB_BUILD_DIR/usr/bin/ppplayer"
 
 # Copy Desktop and Icon
-cp packaging/linux/com.ppplayer.app.desktop "$DEB_BUILD_DIR/usr/share/applications/"
-cp assets/logo.png "$DEB_BUILD_DIR/usr/share/icons/hicolor/256x256/apps/com.ppplayer.app.png"
+install -m 0644 packaging/linux/com.ppplayer.app.desktop "$DEB_BUILD_DIR/usr/share/applications/com.ppplayer.app.desktop"
+install -m 0644 assets/logo.png "$DEB_BUILD_DIR/usr/share/icons/hicolor/256x256/apps/com.ppplayer.app.png"
 
 # Install a narrowly scoped AppArmor profile permitting unprivileged user
 # namespaces ONLY for PPPlayer's installed binaries so Chromium's native
@@ -207,63 +278,193 @@ Description: Media player powered by Lucas Veneno.
 Depends: libgtk-3-0, libgl1, libegl1, libx11-6, libxcb1, libstdc++6, libvulkan1, libsecret-1-0, libmpv1 | libmpv2, libepoxy0
 EOF
 
-chmod -R 755 "$DEB_BUILD_DIR/opt/ppplayer" "$DEB_BUILD_DIR/usr"
+# Normalize deterministic directory/file permissions (0755 dirs & executables, 0644 data/metadata/icons)
+find "$DEB_BUILD_DIR/opt/ppplayer" "$DEB_BUILD_DIR/usr" "$DEB_BUILD_DIR/etc" -type d -exec chmod 0755 {} +
+find "$DEB_BUILD_DIR/opt/ppplayer" "$DEB_BUILD_DIR/usr" "$DEB_BUILD_DIR/etc" -type f -exec chmod 0644 {} +
+chmod 0755 "$DEB_BUILD_DIR/opt/ppplayer/ppplayer"
+if [ -f "$DEB_BUILD_DIR/opt/ppplayer/lib/flutter_chromium_webview_subprocess" ]; then
+    chmod 0755 "$DEB_BUILD_DIR/opt/ppplayer/lib/flutter_chromium_webview_subprocess"
+fi
 chmod 0644 "$DEB_BUILD_DIR/etc/apparmor.d/ppplayer" "$DEB_BUILD_DIR/DEBIAN/control"
 chmod 0755 "$DEB_BUILD_DIR/DEBIAN" "$DEB_BUILD_DIR/DEBIAN/postinst" "$DEB_BUILD_DIR/DEBIAN/postrm"
+
 # Workaround for WSL filesystem permission issues with dpkg-deb:
-# Build the deb in an isolated temp directory, preserving symlinks, then move it out.
+# Build the deb in an isolated temp directory, preserving symlinks, with root:root ownership.
 DEB_TMP_PARENT=$(mktemp -d)
 DEB_TMP_DIR="$DEB_TMP_PARENT/ppplayer_${DEB_VERSION}_amd64"
 cp -R -P "$DEB_BUILD_DIR" "$DEB_TMP_DIR"
+find "$DEB_TMP_DIR/opt/ppplayer" "$DEB_TMP_DIR/usr" "$DEB_TMP_DIR/etc" -type d -exec chmod 0755 {} +
+find "$DEB_TMP_DIR/opt/ppplayer" "$DEB_TMP_DIR/usr" "$DEB_TMP_DIR/etc" -type f -exec chmod 0644 {} +
+chmod 0755 "$DEB_TMP_DIR/opt/ppplayer/ppplayer"
+if [ -f "$DEB_TMP_DIR/opt/ppplayer/lib/flutter_chromium_webview_subprocess" ]; then
+    chmod 0755 "$DEB_TMP_DIR/opt/ppplayer/lib/flutter_chromium_webview_subprocess"
+fi
 chmod 0755 "$DEB_TMP_DIR/DEBIAN" "$DEB_TMP_DIR/DEBIAN/postinst" "$DEB_TMP_DIR/DEBIAN/postrm"
 chmod 0644 "$DEB_TMP_DIR/DEBIAN/control" "$DEB_TMP_DIR/etc/apparmor.d/ppplayer"
-dpkg-deb --build "$DEB_TMP_DIR"
+dpkg-deb --root-owner-group --build "$DEB_TMP_DIR"
 mv "$DEB_TMP_DIR.deb" "$DIST_DIR/$DEB_NAME"
 rm -rf "$DEB_TMP_PARENT"
 
-# 5. Build AppImage
+# Automated DEB archive audit (runs when real dpkg-deb -c is supported)
+if dpkg-deb -c "$DIST_DIR/$DEB_NAME" >/dev/null 2>&1; then
+    echo "Auditing Debian archive ownership and permissions..."
+    DEB_LISTING=$(dpkg-deb -c "$DIST_DIR/$DEB_NAME")
+    if printf '%s\n' "$DEB_LISTING" | awk '$2 != "root/root" {print; exit 1}' | grep -q .; then
+        echo "Error: Non-root ownership detected in $DIST_DIR/$DEB_NAME" >&2
+        printf '%s\n' "$DEB_LISTING" | awk '$2 != "root/root"' >&2
+        exit 1
+    fi
+    for non_exec in \
+        "./etc/apparmor.d/ppplayer" \
+        "./usr/share/applications/com.ppplayer.app.desktop" \
+        "./usr/share/icons/hicolor/256x256/apps/com.ppplayer.app.png"; do
+        if ! printf '%s\n' "$DEB_LISTING" | grep -Eq "^-rw-r--r-- root/root .* ${non_exec}$"; then
+            echo "Error: Expected 0644 root/root on $non_exec in $DIST_DIR/$DEB_NAME" >&2
+            exit 1
+        fi
+    done
+    if ! printf '%s\n' "$DEB_LISTING" | grep -Eq '^-rwxr-xr-x root/root .* \./opt/ppplayer/ppplayer$'; then
+        echo "Error: Expected 0755 root/root on ./opt/ppplayer/ppplayer in $DIST_DIR/$DEB_NAME" >&2
+        exit 1
+    fi
+    if [ -f "$BUNDLE_DIR/lib/flutter_chromium_webview_subprocess" ]; then
+        if ! printf '%s\n' "$DEB_LISTING" | grep -Eq '^-rwxr-xr-x root/root .* \./opt/ppplayer/lib/flutter_chromium_webview_subprocess$'; then
+            echo "Error: Expected 0755 root/root on ./opt/ppplayer/lib/flutter_chromium_webview_subprocess in $DIST_DIR/$DEB_NAME" >&2
+            exit 1
+        fi
+    fi
+    echo "DEB audit passed: all entries root/root with verified file modes."
+fi
+
+# 5. Build AppImage (pinned maintained AppImage/appimagetool 1.9.1 + static FUSE3 type2-runtime 20251108)
 APPIMAGE_NAME="PPPlayer-Linux-x86_64.AppImage"
 echo "Building AppImage: $APPIMAGE_NAME"
 APPDIR="build/linux/x64/AppDir"
 rm -rf "$APPDIR"
 mkdir -p "$APPDIR"
 
-# Copy bundle
+# Copy bundle & portable libmpv + compatible transitive libraries + third-party licenses
 cp -r "$BUNDLE_DIR/"* "$APPDIR/"
+chmod 0755 "$APPDIR/ppplayer"
 if [ -f "$APPDIR/lib/flutter_chromium_webview_subprocess" ]; then
-    chmod +x "$APPDIR/lib/flutter_chromium_webview_subprocess"
+    chmod 0755 "$APPDIR/lib/flutter_chromium_webview_subprocess"
+fi
+if [ -f "$PORTABLE_BUNDLER" ]; then
+    echo "Bundling portable native libraries (libmpv + compatible transitive deps) into AppDir..."
+    python3 "$PORTABLE_BUNDLER" --bundle-dir "$APPDIR"
 fi
 
 # Copy Desktop and Icon into root of AppDir
-cp packaging/linux/com.ppplayer.app.desktop "$APPDIR/"
-cp assets/logo.png "$APPDIR/com.ppplayer.app.png"
-cp assets/logo.png "$APPDIR/.DirIcon"
+install -m 0644 packaging/linux/com.ppplayer.app.desktop "$APPDIR/com.ppplayer.app.desktop"
+install -m 0644 assets/logo.png "$APPDIR/com.ppplayer.app.png"
+install -m 0644 assets/logo.png "$APPDIR/.DirIcon"
 
-# Create AppRun
+# Create AppRun with CWD-independent library resolution and non-destructive userns diagnostic
 cat <<'EOF' > "$APPDIR/AppRun"
 #!/bin/sh
+set -eu
 HERE="$(dirname "$(readlink -f "${0}")")"
-export LD_LIBRARY_PATH="${HERE}/lib:${LD_LIBRARY_PATH}"
+export LD_LIBRARY_PATH="${HERE}/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
+if [ -f "${HERE}/lib/libmpv.so.2" ] && [ -z "${LIBMPV_LIBRARY_PATH:-}" ]; then
+    export LIBMPV_LIBRARY_PATH="${HERE}/lib/libmpv.so.2"
+fi
 export CEF_SYSTEM_MEDIA_CONTROLS="${CEF_SYSTEM_MEDIA_CONTROLS:-0}"
-exec "${HERE}/ppplayer" "$@"
-EOF
-chmod +x "$APPDIR/AppRun"
 
-# Download appimagetool if not present
-if ! command -v appimagetool &> /dev/null; then
-    if [ ! -f "appimagetool-x86_64.AppImage" ]; then
-        echo "Downloading appimagetool..."
-        wget -q "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage"
-        chmod +x appimagetool-x86_64.AppImage
+# Non-destructive preflight diagnostic for Ubuntu 24.04+/26.04+ unprivileged userns restriction.
+# AppImage launches and plays local media without user namespaces; Chromium's sandboxed web
+# renderer requires a host AppArmor profile (.deb) or strict Snap confinement.
+if [ -z "${SNAP:-}" ] && [ -z "${FLATPAK_ID:-}" ] && [ -r /proc/sys/kernel/apparmor_restrict_unprivileged_userns ]; then
+    if [ "$(cat /proc/sys/kernel/apparmor_restrict_unprivileged_userns 2>/dev/null || echo 0)" = "1" ]; then
+        if command -v unshare >/dev/null 2>&1 && ! unshare -Ur true >/dev/null 2>&1; then
+            echo "[PPPlayer] Notice: Ubuntu AppArmor restricts unprivileged user namespaces for AppImage binaries." >&2
+            echo "[PPPlayer]   - App UI and local audio/video playback work normally." >&2
+            echo "[PPPlayer]   - Chromium/YouTube web video requires a scoped AppArmor profile (.deb) or strict Snap confinement." >&2
+            echo "[PPPlayer]   - Recommended on Ubuntu 24.04+/26.04: install the official .deb or Snap package." >&2
+        fi
     fi
-    APPIMAGETOOL="./appimagetool-x86_64.AppImage --appimage-extract-and-run"
-else
-    APPIMAGETOOL="appimagetool"
 fi
 
-# Run appimagetool
-# ARCH=x86_64 required for appimagetool to set the right architecture internally
-ARCH=x86_64 $APPIMAGETOOL "$APPDIR" "$DIST_DIR/$APPIMAGE_NAME"
+exec "${HERE}/ppplayer" "$@"
+EOF
+chmod 0755 "$APPDIR/AppRun"
+
+# Pinned, immutable upstream AppImage tooling & static FUSE3-compatible type2-runtime
+APPIMAGETOOL_VERSION="1.9.1"
+APPIMAGETOOL_URL="https://github.com/AppImage/appimagetool/releases/download/${APPIMAGETOOL_VERSION}/appimagetool-x86_64.AppImage"
+APPIMAGETOOL_SHA256="ed4ce84f0d9caff66f50bcca6ff6f35aae54ce8135408b3fa33abfc3cb384eb0"
+
+APPIMAGE_RUNTIME_VERSION="20251108"
+APPIMAGE_RUNTIME_URL="https://github.com/AppImage/type2-runtime/releases/download/${APPIMAGE_RUNTIME_VERSION}/runtime-x86_64"
+APPIMAGE_RUNTIME_SHA256="2fca8b443c92510f1483a883f60061ad09b46b978b2631c807cd873a47ec260d"
+
+verify_sha256() {
+    local file_path="$1"
+    local expected_sha="$2"
+    local actual_sha=""
+    if command -v sha256sum >/dev/null 2>&1; then
+        actual_sha=$(sha256sum "$file_path" | awk '{print $1}')
+    else
+        actual_sha=$(shasum -a 256 "$file_path" | awk '{print $1}')
+    fi
+    if [ "$actual_sha" != "$expected_sha" ]; then
+        echo "Error: SHA-256 verification failed for $file_path (expected=$expected_sha, actual=$actual_sha)" >&2
+        rm -f "$file_path"
+        exit 1
+    fi
+}
+
+download_pinned() {
+    local url="$1"
+    local dest="$2"
+    local expected_sha="$3"
+    if [ -f "$dest" ]; then
+        if verify_sha256 "$dest" "$expected_sha"; then
+            return 0
+        fi
+    fi
+    echo "Downloading pinned artifact: $url"
+    if command -v curl >/dev/null 2>&1; then
+        curl -fsSL -o "$dest" "$url"
+    else
+        wget -q -O "$dest" "$url"
+    fi
+    verify_sha256 "$dest" "$expected_sha"
+}
+
+APPIMAGE_TOOLS_DIR="build/linux/x64/appimage-tools"
+mkdir -p "$APPIMAGE_TOOLS_DIR"
+RUNTIME_ARGS=""
+
+if ! command -v appimagetool >/dev/null 2>&1; then
+    APPIMAGETOOL_BIN="$APPIMAGE_TOOLS_DIR/appimagetool-${APPIMAGETOOL_VERSION}-x86_64.AppImage"
+    download_pinned "$APPIMAGETOOL_URL" "$APPIMAGETOOL_BIN" "$APPIMAGETOOL_SHA256"
+    chmod 0755 "$APPIMAGETOOL_BIN"
+    APPIMAGETOOL="$APPIMAGETOOL_BIN --appimage-extract-and-run"
+
+    RUNTIME_BIN="${PPPLAYER_APPIMAGE_RUNTIME:-$APPIMAGE_TOOLS_DIR/runtime-${APPIMAGE_RUNTIME_VERSION}-x86_64}"
+    if [ -z "${PPPLAYER_APPIMAGE_RUNTIME:-}" ]; then
+        download_pinned "$APPIMAGE_RUNTIME_URL" "$RUNTIME_BIN" "$APPIMAGE_RUNTIME_SHA256"
+    fi
+    RUNTIME_ARGS="--runtime-file $RUNTIME_BIN"
+else
+    APPIMAGETOOL="appimagetool"
+    if [ -n "${PPPLAYER_APPIMAGE_RUNTIME:-}" ] && [ -f "${PPPLAYER_APPIMAGE_RUNTIME}" ]; then
+        RUNTIME_ARGS="--runtime-file ${PPPLAYER_APPIMAGE_RUNTIME}"
+    fi
+fi
+
+# Run appimagetool with explicit x86_64 architecture and pinned static FUSE3 runtime
+# shellcheck disable=SC2086
+ARCH=x86_64 $APPIMAGETOOL --no-appstream $RUNTIME_ARGS "$APPDIR" "$DIST_DIR/$APPIMAGE_NAME"
+chmod 0755 "$DIST_DIR/$APPIMAGE_NAME"
+
+# Verify resulting AppImage architecture when real ELF output is generated
+if command -v file >/dev/null 2>&1 && head -c 4 "$DIST_DIR/$APPIMAGE_NAME" | grep -q $'\x7fELF'; then
+    if ! file "$DIST_DIR/$APPIMAGE_NAME" | grep -q 'x86-64'; then
+        echo "Error: Unexpected AppImage architecture: $(file "$DIST_DIR/$APPIMAGE_NAME")" >&2
+        exit 1
+    fi
+fi
 
 # 6. Prepare Flathub / Flatpak Metadata & Optional Local Flatpak Bundle Build
 echo "Preparing Flathub / Flatpak metadata artifacts..."

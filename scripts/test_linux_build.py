@@ -16,6 +16,7 @@ import xml.etree.ElementTree as ET
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / 'packaging/linux/scripts/build_linux.sh'
 UPDATER = ROOT / 'packaging/linux/scripts/update_flatpak_manifest.py'
+BUNDLER = ROOT / 'packaging/linux/scripts/bundle_linux_portable_libs.py'
 TEMPLATE_MANIFEST = ROOT / 'packaging/linux/flatpak/com.ppplayer.PPPlayer.yml'
 DESKTOP_FILE = ROOT / 'packaging/linux/flatpak/com.ppplayer.PPPlayer.desktop'
 METAINFO_FILE = ROOT / 'packaging/linux/flatpak/com.ppplayer.PPPlayer.metainfo.xml'
@@ -24,6 +25,7 @@ DEB_DESKTOP_FILE = ROOT / 'packaging/linux/com.ppplayer.app.desktop'
 LOGO_FILE = ROOT / 'assets/logo.png'
 
 sys.path.insert(0, str(ROOT / 'packaging/linux/scripts'))
+import bundle_linux_portable_libs as portable_bundler  # noqa: E402
 import update_flatpak_manifest as manifest_updater  # noqa: E402
 
 EXPECTED_THIRD_PARTY_SHA256 = {
@@ -62,6 +64,7 @@ def _make_fake_project(
     scripts_dir = root / 'packaging/linux/scripts'
     scripts_dir.mkdir(parents=True, exist_ok=True)
     shutil.copy2(UPDATER, scripts_dir / UPDATER.name)
+    shutil.copy2(BUNDLER, scripts_dir / BUNDLER.name)
 
     fake_bin = root / 'fake_bin'
     fake_bin.mkdir(parents=True, exist_ok=True)
@@ -92,13 +95,18 @@ def _make_fake_project(
     write_tool(
         'dpkg-deb',
         f'echo "dpkg-deb $*" >> "{calls}"\n'
-        'printf "fake-deb" > "$2.deb"\n',
+        'if [ "$1" = "-c" ]; then exit 1; fi\n'
+        'last=""\n'
+        'for arg in "$@"; do last="$arg"; done\n'
+        'printf "fake-deb" > "$last.deb"\n',
     )
     write_tool(
         'appimagetool',
         f'echo "appimagetool $*" >> "{calls}"\n'
-        'printf "#!/bin/sh\\necho appimage\\n" > "$2"\n'
-        'chmod 0755 "$2"\n',
+        'last=""\n'
+        'for arg in "$@"; do last="$arg"; done\n'
+        'printf "#!/bin/sh\\necho appimage\\n" > "$last"\n'
+        'chmod 0755 "$last"\n',
     )
 
     if include_flatpak_tools:
@@ -521,6 +529,132 @@ class LinuxBuildTests(unittest.TestCase):
                 'PPPlayer-Linux-x86_64.flatpak',
                 (root / 'dist/SHA256SUMS').read_text(encoding='utf-8'),
             )
+
+    def test_deb_build_uses_root_owner_group_and_normalizes_permissions(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            fake_bin, calls = _make_fake_project(root, version='4.0.3+15')
+            env = _isolated_env(fake_bin)
+            result = subprocess.run(
+                ['bash', str(SCRIPT), str(root)], env=env, capture_output=True, text=True
+            )
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            calls_text = calls.read_text(encoding='utf-8')
+            self.assertIn('dpkg-deb --root-owner-group --build', calls_text)
+
+            deb_stage = root / 'build/linux/x64/deb/ppplayer_4.0.3-15_amd64'
+            self.assertEqual(
+                (deb_stage / 'opt/ppplayer/ppplayer').stat().st_mode & 0o777, 0o755
+            )
+            self.assertEqual(
+                (deb_stage / 'opt/ppplayer/lib/flutter_chromium_webview_subprocess').stat().st_mode
+                & 0o777,
+                0o755,
+            )
+            self.assertEqual(
+                (deb_stage / 'usr/share/applications/com.ppplayer.app.desktop').stat().st_mode
+                & 0o777,
+                0o644,
+            )
+            self.assertEqual(
+                (deb_stage / 'usr/share/icons/hicolor/256x256/apps/com.ppplayer.app.png')
+                .stat()
+                .st_mode
+                & 0o777,
+                0o644,
+            )
+            self.assertEqual(
+                (deb_stage / 'etc/apparmor.d/ppplayer').stat().st_mode & 0o777, 0o644
+            )
+
+    def test_tarball_and_appdir_include_portable_wrapper_and_sandbox_preflight(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            fake_bin, _calls = _make_fake_project(root, version='4.0.3+15')
+            env = _isolated_env(fake_bin)
+            result = subprocess.run(
+                ['bash', str(SCRIPT), str(root)], env=env, capture_output=True, text=True
+            )
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+            apprun = (root / 'build/linux/x64/AppDir/AppRun').read_text(encoding='utf-8')
+            self.assertIn('apparmor_restrict_unprivileged_userns', apprun)
+            self.assertIn('unshare -Ur true', apprun)
+            self.assertNotIn('--no-sandbox', apprun)
+
+            tarball = root / 'dist/PPPlayer-Linux-x86_64.tar.gz'
+            extract_dir = root / 'ext_portable'
+            extract_dir.mkdir()
+            with tarfile.open(tarball, 'r:gz') as tf:
+                tf.extractall(extract_dir)
+            wrapper = extract_dir / 'PPPlayer/ppplayer-portable'
+            readme = extract_dir / 'PPPlayer/README-LINUX.txt'
+            self.assertTrue(wrapper.is_file())
+            self.assertTrue(os.access(wrapper, os.X_OK))
+            self.assertTrue(readme.is_file())
+            self.assertIn('apparmor_restrict_unprivileged_userns', wrapper.read_text(encoding='utf-8'))
+            self.assertNotIn('--no-sandbox', wrapper.read_text(encoding='utf-8'))
+            self.assertIn('libmpv.so.2', readme.read_text(encoding='utf-8'))
+
+
+class PortableLibraryBundlerTests(unittest.TestCase):
+    def test_core_host_abi_excludelist_blocks_system_libs_and_allows_media_libs(self):
+        for host_lib in (
+            'libc.so.6',
+            'libm.so.6',
+            'libstdc++.so.6',
+            'libgcc_s.so.1',
+            'libGL.so.1',
+            'libEGL.so.1',
+            'libdrm.so.2',
+            'libgbm.so.1',
+            'libX11.so.6',
+            'libwayland-client.so.0',
+            'libgtk-3.so.0',
+            'libglib-2.0.so.0',
+            'libasound.so.2',
+            'libpulse.so.0',
+            'libpipewire-0.3.so.0',
+            'libdbus-1.so.3',
+            'libsecret-1.so.0',
+        ):
+            self.assertTrue(
+                portable_bundler.is_excluded_host_library(host_lib),
+                f'Host ABI library must be excluded: {host_lib}',
+            )
+
+        for media_lib in (
+            'libmpv.so.2',
+            'libavcodec.so.60',
+            'libavformat.so.60',
+            'libavfilter.so.9',
+            'libavutil.so.58',
+            'libswscale.so.7',
+            'libswresample.so.4',
+            'libass.so.9',
+            'libplacebo.so.338',
+            'libbluray.so.2',
+            'libdvdnav.so.4',
+            'libmujs.so.3',
+            'librubberband.so.2',
+            'libzimg.so.2',
+        ):
+            self.assertFalse(
+                portable_bundler.is_excluded_host_library(media_lib),
+                f'Portable media library must be eligible for bundling: {media_lib}',
+            )
+
+    def test_collect_bundled_licenses_writes_third_party_manifest(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp = Path(tmpdir)
+            fake_lib = tmp / 'libmpv.so.2'
+            fake_lib.write_bytes(b'fake')
+            lic_dir = tmp / 'share/licenses/bundled'
+            manifest = portable_bundler.collect_bundled_licenses({'libmpv.so.2': fake_lib}, lic_dir)
+            self.assertTrue(manifest.is_file())
+            text = manifest.read_text(encoding='utf-8')
+            self.assertIn('libmpv.so.2', text)
+            self.assertIn('LGPL/GPL', text)
 
 
 if __name__ == '__main__':

@@ -1,0 +1,156 @@
+name: Publish Verified Snap to Candidate Channel
+
+on:
+  workflow_dispatch:
+    inputs:
+      artifact_run_id:
+        description: "Exact GitHub Actions workflow run ID containing the verified Snap artifact (digits only)"
+        type: string
+        required: true
+      artifact_name:
+        description: "Exact workflow artifact name containing the .snap file"
+        type: string
+        required: true
+        default: "PPPlayer-Linux-Snap"
+      expected_sha256:
+        description: "Exact 64-char lowercase SHA-256 checksum of the verified .snap artifact"
+        type: string
+        required: true
+      expected_version:
+        description: "Exact Snap version expected inside meta/snap.yaml (e.g. 4.0.2 or 4.0.3)"
+        type: string
+        required: true
+      confirm_candidate_upload:
+        description: "Explicit confirmation to publish ONLY to latest/candidate (never promotes to stable)"
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  publish-snap-candidate:
+    name: Verify & Publish Snap to latest/candidate Only
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - name: Validate Inputs & Guardrails (Fail Closed)
+        env:
+          CONFIRM_UPLOAD: ${{ inputs.confirm_candidate_upload }}
+          ARTIFACT_RUN_ID: ${{ inputs.artifact_run_id }}
+          ARTIFACT_NAME: ${{ inputs.artifact_name }}
+          EXPECTED_SHA256: ${{ inputs.expected_sha256 }}
+          EXPECTED_VERSION: ${{ inputs.expected_version }}
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
+        run: |
+          set -euo pipefail
+          if [ "$CONFIRM_UPLOAD" != "true" ]; then
+            echo "::error::confirm_candidate_upload must be true to upload to latest/candidate."
+            exit 1
+          fi
+          if [ -z "$SNAPCRAFT_STORE_CREDENTIALS" ]; then
+            echo "::error::SNAPCRAFT_STORE_CREDENTIALS secret is missing."
+            exit 1
+          fi
+          if ! printf '%s' "$ARTIFACT_RUN_ID" | grep -Eq '^[0-9]+$'; then
+            echo "::error::Invalid artifact_run_id '$ARTIFACT_RUN_ID' (must be digits only)."
+            exit 1
+          fi
+          if [ -z "$ARTIFACT_NAME" ]; then
+            echo "::error::artifact_name must not be empty."
+            exit 1
+          fi
+          if ! printf '%s' "$EXPECTED_SHA256" | grep -Eq '^[0-9a-f]{64}$'; then
+            echo "::error::Invalid expected_sha256 '$EXPECTED_SHA256' (must be 64 lowercase hex chars)."
+            exit 1
+          fi
+          if ! printf '%s' "$EXPECTED_VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$'; then
+            echo "::error::Invalid expected_version '$EXPECTED_VERSION'."
+            exit 1
+          fi
+          echo "Validated inputs: run_id=$ARTIFACT_RUN_ID artifact=$ARTIFACT_NAME version=$EXPECTED_VERSION channel=candidate"
+
+      - name: Download Verified Snap Artifact from Specified Run
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.artifact_name }}
+          run-id: ${{ inputs.artifact_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: snap-candidate-artifact
+
+      - name: Verify Snap SHA-256, Identity, Confinement, Base & Architecture
+        id: verify_snap
+        env:
+          EXPECTED_SHA256: ${{ inputs.expected_sha256 }}
+          EXPECTED_VERSION: ${{ inputs.expected_version }}
+        run: |
+          set -euo pipefail
+          SNAP_COUNT=$(find snap-candidate-artifact -maxdepth 2 -type f -name '*.snap' | wc -l)
+          if [ "$SNAP_COUNT" -ne 1 ]; then
+            echo "::error::Expected exactly 1 .snap file in downloaded artifact, found $SNAP_COUNT."
+            exit 1
+          fi
+          SNAP_FILE=$(find snap-candidate-artifact -maxdepth 2 -type f -name '*.snap' | head -n 1)
+          ACTUAL_SHA256=$(sha256sum "$SNAP_FILE" | awk '{print $1}')
+          if [ "$ACTUAL_SHA256" != "$EXPECTED_SHA256" ]; then
+            echo "::error::SHA-256 mismatch! expected=$EXPECTED_SHA256 actual=$ACTUAL_SHA256"
+            exit 1
+          fi
+
+          # Inspect meta/snap.yaml inside the squashfs archive without mutating it.
+          if ! command -v unsquashfs >/dev/null 2>&1; then
+            sudo apt-get update -qq && sudo apt-get install -y -qq squashfs-tools
+          fi
+          SNAP_YAML=$(unsquashfs -cat "$SNAP_FILE" meta/snap.yaml)
+          SNAP_YAML="$SNAP_YAML" python3 - "$EXPECTED_VERSION" <<'PY'
+          import os, re, sys
+          expected_ver = sys.argv[1]
+          text = os.environ["SNAP_YAML"]
+
+          def field(key):
+              m = re.search(rf'^{re.escape(key)}:\s*(.+?)\s*$', text, re.MULTILINE)
+              return m.group(1).strip().strip("'\"") if m else ""
+
+          name = field("name")
+          version = field("version")
+          base = field("base")
+          confinement = field("confinement")
+          has_amd64 = bool(re.search(r'^\s*-\s*amd64\s*$', text, re.MULTILINE))
+
+          assert name == "ppplayer", f"Unexpected snap name: {name!r}"
+          assert version == expected_ver, f"Version mismatch: expected {expected_ver!r}, got {version!r}"
+          assert base == "core24", f"Unexpected snap base: {base!r}"
+          assert confinement == "strict", f"Unexpected snap confinement: {confinement!r}"
+          assert has_amd64, "Missing amd64 architecture in meta/snap.yaml"
+          print(f"VERIFIED SNAP METADATA: name={name} version={version} base={base} confinement={confinement} arch=amd64")
+          PY
+
+          echo "snap_path=$SNAP_FILE" >> "$GITHUB_OUTPUT"
+          echo "snap_sha256=$ACTUAL_SHA256" >> "$GITHUB_OUTPUT"
+          ls -lh "$SNAP_FILE"
+
+      - name: Capture Pre-Upload Store Channel State
+        run: |
+          set -euo pipefail
+          snap info ppplayer | grep -E '^(name:|snap-id:|channels:|  latest/)' || true
+
+      - name: Publish Verified Snap Strictly to latest/candidate
+        uses: snapcore/action-publish@v1
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
+        with:
+          snap: ${{ steps.verify_snap.outputs.snap_path }}
+          release: candidate
+
+      - name: Audit Store-Assigned Candidate Revision & Stable Channel Isolation
+        run: |
+          set -euo pipefail
+          echo "=== Post-Upload Snap Store Channel Audit ==="
+          snap info ppplayer | grep -E '^(name:|snap-id:|publisher:|channels:|  latest/)' || true
+          echo "Verified artifact SHA-256 uploaded to candidate: ${{ steps.verify_snap.outputs.snap_sha256 }}"
+          echo "NOTE: latest/stable was NOT modified by this workflow. Promote separately only after candidate acceptance."
