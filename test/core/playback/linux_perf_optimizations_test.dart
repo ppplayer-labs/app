@@ -33,11 +33,13 @@ class _StubFallbackController extends Fake implements PlaybackController {
   }
 }
 
-class _FakeYoutubePlayer extends Fake implements ChromiumYoutubePlayerController {
+class _FakeYoutubePlayer extends Fake
+    implements ChromiumYoutubePlayerController {
   final messages = StreamController<Map<String, Object?>>.broadcast(sync: true);
   final calls = <String>[];
   final controller = ChromiumWebViewController();
   bool disposed = false;
+  int playlistIndex = 0;
 
   @override
   Stream<Map<String, Object?>> get events => messages.stream;
@@ -65,6 +67,27 @@ class _FakeYoutubePlayer extends Fake implements ChromiumYoutubePlayerController
   }) async {
     calls.add('cue:$videoId:${startSeconds.round()}');
   }
+
+  @override
+  Future<void> loadPlaylist({
+    required String playlistId,
+    int index = 0,
+    double startSeconds = 0,
+  }) async {
+    calls.add('loadPlaylist:$playlistId:$index:${startSeconds.round()}');
+  }
+
+  @override
+  Future<void> cuePlaylist({
+    required String playlistId,
+    int index = 0,
+    double startSeconds = 0,
+  }) async {
+    calls.add('cuePlaylist:$playlistId:$index:${startSeconds.round()}');
+  }
+
+  @override
+  Future<int> getPlaylistIndex() async => playlistIndex;
 
   @override
   Future<void> pauseVideo() async {
@@ -109,112 +132,228 @@ void main() {
   );
 
   group('ChromiumPlaybackEngine idle reclamation and surface visibility', () {
-    test('reclaims paused browser after idle delay and transparently resumes at saved position', () async {
-      final fallback = _StubFallbackController();
-      final created = <_FakeYoutubePlayer>[];
-      final engine = ChromiumPlaybackEngine(
-        fallback: fallback,
-        initializeCef: () async {},
-        createPlayer: () {
-          final player = _FakeYoutubePlayer();
-          created.add(player);
-          return player;
-        },
-        idleBrowserReleaseDelay: const Duration(milliseconds: 80),
-      );
-      addTearDown(engine.dispose);
+    test(
+      'reclaims paused browser after idle delay and transparently resumes at saved position',
+      () async {
+        final fallback = _StubFallbackController();
+        final created = <_FakeYoutubePlayer>[];
+        final engine = ChromiumPlaybackEngine(
+          fallback: fallback,
+          initializeCef: () async {},
+          createPlayer: () {
+            final player = _FakeYoutubePlayer();
+            created.add(player);
+            return player;
+          },
+          idleBrowserReleaseDelay: const Duration(milliseconds: 80),
+        );
+        addTearDown(engine.dispose);
 
-      await engine.play(youtubeTrack);
-      expect(created.length, 1);
-      expect(engine.hasActiveBrowser, isTrue);
+        await engine.play(youtubeTrack);
+        expect(created.length, 1);
+        expect(engine.hasActiveBrowser, isTrue);
 
-      created.first.messages.add({'StateChange': 1});
-      created.first.messages.add({
-        'VideoState': jsonEncode({'currentTime': 42.0, 'loadedFraction': 0.5}),
-      });
-      expect(engine.isRenderingActive, isTrue);
+        created.first.messages.add({'StateChange': 1});
+        created.first.messages.add({
+          'VideoState': jsonEncode({
+            'currentTime': 42.0,
+            'loadedFraction': 0.5,
+          }),
+        });
+        expect(engine.isRenderingActive, isTrue);
 
-      await engine.pause();
-      created.first.messages.add({'StateChange': 2});
-      expect(engine.isRenderingActive, isFalse);
-      expect(engine.hasActiveBrowser, isTrue);
+        await engine.pause();
+        created.first.messages.add({'StateChange': 2});
+        expect(engine.isRenderingActive, isFalse);
+        expect(engine.hasActiveBrowser, isTrue);
 
-      // Wait past idleBrowserReleaseDelay so the paused browser is reclaimed.
-      await Future<void>.delayed(const Duration(milliseconds: 140));
-      expect(engine.hasActiveBrowser, isFalse);
-      expect(created.first.disposed, isTrue);
-      expect(engine.currentStatus.state, PlaybackState.paused);
-      expect(engine.currentStatus.track?.id, youtubeTrack.id);
-      expect(engine.currentStatus.position, const Duration(seconds: 42));
+        // Wait past idleBrowserReleaseDelay so the paused browser is reclaimed.
+        await Future<void>.delayed(const Duration(milliseconds: 140));
+        expect(engine.hasActiveBrowser, isFalse);
+        expect(created.first.disposed, isTrue);
+        expect(engine.currentStatus.state, PlaybackState.paused);
+        expect(engine.currentStatus.track?.id, youtubeTrack.id);
+        expect(engine.currentStatus.position, const Duration(seconds: 42));
 
-      // Seeking while idle-reclaimed updates the saved position without spawning.
-      await engine.seekTo(const Duration(seconds: 65));
-      expect(created.length, 1);
-      expect(engine.currentStatus.position, const Duration(seconds: 65));
+        // Seeking while idle-reclaimed updates the saved position without spawning.
+        await engine.seekTo(const Duration(seconds: 65));
+        expect(created.length, 1);
+        expect(engine.currentStatus.position, const Duration(seconds: 65));
 
-      // Resuming transparently allocates a fresh browser at the saved position.
-      await engine.resume();
-      expect(created.length, 2);
-      expect(engine.hasActiveBrowser, isTrue);
-      expect(created.last.calls, contains('load:dQw4w9WgXcQ:65'));
-    });
+        // Resuming transparently allocates a fresh browser at the saved position.
+        await engine.resume();
+        expect(created.length, 2);
+        expect(engine.hasActiveBrowser, isTrue);
+        expect(created.last.calls, contains('load:dQw4w9WgXcQ:65'));
+      },
+    );
 
-    test('cancels idle browser reclamation if resumed before timeout', () async {
-      final fallback = _StubFallbackController();
-      final created = <_FakeYoutubePlayer>[];
-      final engine = ChromiumPlaybackEngine(
-        fallback: fallback,
-        initializeCef: () async {},
-        createPlayer: () {
-          final player = _FakeYoutubePlayer();
-          created.add(player);
-          return player;
-        },
-        idleBrowserReleaseDelay: const Duration(milliseconds: 120),
-      );
-      addTearDown(engine.dispose);
+    test(
+      'cancels idle browser reclamation if resumed before timeout',
+      () async {
+        final fallback = _StubFallbackController();
+        final created = <_FakeYoutubePlayer>[];
+        final engine = ChromiumPlaybackEngine(
+          fallback: fallback,
+          initializeCef: () async {},
+          createPlayer: () {
+            final player = _FakeYoutubePlayer();
+            created.add(player);
+            return player;
+          },
+          idleBrowserReleaseDelay: const Duration(milliseconds: 120),
+        );
+        addTearDown(engine.dispose);
 
-      await engine.play(youtubeTrack);
-      created.first.messages.add({'StateChange': 1});
-      await engine.pause();
-      created.first.messages.add({'StateChange': 2});
+        await engine.play(youtubeTrack);
+        created.first.messages.add({'StateChange': 1});
+        await engine.pause();
+        created.first.messages.add({'StateChange': 2});
 
-      await Future<void>.delayed(const Duration(milliseconds: 40));
-      await engine.resume();
-      created.first.messages.add({'StateChange': 1});
+        await Future<void>.delayed(const Duration(milliseconds: 40));
+        await engine.resume();
+        created.first.messages.add({'StateChange': 1});
 
-      await Future<void>.delayed(const Duration(milliseconds: 150));
-      expect(created.length, 1);
-      expect(created.first.disposed, isFalse);
-      expect(engine.hasActiveBrowser, isTrue);
-    });
+        await Future<void>.delayed(const Duration(milliseconds: 150));
+        expect(created.length, 1);
+        expect(created.first.disposed, isFalse);
+        expect(engine.hasActiveBrowser, isTrue);
+      },
+    );
 
-    test('setSurfaceVisible suspends and restores rendering without interrupting playback', () async {
-      final fallback = _StubFallbackController();
-      final created = <_FakeYoutubePlayer>[];
-      final engine = ChromiumPlaybackEngine(
-        fallback: fallback,
-        initializeCef: () async {},
-        createPlayer: () {
-          final player = _FakeYoutubePlayer();
-          created.add(player);
-          return player;
-        },
-      );
-      addTearDown(engine.dispose);
+    test(
+      'setSurfaceVisible suspends and restores rendering without interrupting playback',
+      () async {
+        final fallback = _StubFallbackController();
+        final created = <_FakeYoutubePlayer>[];
+        final engine = ChromiumPlaybackEngine(
+          fallback: fallback,
+          initializeCef: () async {},
+          createPlayer: () {
+            final player = _FakeYoutubePlayer();
+            created.add(player);
+            return player;
+          },
+        );
+        addTearDown(engine.dispose);
 
-      await engine.play(youtubeTrack);
-      created.first.messages.add({'StateChange': 1});
-      expect(engine.isRenderingActive, isTrue);
+        await engine.play(youtubeTrack);
+        created.first.messages.add({'StateChange': 1});
+        expect(engine.isRenderingActive, isTrue);
 
-      engine.setSurfaceVisible(false);
-      expect(engine.isRenderingActive, isFalse);
-      expect(created.first.calls, isNot(contains('pause')));
-      expect(engine.hasActiveBrowser, isTrue);
+        engine.setSurfaceVisible(false);
+        expect(engine.isRenderingActive, isFalse);
+        expect(created.first.calls, isNot(contains('pause')));
+        expect(engine.hasActiveBrowser, isTrue);
 
-      engine.setSurfaceVisible(true);
-      expect(engine.isRenderingActive, isTrue);
-    });
+        engine.setSurfaceVisible(true);
+        expect(engine.isRenderingActive, isTrue);
+      },
+    );
+
+    test(
+      'preserves playlist index and position across idle browser reclamation and resets index on next track',
+      () async {
+        const playlistTrack = PlaybackTrack(
+          id: 'PL1234567890ABCDEF',
+          title: 'Perf Playlist',
+          artist: 'Playlist Artist',
+          sourceType: PlaybackSourceType.online,
+          youtubeSourceType: YoutubeSourceType.playlist,
+        );
+        const nextTrack = PlaybackTrack(
+          id: 'abc123DEF45',
+          title: 'Next Single Track',
+          artist: 'Next Artist',
+          sourceType: PlaybackSourceType.online,
+        );
+        final fallback = _StubFallbackController();
+        final created = <_FakeYoutubePlayer>[];
+        final engine = ChromiumPlaybackEngine(
+          fallback: fallback,
+          initializeCef: () async {},
+          createPlayer: () {
+            final player = _FakeYoutubePlayer();
+            created.add(player);
+            return player;
+          },
+          idleBrowserReleaseDelay: const Duration(milliseconds: 60),
+        );
+        addTearDown(engine.dispose);
+
+        await engine.play(playlistTrack);
+        created.first.playlistIndex = 3;
+        created.first.messages.add({'StateChange': 1});
+        created.first.messages.add({
+          'VideoState': jsonEncode({
+            'currentTime': 91.0,
+            'loadedFraction': 0.4,
+          }),
+        });
+
+        await engine.pause();
+        created.first.messages.add({'StateChange': 2});
+        await Future<void>.delayed(const Duration(milliseconds: 120));
+        expect(engine.hasActiveBrowser, isFalse);
+        expect(created.first.disposed, isTrue);
+
+        // Resume transparently restores playlist index 3 at 91s.
+        await engine.resume();
+        expect(created.length, 2);
+        expect(
+          created.last.calls,
+          contains('loadPlaylist:PL1234567890ABCDEF:3:91'),
+        );
+
+        // Pause and reclaim again, then skip to next track.
+        await engine.pause();
+        created.last.messages.add({'StateChange': 2});
+        await Future<void>.delayed(const Duration(milliseconds: 120));
+        expect(engine.hasActiveBrowser, isFalse);
+
+        await engine.play(nextTrack);
+        expect(created.length, 3);
+        expect(engine.hasActiveBrowser, isTrue);
+        expect(created.last.calls, contains('load:abc123DEF45:0'));
+      },
+    );
+
+    test(
+      'never reclaims an actively playing browser across rapid surface visibility cycles',
+      () async {
+        final fallback = _StubFallbackController();
+        final created = <_FakeYoutubePlayer>[];
+        final engine = ChromiumPlaybackEngine(
+          fallback: fallback,
+          initializeCef: () async {},
+          createPlayer: () {
+            final player = _FakeYoutubePlayer();
+            created.add(player);
+            return player;
+          },
+          idleBrowserReleaseDelay: const Duration(milliseconds: 50),
+        );
+        addTearDown(engine.dispose);
+
+        await engine.play(youtubeTrack);
+        created.first.messages.add({'StateChange': 1});
+        for (int i = 0; i < 20; i++) {
+          engine.setSurfaceVisible(i.isEven);
+        }
+        await Future<void>.delayed(const Duration(milliseconds: 120));
+        expect(engine.hasActiveBrowser, isTrue);
+        expect(created.first.disposed, isFalse);
+        expect(created.length, 1);
+
+        // Stopping after reclamation is a clean no-op without error.
+        await engine.pause();
+        created.first.messages.add({'StateChange': 2});
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+        expect(engine.hasActiveBrowser, isFalse);
+        await engine.stop();
+        expect(engine.currentStatus.state, PlaybackState.idle);
+      },
+    );
   });
 
   group('TactilePlayerPlayPauseButton idle ticker behavior', () {

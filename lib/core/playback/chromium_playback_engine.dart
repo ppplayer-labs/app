@@ -64,6 +64,7 @@ class ChromiumPlaybackEngine implements PlaybackController {
   bool _cefPermanentlyFailed = false;
   Object? _cefPermanentError;
   int _generation = 0;
+  int _savedPlaylistIndex = 0;
   Object? _durationRequest;
   DateTime? _durationAttempt;
 
@@ -215,9 +216,8 @@ class ChromiumPlaybackEngine implements PlaybackController {
       if (!_valid(generation) || !_chromium || _wantsPlaying) return;
       final player = _player;
       if (player == null) return;
-      _player = null;
-      final subscription = _playerSubscription;
-      _playerSubscription = null;
+      final isPlaylist =
+          _status.track?.youtubeSourceType == YoutubeSourceType.playlist;
       // Serialize idle browser disposal so a subsequent resume/play/seek waits
       // for clean teardown before allocating a new browser instance.
       final previousOpening = _opening;
@@ -225,6 +225,32 @@ class ChromiumPlaybackEngine implements PlaybackController {
         try {
           await previousOpening;
         } catch (_) {}
+        if (!_valid(generation) ||
+            !_chromium ||
+            _wantsPlaying ||
+            !identical(_player, player)) {
+          return;
+        }
+        if (isPlaylist) {
+          try {
+            final idx = await player.getPlaylistIndex().timeout(
+              const Duration(seconds: 2),
+            );
+            if (idx >= 0) _savedPlaylistIndex = idx;
+          } catch (_) {
+            // Preserve the last known playlist index if the query fails.
+          }
+          // Re-verify after awaiting getPlaylistIndex(): user may have resumed.
+          if (!_valid(generation) ||
+              !_chromium ||
+              _wantsPlaying ||
+              !identical(_player, player)) {
+            return;
+          }
+        }
+        _player = null;
+        final subscription = _playerSubscription;
+        _playerSubscription = null;
         await subscription?.cancel();
         try {
           await player.dispose();
@@ -275,6 +301,10 @@ class ChromiumPlaybackEngine implements PlaybackController {
     }
     final generation = ++_generation;
     _cancelIdleRelease();
+    if (_status.track?.id != track.id ||
+        _status.track?.youtubeSourceType != track.youtubeSourceType) {
+      _savedPlaylistIndex = 0;
+    }
     _durationRequest = null;
     _durationAttempt = null;
     _chromium = online;
@@ -407,6 +437,7 @@ class ChromiumPlaybackEngine implements PlaybackController {
             if (track.youtubeSourceType == YoutubeSourceType.playlist) {
               await createdPlayer.loadPlaylist(
                 playlistId: track.id,
+                index: _savedPlaylistIndex,
                 startSeconds: seconds,
               );
             } else {
@@ -419,6 +450,7 @@ class ChromiumPlaybackEngine implements PlaybackController {
             if (track.youtubeSourceType == YoutubeSourceType.playlist) {
               await createdPlayer.cuePlaylist(
                 playlistId: track.id,
+                index: _savedPlaylistIndex,
                 startSeconds: seconds,
               );
             } else {
@@ -810,6 +842,7 @@ class ChromiumPlaybackEngine implements PlaybackController {
     _checkOpen();
     final generation = ++_generation;
     _wantsPlaying = false;
+    _savedPlaylistIndex = 0;
     _cancelIdleRelease();
     final player = _player;
     _player = null;

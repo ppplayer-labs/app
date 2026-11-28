@@ -714,101 +714,105 @@ class _LikedSongsCard extends StatelessWidget {
                             ),
                           ),
                         ),
-                      const SizedBox(width: 24),
-                      Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            FittedBox(
-                              fit: BoxFit.scaleDown,
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                AppLocalizations.of(context)!.likedSongs,
-                                style: TextStyle(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onPrimaryContainer
-                                      .withValues(alpha: 0.9),
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: -1.5,
+                        const SizedBox(width: 24),
+                        Expanded(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              FittedBox(
+                                fit: BoxFit.scaleDown,
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  AppLocalizations.of(context)!.likedSongs,
+                                  style: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onPrimaryContainer
+                                        .withValues(alpha: 0.9),
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.w900,
+                                    letterSpacing: -1.5,
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(height: 6),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
+                              const SizedBox(height: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.onPrimary
+                                      .withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(100),
+                                  border: Border.all(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onPrimary
+                                        .withValues(alpha: 0.1),
+                                  ),
+                                ),
+                                child: Text(
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.trackCount(count),
+                                  style: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onPrimary
+                                        .withValues(alpha: 0.8),
+                                    fontSize: 10,
+                                    letterSpacing: 1.2,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
                               ),
+                            ],
+                          ),
+                        ),
+                        Consumer(
+                          builder: (context, ref, _) => TactileTap(
+                            onTap: () async {
+                              final tracks = await database
+                                  .getFavoriteAppTracks();
+                              if (tracks.isNotEmpty) {
+                                ref
+                                    .read(playerProvider.notifier)
+                                    .playTracks(tracks);
+                              }
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
+                                shape: BoxShape.circle,
                                 color: Theme.of(
                                   context,
-                                ).colorScheme.onPrimary.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(100),
+                                ).colorScheme.onPrimary.withValues(alpha: 0.15),
                                 border: Border.all(
                                   color: Theme.of(context).colorScheme.onPrimary
                                       .withValues(alpha: 0.1),
                                 ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.scrim.withValues(alpha: 0.2),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
                               ),
-                              child: Text(
-                                AppLocalizations.of(context)!.trackCount(count),
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.onPrimary
-                                      .withValues(alpha: 0.8),
-                                  fontSize: 10,
-                                  letterSpacing: 1.2,
-                                  fontWeight: FontWeight.w800,
-                                ),
+                              child: Icon(
+                                Icons.play_arrow_rounded,
+                                color: Theme.of(context).colorScheme.onPrimary,
+                                size: 32,
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Consumer(
-                        builder: (context, ref, _) => TactileTap(
-                          onTap: () async {
-                            final tracks = await database
-                                .getFavoriteAppTracks();
-                            if (tracks.isNotEmpty) {
-                              ref
-                                  .read(playerProvider.notifier)
-                                  .playTracks(tracks);
-                            }
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onPrimary.withValues(alpha: 0.15),
-                              border: Border.all(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onPrimary.withValues(alpha: 0.1),
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.scrim.withValues(alpha: 0.2),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: Icon(
-                              Icons.play_arrow_rounded,
-                              color: Theme.of(context).colorScheme.onPrimary,
-                              size: 32,
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -978,92 +982,95 @@ class _LocalMusicCard extends StatelessWidget {
                             ),
                           ),
                         ),
-                      const SizedBox(width: 24),
-                      Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            FittedBox(
-                              fit: BoxFit.scaleDown,
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                AppLocalizations.of(context)!.localMusicCard,
-                                style: TextStyle(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onTertiaryContainer
-                                      .withValues(alpha: 0.9),
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: -1.5,
+                        const SizedBox(width: 24),
+                        Expanded(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              FittedBox(
+                                fit: BoxFit.scaleDown,
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  AppLocalizations.of(context)!.localMusicCard,
+                                  style: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onTertiaryContainer
+                                        .withValues(alpha: 0.9),
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.w900,
+                                    letterSpacing: -1.5,
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(height: 6),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onTertiary.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(100),
-                                border: Border.all(
+                              const SizedBox(height: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
                                   color: Theme.of(context)
                                       .colorScheme
                                       .onTertiary
                                       .withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(100),
+                                  border: Border.all(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onTertiary
+                                        .withValues(alpha: 0.1),
+                                  ),
+                                ),
+                                child: Text(
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.trackCount(count),
+                                  style: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onTertiary
+                                        .withValues(alpha: 0.8),
+                                    fontSize: 10,
+                                    letterSpacing: 1.2,
+                                    fontWeight: FontWeight.w800,
+                                  ),
                                 ),
                               ),
-                              child: Text(
-                                AppLocalizations.of(context)!.trackCount(count),
-                                style: TextStyle(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onTertiary
-                                      .withValues(alpha: 0.8),
-                                  fontSize: 10,
-                                  letterSpacing: 1.2,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onTertiary.withValues(alpha: 0.15),
-                          border: Border.all(
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
                             color: Theme.of(
                               context,
-                            ).colorScheme.onTertiary.withValues(alpha: 0.1),
-                          ),
-                          boxShadow: [
-                            BoxShadow(
+                            ).colorScheme.onTertiary.withValues(alpha: 0.15),
+                            border: Border.all(
                               color: Theme.of(
                                 context,
-                              ).colorScheme.scrim.withValues(alpha: 0.2),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
+                              ).colorScheme.onTertiary.withValues(alpha: 0.1),
                             ),
-                          ],
+                            boxShadow: [
+                              BoxShadow(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.scrim.withValues(alpha: 0.2),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Icon(
+                            Icons.play_arrow_rounded,
+                            color: Theme.of(context).colorScheme.onTertiary,
+                            size: 32,
+                          ),
                         ),
-                        child: Icon(
-                          Icons.play_arrow_rounded,
-                          color: Theme.of(context).colorScheme.onTertiary,
-                          size: 32,
-                        ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -1132,9 +1139,8 @@ class _LocalVideoCard extends StatelessWidget {
                         shape: BoxShape.circle,
                         gradient: RadialGradient(
                           colors: [
-                            Theme.of(
-                              context,
-                            ).colorScheme.primaryContainer.withValues(alpha: 0.4),
+                            Theme.of(context).colorScheme.primaryContainer
+                                .withValues(alpha: 0.4),
                             Colors.transparent,
                           ],
                         ),
@@ -1151,9 +1157,8 @@ class _LocalVideoCard extends StatelessWidget {
                         shape: BoxShape.circle,
                         gradient: RadialGradient(
                           colors: [
-                            Theme.of(
-                              context,
-                            ).colorScheme.primaryContainer.withValues(alpha: 0.2),
+                            Theme.of(context).colorScheme.primaryContainer
+                                .withValues(alpha: 0.2),
                             Colors.transparent,
                           ],
                         ),
@@ -1234,100 +1239,100 @@ class _LocalVideoCard extends StatelessWidget {
                             ),
                           ),
                         ),
-                      const SizedBox(width: 24),
-                      Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            FittedBox(
-                              fit: BoxFit.scaleDown,
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                AppLocalizations.of(context)!.localVideosCard,
-                                style: TextStyle(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onPrimaryContainer
-                                      .withValues(alpha: 0.9),
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: -1.5,
+                        const SizedBox(width: 24),
+                        Expanded(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              FittedBox(
+                                fit: BoxFit.scaleDown,
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  AppLocalizations.of(context)!.localVideosCard,
+                                  style: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onPrimaryContainer
+                                        .withValues(alpha: 0.9),
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.w900,
+                                    letterSpacing: -1.5,
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(height: 6),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onPrimaryContainer
-                                    .withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(100),
-                                border: Border.all(
+                              const SizedBox(height: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
                                   color: Theme.of(context)
                                       .colorScheme
                                       .onPrimaryContainer
                                       .withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(100),
+                                  border: Border.all(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onPrimaryContainer
+                                        .withValues(alpha: 0.1),
+                                  ),
+                                ),
+                                child: Text(
+                                  '${AppLocalizations.of(context)!.localVideosCard} · $count',
+                                  style: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onPrimaryContainer
+                                        .withValues(alpha: 0.8),
+                                    fontSize: 10,
+                                    letterSpacing: 1.2,
+                                    fontWeight: FontWeight.w800,
+                                  ),
                                 ),
                               ),
-                              child: Text(
-                                '${AppLocalizations.of(context)!.localVideosCard} · $count',
-                                style: TextStyle(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onPrimaryContainer
-                                      .withValues(alpha: 0.8),
-                                  fontSize: 10,
-                                  letterSpacing: 1.2,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onPrimaryContainer
-                              .withValues(alpha: 0.15),
-                          border: Border.all(
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
                             color: Theme.of(context)
                                 .colorScheme
                                 .onPrimaryContainer
-                                .withValues(alpha: 0.1),
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.scrim.withValues(alpha: 0.2),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
+                                .withValues(alpha: 0.15),
+                            border: Border.all(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onPrimaryContainer
+                                  .withValues(alpha: 0.1),
                             ),
-                          ],
+                            boxShadow: [
+                              BoxShadow(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.scrim.withValues(alpha: 0.2),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Icon(
+                            Icons.play_arrow_rounded,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onPrimaryContainer,
+                            size: 32,
+                          ),
                         ),
-                        child: Icon(
-                          Icons.play_arrow_rounded,
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onPrimaryContainer,
-                          size: 32,
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
             ),
           ),
         );

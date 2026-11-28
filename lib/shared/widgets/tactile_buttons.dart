@@ -297,239 +297,240 @@ class _TactilePlayerPlayPauseButtonState
           _loopController,
           _loadingController,
         ]),
-      builder: (context, _) {
-        final transition = _transitionController.value;
-        final isReversing =
-            _transitionController.status == AnimationStatus.reverse;
-        final loop = _loopController.value;
+        builder: (context, _) {
+          final transition = _transitionController.value;
+          final isReversing =
+              _transitionController.status == AnimationStatus.reverse;
+          final loop = _loopController.value;
 
-        double logoOpacity = 0.0;
-        double logoAngle = 0.0;
-        double logoScale = 1.0;
+          double logoOpacity = 0.0;
+          double logoAngle = 0.0;
+          double logoScale = 1.0;
 
-        double pauseOpacity = 0.0;
-        double pauseMorphProgress = 0.0;
+          double pauseOpacity = 0.0;
+          double pauseMorphProgress = 0.0;
 
-        double lineSweepAngle = 0.0; // 0 -> 2*pi
-        double lineOpacity = 0.0;
-        double morphProgress = 0.0; // 0 -> 1
-        double lineContractProgress = 0.0;
+          double lineSweepAngle = 0.0; // 0 -> 2*pi
+          double lineOpacity = 0.0;
+          double morphProgress = 0.0; // 0 -> 1
+          double lineContractProgress = 0.0;
 
-        double pointOpacity = 0.0;
-        double pointScale = 1.0;
-        double spiralProgress = 0.0;
-        double spiralTrailFade = 0.0;
+          double pointOpacity = 0.0;
+          double pointScale = 1.0;
+          double spiralProgress = 0.0;
+          double spiralTrailFade = 0.0;
 
-        double pulseRadius = 0.0;
-        double pulseOpacity = 0.0;
+          double pulseRadius = 0.0;
+          double pulseOpacity = 0.0;
 
-        if (isReversing) {
-          // Instant direct reverse to Play without logo interruption
-          pauseOpacity = transition;
-          pauseMorphProgress = transition;
-          lineOpacity = transition;
-          lineSweepAngle = 2 * math.pi;
-          morphProgress = loop;
-          logoOpacity = 0.0;
-        } else if (transition >= 0.999) {
-          // Steady Playing State: Permanent, stable Pause bars & living M3 perimeter line
-          pauseOpacity = 1.0;
-          pauseMorphProgress = 1.0;
-          lineOpacity = 1.0;
-          lineSweepAngle = 2 * math.pi;
-          morphProgress = loop;
-          logoOpacity = 0.0;
-          pointOpacity = 0.0;
-        } else if (transition > 0.001) {
-          // One-Time "Brand Ignition" Burst (0.0 -> 1.0)
-          final p = transition;
-
-          if (p < 0.20) {
-            // Step 1: Play fades out, PPPlayer Logo blooms in
-            final subP = p / 0.20;
-            logoOpacity = subP;
-            logoScale = Curves.easeOutBack.transform(subP).clamp(0.0, 1.15);
-            logoAngle = 0.0;
-            pauseOpacity = 0.0;
-            lineOpacity = 0.0;
-          } else if (p < 0.60) {
-            // Step 2: PPPlayer Logo accelerating 360° spin & collapse into singularity
-            final spinP = (p - 0.20) / 0.40;
-            final accel = Curves.easeInOutCubic.transform(spinP);
-            logoAngle = accel * 2 * math.pi;
-
-            if (spinP < 0.50) {
-              logoOpacity = 1.0;
-              logoScale = 1.0 + (0.06 * accel);
-              pointOpacity = 0.0;
-            } else {
-              final collapse = (spinP - 0.50) / 0.50;
-              logoOpacity = (1.0 - collapse).clamp(0.0, 1.0);
-              logoScale = (1.0 - Curves.easeInOutCubic.transform(collapse))
-                  .clamp(0.01, 1.0);
-              pointOpacity = Curves.easeInQuad.transform(collapse);
-              pointScale = Curves.easeOutBack
-                  .transform(collapse)
-                  .clamp(0.0, 1.4);
-
-              // Soft acoustic kinetic shockwave at the singularity collapse instant
-              if (collapse >= 0.35) {
-                final pulseP = (collapse - 0.35) / 0.65;
-                pulseRadius = pulseP * (widget.size * 0.44);
-                pulseOpacity = (1.0 - pulseP) * 0.40;
-              }
-            }
-          } else {
-            // Step 3: Singularity splits into permanent Pause bars & shoots energy to rim
-            final splitP = (p - 0.60) / 0.40;
+          if (isReversing) {
+            // Instant direct reverse to Play without logo interruption
+            pauseOpacity = transition;
+            pauseMorphProgress = transition;
+            lineOpacity = transition;
+            lineSweepAngle = 2 * math.pi;
+            morphProgress = loop;
             logoOpacity = 0.0;
+          } else if (transition >= 0.999) {
+            // Steady Playing State: Permanent, stable Pause bars & living M3 perimeter line
             pauseOpacity = 1.0;
-            pauseMorphProgress = Curves.easeOutBack
-                .transform(splitP)
-                .clamp(0.0, 1.0);
+            pauseMorphProgress = 1.0;
+            lineOpacity = 1.0;
+            lineSweepAngle = 2 * math.pi;
+            morphProgress = loop;
+            logoOpacity = 0.0;
+            pointOpacity = 0.0;
+          } else if (transition > 0.001) {
+            // One-Time "Brand Ignition" Burst (0.0 -> 1.0)
+            final p = transition;
 
-            pointOpacity = (1.0 - splitP).clamp(0.0, 1.0);
-            pointScale = 1.0 - (0.5 * splitP);
+            if (p < 0.20) {
+              // Step 1: Play fades out, PPPlayer Logo blooms in
+              final subP = p / 0.20;
+              logoOpacity = subP;
+              logoScale = Curves.easeOutBack.transform(subP).clamp(0.0, 1.15);
+              logoAngle = 0.0;
+              pauseOpacity = 0.0;
+              lineOpacity = 0.0;
+            } else if (p < 0.60) {
+              // Step 2: PPPlayer Logo accelerating 360° spin & collapse into singularity
+              final spinP = (p - 0.20) / 0.40;
+              final accel = Curves.easeInOutCubic.transform(spinP);
+              logoAngle = accel * 2 * math.pi;
 
-            // Archimedean spiral shoots to 12 o'clock and dissolves into perimeter sweep
-            spiralProgress = Curves.easeOutCubic.transform(splitP);
-            spiralTrailFade = (1.0 - splitP * 0.7).clamp(0.0, 1.0);
+              if (spinP < 0.50) {
+                logoOpacity = 1.0;
+                logoScale = 1.0 + (0.06 * accel);
+                pointOpacity = 0.0;
+              } else {
+                final collapse = (spinP - 0.50) / 0.50;
+                logoOpacity = (1.0 - collapse).clamp(0.0, 1.0);
+                logoScale = (1.0 - Curves.easeInOutCubic.transform(collapse))
+                    .clamp(0.01, 1.0);
+                pointOpacity = Curves.easeInQuad.transform(collapse);
+                pointScale = Curves.easeOutBack
+                    .transform(collapse)
+                    .clamp(0.0, 1.4);
 
-            lineOpacity = splitP;
-            lineSweepAngle = splitP * 2 * math.pi;
-            morphProgress = splitP;
+                // Soft acoustic kinetic shockwave at the singularity collapse instant
+                if (collapse >= 0.35) {
+                  final pulseP = (collapse - 0.35) / 0.65;
+                  pulseRadius = pulseP * (widget.size * 0.44);
+                  pulseOpacity = (1.0 - pulseP) * 0.40;
+                }
+              }
+            } else {
+              // Step 3: Singularity splits into permanent Pause bars & shoots energy to rim
+              final splitP = (p - 0.60) / 0.40;
+              logoOpacity = 0.0;
+              pauseOpacity = 1.0;
+              pauseMorphProgress = Curves.easeOutBack
+                  .transform(splitP)
+                  .clamp(0.0, 1.0);
+
+              pointOpacity = (1.0 - splitP).clamp(0.0, 1.0);
+              pointScale = 1.0 - (0.5 * splitP);
+
+              // Archimedean spiral shoots to 12 o'clock and dissolves into perimeter sweep
+              spiralProgress = Curves.easeOutCubic.transform(splitP);
+              spiralTrailFade = (1.0 - splitP * 0.7).clamp(0.0, 1.0);
+
+              lineOpacity = splitP;
+              lineSweepAngle = splitP * 2 * math.pi;
+              morphProgress = splitP;
+            }
           }
-        }
 
-        // Base container background:
-        // Paused: Solid primaryThemeColor circle
-        // Playing: Fully transparent (clean floating logo without disc or shadow)
-        final bgColor = Color.lerp(
-          primaryThemeColor,
-          Colors.transparent,
-          transition,
-        )!;
+          // Base container background:
+          // Paused: Solid primaryThemeColor circle
+          // Playing: Fully transparent (clean floating logo without disc or shadow)
+          final bgColor = Color.lerp(
+            primaryThemeColor,
+            Colors.transparent,
+            transition,
+          )!;
 
-        final iconSize = widget.size * 0.52;
-        final logoSize = widget.size * 0.60;
+          final iconSize = widget.size * 0.52;
+          final logoSize = widget.size * 0.60;
 
-        return SizedBox(
-          width: widget.size,
-          height: widget.size,
-          child: Stack(
-            alignment: Alignment.center,
-            fit: StackFit.expand,
-            children: [
-              // Fluid Morph Painter (Draws base container, morphing line, pause bars, and energy point)
-              CustomPaint(
-                size: Size(widget.size, widget.size),
-                painter: _MaterialSpinLinePainter(
-                  transition: transition,
-                  backgroundColor: bgColor,
-                  color: primaryThemeColor,
-                  lineOpacity: lineOpacity * transition,
-                  lineSweepAngle: lineSweepAngle,
-                  morphProgress: morphProgress,
-                  lineContractProgress: lineContractProgress,
-                  pointOpacity: pointOpacity * transition,
-                  pointScale: pointScale,
-                  spiralProgress: spiralProgress,
-                  spiralTrailFade: spiralTrailFade * transition,
-                  pauseOpacity: widget.isLoading
-                      ? 0.0
-                      : (pauseOpacity * transition),
-                  pauseMorphProgress: pauseMorphProgress,
-                  pulseRadius: pulseRadius,
-                  pulseOpacity: pulseOpacity * transition,
+          return SizedBox(
+            width: widget.size,
+            height: widget.size,
+            child: Stack(
+              alignment: Alignment.center,
+              fit: StackFit.expand,
+              children: [
+                // Fluid Morph Painter (Draws base container, morphing line, pause bars, and energy point)
+                CustomPaint(
+                  size: Size(widget.size, widget.size),
+                  painter: _MaterialSpinLinePainter(
+                    transition: transition,
+                    backgroundColor: bgColor,
+                    color: primaryThemeColor,
+                    lineOpacity: lineOpacity * transition,
+                    lineSweepAngle: lineSweepAngle,
+                    morphProgress: morphProgress,
+                    lineContractProgress: lineContractProgress,
+                    pointOpacity: pointOpacity * transition,
+                    pointScale: pointScale,
+                    spiralProgress: spiralProgress,
+                    spiralTrailFade: spiralTrailFade * transition,
+                    pauseOpacity: widget.isLoading
+                        ? 0.0
+                        : (pauseOpacity * transition),
+                    pauseMorphProgress: pauseMorphProgress,
+                    pulseRadius: pulseRadius,
+                    pulseOpacity: pulseOpacity * transition,
+                  ),
                 ),
-              ),
 
-              // Center Content: Paused Play Icon / Ignition PPPlayer Logo
-              Center(
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    // Loading indicator
-                    if (widget.isLoading)
-                      Transform.rotate(
-                        angle: _loadingController.value * 2 * math.pi,
-                        child: Image.asset(
-                          'assets/logo.png',
-                          width: logoSize,
-                          height: logoSize,
-                          fit: BoxFit.contain,
-                          color: colorScheme.onPrimary,
+                // Center Content: Paused Play Icon / Ignition PPPlayer Logo
+                Center(
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      // Loading indicator
+                      if (widget.isLoading)
+                        Transform.rotate(
+                          angle: _loadingController.value * 2 * math.pi,
+                          child: Image.asset(
+                            'assets/logo.png',
+                            width: logoSize,
+                            height: logoSize,
+                            fit: BoxFit.contain,
+                            color: colorScheme.onPrimary,
+                          ),
                         ),
-                      ),
 
-                    // 1. Paused State: Solid play icon
-                    if ((transition < 0.22 || isReversing) && !widget.isLoading)
-                      Opacity(
-                        opacity:
-                            (isReversing
-                                    ? (1.0 - transition)
-                                    : (transition < 0.20
-                                          ? (1.0 - transition / 0.20)
-                                          : 0.0))
-                                .clamp(0.0, 1.0),
-                        child: Transform.scale(
-                          scale: 1.0 - (0.15 * transition),
-                          child: Padding(
-                            padding: EdgeInsets.only(
-                              left: widget.size * 0.04,
-                            ), // Optical center
-                            child: Icon(
-                              Icons.play_arrow_rounded,
-                              size: iconSize,
-                              color: colorScheme.onPrimary,
+                      // 1. Paused State: Solid play icon
+                      if ((transition < 0.22 || isReversing) &&
+                          !widget.isLoading)
+                        Opacity(
+                          opacity:
+                              (isReversing
+                                      ? (1.0 - transition)
+                                      : (transition < 0.20
+                                            ? (1.0 - transition / 0.20)
+                                            : 0.0))
+                                  .clamp(0.0, 1.0),
+                          child: Transform.scale(
+                            scale: 1.0 - (0.15 * transition),
+                            child: Padding(
+                              padding: EdgeInsets.only(
+                                left: widget.size * 0.04,
+                              ), // Optical center
+                              child: Icon(
+                                Icons.play_arrow_rounded,
+                                size: iconSize,
+                                color: colorScheme.onPrimary,
+                              ),
                             ),
                           ),
                         ),
-                      ),
 
-                    // 2. Ignition State: Spinning PPPlayer Logo
-                    if (logoOpacity > 0.01 && !widget.isLoading)
-                      Opacity(
-                        opacity: logoOpacity.clamp(0.0, 1.0),
-                        child: Transform.scale(
-                          scale: logoScale,
-                          child: Transform.rotate(
-                            angle: logoAngle,
-                            child: Image.asset(
-                              'assets/logo.png',
-                              width: logoSize,
-                              height: logoSize,
-                              fit: BoxFit.contain,
-                              color: colorScheme.onPrimary,
+                      // 2. Ignition State: Spinning PPPlayer Logo
+                      if (logoOpacity > 0.01 && !widget.isLoading)
+                        Opacity(
+                          opacity: logoOpacity.clamp(0.0, 1.0),
+                          child: Transform.scale(
+                            scale: logoScale,
+                            child: Transform.rotate(
+                              angle: logoAngle,
+                              child: Image.asset(
+                                'assets/logo.png',
+                                width: logoSize,
+                                height: logoSize,
+                                fit: BoxFit.contain,
+                                color: colorScheme.onPrimary,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
 
-              // Hover Overlay: Subtle Accent Glow
-              if (transition > 0.5)
-                AnimatedOpacity(
-                  duration: const Duration(milliseconds: 160),
-                  opacity: (_isHovered && isEnabled) ? 1.0 : 0.0,
-                  curve: Curves.easeOut,
-                  child: Center(
-                    child: Container(
-                      width: widget.size * 0.88,
-                      height: widget.size * 0.88,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: primaryThemeColor.withValues(alpha: 0.12),
+                // Hover Overlay: Subtle Accent Glow
+                if (transition > 0.5)
+                  AnimatedOpacity(
+                    duration: const Duration(milliseconds: 160),
+                    opacity: (_isHovered && isEnabled) ? 1.0 : 0.0,
+                    curve: Curves.easeOut,
+                    child: Center(
+                      child: Container(
+                        width: widget.size * 0.88,
+                        height: widget.size * 0.88,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: primaryThemeColor.withValues(alpha: 0.12),
+                        ),
                       ),
                     ),
                   ),
-                ),
-            ],
-          ),
-        );
-      },
+              ],
+            ),
+          );
+        },
       ),
     );
 
