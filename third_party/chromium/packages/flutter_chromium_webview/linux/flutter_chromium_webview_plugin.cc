@@ -29,6 +29,7 @@ struct _FlutterChromiumWebviewPlugin {
   std::shared_ptr<ChannelContext>* channel_context;
   bool resetting;
   bool detached;
+  bool window_minimized;
 };
 
 G_DEFINE_TYPE(FlutterChromiumWebviewPlugin, flutter_chromium_webview_plugin, G_TYPE_OBJECT)
@@ -109,6 +110,23 @@ void ViewDestroyed(GtkWidget*, FlutterChromiumWebviewPlugin* self) {
   self->detached = true;
   CloseAll(self);
 }
+
+gboolean WindowStateEvent(GtkWidget*, GdkEventWindowState* event,
+                          FlutterChromiumWebviewPlugin* self) {
+  if (!event || !self) return FALSE;
+  const bool minimized =
+      (event->new_window_state & GDK_WINDOW_STATE_ICONIFIED) != 0;
+  if (self->window_minimized == minimized) return FALSE;
+  self->window_minimized = minimized;
+  if (self->browsers) {
+    for (auto& entry : *self->browsers) {
+      if (entry.second && !entry.second->IsClosing()) {
+        entry.second->SetWindowMinimized(minimized);
+      }
+    }
+  }
+  return FALSE;
+}
 }  // namespace
 
 static void handle_method(FlutterChromiumWebviewPlugin* self, FlMethodCall* call) {
@@ -160,11 +178,29 @@ static void handle_method(FlutterChromiumWebviewPlugin* self, FlMethodCall* call
     return;
   }
   if (strcmp(method, "getDiagnostics") == 0) {
+    int64_t suspended_browsers = 0;
+    int64_t published_frames = 0;
+    int64_t suppressed_frames = 0;
+    if (self->browsers) {
+      for (const auto& entry : *self->browsers) {
+        if (entry.second && !entry.second->IsClosing()) {
+          if (!entry.second->IsRenderingEffectivelyActive()) {
+            ++suspended_browsers;
+          }
+          published_frames += static_cast<int64_t>(entry.second->published_frames());
+          suppressed_frames += static_cast<int64_t>(entry.second->suppressed_frames());
+        }
+      }
+    }
     g_autoptr(FlValue) result = fl_value_new_map();
     fl_value_set_string_take(result, "browsers", fl_value_new_int(runtime->browser_count()));
     fl_value_set_string_take(result, "textures", fl_value_new_int(self->browsers->size()));
     fl_value_set_string_take(result, "pumpRunning", fl_value_new_bool(runtime->pump_running()));
     fl_value_set_string_take(result, "focused", fl_value_new_bool(self->keyboard && self->keyboard->focused()));
+    fl_value_set_string_take(result, "windowMinimized", fl_value_new_bool(self->window_minimized));
+    fl_value_set_string_take(result, "renderingSuspendedBrowsers", fl_value_new_int(suspended_browsers));
+    fl_value_set_string_take(result, "publishedFrames", fl_value_new_int(published_frames));
+    fl_value_set_string_take(result, "suppressedFrames", fl_value_new_int(suppressed_frames));
     Success(call, result);
     return;
   }
@@ -215,6 +251,9 @@ static void handle_method(FlutterChromiumWebviewPlugin* self, FlMethodCall* call
     runtime->BrowserPending();
     CefRefPtr<CefBrowserHandler> handler = new CefBrowserHandler(std::move(bridge), /*runtime_slot_held=*/true);
     handler->javascript_policy.Configure(String(args, "javascriptChannels", "{}"));
+    if (self->window_minimized) {
+      handler->SetWindowMinimized(true);
+    }
     (*self->browsers)[browser_id] = handler;
 
     const bool requires_gesture = Boolean(args, "mediaPlaybackRequiresUserGesture", true);
@@ -318,6 +357,8 @@ static void handle_method(FlutterChromiumWebviewPlugin* self, FlMethodCall* call
     if (self->keyboard && (focused || self->keyboard->HasHandler(handler))) {
       self->keyboard->SetHandler(focused ? handler : nullptr);
     }
+  } else if (strcmp(method, "setRenderingActive") == 0) {
+    handler->SetRenderingActive(Boolean(args, "active", true));
   } else if (strcmp(method, "updateBrowserSize") == 0) {
     double width = Number(args, "width"), height = Number(args, "height"), dpr = Number(args, "dpr", 1);
     if (!std::isfinite(width) || !std::isfinite(height) || !std::isfinite(dpr) ||
@@ -392,6 +433,9 @@ void flutter_chromium_webview_plugin_register_with_registrar(FlPluginRegistrar* 
     self->keyboard = new CefKeyboard(window);
     g_signal_connect_object(view, "destroy", G_CALLBACK(ViewDestroyed), self, G_CONNECT_DEFAULT);
     if (GTK_IS_WINDOW(window)) {
+      g_signal_connect_object(window, "window-state-event",
+                              G_CALLBACK(WindowStateEvent), self,
+                              G_CONNECT_DEFAULT);
       application = G_APPLICATION(gtk_window_get_application(GTK_WINDOW(window)));
     }
   }

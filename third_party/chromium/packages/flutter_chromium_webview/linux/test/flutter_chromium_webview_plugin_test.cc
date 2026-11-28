@@ -341,5 +341,143 @@ TEST(LinuxContainerSandboxPolicy, ContainerRequiresExplicitOptInAndVerifiedConfi
   EXPECT_FALSE(ShouldDisableInnerSandboxForContainer(flatpak));
 }
 
+TEST(CefBrowserHandlerRenderingSuspension,
+     OnPaintPublishesWhenActiveAndSuppressesWhenInactivePreservingTexture) {
+  g_autoptr(FlutterChromiumTexture) tex = flutter_chromium_texture_new();
+  g_autoptr(FlutterChromiumTexture) popup = flutter_chromium_texture_new();
+  auto bridge = GtkBrowserBridge::Create(nullptr, tex, popup, {});
+  CefRefPtr<CefBrowserHandler> handler =
+      new CefBrowserHandler(bridge, /*runtime_slot_held=*/false);
+
+  EXPECT_TRUE(handler->IsRenderingActive());
+  EXPECT_FALSE(handler->IsWindowMinimized());
+  EXPECT_TRUE(handler->IsRenderingEffectivelyActive());
+  EXPECT_FALSE(bridge->rendering_suspended.load(std::memory_order_acquire));
+
+  // Initial active frame publishes and populates texture pixels (BGRA -> RGBA).
+  const uint8_t frame1[] = {10, 20, 30, 255, 40, 50, 60, 255};
+  CefRenderHandler::RectList dirty;
+  handler->OnPaint(nullptr, PET_VIEW, dirty, frame1, 2, 1);
+  EXPECT_EQ(handler->published_frames(), 1u);
+  EXPECT_EQ(handler->suppressed_frames(), 0u);
+
+  const uint8_t* pixels = nullptr;
+  uint32_t width = 0, height = 0;
+  auto* klass = FL_PIXEL_BUFFER_TEXTURE_GET_CLASS(tex);
+  ASSERT_TRUE(klass->copy_pixels(FL_PIXEL_BUFFER_TEXTURE(tex), &pixels, &width,
+                                 &height, nullptr));
+  ASSERT_EQ(width, 2u);
+  ASSERT_EQ(height, 1u);
+  EXPECT_EQ(pixels[0], 30);  // R
+  EXPECT_EQ(pixels[1], 20);  // G
+  EXPECT_EQ(pixels[2], 10);  // B
+
+  // Suspending rendering stops frame copies/publications while preserving the
+  // last valid texture so rapid Hide/Show never flashes black.
+  handler->SetRenderingActive(false);
+  EXPECT_FALSE(handler->IsRenderingActive());
+  EXPECT_FALSE(handler->IsRenderingEffectivelyActive());
+  EXPECT_TRUE(bridge->rendering_suspended.load(std::memory_order_acquire));
+
+  const uint8_t frame2[] = {99, 88, 77, 255, 66, 55, 44, 255};
+  handler->OnPaint(nullptr, PET_VIEW, dirty, frame2, 2, 1);
+  handler->OnPaint(nullptr, PET_VIEW, dirty, frame2, 2, 1);
+  EXPECT_EQ(handler->published_frames(), 1u);
+  EXPECT_EQ(handler->suppressed_frames(), 2u);
+
+  // Texture still serves frame1 intact (2x1, not cleared or corrupted).
+  ASSERT_TRUE(klass->copy_pixels(FL_PIXEL_BUFFER_TEXTURE(tex), &pixels, &width,
+                                 &height, nullptr));
+  EXPECT_EQ(width, 2u);
+  EXPECT_EQ(height, 1u);
+  EXPECT_EQ(pixels[0], 30);
+
+  // Restoring rendering resumes frame publication cleanly.
+  handler->SetRenderingActive(true);
+  EXPECT_TRUE(handler->IsRenderingActive());
+  EXPECT_TRUE(handler->IsRenderingEffectivelyActive());
+  EXPECT_FALSE(bridge->rendering_suspended.load(std::memory_order_acquire));
+
+  handler->OnPaint(nullptr, PET_VIEW, dirty, frame2, 2, 1);
+  EXPECT_EQ(handler->published_frames(), 2u);
+  ASSERT_TRUE(klass->copy_pixels(FL_PIXEL_BUFFER_TEXTURE(tex), &pixels, &width,
+                                 &height, nullptr));
+  EXPECT_EQ(width, 2u);
+  EXPECT_EQ(pixels[0], 77);
+}
+
+TEST(CefBrowserHandlerRenderingSuspension,
+     WindowMinimizeSuspendsIndependentlyOfRenderingActive) {
+  g_autoptr(FlutterChromiumTexture) tex = flutter_chromium_texture_new();
+  g_autoptr(FlutterChromiumTexture) popup = flutter_chromium_texture_new();
+  auto bridge = GtkBrowserBridge::Create(nullptr, tex, popup, {});
+  CefRefPtr<CefBrowserHandler> handler =
+      new CefBrowserHandler(bridge, /*runtime_slot_held=*/false);
+
+  CefRenderHandler::RectList dirty;
+  const uint8_t frame[] = {1, 2, 3, 255};
+
+  // Minimizing suspends rendering even when renderingActive is true.
+  handler->SetWindowMinimized(true);
+  EXPECT_TRUE(handler->IsWindowMinimized());
+  EXPECT_TRUE(handler->IsRenderingActive());
+  EXPECT_FALSE(handler->IsRenderingEffectivelyActive());
+  handler->OnPaint(nullptr, PET_VIEW, dirty, frame, 1, 1);
+  EXPECT_EQ(handler->published_frames(), 0u);
+  EXPECT_EQ(handler->suppressed_frames(), 1u);
+
+  // Toggling renderingActive false -> true while minimized stays suspended.
+  handler->SetRenderingActive(false);
+  handler->SetRenderingActive(true);
+  EXPECT_FALSE(handler->IsRenderingEffectivelyActive());
+  handler->OnPaint(nullptr, PET_VIEW, dirty, frame, 1, 1);
+  EXPECT_EQ(handler->suppressed_frames(), 2u);
+
+  // Restoring window re-enables rendering immediately.
+  handler->SetWindowMinimized(false);
+  EXPECT_TRUE(handler->IsRenderingEffectivelyActive());
+  handler->OnPaint(nullptr, PET_VIEW, dirty, frame, 1, 1);
+  EXPECT_EQ(handler->published_frames(), 1u);
+}
+
+TEST(CefBrowserHandlerRenderingSuspension,
+     RapidHideShowAndMinimizeCyclesPreserveLastValidFrame) {
+  g_autoptr(FlutterChromiumTexture) tex = flutter_chromium_texture_new();
+  g_autoptr(FlutterChromiumTexture) popup = flutter_chromium_texture_new();
+  auto bridge = GtkBrowserBridge::Create(nullptr, tex, popup, {});
+  CefRefPtr<CefBrowserHandler> handler =
+      new CefBrowserHandler(bridge, /*runtime_slot_held=*/false);
+
+  CefRenderHandler::RectList dirty;
+  const uint8_t valid_frame[] = {12, 34, 56, 255};
+  handler->OnPaint(nullptr, PET_VIEW, dirty, valid_frame, 1, 1);
+  EXPECT_EQ(handler->published_frames(), 1u);
+
+  for (int i = 0; i < 100; ++i) {
+    handler->SetRenderingActive(false);
+    handler->OnPaint(nullptr, PET_VIEW, dirty, valid_frame, 1, 1);
+    handler->SetRenderingActive(true);
+    if (i % 10 == 0) {
+      handler->SetWindowMinimized(true);
+      handler->OnPaint(nullptr, PET_VIEW, dirty, valid_frame, 1, 1);
+      handler->SetWindowMinimized(false);
+    }
+  }
+
+  EXPECT_TRUE(handler->IsRenderingEffectivelyActive());
+  EXPECT_FALSE(bridge->rendering_suspended.load(std::memory_order_acquire));
+  EXPECT_EQ(handler->suppressed_frames(), 110u);
+
+  const uint8_t* pixels = nullptr;
+  uint32_t width = 0, height = 0;
+  ASSERT_TRUE(FL_PIXEL_BUFFER_TEXTURE_GET_CLASS(tex)->copy_pixels(
+      FL_PIXEL_BUFFER_TEXTURE(tex), &pixels, &width, &height, nullptr));
+  EXPECT_EQ(width, 1u);
+  EXPECT_EQ(height, 1u);
+  EXPECT_EQ(pixels[0], 56);
+  EXPECT_EQ(pixels[1], 34);
+  EXPECT_EQ(pixels[2], 12);
+}
+
 }  // namespace test
 }  // namespace flutter_chromium_webview

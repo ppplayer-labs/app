@@ -46,6 +46,7 @@ struct GtkBrowserBridge {
   bool unregistered = false;
   std::atomic<bool> frame_pending{false};
   std::atomic<bool> popup_frame_pending{false};
+  std::atomic<bool> rendering_suspended{false};
 };
 
 // Handles all CEF browser callbacks on CEF's dedicated UI thread (TID_UI) when
@@ -172,12 +173,26 @@ class CefBrowserHandler : public CefClient,
   void ImeCommitText(std::string text);
   void ImeCancelComposition();
   void ImeSetComposition(std::string text, size_t prefix_length);
+  void SetRenderingActive(bool active);
+  void SetWindowMinimized(bool minimized);
 
   bool IsClosing() const { return closing_.load(std::memory_order_acquire); }
+  bool IsRenderingActive() const { return rendering_active_.load(std::memory_order_acquire); }
+  bool IsWindowMinimized() const { return window_minimized_.load(std::memory_order_acquire); }
+  bool IsRenderingEffectivelyActive() const {
+    return rendering_active_.load(std::memory_order_acquire) &&
+           !window_minimized_.load(std::memory_order_acquire);
+  }
+  uint64_t published_frames() const { return published_frames_.load(std::memory_order_relaxed); }
+  uint64_t suppressed_frames() const { return suppressed_frames_.load(std::memory_order_relaxed); }
 
  private:
+  static constexpr int kDefaultActiveFrameRate = 60;
+  static constexpr int kSuspendedFrameRate = 1;
+
   void EmitEventOnUi(const char* event_name, std::function<FlValue*()> build_args);
   void CloseOnUi(std::function<void()> on_closed);
+  void ApplyEffectiveFrameRateOnUi(bool invalidate_if_active);
   void ReleaseRuntimeSlotOnUi();
   void FlushCloseCallbacksOnUi();
   CefRefPtr<CefBrowser> ActiveBrowserOnUi() const {
@@ -186,8 +201,13 @@ class CefBrowserHandler : public CefClient,
 
   std::shared_ptr<GtkBrowserBridge> bridge_;
   std::atomic<bool> closing_{false};
+  std::atomic<bool> rendering_active_{true};
+  std::atomic<bool> window_minimized_{false};
+  std::atomic<uint64_t> published_frames_{0};
+  std::atomic<uint64_t> suppressed_frames_{0};
 
   // TID_UI-only state below.
+  int active_frame_rate_ = kDefaultActiveFrameRate;
   bool runtime_slot_held_ = false;
   bool creation_pending_on_ui_ = false;
   bool close_requested_on_ui_ = false;
