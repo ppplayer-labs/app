@@ -2,9 +2,10 @@
 
 **Date:** 2026-11-28  
 **Certified v4.0.3 Baseline (Intact):** `feat/release-v4.0.3` @ `82794900c71cd18074a673873c7b05b8fa71350d`  
-**Reviewable Integration Branch:** `perf/linux-cpu-memory-optimization` @ `4a51a2c` (contains `9a0b059` + `4a51a2c` atop `8279490`)  
-**Upstream Plugin Branch (Unpublished, Pending Approval):** `flutter_chromium_webview` `fix/linux-cef-rendering-suspension` @ `2b0795b` (branched from `origin/main` / `v0.5.7` @ `9073a20`)  
-**5-Job Cross-Platform CI Run:** https://github.com/ppplayer-labs/app/actions/runs/46168631956 (5/5 PASSED)
+**Reviewable Integration Branch:** `perf/linux-cpu-memory-optimization` (atop `8279490`, code commit `4a51a2c`)  
+**Upstream Plugin Branch (Unpublished, Ready for Publication Approval):** `devflier/flutter_chromium_webview` `fix/linux-cef-rendering-suspension` @ `e14a703` (`2b0795b` + `0.5.8` release prep atop `v0.5.7` @ `9073a20`)  
+**PPPlayer 5-Job Cross-Platform CI Run:** https://github.com/ppplayer-labs/app/actions/runs/46168631956 (5/5 PASSED)  
+**Plugin 7-Job Cross-Platform CI Matrix (`0.5.8`):** https://github.com/devflier/flutter_chromium_webview/actions/runs/46171794964 (7/7 PASSED; `dart pub publish --dry-run`: 0 warnings, 518 KB)
 
 ---
 
@@ -92,9 +93,19 @@
 
 ---
 
-## 6. Remaining Issues & Next Actions (Awaiting Approval)
+## 6. VM Display Restoration & Final 6-Target Approval Gate
 
-1. **Elevated WACK run** on the exact new `4a51a2c` Windows MSIX submission artifact.
-2. **Upstream `flutter_chromium_webview 0.5.8` publication approval**: branch `fix/linux-cef-rendering-suspension` (`2b0795b`) is tested and ready; publishing `0.5.8` and bumping PPPlayer's hosted pub.dev pin unlocks the `-91%` to `-99%` Hidden/Minimized/Paused video CPU reductions on Linux while keeping CI's hosted-dependency guard green.
-3. **Optional minor follow-up**: Active local track equalizer row animation on software-rendered Linux VMs (`llvmpipe`) draws at 60 FPS while viewing the Local Music list; throttling or lowering its frame cadence on software renderers could further reduce CPU while staying on that list screen.
-4. **VirtualBox VM display setting**: `accelerate3D="true"` remains set in `Ubuntu 25.04.1.vbox` from Phase 3 testing; revert with `VBoxManage modifyvm "Ubuntu 25.04.1" --accelerate3d off` (when VM is powered off) to restore normal software-rendered Flutter UI without `LIBGL_ALWAYS_SOFTWARE=1`.
+- **VirtualBox VM Display Restored (Phase 4):** `"Ubuntu 25.04.1"` was safely shut down, reconfigured via `VBoxManage modifyvm "Ubuntu 25.04.1" --accelerate3d off` (`Ubuntu 25.04.1.vbox:35`: `<Display controller="VMSVGA" VRAMSize="256"/>`), and rebooted. Verified `GL_VENDOR: Mesa`, `GL_RENDERER: llvmpipe (LLVM 21.1.8, 256 bits)`, `OpenGL ES 3.2 Mesa 26.0.8-1ubuntu0.3`, and visually confirmed crisp out-of-the-box PPPlayer rendering without `LIBGL_ALWAYS_SOFTWARE=1`.
+  - **Caveat:** All VM benchmarks reflect software-rendered `llvmpipe` CPU overhead and are **not representative of a physical hardware-accelerated Linux GPU** (where Impeller and compositing offload to hardware GPU).
+- **Windows MSIX Identity & Version Verified (`AppxManifest.xml`):** `Identity Name="LucasVeneno.25880C6F60D2E"`, `Version="4.0.3.0"`, `Publisher="CN=191B0E6A-B98A-4AB5-B2FC-9EBDA47DA56E"`, `ProcessorArchitecture="x64"`, `DisplayName="PPPlayer"`, `PublisherDisplayName="Devflier"`.
+
+### Final Approval Gate Verdicts
+
+| Target | Verdict | Blocking Prerequisites / Notes |
+|---|---|---|
+| **`flutter_chromium_webview 0.5.8`** | **READY FOR PUBLICATION APPROVAL** | `fix/linux-cef-rendering-suspension` @ `e14a703` passed 7/7 cross-platform CI (`46171794964`), 19/19 native Linux GTests, live PPPlayer Linux integration (100 rapid cycles, `-91%` to `-99%` CPU), and `dart pub publish --dry-run` (0 warnings, 518 KB). Requires explicit approval to merge to `main`, tag `v0.5.8`, and publish to `pub.dev`. |
+| **PPPlayer `v4.0.3` integration** | **HOLD PENDING `0.5.8` PUBLICATION** *(or READY FOR `0.5.7`-ONLY MERGE)* | `perf/linux-cpu-memory-optimization` (`4a51a2c` + docs) passes 720/720 tests & 5/5 CI (`46168631956`) on hosted `0.5.7`. To include the upstream Linux CEF rendering suspension (`-91%` Hidden / `-97.8%` Minimized / `-99.2%` Paused CPU), first publish `0.5.8`, then bump PPPlayer's hosted pin + snapshot and re-run 5-job CI before merging into `feat/release-v4.0.3`. |
+| **GitHub Release (`v4.0.3`)** | **HOLD** | Blocked on final `feat/release-v4.0.3` integration commit (with `0.5.8` if authorized), final 5-job CI pass, and explicit tag/release authorization. |
+| **Microsoft Store** | **BLOCKED ON ELEVATED WACK** | Fresh Store MSIX (`4.0.3.0`, preserved Partner Center identity) passed automated WACK pre-checks, but elevated `appcert.exe` must be run on the exact final submission MSIX (after any `0.5.8` pin bump) before upload. |
+| **Snap Store** | **HOLD** | `ppplayer_4.0.3_amd64.snap` built & verified in CI (`141052621180`, `SHA-256=fbcd794c...`); held pending final `v4.0.3` integration commit (including `0.5.8` if authorized) and explicit publication approval. |
+| **Website** | **HOLD** | Held until final `v4.0.3` GitHub Release artifacts & checksums are finalized and explicit deployment approval is granted. |
