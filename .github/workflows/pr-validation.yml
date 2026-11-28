@@ -39,7 +39,7 @@ jobs:
           cfg = json.loads(pathlib.Path(".dart_tool/package_config.json").read_text(encoding="utf-8"))
           pkgs = {p["name"]: p["rootUri"] for p in cfg["packages"]}
           for name, expected in [
-              ("flutter_chromium_webview", "flutter_chromium_webview-0.5.7"),
+              ("flutter_chromium_webview", "flutter_chromium_webview-0.5.8"),
               ("flutter_chromium_webview_platform_interface", "flutter_chromium_webview_platform_interface-0.1.7"),
           ]:
               uri = pkgs.get(name, "")
@@ -47,7 +47,7 @@ jobs:
               assert "/hosted/pub.dev/" in uri and expected in uri, (
                   f"Expected hosted pub.dev {expected}, got: {uri}"
               )
-          print("PASS: Hosted flutter_chromium_webview 0.5.7 and platform_interface 0.1.7 resolved from pub.dev")
+          print("PASS: Hosted flutter_chromium_webview 0.5.8 and platform_interface 0.1.7 resolved from pub.dev")
           PY
 
       - name: Check Formatting

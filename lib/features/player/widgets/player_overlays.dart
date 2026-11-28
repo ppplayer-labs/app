@@ -237,23 +237,34 @@ class _PlayerOverlaysState extends ConsumerState<PlayerOverlays> {
 
   @override
   Widget build(BuildContext context) {
-    final playerState = ref.watch(playerProvider);
+    final track = ref.watch(playerProvider.select((s) => s.currentTrack));
+    final isPlaying = ref.watch(playerProvider.select((s) => s.isPlaying));
+    final isLoadingVideo = ref.watch(
+      playerProvider.select((s) => s.isLoadingVideo),
+    );
+    final isShuffled = ref.watch(playerProvider.select((s) => s.isShuffled));
+    final repeatMode = ref.watch(playerProvider.select((s) => s.repeatMode));
+    final supportsSpeed = ref.watch(
+      playerProvider.select((s) => s.supportsSpeed),
+    );
+    final speed = ref.watch(playerProvider.select((s) => s.speed));
     final playerNotifier = ref.read(playerProvider.notifier);
     final settings = ref.watch(settingsProvider);
-    final isPlaying = playerState.isPlaying;
     final colorScheme = Theme.of(context).colorScheme;
-    final track = playerState.currentTrack;
     final viewport = MediaQuery.sizeOf(context);
     final compactLandscape =
         viewport.width > viewport.height && viewport.height < 500;
     final desktopWindow = viewport.width >= 1000 && !widget.isFullscreen;
-    final playbackStatus = ref.watch(playbackStatusProvider).value;
-    final hasVideo = playbackStatus?.hasVideo ?? false;
+    final (hasVideo, isIFrameMode) = ref.watch(
+      playbackStatusProvider.select((s) {
+        final v = s.asData?.value;
+        return (v?.hasVideo ?? false, v?.isIFrameMode ?? false);
+      }),
+    );
     // Capability is derived from live status fields so it updates mid-session
     // (e.g. switching from a local video to YouTube or audio-only).
     // isIFrameMode covers YouTube iframe; !hasVideo covers audio-only tracks.
-    final supportsVideoFitMode =
-        hasVideo && !(playbackStatus?.isIFrameMode ?? false);
+    final supportsVideoFitMode = hasVideo && !isIFrameMode;
 
     final controlsVisible = ref.watch(controlsVisibilityProvider);
     final showControls = widget.alwaysShowControls || controlsVisible;
@@ -420,7 +431,7 @@ class _PlayerOverlaysState extends ConsumerState<PlayerOverlays> {
                                         );
                                       },
                                     ),
-                                    if (playerState.supportsSpeed) ...[
+                                    if (supportsSpeed) ...[
                                       Builder(
                                         builder: (btnContext) =>
                                             TactileIconButton(
@@ -437,7 +448,7 @@ class _PlayerOverlaysState extends ConsumerState<PlayerOverlays> {
                                                 _showSpeedMenu(
                                                   btnContext,
                                                   playerNotifier,
-                                                  playerState.speed,
+                                                  speed,
                                                 );
                                               },
                                             ),
@@ -554,34 +565,27 @@ class _PlayerOverlaysState extends ConsumerState<PlayerOverlays> {
                                     ),
                                   if (!compactLandscape)
                                     const SizedBox(height: 12),
-                                  // Progress Bar
-                                  SliderTheme(
-                                    data: SliderTheme.of(context).copyWith(
-                                      trackHeight: 4,
-                                      thumbShape: const RoundSliderThumbShape(
-                                        enabledThumbRadius: 6,
-                                      ),
-                                      overlayShape:
-                                          const RoundSliderOverlayShape(
-                                            overlayRadius: 14,
+                                  // Progress Bar (isolated to 1 Hz second ticks)
+                                  RepaintBoundary(
+                                    child: Consumer(
+                                      builder: (context, ref, _) {
+                                        final (
+                                          posSeconds,
+                                          durSeconds,
+                                          bufSeconds,
+                                        ) = ref.watch(
+                                          playerProvider.select(
+                                            (s) => (
+                                              s.position.inSeconds,
+                                              s.duration.inSeconds,
+                                              s.buffered.inSeconds,
+                                            ),
                                           ),
-                                      activeTrackColor: colorScheme.primary,
-                                      inactiveTrackColor: Colors.white
-                                          .withValues(alpha: 0.15),
-                                      secondaryActiveTrackColor: Colors.white
-                                          .withValues(alpha: 0.5),
-                                      thumbColor: Colors.white,
-                                    ),
-                                    child: Builder(
-                                      builder: (context) {
-                                        final maxDuration =
-                                            playerState.duration.inSeconds > 0
-                                            ? playerState.duration.inSeconds
-                                                  .toDouble()
+                                        );
+                                        final maxDuration = durSeconds > 0
+                                            ? durSeconds.toDouble()
                                             : 1.0;
-                                        final buffered = playerState
-                                            .buffered
-                                            .inSeconds
+                                        final buffered = bufSeconds
                                             .toDouble()
                                             .clamp(0.0, maxDuration);
                                         final isDailymotion =
@@ -597,84 +601,137 @@ class _PlayerOverlaysState extends ConsumerState<PlayerOverlays> {
                                                     ?.networkMediaUri
                                                     ?.contains('dmcdn.net') ==
                                                 true;
-                                        return Slider(
-                                          value:
-                                              (_dragValue ??
-                                                      playerState
-                                                          .position
-                                                          .inSeconds
-                                                          .toDouble())
-                                                  .clamp(0.0, maxDuration),
-                                          secondaryTrackValue: buffered,
-                                          max: maxDuration,
-                                          onChangeStart: (v) {
-                                            _onInteraction();
-                                            if (isDailymotion) {
-                                              final maxV = (buffered - 3.0)
-                                                  .clamp(0.0, maxDuration);
-                                              if (v > maxV) v = maxV;
-                                            }
-                                            setState(() => _dragValue = v);
-                                          },
-                                          onChanged: (v) {
-                                            _onInteraction();
-                                            if (isDailymotion) {
-                                              final maxV = (buffered - 3.0)
-                                                  .clamp(0.0, maxDuration);
-                                              if (v > maxV) v = maxV;
-                                            }
-                                            setState(() => _dragValue = v);
-                                          },
-                                          onChangeEnd: (v) {
-                                            _onInteraction();
-                                            if (isDailymotion) {
-                                              final maxV = (buffered - 3.0)
-                                                  .clamp(0.0, maxDuration);
-                                              if (v > maxV) v = maxV;
-                                            }
-                                            playerNotifier.seekTo(
-                                              Duration(seconds: v.toInt()),
-                                            );
-                                            setState(() => _dragValue = null);
-                                          },
+                                        return Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            SliderTheme(
+                                              data: SliderTheme.of(context).copyWith(
+                                                trackHeight: 4,
+                                                thumbShape:
+                                                    const RoundSliderThumbShape(
+                                                      enabledThumbRadius: 6,
+                                                    ),
+                                                overlayShape:
+                                                    const RoundSliderOverlayShape(
+                                                      overlayRadius: 14,
+                                                    ),
+                                                activeTrackColor:
+                                                    colorScheme.primary,
+                                                inactiveTrackColor: Colors.white
+                                                    .withValues(alpha: 0.15),
+                                                secondaryActiveTrackColor:
+                                                    Colors.white.withValues(
+                                                      alpha: 0.5,
+                                                    ),
+                                                thumbColor: Colors.white,
+                                              ),
+                                              child: Slider(
+                                                value:
+                                                    (_dragValue ??
+                                                            posSeconds
+                                                                .toDouble())
+                                                        .clamp(
+                                                          0.0,
+                                                          maxDuration,
+                                                        ),
+                                                secondaryTrackValue: buffered,
+                                                max: maxDuration,
+                                                onChangeStart: (v) {
+                                                  _onInteraction();
+                                                  if (isDailymotion) {
+                                                    final maxV =
+                                                        (buffered - 3.0).clamp(
+                                                          0.0,
+                                                          maxDuration,
+                                                        );
+                                                    if (v > maxV) v = maxV;
+                                                  }
+                                                  setState(
+                                                    () => _dragValue = v,
+                                                  );
+                                                },
+                                                onChanged: (v) {
+                                                  _onInteraction();
+                                                  if (isDailymotion) {
+                                                    final maxV =
+                                                        (buffered - 3.0).clamp(
+                                                          0.0,
+                                                          maxDuration,
+                                                        );
+                                                    if (v > maxV) v = maxV;
+                                                  }
+                                                  setState(
+                                                    () => _dragValue = v,
+                                                  );
+                                                },
+                                                onChangeEnd: (v) {
+                                                  _onInteraction();
+                                                  if (isDailymotion) {
+                                                    final maxV =
+                                                        (buffered - 3.0).clamp(
+                                                          0.0,
+                                                          maxDuration,
+                                                        );
+                                                    if (v > maxV) v = maxV;
+                                                  }
+                                                  playerNotifier.seekTo(
+                                                    Duration(
+                                                      seconds: v.toInt(),
+                                                    ),
+                                                  );
+                                                  setState(
+                                                    () => _dragValue = null,
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 8.0,
+                                                  ),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    _formatDuration(
+                                                      Duration(
+                                                        seconds:
+                                                            _dragValue
+                                                                ?.toInt() ??
+                                                            posSeconds,
+                                                      ),
+                                                    ),
+                                                    style: TextStyle(
+                                                      color: Colors.white
+                                                          .withValues(
+                                                            alpha: 0.7,
+                                                          ),
+                                                      fontSize: 12,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    _formatDuration(
+                                                      Duration(
+                                                        seconds: durSeconds,
+                                                      ),
+                                                    ),
+                                                    style: TextStyle(
+                                                      color: Colors.white
+                                                          .withValues(
+                                                            alpha: 0.7,
+                                                          ),
+                                                      fontSize: 12,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
                                         );
                                       },
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8.0,
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          _formatDuration(
-                                            _dragValue != null
-                                                ? Duration(
-                                                    seconds: _dragValue!
-                                                        .toInt(),
-                                                  )
-                                                : playerState.position,
-                                          ),
-                                          style: TextStyle(
-                                            color: Colors.white.withValues(
-                                              alpha: 0.7,
-                                            ),
-                                            fontSize: 12,
-                                          ),
-                                        ),
-                                        Text(
-                                          _formatDuration(playerState.duration),
-                                          style: TextStyle(
-                                            color: Colors.white.withValues(
-                                              alpha: 0.7,
-                                            ),
-                                            fontSize: 12,
-                                          ),
-                                        ),
-                                      ],
                                     ),
                                   ),
                                   const SizedBox(height: 8),
@@ -708,8 +765,8 @@ class _PlayerOverlaysState extends ConsumerState<PlayerOverlays> {
                                           },
                                         ),
                                         TactilePlayerPlayPauseButton(
-                                          isPlaying: playerState.isPlaying,
-                                          isLoading: playerState.isLoadingVideo,
+                                          isPlaying: isPlaying,
+                                          isLoading: isLoadingVideo,
                                           size: 64,
                                           onTap: () {
                                             _onInteraction();
@@ -755,7 +812,7 @@ class _PlayerOverlaysState extends ConsumerState<PlayerOverlays> {
                                           context,
                                         )!.shuffle,
                                         icon: Icons.shuffle,
-                                        selected: playerState.isShuffled,
+                                        selected: isShuffled,
                                         onSelected:
                                             playerNotifier.toggleShuffle,
                                       ),
@@ -763,14 +820,10 @@ class _PlayerOverlaysState extends ConsumerState<PlayerOverlays> {
                                         label: AppLocalizations.of(
                                           context,
                                         )!.repeat,
-                                        icon:
-                                            playerState.repeatMode ==
-                                                RepeatMode.one
+                                        icon: repeatMode == RepeatMode.one
                                             ? Icons.repeat_one
                                             : Icons.repeat,
-                                        selected:
-                                            playerState.repeatMode !=
-                                            RepeatMode.none,
+                                        selected: repeatMode != RepeatMode.none,
                                         onSelected: playerNotifier.cycleRepeat,
                                       ),
                                       PlayerControlAction(

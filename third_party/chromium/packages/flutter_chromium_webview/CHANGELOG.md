@@ -1,3 +1,10 @@
+## 0.5.8
+
+* Linux: implement `ChromiumWebViewController.setRenderingActive(bool)` and automatic GTK window-minimization (`GDK_WINDOW_STATE_ICONIFIED`) rendering suspension in `CefBrowserHandler` and `FlutterChromiumWebviewPlugin`.
+* Linux: throttle off-screen CEF compositing from `60 FPS` to `1 FPS` via `SetWindowlessFrameRate(1)` without calling `WasHidden(true)` so `document.visibilityState` remains `'visible'`, preserving background audio playback, JavaScript timers, browser identity, and playback position.
+* Linux: gate `OnPaint` BGRA→RGBA conversion and Flutter texture notifications while suspended while keeping the last valid `front_buffer` intact so rapid Hide/Show and minimize/restore transitions recover cleanly without black-frame flashes; trigger `Invalidate(PET_VIEW)` immediately when rendering resumes.
+* Linux: expose `windowMinimized`, `renderingSuspendedBrowsers`, `publishedFrames`, and `suppressedFrames` in `getDiagnostics`, and add 3 native GoogleTest suites (`CefBrowserHandlerRenderingSuspension`) covering active/suppressed `OnPaint`, independent GTK minimize composition, and 100 rapid Hide/Show + minimize cycles.
+
 ## 0.5.7
 
 * Dart: add `ChromiumWebViewController.setRenderingActive(bool)` to throttle desktop off-screen rendering (`60 FPS → 1 FPS`) when visual updates are paused or minimized without suspending audio or JavaScript bridge callbacks (implemented on Windows and macOS; graceful no-op fallback on Linux and Android).

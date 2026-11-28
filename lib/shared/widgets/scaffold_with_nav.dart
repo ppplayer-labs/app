@@ -4,7 +4,9 @@ import 'dart:ui';
 import 'package:flutter/material.dart' hide RepeatMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/playback/chromium_playback_engine.dart';
 import '../../core/playback/playback_providers.dart';
+import '../../core/network_outputs/network_output_controller.dart';
 import '../../core/player/player_provider.dart';
 import '../../core/player/video_layout_provider.dart';
 import '../../core/services/settings_provider.dart';
@@ -261,6 +263,15 @@ class _ScaffoldWithNavState extends ConsumerState<ScaffoldWithNav> {
       } else {
         normalBounds = hiddenBounds;
       }
+    }
+
+    final isWindowHidden = ref.watch(appWindowHiddenProvider);
+    final effectiveSurfaceVisible = isSurfaceVisible && !isWindowHidden;
+    final underlyingEngine = playbackEngine is NetworkOutputController
+        ? playbackEngine.localController
+        : playbackEngine;
+    if (underlyingEngine is ChromiumPlaybackEngine) {
+      underlyingEngine.setSurfaceVisible(effectiveSurfaceVisible);
     }
 
     // Keep both endpoints available while the route reverses on close.
@@ -1290,17 +1301,16 @@ class _MiniPlayerBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final playerState = ref.watch(playerProvider);
-    final track = playerState.currentTrack;
+    final track = ref.watch(playerProvider.select((s) => s.currentTrack));
+    final isPlaying = ref.watch(playerProvider.select((s) => s.isPlaying));
+    final isLoadingVideo = ref.watch(
+      playerProvider.select((s) => s.isLoadingVideo),
+    );
     final isLocalTrack = track?.sourceType == TrackSourceType.local;
     final showVideo = ref.watch(settingsProvider.select((s) => s.showVideo));
     final colorScheme = Theme.of(context).colorScheme;
 
     if (track == null) return const SizedBox.shrink();
-
-    final progress = playerState.duration.inSeconds > 0
-        ? playerState.position.inSeconds / playerState.duration.inSeconds
-        : 0.0;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
@@ -1326,34 +1336,53 @@ class _MiniPlayerBar extends ConsumerWidget {
                 ),
                 child: Stack(
                   children: [
-                    // Progress Bar at the top edge
+                    // Progress Bar at the top edge (isolated to 1 Hz second ticks)
                     Positioned(
                       top: 0,
                       left: 0,
                       right: 0,
-                      child: Container(
-                        height: 1.5,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: colorScheme.onSurface.withValues(alpha: 0.1),
-                        ),
-                        child: FractionallySizedBox(
-                          alignment: Alignment.centerLeft,
-                          widthFactor: progress.clamp(0.0, 1.0),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: colorScheme.primary,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: colorScheme.primary.withValues(
-                                    alpha: 0.3,
-                                  ),
-                                  blurRadius: 4,
-                                  spreadRadius: 1,
+                      child: RepaintBoundary(
+                        child: Consumer(
+                          builder: (context, ref, _) {
+                            final (posSeconds, durSeconds) = ref.watch(
+                              playerProvider.select(
+                                (s) => (
+                                  s.position.inSeconds,
+                                  s.duration.inSeconds,
                                 ),
-                              ],
-                            ),
-                          ),
+                              ),
+                            );
+                            final progress = durSeconds > 0
+                                ? posSeconds / durSeconds
+                                : 0.0;
+                            return Container(
+                              height: 1.5,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                color: colorScheme.onSurface.withValues(
+                                  alpha: 0.1,
+                                ),
+                              ),
+                              child: FractionallySizedBox(
+                                alignment: Alignment.centerLeft,
+                                widthFactor: progress.clamp(0.0, 1.0),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: colorScheme.primary,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: colorScheme.primary.withValues(
+                                          alpha: 0.3,
+                                        ),
+                                        blurRadius: 4,
+                                        spreadRadius: 1,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ),
@@ -1468,12 +1497,12 @@ class _MiniPlayerBar extends ConsumerWidget {
                           tooltip: AppLocalizations.of(context)!.previous,
                         ),
                         TactilePlayerPlayPauseButton(
-                          isPlaying: playerState.isPlaying,
-                          isLoading: playerState.isLoadingVideo,
+                          isPlaying: isPlaying,
+                          isLoading: isLoadingVideo,
                           size: 34,
                           onTap: () =>
                               ref.read(playerProvider.notifier).togglePlay(),
-                          tooltip: playerState.isPlaying
+                          tooltip: isPlaying
                               ? AppLocalizations.of(context)!.pause
                               : AppLocalizations.of(context)!.play,
                         ),
@@ -2181,9 +2210,15 @@ class DesktopPlayerBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final playerState = ref.watch(playerProvider);
+    final track = ref.watch(playerProvider.select((s) => s.currentTrack));
+    final isPlaying = ref.watch(playerProvider.select((s) => s.isPlaying));
+    final isLoadingVideo = ref.watch(
+      playerProvider.select((s) => s.isLoadingVideo),
+    );
+    final isShuffled = ref.watch(playerProvider.select((s) => s.isShuffled));
+    final repeatMode = ref.watch(playerProvider.select((s) => s.repeatMode));
+    final volume = ref.watch(playerProvider.select((s) => s.volume));
     final playerNotifier = ref.read(playerProvider.notifier);
-    final track = playerState.currentTrack;
     final isLocalTrack = track?.sourceType == TrackSourceType.local;
     final showVideo = ref.watch(settingsProvider.select((s) => s.showVideo));
     final colorScheme = Theme.of(context).colorScheme;
@@ -2195,13 +2230,6 @@ class DesktopPlayerBar extends ConsumerWidget {
     }
 
     if (track == null) return const SizedBox.shrink();
-
-    final progress = playerState.duration.inSeconds > 0
-        ? playerState.position.inSeconds / playerState.duration.inSeconds
-        : 0.0;
-    final bufferedProgress = playerState.duration.inSeconds > 0
-        ? playerState.buffered.inSeconds / playerState.duration.inSeconds
-        : 0.0;
 
     return Stack(
       clipBehavior: Clip.none,
@@ -2288,12 +2316,12 @@ class DesktopPlayerBar extends ConsumerWidget {
                                   .read(playerProvider.notifier)
                                   .toggleShuffle(),
                               size: 20,
-                              color: playerState.isShuffled
+                              color: isShuffled
                                   ? colorScheme.primary
                                   : colorScheme.onSurfaceVariant.withValues(
                                       alpha: 0.7,
                                     ),
-                              hoverColor: playerState.isShuffled
+                              hoverColor: isShuffled
                                   ? colorScheme.primary
                                   : colorScheme.onSurface,
                               tooltip: AppLocalizations.of(context)!.shuffle,
@@ -2313,12 +2341,12 @@ class DesktopPlayerBar extends ConsumerWidget {
                           ),
                           SizedBox(width: controlGap),
                           TactilePlayerPlayPauseButton(
-                            isPlaying: playerState.isPlaying,
-                            isLoading: playerState.isLoadingVideo,
+                            isPlaying: isPlaying,
+                            isLoading: isLoadingVideo,
                             size: 46,
                             onTap: () =>
                                 ref.read(playerProvider.notifier).togglePlay(),
-                            tooltip: playerState.isPlaying
+                            tooltip: isPlaying
                                 ? AppLocalizations.of(context)!.pause
                                 : AppLocalizations.of(context)!.play,
                           ),
@@ -2337,25 +2365,24 @@ class DesktopPlayerBar extends ConsumerWidget {
                           if (!compact) SizedBox(width: controlGap),
                           if (!compact)
                             TactileIconButton(
-                              icon: playerState.repeatMode == RepeatMode.one
+                              icon: repeatMode == RepeatMode.one
                                   ? Icons.repeat_one
                                   : Icons.repeat,
                               onTap: () => ref
                                   .read(playerProvider.notifier)
                                   .cycleRepeat(),
                               size: 20,
-                              color: playerState.repeatMode != RepeatMode.none
+                              color: repeatMode != RepeatMode.none
                                   ? colorScheme.primary
                                   : colorScheme.onSurfaceVariant.withValues(
                                       alpha: 0.7,
                                     ),
-                              hoverColor:
-                                  playerState.repeatMode != RepeatMode.none
+                              hoverColor: repeatMode != RepeatMode.none
                                   ? colorScheme.primary
                                   : colorScheme.onSurface,
-                              tooltip: playerState.repeatMode == RepeatMode.one
+                              tooltip: repeatMode == RepeatMode.one
                                   ? '${AppLocalizations.of(context)!.repeat}: 1'
-                                  : (playerState.repeatMode == RepeatMode.all
+                                  : (repeatMode == RepeatMode.all
                                         ? '${AppLocalizations.of(context)!.repeat}: ${AppLocalizations.of(context)!.filterAll}'
                                         : '${AppLocalizations.of(context)!.repeat}: ${AppLocalizations.of(context)!.off}'),
                             ),
@@ -2371,9 +2398,9 @@ class DesktopPlayerBar extends ConsumerWidget {
                             // Volume control with mute toggle
                             if (!compact)
                               TactileIconButton(
-                                icon: playerState.volume == 0
+                                icon: volume == 0
                                     ? Icons.volume_off
-                                    : (playerState.volume < 0.5
+                                    : (volume < 0.5
                                           ? Icons.volume_down
                                           : Icons.volume_up),
                                 size: 19,
@@ -2382,14 +2409,14 @@ class DesktopPlayerBar extends ConsumerWidget {
                                   alpha: 0.8,
                                 ),
                                 hoverColor: colorScheme.primary,
-                                tooltip: playerState.volume == 0
+                                tooltip: volume == 0
                                     ? AppLocalizations.of(context)!.unmute
                                     : AppLocalizations.of(context)!.mute,
                                 onTap: () {
                                   final notifier = ref.read(
                                     playerProvider.notifier,
                                   );
-                                  if (playerState.volume > 0) {
+                                  if (volume > 0) {
                                     notifier.setVolume(0);
                                   } else {
                                     notifier.setVolume(0.7);
@@ -2399,7 +2426,7 @@ class DesktopPlayerBar extends ConsumerWidget {
                             if (!compact)
                               Flexible(
                                 child: _DesktopVolumeSlider(
-                                  volume: playerState.volume,
+                                  volume: volume,
                                   onChanged: (val) => ref
                                       .read(playerProvider.notifier)
                                       .setVolume(val),
@@ -2451,16 +2478,14 @@ class DesktopPlayerBar extends ConsumerWidget {
                                           .read(settingsProvider.notifier)
                                           .toggleVideo();
                                     case 'mute':
-                                      notifier.setVolume(
-                                        playerState.volume > 0 ? 0 : 0.7,
-                                      );
+                                      notifier.setVolume(volume > 0 ? 0 : 0.7);
                                   }
                                 },
                                 itemBuilder: (_) => [
                                   PopupMenuItem(
                                     value: 'shuffle',
                                     child: Text(
-                                      playerState.isShuffled
+                                      isShuffled
                                           ? '${AppLocalizations.of(context)!.shuffle}: ${AppLocalizations.of(context)!.enabled}'
                                           : '${AppLocalizations.of(context)!.shuffle}: ${AppLocalizations.of(context)!.off}',
                                     ),
@@ -2468,9 +2493,9 @@ class DesktopPlayerBar extends ConsumerWidget {
                                   PopupMenuItem(
                                     value: 'repeat',
                                     child: Text(
-                                      '${AppLocalizations.of(context)!.repeat}: ${playerState.repeatMode == RepeatMode.one
+                                      '${AppLocalizations.of(context)!.repeat}: ${repeatMode == RepeatMode.one
                                           ? '1'
-                                          : playerState.repeatMode == RepeatMode.all
+                                          : repeatMode == RepeatMode.all
                                           ? AppLocalizations.of(context)!.filterAll
                                           : AppLocalizations.of(context)!.off}',
                                     ),
@@ -2478,7 +2503,7 @@ class DesktopPlayerBar extends ConsumerWidget {
                                   PopupMenuItem(
                                     value: 'mute',
                                     child: Text(
-                                      playerState.volume == 0
+                                      volume == 0
                                           ? AppLocalizations.of(context)!.unmute
                                           : AppLocalizations.of(context)!.mute,
                                     ),
@@ -2604,20 +2629,40 @@ class DesktopPlayerBar extends ConsumerWidget {
           top: 0,
           left: 0,
           right: 0,
-          child: _DesktopProgressBar(
-            progress: progress,
-            bufferedProgress: bufferedProgress,
-            duration: playerState.duration,
-            isDailymotion:
-                playerNotifier.currentPlaybackTrack?.networkMediaUri?.contains(
-                      'dailymotion.com',
-                    ) ==
-                    true ||
-                playerNotifier.currentPlaybackTrack?.networkMediaUri?.contains(
-                      'dmcdn.net',
-                    ) ==
-                    true,
-            onSeek: (pos) => ref.read(playerProvider.notifier).seekTo(pos),
+          child: RepaintBoundary(
+            child: Consumer(
+              builder: (context, ref, _) {
+                final (posSeconds, durSeconds, bufSeconds, duration) = ref
+                    .watch(
+                      playerProvider.select(
+                        (s) => (
+                          s.position.inSeconds,
+                          s.duration.inSeconds,
+                          s.buffered.inSeconds,
+                          s.duration,
+                        ),
+                      ),
+                    );
+                final progress = durSeconds > 0 ? posSeconds / durSeconds : 0.0;
+                final bufferedProgress = durSeconds > 0
+                    ? bufSeconds / durSeconds
+                    : 0.0;
+                return _DesktopProgressBar(
+                  progress: progress,
+                  bufferedProgress: bufferedProgress,
+                  duration: duration,
+                  isDailymotion:
+                      playerNotifier.currentPlaybackTrack?.networkMediaUri
+                              ?.contains('dailymotion.com') ==
+                          true ||
+                      playerNotifier.currentPlaybackTrack?.networkMediaUri
+                              ?.contains('dmcdn.net') ==
+                          true,
+                  onSeek: (pos) =>
+                      ref.read(playerProvider.notifier).seekTo(pos),
+                );
+              },
+            ),
           ),
         ),
       ],
@@ -2700,14 +2745,16 @@ class _DesktopProgressBarState extends State<_DesktopProgressBar> {
     );
     final isActive = _isHovered || _dragProgress != null;
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      if (isActive) {
-        if (!_tooltipController.isShowing) _tooltipController.show();
-      } else {
-        if (_tooltipController.isShowing) _tooltipController.hide();
-      }
-    });
+    if (isActive != _tooltipController.isShowing) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        if (isActive) {
+          if (!_tooltipController.isShowing) _tooltipController.show();
+        } else {
+          if (_tooltipController.isShowing) _tooltipController.hide();
+        }
+      });
+    }
 
     return LayoutBuilder(
       builder: (context, constraints) {
