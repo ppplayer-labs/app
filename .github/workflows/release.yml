@@ -346,8 +346,9 @@ jobs:
       - name: Build Windows App
         run: flutter build windows --release
 
-      - name: Create MSIX Package
-        run: dart run msix:create
+      - name: Create Store MSIX Package (WACK-Hardened)
+        shell: powershell
+        run: powershell -ExecutionPolicy Bypass -File scripts/build_windows_msix.ps1
 
       - name: Upload Windows MSIX
         uses: actions/upload-artifact@v4
@@ -359,7 +360,7 @@ jobs:
     name: Build Linux App
     needs: validate-and-test
     if: needs.validate-and-test.outputs.should_build == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -367,7 +368,7 @@ jobs:
       - name: Install System Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev libgl1-mesa-dev libegl1-mesa-dev libx11-dev libxcb1-dev libstdc++-11-dev libvulkan-dev libsecret-1-dev libjsoncpp-dev libmpv-dev libepoxy-dev
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev libgl1-mesa-dev libegl1-mesa-dev libx11-dev libxcb1-dev libstdc++-11-dev libvulkan-dev libsecret-1-dev libjsoncpp-dev libmpv-dev libepoxy-dev patchelf file
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -386,8 +387,11 @@ jobs:
           cd dist
           sha256sum -c SHA256SUMS
           tar -tzf PPPlayer-Linux-x86_64.tar.gz | grep -q "^PPPlayer/ppplayer$"
+          tar -tzf PPPlayer-Linux-x86_64.tar.gz | grep -q "^PPPlayer/ppplayer-portable$"
           tar -tzf PPPlayer-Linux-x86_64.tar.gz | grep -q "^PPPlayer/lib/libcef.so$"
+          tar -tzf PPPlayer-Linux-x86_64.tar.gz | grep -q "^PPPlayer/lib/libmpv.so.2$"
           tar -tzf PPPlayer-Linux-x86_64.tar.gz | grep -q "^PPPlayer/lib/flutter_chromium_webview_subprocess$"
+          tar -tzf PPPlayer-Linux-x86_64.tar.gz | grep -q "^PPPlayer/share/licenses/bundled/THIRD_PARTY_LICENSES.txt$"
           tar -tzf PPPlayer-Linux-x86_64.tar.gz | grep -q "^PPPlayer/share/applications/com.ppplayer.PPPlayer.desktop$"
           tar -tzf PPPlayer-Linux-x86_64.tar.gz | grep -q "^PPPlayer/share/metainfo/com.ppplayer.PPPlayer.metainfo.xml$"
           tar -tzf PPPlayer-Linux-x86_64.tar.gz | grep -q "^PPPlayer/share/icons/hicolor/512x512/apps/com.ppplayer.PPPlayer.png$"

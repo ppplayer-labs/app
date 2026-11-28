@@ -30,3 +30,17 @@ class ControlsVisibility extends Notifier<bool> {
 final controlsVisibilityProvider = NotifierProvider<ControlsVisibility, bool>(
   ControlsVisibility.new,
 );
+
+/// Tracks whether the desktop application window is currently hidden/minimized.
+class AppWindowHidden extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void setHidden(bool hidden) {
+    if (state != hidden) state = hidden;
+  }
+}
+
+final appWindowHiddenProvider = NotifierProvider<AppWindowHidden, bool>(
+  AppWindowHidden.new,
+);

@@ -29,6 +29,7 @@ import 'core/player/player_provider.dart';
 import 'core/playback/playback_providers.dart'
     show localPlaybackControllerProvider;
 import 'core/local_library/local_library_service.dart';
+import 'features/player/player_providers.dart' show appWindowHiddenProvider;
 
 /// Global access to the provider container for the [AudioHandler].
 late ProviderContainer globalContainer;
@@ -261,7 +262,7 @@ void main() async {
   );
 }
 
-class _AppLifecycleLogger extends StatefulWidget {
+class _AppLifecycleLogger extends ConsumerStatefulWidget {
   final Widget child;
   final AppShutdownCoordinator shutdownCoordinator;
   const _AppLifecycleLogger({
@@ -269,12 +270,20 @@ class _AppLifecycleLogger extends StatefulWidget {
     required this.shutdownCoordinator,
   });
   @override
-  State<_AppLifecycleLogger> createState() => _AppLifecycleLoggerState();
+  ConsumerState<_AppLifecycleLogger> createState() =>
+      _AppLifecycleLoggerState();
 }
 
-class _AppLifecycleLoggerState extends State<_AppLifecycleLogger>
+class _AppLifecycleLoggerState extends ConsumerState<_AppLifecycleLogger>
     with WidgetsBindingObserver {
   late final AppLifecycleListener _lifecycleListener;
+  bool _isDesktopWindowHidden = false;
+
+  bool get _isDesktop =>
+      !kIsWeb &&
+      (defaultTargetPlatform == TargetPlatform.linux ||
+          defaultTargetPlatform == TargetPlatform.windows ||
+          defaultTargetPlatform == TargetPlatform.macOS);
 
   @override
   void initState() {
@@ -302,6 +311,15 @@ class _AppLifecycleLoggerState extends State<_AppLifecycleLogger>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (_isDesktop) {
+      final hidden =
+          state == AppLifecycleState.hidden ||
+          state == AppLifecycleState.paused;
+      if (_isDesktopWindowHidden != hidden) {
+        setState(() => _isDesktopWindowHidden = hidden);
+        ref.read(appWindowHiddenProvider.notifier).setHidden(hidden);
+      }
+    }
     if (kDebugMode) {
       final time = DateTime.now().toIso8601String().substring(11, 23);
       debugPrint(
@@ -311,7 +329,8 @@ class _AppLifecycleLoggerState extends State<_AppLifecycleLogger>
   }
 
   @override
-  Widget build(BuildContext context) => widget.child;
+  Widget build(BuildContext context) =>
+      TickerMode(enabled: !_isDesktopWindowHidden, child: widget.child);
 }
 
 class PpPlayerApp extends ConsumerWidget {

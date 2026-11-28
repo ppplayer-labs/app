@@ -142,38 +142,22 @@ class GenreDetailsScreen extends ConsumerWidget {
                         ),
                       ),
 
-                      // Cinematic Ambient Mesh Pulsing Overlay
+                      // Cinematic Ambient Mesh Overlay (static)
                       Positioned.fill(
                         child: Opacity(
                           opacity: 0.6,
-                          child:
-                              Container(
-                                    decoration: BoxDecoration(
-                                      gradient: RadialGradient(
-                                        center: const Alignment(-0.8, -0.6),
-                                        radius: 1.5,
-                                        colors: [
-                                          themeColor.withValues(alpha: 0.8),
-                                          Colors.transparent,
-                                        ],
-                                      ),
-                                    ),
-                                  )
-                                  .animate(
-                                    onPlay: (c) => c.repeat(reverse: true),
-                                  )
-                                  .scale(
-                                    begin: const Offset(1, 1),
-                                    end: const Offset(1.3, 1.3),
-                                    duration: 10.seconds,
-                                    curve: Curves.easeInOut,
-                                  )
-                                  .move(
-                                    begin: const Offset(-20, -20),
-                                    end: const Offset(20, 20),
-                                    duration: 12.seconds,
-                                    curve: Curves.easeInOut,
-                                  ),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              gradient: RadialGradient(
+                                center: const Alignment(-0.8, -0.6),
+                                radius: 1.5,
+                                colors: [
+                                  themeColor.withValues(alpha: 0.8),
+                                  Colors.transparent,
+                                ],
+                              ),
+                            ),
+                          ),
                         ),
                       ),
 

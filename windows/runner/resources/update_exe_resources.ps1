@@ -26,9 +26,9 @@ if (-not $DllPath -or -not (Test-Path $DllPath)) {
 # Resolve version from pubspec.yaml if needed for fallback synthesis
 $vMajor = 4
 $vMinor = 0
-$vPatch = 2
-$vBuild = 14
-$fileVersionStr = "4.0.2+14"
+$vPatch = 3
+$vBuild = 15
+$fileVersionStr = "4.0.3+15"
 
 $dir = $PSScriptRoot
 while ($dir -and (Test-Path $dir)) {
@@ -88,7 +88,41 @@ public class ResourceUpdater {
     private static readonly IntPtr RT_ICON = (IntPtr)3;
     private static readonly IntPtr RT_GROUP_ICON = (IntPtr)14;
     private static readonly IntPtr RT_VERSION = (IntPtr)16;
+    private static readonly IntPtr RT_MANIFEST = (IntPtr)24;
     private static readonly IntPtr VS_VERSION_INFO = (IntPtr)1;
+    private static readonly IntPtr CREATEPROCESS_MANIFEST_RESOURCE_ID = (IntPtr)1;
+
+    private const string DPI_AWARE_MANIFEST =
+        "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n" +
+        "<assembly xmlns=\"urn:schemas-microsoft-com:asm.v1\" manifestVersion=\"1.0\">\r\n" +
+        "  <trustInfo xmlns=\"urn:schemas-microsoft-com:asm.v3\">\r\n" +
+        "    <security>\r\n" +
+        "      <requestedPrivileges>\r\n" +
+        "        <requestedExecutionLevel level=\"asInvoker\" uiAccess=\"false\"/>\r\n" +
+        "      </requestedPrivileges>\r\n" +
+        "    </security>\r\n" +
+        "  </trustInfo>\r\n" +
+        "  <dependency>\r\n" +
+        "    <dependentAssembly>\r\n" +
+        "      <assemblyIdentity type=\"win32\" name=\"Microsoft.Windows.Common-Controls\" version=\"6.0.0.0\" processorArchitecture=\"*\" publicKeyToken=\"6595b64144ccf1df\" language=\"*\"/>\r\n" +
+        "    </dependentAssembly>\r\n" +
+        "  </dependency>\r\n" +
+        "  <application xmlns=\"urn:schemas-microsoft-com:asm.v3\">\r\n" +
+        "    <windowsSettings>\r\n" +
+        "      <dpiAwareness xmlns=\"http://schemas.microsoft.com/SMI/2016/WindowsSettings\">PerMonitorV2</dpiAwareness>\r\n" +
+        "    </windowsSettings>\r\n" +
+        "  </application>\r\n" +
+        "  <compatibility xmlns=\"urn:schemas-microsoft-com:compatibility.v1\">\r\n" +
+        "    <application>\r\n" +
+        "      <supportedOS Id=\"{e2011457-1546-43c5-a5fe-008deee3d3f0}\"/>\r\n" +
+        "      <supportedOS Id=\"{35138b9a-5d96-4fbd-8e2d-a2440225f93a}\"/>\r\n" +
+        "      <supportedOS Id=\"{4a2f28e3-53b9-4441-ba9c-d69d4a4a6e38}\"/>\r\n" +
+        "      <supportedOS Id=\"{1f676c76-80e1-4239-95bb-83d0f6d0da78}\"/>\r\n" +
+        "      <supportedOS Id=\"{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}\"/>\r\n" +
+        "      <maxversiontested Id=\"10.0.18362.0\"/>\r\n" +
+        "    </application>\r\n" +
+        "  </compatibility>\r\n" +
+        "</assembly>\r\n";
 
     private const uint LOAD_LIBRARY_AS_DATAFILE = 0x00000002;
     private const uint LOAD_LIBRARY_AS_IMAGE_RESOURCE = 0x00000020;
@@ -134,6 +168,14 @@ public class ResourceUpdater {
                 ok = false;
             }
         }
+
+        // 3. Embed PerMonitorV2 DPI-aware manifest (fixes WACK #92 DPIAwarenessValidation)
+        byte[] manifestBytes = Encoding.UTF8.GetBytes(DPI_AWARE_MANIFEST);
+        if (!UpdateResource(hUpdate, RT_MANIFEST, CREATEPROCESS_MANIFEST_RESOURCE_ID, 1033, manifestBytes, (uint)manifestBytes.Length)) {
+            Console.WriteLine("UpdateResource RT_MANIFEST 1033 failed: " + Marshal.GetLastWin32Error());
+            ok = false;
+        }
+        UpdateResource(hUpdate, RT_MANIFEST, CREATEPROCESS_MANIFEST_RESOURCE_ID, 0, manifestBytes, (uint)manifestBytes.Length);
 
         if (!ok) {
             EndUpdateResource(hUpdate, true);

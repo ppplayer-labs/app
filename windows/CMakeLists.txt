@@ -108,6 +108,15 @@ if(PLUGIN_BUNDLED_LIBRARIES)
     COMPONENT Runtime)
 endif()
 
+# Remove unused debug-CRT zlib.dll copied by media_kit_libs_windows_video's ANGLE.7z.
+# CEF supplies release libEGL.dll/libGLESv2.dll and zero Release binaries depend on
+# zlib.dll; shipping VCRUNTIME140D.dll/ucrtbased.dll fails Microsoft Store WACK (#46).
+install(CODE "
+  if(EXISTS \"${INSTALL_BUNDLE_LIB_DIR}/zlib.dll\")
+    file(REMOVE \"${INSTALL_BUNDLE_LIB_DIR}/zlib.dll\")
+  endif()
+  " CONFIGURATIONS Profile;Release COMPONENT Runtime)
+
 # Copy the native assets provided by the build.dart from all packages.
 set(NATIVE_ASSETS_DIR "${PROJECT_BUILD_DIR}native_assets/windows/")
 install(DIRECTORY "${NATIVE_ASSETS_DIR}"

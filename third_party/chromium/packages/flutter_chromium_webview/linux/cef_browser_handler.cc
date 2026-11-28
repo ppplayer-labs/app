@@ -132,7 +132,10 @@ void GtkBrowserBridge::NotifyFrameOnGtk(bool is_popup) {
   } else {
     frame_pending.store(false, std::memory_order_release);
   }
-  if (unregistered || !registrar) return;
+  if (unregistered || !registrar ||
+      rendering_suspended.load(std::memory_order_acquire)) {
+    return;
+  }
   FlutterChromiumTexture* target = is_popup ? popup_texture : texture;
   if (target) {
     fl_texture_registrar_mark_texture_frame_available(registrar, FL_TEXTURE(target));
@@ -240,6 +243,7 @@ void CefBrowserHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
     runtime_slot_held_ = true;
     CefRuntimeManager::GetInstance()->BrowserPending();
   }
+  ApplyEffectiveFrameRateOnUi(/*invalidate_if_active=*/false);
 }
 
 void CefBrowserHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
@@ -342,7 +346,9 @@ void CefBrowserHandler::CreateBrowserAsync(std::string initial_url,
           CefWindowInfo info;
           info.SetAsWindowless(0);
           CefBrowserSettings settings;
-          settings.windowless_frame_rate = 60;
+          settings.windowless_frame_rate = self->IsRenderingEffectivelyActive()
+              ? self->active_frame_rate_
+              : kSuspendedFrameRate;
           settings.background_color = 0;
           auto browser = CefBrowserHost::CreateBrowserSync(
               info, self, initial_url, settings, nullptr, context);
@@ -354,6 +360,9 @@ void CefBrowserHandler::CreateBrowserAsync(std::string initial_url,
             return;
           }
           self->browser_ = browser;
+          if (!self->IsRenderingEffectivelyActive()) {
+            self->ApplyEffectiveFrameRateOnUi(/*invalidate_if_active=*/false);
+          }
           if (self->closing_.load(std::memory_order_acquire)) {
             self->CloseOnUi({});
             notify(false, "DETACHED", "Browser was closed during creation");
@@ -620,6 +629,56 @@ void CefBrowserHandler::ImeSetComposition(std::string text, size_t prefix_length
   });
 }
 
+void CefBrowserHandler::ApplyEffectiveFrameRateOnUi(bool invalidate_if_active) {
+  auto browser = ActiveBrowserOnUi();
+  if (!browser) return;
+  const bool active = IsRenderingEffectivelyActive();
+  // Reduce off-screen compositor rate to 1 FPS without calling WasHidden(true)
+  // so Chromium keeps document.visibilityState == 'visible', preserving
+  // background audio playback, JS timers, and playback position.
+  browser->GetHost()->SetWindowlessFrameRate(
+      active ? active_frame_rate_ : kSuspendedFrameRate);
+  if (active && invalidate_if_active) {
+    browser->GetHost()->Invalidate(PET_VIEW);
+  }
+}
+
+void CefBrowserHandler::SetRenderingActive(bool active) {
+  if (rendering_active_.exchange(active, std::memory_order_acq_rel) == active) {
+    return;
+  }
+  if (bridge_) {
+    bridge_->rendering_suspended.store(!IsRenderingEffectivelyActive(),
+                                       std::memory_order_release);
+  }
+  if (closing_.load(std::memory_order_acquire) ||
+      CefRuntimeManager::GetInstance()->GetState() != CefRuntimeState::kReady) {
+    return;
+  }
+  CefRefPtr<CefBrowserHandler> self(this);
+  CefRuntimeManager::PostToCefUi([self, active]() {
+    self->ApplyEffectiveFrameRateOnUi(/*invalidate_if_active=*/active);
+  });
+}
+
+void CefBrowserHandler::SetWindowMinimized(bool minimized) {
+  if (window_minimized_.exchange(minimized, std::memory_order_acq_rel) == minimized) {
+    return;
+  }
+  if (bridge_) {
+    bridge_->rendering_suspended.store(!IsRenderingEffectivelyActive(),
+                                       std::memory_order_release);
+  }
+  if (closing_.load(std::memory_order_acquire) ||
+      CefRuntimeManager::GetInstance()->GetState() != CefRuntimeState::kReady) {
+    return;
+  }
+  CefRefPtr<CefBrowserHandler> self(this);
+  CefRuntimeManager::PostToCefUi([self, minimized]() {
+    self->ApplyEffectiveFrameRateOnUi(/*invalidate_if_active=*/!minimized);
+  });
+}
+
 void CefBrowserHandler::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) {
   rect = CefRect(0, 0, width_, height_);
 }
@@ -635,6 +694,15 @@ void CefBrowserHandler::OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType 
                                const RectList& dirtyRects, const void* buffer,
                                int width, int height) {
   if (closing_.load(std::memory_order_acquire) || !bridge_) return;
+  if (!IsRenderingEffectivelyActive()) {
+    // Suppress BGRA->RGBA swizzle and Flutter texture frame notifications while
+    // hidden, minimized, or paused. The last valid front_buffer stays intact so
+    // rapid Hide/Show transitions never flash a blank or black frame before the
+    // invalidated frame arrives.
+    suppressed_frames_.fetch_add(1, std::memory_order_relaxed);
+    return;
+  }
+  published_frames_.fetch_add(1, std::memory_order_relaxed);
   if (type == PET_VIEW && bridge_->texture) {
     flutter_chromium_texture_update_buffer(bridge_->texture, buffer, width, height);
     if (!bridge_->frame_pending.exchange(true, std::memory_order_acq_rel)) {

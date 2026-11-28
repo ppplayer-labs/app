@@ -264,7 +264,7 @@ class PackagingAndConfigTests(unittest.TestCase):
 
         # Microsoft Partner Center packaging job remains intact and uploads CI artifact.
         win_job = jobs['build-windows']
-        self.assertIn('dart run msix:create', win_job)
+        self.assertIn('scripts/build_windows_msix.ps1', win_job)
         self.assertIn('name: PPPlayer-Windows-MSIX', win_job)
 
         # Public GitHub Release job must NEVER copy or ship *.msix files.
@@ -297,6 +297,104 @@ class PackagingAndConfigTests(unittest.TestCase):
         release_workflow = (ROOT / '.github/workflows/release.yml').read_text(encoding='utf-8')
         self.assertNotIn('runs-on: macos-14', pr_workflow)
         self.assertNotIn('runs-on: macos-14', release_workflow)
+
+    def test_v403_version_progression_and_preserved_microsoft_store_identity(self):
+        pubspec = (ROOT / 'pubspec.yaml').read_text(encoding='utf-8')
+        snap = (ROOT / 'snap/snapcraft.yaml').read_text(encoding='utf-8')
+        exe_res = (ROOT / 'windows/runner/resources/update_exe_resources.ps1').read_text(
+            encoding='utf-8'
+        )
+        changelog = (ROOT / 'CHANGELOG.md').read_text(encoding='utf-8')
+
+        self.assertIn('version: 4.0.3+15', pubspec)
+        self.assertIn('msix_version: 4.0.3.0', pubspec)
+        self.assertIn('identity_name: LucasVeneno.25880C6F60D2E', pubspec)
+        self.assertIn('publisher: CN=191B0E6A-B98A-4AB5-B2FC-9EBDA47DA56E', pubspec)
+        self.assertIn('publisher_display_name: Devflier', pubspec)
+        self.assertIn('capabilities: internetClient, musicLibrary', pubspec)
+        self.assertIn('store: true', pubspec)
+
+        self.assertIn("version: '4.0.3'", snap)
+        self.assertIn('$fileVersionStr = "4.0.3+15"', exe_res)
+        self.assertIn('## [4.0.3] - Unreleased', changelog)
+        self.assertIn('## [4.0.2] - 2026-11-22', changelog)
+
+    def test_appimage_tooling_is_pinned_to_maintained_fuse3_runtime_not_appimagekit(self):
+        build_sh = (ROOT / 'packaging/linux/scripts/build_linux.sh').read_text(encoding='utf-8')
+        self.assertNotIn('AppImage/AppImageKit', build_sh)
+        self.assertIn('https://github.com/AppImage/appimagetool/releases/download/', build_sh)
+        self.assertIn('https://github.com/AppImage/type2-runtime/releases/download/', build_sh)
+        self.assertIn('APPIMAGETOOL_SHA256=', build_sh)
+        self.assertIn('APPIMAGE_RUNTIME_SHA256=', build_sh)
+        self.assertIn('--runtime-file', build_sh)
+        self.assertIn('dpkg-deb --root-owner-group --build', build_sh)
+        self.assertIn('bundle_linux_portable_libs.py', build_sh)
+
+    def test_hidden_mini_video_excludes_keyboard_focus_semantics_and_pointer(self):
+        scaffold = (ROOT / 'lib/shared/widgets/scaffold_with_nav.dart').read_text(
+            encoding='utf-8'
+        )
+        self.assertIn('IgnorePointer(\n                ignoring: !effectiveVisible,', scaffold)
+        self.assertIn('ExcludeSemantics(\n                  excluding: !effectiveVisible,', scaffold)
+        self.assertIn('ExcludeFocus(\n                    excluding: !effectiveVisible,', scaffold)
+
+    def test_snap_candidate_workflow_is_strictly_candidate_only_and_fail_closed(self):
+        wf_path = ROOT / '.github/workflows/snap-candidate.yml'
+        self.assertTrue(wf_path.is_file(), 'Missing dedicated snap-candidate.yml workflow')
+        wf = wf_path.read_text(encoding='utf-8')
+
+        # Trigger and permissions: manual workflow_dispatch only, read-only repo/actions.
+        self.assertIn('workflow_dispatch:', wf)
+        self.assertNotIn('\n  push:', wf)
+        self.assertNotIn('\n  pull_request:', wf)
+        self.assertIn('contents: read', wf)
+        self.assertIn('actions: read', wf)
+        self.assertNotIn('contents: write', wf)
+        self.assertNotIn('softprops/action-gh-release', wf)
+
+        # Required verification inputs & fail-closed default-false confirmation.
+        for req in (
+            'artifact_run_id:',
+            'artifact_name:',
+            'expected_sha256:',
+            'expected_version:',
+            'confirm_candidate_upload:',
+            'default: false',
+        ):
+            self.assertIn(req, wf)
+
+        # Strictly hardcoded candidate channel — NO configurable channel or stable promotion.
+        self.assertIn('release: candidate', wf)
+        self.assertNotIn('release: stable', wf)
+        self.assertNotIn('snap_channel:', wf)
+        self.assertNotIn('inputs.channel', wf)
+
+        # Identity, confinement, base, arch, SHA-256, and post-upload revision audit checks.
+        self.assertIn('ACTUAL_SHA256', wf)
+        self.assertIn('unsquashfs -cat', wf)
+        self.assertIn('assert name == "ppplayer"', wf)
+        self.assertIn('assert base == "core24"', wf)
+        self.assertIn('assert confinement == "strict"', wf)
+        self.assertIn('snap info ppplayer', wf)
+        self.assertNotIn('echo "$SNAPCRAFT_STORE_CREDENTIALS"', wf)
+
+    def test_windows_wack_hardening_removes_debug_zlib_and_normalizes_badge_and_dpi(self):
+        cmake = (ROOT / 'windows/CMakeLists.txt').read_text(encoding='utf-8')
+        win_res = (ROOT / 'windows/runner/resources/update_exe_resources.ps1').read_text(
+            encoding='utf-8'
+        )
+        msix_script = (ROOT / 'scripts/build_windows_msix.ps1').read_text(encoding='utf-8')
+        pr_wf = (ROOT / '.github/workflows/pr-validation.yml').read_text(encoding='utf-8')
+        rel_wf = (ROOT / '.github/workflows/release.yml').read_text(encoding='utf-8')
+
+        self.assertIn('zlib.dll', cmake)
+        self.assertIn('file(REMOVE', cmake)
+        self.assertIn('PerMonitorV2', win_res)
+        self.assertIn('RT_MANIFEST', win_res)
+        self.assertIn('BadgeLogo*.png', msix_script)
+        self.assertIn('VCRUNTIME140D', msix_script)
+        self.assertIn('scripts/build_windows_msix.ps1', pr_wf)
+        self.assertIn('scripts/build_windows_msix.ps1', rel_wf)
 
 
 if __name__ == '__main__':

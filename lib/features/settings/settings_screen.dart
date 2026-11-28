@@ -995,20 +995,18 @@ class _SettingsHero extends StatelessWidget {
         borderRadius: BorderRadius.circular(32),
         child: Stack(
           children: [
-            // Mesh Gradient / Ambient Background
+            // Mesh Gradient / Ambient Background (static cached layer)
             Positioned.fill(
-              child: Animate(onPlay: (controller) => controller.repeat())
-                  .custom(
-                    duration: const Duration(seconds: 15),
-                    builder: (context, value, child) => CustomPaint(
-                      painter: _MeshPainter(
-                        animationValue: value,
-                        themeColor: themeColor,
-                        secondaryColor: colorScheme.secondary,
-                        tertiaryColor: colorScheme.tertiary,
-                      ),
-                    ),
+              child: RepaintBoundary(
+                child: CustomPaint(
+                  painter: _MeshPainter(
+                    animationValue: 0.15,
+                    themeColor: themeColor,
+                    secondaryColor: colorScheme.secondary,
+                    tertiaryColor: colorScheme.tertiary,
                   ),
+                ),
+              ),
             ),
             // Glass Surface
             BackdropFilter(
@@ -1062,8 +1060,14 @@ class _SettingsHero extends StatelessWidget {
                                 ),
                               ),
                             )
-                            .animate(onPlay: (c) => c.repeat())
-                            .rotate(duration: 10.seconds, begin: 0, end: 1),
+                            .animate()
+                            .fadeIn(duration: 350.ms)
+                            .scale(
+                              begin: const Offset(0.92, 0.92),
+                              end: const Offset(1.0, 1.0),
+                              duration: 400.ms,
+                              curve: Curves.easeOutCubic,
+                            ),
                   ),
                   const SizedBox(height: 12),
                   Text(
@@ -1147,7 +1151,10 @@ class _MeshPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _MeshPainter oldDelegate) =>
-      oldDelegate.animationValue != animationValue;
+      oldDelegate.animationValue != animationValue ||
+      oldDelegate.themeColor != themeColor ||
+      oldDelegate.secondaryColor != secondaryColor ||
+      oldDelegate.tertiaryColor != tertiaryColor;
 }
 
 class TactileSettingTile extends StatelessWidget {
