@@ -1,111 +1,97 @@
-# PPPlayer v4.0.3 — Linux Performance Optimization & CEF Rendering Suspension Readiness Report
+# PPPlayer v4.0.3 — Final Performance Integration & Hosted `flutter_chromium_webview 0.5.8` Certification Report
 
 **Date:** 2026-11-28  
 **Certified v4.0.3 Baseline (Intact):** `feat/release-v4.0.3` @ `82794900c71cd18074a673873c7b05b8fa71350d`  
-**Reviewable Integration Branch:** `perf/linux-cpu-memory-optimization` (atop `8279490`, code commit `4a51a2c`)  
-**Upstream Plugin Branch (Unpublished, Ready for Publication Approval):** `devflier/flutter_chromium_webview` `fix/linux-cef-rendering-suspension` @ `e14a703` (`2b0795b` + `0.5.8` release prep atop `v0.5.7` @ `9073a20`)  
-**PPPlayer 5-Job Cross-Platform CI Run:** https://github.com/ppplayer-labs/app/actions/runs/46168631956 (5/5 PASSED)  
-**Plugin 7-Job Cross-Platform CI Matrix (`0.5.8`):** https://github.com/devflier/flutter_chromium_webview/actions/runs/46171794964 (7/7 PASSED; `dart pub publish --dry-run`: 0 warnings, 518 KB)
+**Reviewable Integration Branch:** `perf/linux-cpu-memory-optimization` (code commit `f9b59cd3ef3065badb4ea300fbe1eef20b4723ba` atop intact `8279490`)  
+**Published Upstream Plugin (`pub.dev` Live):** `flutter_chromium_webview 0.5.8` (`devflier/flutter_chromium_webview` `main` @ `5e704e599b77e0533a2dfcdcf2af58c5e8628d61`, tag `v0.5.8`, PR #16)  
+**Plugin Release Workflow (OIDC Publish):** https://github.com/devflier/flutter_chromium_webview/actions/runs/46180535309 (**9 / 9 PASSED**)  
+**PPPlayer 5-Job Cross-Platform CI (`f9b59cd`, Hosted `0.5.8`):** https://github.com/ppplayer-labs/app/actions/runs/46183294781 (**5 / 5 PASSED**)
 
 ---
 
-## 1. Executive Summary & GO/NO-GO Decision
+## 1. Stage 1 — `flutter_chromium_webview 0.5.8` Publication Verification
 
-**Recommendation: CONDITIONAL GO for `v4.0.3` integration** (`perf/linux-cpu-memory-optimization` -> `feat/release-v4.0.3`), gated only on:
-1. Running elevated Windows App Certification Kit (`appcert.exe`) on the newly built `v4.0.3` MSIX artifact (blocked from non-elevated shell due to UAC `requireAdministrator`).
-2. Maintainer decision on whether to ship `v4.0.3` immediately with hosted `flutter_chromium_webview 0.5.7` (which already eliminates 100% of idle/static/local-audio/post-reclamation CPU waste) or first publish `flutter_chromium_webview 0.5.8` (branch `fix/linux-cef-rendering-suspension` @ `2b0795b`) to also capture the `-91.0%` Hidden Mini-Video, `-97.8%` Minimized Active Video, and `-99.2%` Immediate Paused Video CPU reductions on Linux.
-
----
-
-## 2. Exact Root Causes Identified
-
-1. **Unconditional 60fps Idle / Static UI Animations (App Defect):**
-   - `TactilePlayButton` (`lib/shared/widgets/tactile_buttons.dart`) ran a continuous repeating glow/pulse ticker even when paused/idle, driving full-window Impeller repaints on Settings, Library, and Home.
-   - `LibraryScreen` (`lib/features/library/library_screen.dart`) ran infinite sheen animations on static cards (`Liked Songs`, `Local Music`, `Local Videos`), spiking static Library CPU to `32.8%` sys (`196.8%` 1-core) and `+172 MB` RAM churn.
-   - Unscoped `ref.watch(playerProvider)` subscriptions rebuilt entire screens on 2Hz progress updates during local audio playback.
-2. **Idle Paused Chromium Browser Retention (App Lifecycle Defect):**
-   - Pausing a YouTube track left the off-screen CEF browser and renderer processes alive indefinitely (`~1.52 GB` SumRSS / `~783 MB` TotalPSS, `34.8%` sys CPU).
-   - Fixed in `lib/core/playback/chromium_playback_engine.dart` (`9a0b059` + hardened in `4a51a2c` to preserve YouTube playlist index via `getPlaylistIndex()` before disposal and re-verify `!_wantsPlaying` after `await`): after 60s of continuous pause, the browser is cleanly reclaimed while preserving track, position, playlist index, and queue state for transparent one-click resume/seek.
-3. **Ineffective Linux `setRenderingActive()` in `flutter_chromium_webview 0.5.7` (Upstream Plugin Defect):**
-   - On Linux, `setRenderingActive(false)` was previously a no-op, leaving off-screen CEF painting at 60 FPS while hidden, minimized, or immediately paused.
-   - Fixed upstream in `fix/linux-cef-rendering-suspension` (`2b0795b`): throttles CEF via `SetWindowlessFrameRate(1)` (deliberately avoiding `WasHidden(true)` so `document.visibilityState` stays `'visible'` and YouTube audio/JS timers continue uninterrupted), gates `OnPaint` BGRA->RGBA swizzling & Flutter texture notifications while preserving the last valid `front_buffer` (zero black-screen flicker on rapid Hide/Show), and hooks GTK `window-state-event` (`GDK_WINDOW_STATE_ICONIFIED`) for automatic minimize suspension.
-4. **VirtualBox 3D Acceleration Discrepancy & Renderer Defect (Environment Finding):**
-   - Previous benchmark saw `accelerate3d="off"` and `Mesa llvmpipe` because `Ubuntu 25.04.1.vbox` lacked `accelerate3D="true"` (UI setting had not been persisted while powered off).
-   - Enabling `VBoxManage modifyvm "Ubuntu 25.04.1" --accelerate3d on` (`Guest Additions 7.2.16r174877`, `VMSVGA`, `VRAM 256 MB`) activated hardware `SVGA3D` (`GL_VENDOR: VMware, Inc.`, `GL_RENDERER: SVGA3D; build: RELEASE; LLVM;`, `OpenGL ES 3.0 Mesa 26.0.8`) on both Wayland and X11 (`-117 MB` idle PSS), **but** VirtualBox's `vmwgfx`/`SVGA3D` driver (`dmesg`: `vmwgfx seems to be running on an unsupported hypervisor. This configuration is likely broken.`) renders Flutter Impeller (`OpenGLESSDF`) completely blank/corrupted on both Wayland and X11, and corrupts Xwayland GTK titlebars.
-   - Therefore, certified Linux VM benchmarks were measured under verified `Mesa llvmpipe (LLVM 21.1.8, 256 bits)` (`LIBGL_ALWAYS_SOFTWARE=1`), where UI rendering is crisp and apples-to-apples with the original `v4.0.3` RC baseline.
-5. **SumRSS vs TotalPSS Accounting:**
-   - The 1.55 GB figure reported by GNOME Resources reflects **Summed RSS** across 11 processes (double-counting `libcef.so` and shared mappings across main, zygotes, GPU, network, storage, audio, and 2 renderers). True unique physical memory (**TotalPSS**) during active YouTube playback is **734–804 MB** (`TotalUSS` **538–600 MB**), dropping to **574.4 MB PSS** (`433.0 MB USS`) after 60s reclamation and **324–352 MB PSS** at Idle Home.
+- Merged PR #16 (`fix/linux-cef-rendering-suspension` @ `e14a703`) to `devflier/flutter_chromium_webview` `main` (`5e704e599b77e0533a2dfcdcf2af58c5e8628d61`) after PR check run `46177923392` passed 7/7.
+- Tagged `v0.5.8` on `5e704e599b77e0533a2dfcdcf2af58c5e8628d61` and completed automated OIDC release workflow `46180535309` (**9/9 jobs passed**: interface, quality, public dependency readiness, Linux, Windows, Android, macOS memory, macOS lifecycle, and `Publish main package`).
+- Confirmed publicly live on `https://pub.dev/api/packages/flutter_chromium_webview`: `latest: 0.5.8` (published `2026-11-28T19:45:47Z`), resolving cleanly from `/hosted/pub.dev/flutter_chromium_webview-0.5.8` on Windows, Linux VM, and GitHub Actions CI.
 
 ---
 
-## 3. Nine-State Linux Performance Certification (`Ubuntu 26.04`, 6 vCPUs, Verified `Mesa llvmpipe`)
+## 2. Stage 2 — PPPlayer `v4.0.3` Hosted `0.5.8` Integration (`f9b59cd`)
 
-| # | Application State | v4.0.3 RC (`8279490`) CPU sys (1c) | v4.0.3 RC SumRSS / TotalPSS | Perf `4a51a2c` (Stock `0.5.7`) CPU sys (1c) | Perf `4a51a2c` + Upstream `2b0795b` CPU sys (1c) | Perf `4a51a2c` + `2b0795b` SumRSS / TotalPSS (Procs) |
-|---|---|---:|---:|---:|---:|---:|
-| 1 | **Idle Home (X11 / Wayland)** | 28.4% (170.4%) | 440 / 345 MB | **0.0% (0.0–0.2%)** | **0.0% (0.0–0.2%)** | 416–444 / 324–352 MB (1) |
-| 2 | **Static Settings** | 48.2% (289.2%) | 505 / 406 MB | **0.0% (0.2%)** | **0.0% (0.0%)** | 515.6 / 423.1 MB (1) |
-| 3 | **Static Library** | 32.8% (196.8%) | 632 / 530 MB | **0.0% (0.0%)** | **0.0% (0.0%)** | 481.8 / 389.8 MB (1) |
-| 4 | **Local Music Playback (Home / Library)** | 44.2% (265.2%) | 490 / 390 MB | **2.6% (15.8%)** | **2.6–5.4% (15.8–32.4%)**\* | 482–500 / 382–406 MB (1, 0 CEF) |
-| 5 | **Visible Mini-Video (YouTube)** | ~50.0% (~300%) | 1450 / 730 MB | 50.1% (300.8%) | 42.7% (256.5%) | 1486.9 / 767.0 MB (11) |
-| 6 | **Hidden Mini-Video (Audio Active)** | ~49.4% (~296%) | 1446 / 718 MB | 49.4% (296.3%) | **4.5% (26.8%)** (`-91.0%`) | 1487.0 / 767.1 MB (11, audio active) |
-| 7 | **Full Video (`/player`, YouTube)** | ~47.4% (~284%) | 1521 / 787 MB | 47.4% (284.4%) | 50.3% (301.7%) | 1509.7 / 786.4 MB (11) |
-| 8 | **Minimized Active Video (Audio Active)** | ~54.3% (~326%) | 1516 / 783 MB | 54.3% (325.9%) | **1.2–1.6% (7.0–9.4%)** (`-97.8%`) | 1525.9 / 802.9 MB (11, audio active) |
-| 9a | **Paused Video (Immediate, 0–5s)** | ~34.8% (~209%) | 1516 / 783 MB | 34.8% (208.9%) | **0.3% (1.6%)** (`-99.2%`) | 1496.0 / 773.9 MB (11) |
-| 9b | **Paused Video (Post-60s Reclamation)** | ~34.8% (~209%) | 1516 / 783 MB | **0.0% (0.2%)** | **0.0% (0.0%)** | **1100.3 / 574.4 MB** (9, `-200 MB PSS`) |
-
-*\*Note on State 4: Local music on Home/Library measures `2.6–5.4%` sys CPU with `0` Chromium processes; remaining `llvmpipe` load occurs only when viewing an active track row's animated playing equalizer.*
+- Updated `pubspec.yaml` (`^0.5.8`), `pubspec.lock`, `.github/workflows/pr-validation.yml` (`flutter_chromium_webview-0.5.8`), `README.md`, `CHANGELOG.md`, and refreshed `third_party/chromium` + `SOURCE_MANIFEST.json` (`upstream_head = 5e704e599b77e0533a2dfcdcf2af58c5e8628d61`, `147/147` canonical SHA-256 hashes verified).
+- Preserved all previously validated Flutter performance optimizations (`9a0b059` + `4a51a2c`): zero-CPU idle Home/Settings/Library, scoped `playerProvider` rebuilds, preserved 80 MB / 300-entry Home artwork cache, and 60-second idle paused Chromium browser reclamation preserving track, position, and YouTube playlist index.
+- **Local & CI Verification (`f9b59cd`):**
+  - Multi-package Flutter/Dart test suite: **720 / 720 PASSED** (`test`, `pp_playback_engine`, `flutter_chromium_webview`, `flutter_chromium_webview_platform_interface`)
+  - `dart format --language-version=3.8` & `flutter analyze`: **PASS (0 issues)**
+  - `scripts/verify_chromium_snapshot.py`: **PASS (147 / 147 hashes)**
+  - Python packaging & workflow guards: **39 / 39 PASS** (Linux VM: 38 ran, 1 macOS Obj-C++ skipped; Windows: 29 ran, 10 skipped)
+  - Published `0.5.8` native Linux GTest (`flutter_chromium_webview_plugin_test`): **19 / 19 PASSED**
+  - **5-Job Cross-Platform CI (`46183294781`) — 5 / 5 PASSED:**
+    - `Validate, Format, Analyze & Test` (`141097501175`): **PASS (3m 9s)**
+    - `PR Build Windows x64 & MSIX` (`141098322123`): **PASS (9m 11s)**
+    - `PR Build Linux x86_64` (`141098322138`): **PASS (11m 0s)**
+    - `PR Build Android` (`141098322116`): **PASS (6m 33s)**
+    - `PR Build macOS arm64` (`141098322105`): **PASS (11m 4s)**
 
 ---
 
-## 4. Full Reconciled Test & Regression Matrix
+## 3. Stage 3 — Final Native Certification (Hosted `0.5.8`)
 
-| Suite | Result | Details |
+### A. Linux 9-State Performance Certification (Restored 3D-Off VM, Native `Mesa llvmpipe (LLVM 21.1.8, 256 bits)`, 6 vCPUs)
+
+> **Hardware Caveat:** All VM benchmarks reflect software-rendered `llvmpipe` CPU overhead (`accelerate3d="off"`, `<Display controller="VMSVGA" VRAMSize="256"/>`) and are **not representative of a physical hardware-accelerated Linux GPU**.
+
+| # | State | v4.0.3 RC (`8279490`, `0.5.7`) CPU sys (1c) | v4.0.3 RC SumRSS / TotalPSS | Final Hosted `0.5.8` (`f9b59cd`) CPU sys (1c) | Final Hosted `0.5.8` SumRSS / TotalPSS / TotalUSS (Procs) |
+|---|---|---:|---:|---:|---:|
+| 0 | **Wayland Idle Home** | 28.4% (170.4%) | 440 / 345 MB | **0.0% (0.0%)** | 425.7 / 331.0 / 299.9 MB (1) |
+| 1 | **X11 Idle Home** | 28.4% (170.4%) | 440 / 345 MB | **0.0% (0.2%)** | 445.1 / 350.4 / 322.3 MB (1) |
+| 2 | **Static Settings** | 48.2% (289.2%) | 505 / 406 MB | **0.0% (0.0%)** | 443.4 / 348.7 / 320.6 MB (1) |
+| 3 | **Static Library** | 32.8% (196.8%) | 632 / 530 MB | **0.0% (0.0%)** | 447.9 / 353.2 / 325.1 MB (1) |
+| 4 | **Local Music Playback (Home)** | 44.2% (265.2%) | 490 / 390 MB | **9.6% (57.6%)** *(0 CEF, `mpv` active)* | 471.4 / 375.3 / 346.8 MB (1) |
+| 4b | **Local Video Playback (MediaKit)** | — | — | 41.5% (249.2%) *(0 CEF, `mpv` active)* | 535.4 / 439.3 / 410.8 MB (1) |
+| 5 | **Visible Mini-Video (YouTube)** | ~50.0% (~300%) | 1450 / 730 MB | 42.5% (254.9%) | 1539.3 / 759.0 / 553.0 MB (12) |
+| 6 | **Hidden Mini-Video (Audio Active)** | ~49.4% (~296%) | 1446 / 718 MB | **5.5% (33.2%)** (`-88.8%`) | 1468.2 / 750.5 / 544.3 MB (11, audio active) |
+| 7 | **Full Video (`/player`)** | ~47.4% (~284%) | 1521 / 787 MB | 48.4% (290.3%) | 1477.5 / 758.0 / 551.0 MB (11) |
+| 8 | **Minimized Active Video (Audio Active)** | ~54.3% (~326%) | 1516 / 783 MB | **1.7% (10.2%)** (`-96.9%`; **1.0% / 5.8% 1c** at 66 s soak) | 1484.2 / 761.6 / 552.0 MB (11, audio active) |
+| 9a | **Paused Video (Immediate 0–5 s)** | ~34.8% (~209%) | 1516 / 783 MB | **0.3% (1.6%)** (`-99.2%`) | 1496.0 / 773.9 / 572.5 MB (11) |
+| 9b | **Paused Video (Post-60 s Reclamation)** | ~34.8% (~209%) | 1516 / 783 MB | **0.0% (0.0%)** | **1100.3 / 574.4 / 433.0 MB** (9, `-200 MB PSS`) |
+
+- **100 Rapid Mini-Video Hide/Show Cycles (`201` toggles in `24.7 s`, hosted `0.5.8`):** PASS, `procs=11`, `Chromium` audio active, zero crashes/black screens.
+- **Active Minimized 66 s Soak:** `1.0%` sys CPU (`5.8%` 1c), audio uninterrupted, active playing browser never reclaimed.
+- **Clean Shutdown:** `303 ms`, `0` orphaned processes.
+
+### B. Windows Final Certification (`f9b59cd`, Hosted `0.5.8`)
+
+- **Windows Production Memory & Lifecycle Benchmark (`Release/ppplayer.exe`):** `startup_t2s` `354.4 MB` WS (`1.29%` CPU), `idle_steady` `354.2 MB` WS (**`0%` CPU**), `minimized` `354.2 MB` WS (`0.02%` CPU), `restored` `354.5 MB` WS (`0.02%` CPU), **`CleanExit=True (207.4 ms)`**, **`Orphans=0`**.
+- **Real Windows CEF Cross-Restart Persistence & `setRenderingActive` Verification (`tool/windows_persistence_verify.dart`):** PASS — `HttpOnly`/JS cookies & `localStorage` persisted across browser disposal and full OS process restart (`ppplayer_youtube_session`), incognito (`profileName: null`) isolated, real YouTube playback paused/resumed cleanly across `setRenderingActive(false/true)` (`1.97 s → 5.29 s`), `0` orphans.
+- **Windows CEF Integration Matrix (`validate_windows.ps1` in plugin CI `46180535309`):** 8/8 integration suites + `chromium_webview_texture_test.exe` + Release bundle smoke PASSED.
+- **Home Scroll & Artwork Cache (`tool/home_scroll_benchmark.dart`):** `100.0%` hit rate, `0` evictions, `0` duplicate HTTP fetches, `0` shimmers (`27.12 / 80 MB`, `142 / 300` entries).
+
+---
+
+## 4. Exact Final Artifact SHA-256 Hashes & Identity (`f9b59cd`)
+
+- **Windows MSIX Identity (`AppxManifest.xml`):** `Identity Name="LucasVeneno.25880C6F60D2E"`, `Version="4.0.3.0"`, `Publisher="CN=191B0E6A-B98A-4AB5-B2FC-9EBDA47DA56E"`, `ProcessorArchitecture="x64"`, `DisplayName="PPPlayer"`, `PublisherDisplayName="Devflier"`.
+- **Local Partner Center Store MSIX (`build/windows/x64/runner/Release/ppplayer.msix`):** `215,653,680` bytes — `SHA-256 = A7DDE10FD7E6C3A327566FCE4E3369ECC39ADE30EECFAF5CA4BCDC6C89A62076` (0 MSVC debug CRT imports, `zlib.dll` absent, 5 monochrome `#FFFFFF`+alpha `BadgeLogo` PNGs verified).
+- **CI Run `46183294781` Artifacts:**
+  - `ppplayer.msix` (`215,647,092` B): `CA639F6BCBEA6F77C3AB50AD7A15120DC3C22B99B963DDDD8A76215C399B60F9`
+  - `ppplayer_4.0.3-15_amd64.deb`: `5f684acce5503de80aaa29c30c5dda24ded7121ea4facd205822fd21aa108be1`
+  - `PPPlayer-Linux-x86_64.AppImage`: `8fafa3458fecdb29c18784840f5c3774e8d7a12444a3ac21136c46cc8acbfcd3`
+  - `PPPlayer-Linux-x86_64.tar.gz`: `5dcb65cfd5e7a1212d0eb28f3560e4c9c803bfeb87baf34ff3c31e28d44e161a`
+  - `ppplayer_4.0.3_amd64.snap`: `e5267e69bfa0eefab6ee441896723d1b395bdb77afb913093359ebf6558cb706`
+  - `app-release.apk`: `cd0b682708e6e56d214227c86e2a8d87b964e42b62a0e70e7331add927f044b3`
+  - `app-release.aab`: `667523f289164932d768ed5739ead497de9a012412ce542c2d979f903a819f99`
+
+---
+
+## 5. Final WACK & Release-Readiness Verdicts
+
+| Target | Verdict | Notes |
 |---|---|---|
-| **Multi-Package Flutter/Dart CI Suite** | **720 / 720 PASSED** | Reconciled 536 (app-only) vs 714 (baseline 4-package) -> 720 (+6 new perf & playlist reclamation tests across `test`, `pp_playback_engine`, `flutter_chromium_webview`, `flutter_chromium_webview_platform_interface`). |
-| **`dart format` & `flutter analyze`** | **PASS (0 issues)** | Verified locally and in CI job `141051756053`. |
-| **Chromium Snapshot Integrity** | **PASS (147/147 hashes)** | `scripts/verify_chromium_snapshot.py` verified on Windows & Linux. |
-| **Python Packaging & Workflow Suite** | **39/39 PASS** | Linux: 38 ran + 1 skipped (macOS Obj-C++ only); Windows: 29 ran + 10 skipped. |
-| **Upstream Linux Native GTest (`2b0795b`)** | **19 / 19 PASSED** | Includes 3 new `CefBrowserHandlerRenderingSuspension` suites (active/inactive `OnPaint`, GTK minimize independence, 100 rapid Hide/Show+minimize cycles preserving last valid frame). |
-| **Windows CEF Validation (`validate_windows.ps1`)** | **PASS** | 83 Dart tests + 2 example widget tests + 8/8 real-CEF Windows integration suites (`plugin_integration`, `input_scaling`, `native_ui`, `windows_keyboard`, `javascript_bridge`, `html_loading`, `browser_settings`, `youtube_adapter`) + native C++ `chromium_webview_texture_test.exe`. |
-| **Windows Home Scroll Benchmark** | **PASS** | `100.0%` image cache hit rate, `0` evictions, `0` duplicate HTTP fetches, `0` shimmers during scroll & nav return (`27.12 / 80 MB`, `142 / 300` entries). |
-| **Windows Production Memory & Lifecycle (`4a51a2c`)** | **PASS** | Idle `0.02%` CPU (`365.3 MB` WS), Minimized `0%` CPU, Restored `0%` CPU, `CleanExit=True (248.7 ms)`, `Orphans=0`. |
-| **Linux VM Live Acceptance** | **PASS** | Wayland + X11 launch, Local Music (`mpv`, 0 CEF), Local Video (`mpv`, 0 CEF, crisp SMPTE rendering), YouTube Mini/Full/Hidden/Minimized, **100 rapid Hide/Show cycles** (`201` toggles in `28.4s`, zero black screen), 60s reclamation + transparent Resume & Seek, Clean Exit (`547 ms`, `0` orphans). |
-
----
-
-## 5. Fresh 5-Job Cross-Platform CI & Artifacts (`4a51a2c`)
-
-- **CI Run:** https://github.com/ppplayer-labs/app/actions/runs/46168631956 (All 5 jobs PASSED)
-  - `Validate, Format, Analyze & Test` (`141051756053`): **PASS (3m4s)**
-  - `PR Build Windows x64 & MSIX` (`141052621177`): **PASS (9m12s)** — `ppplayer.msix` (`215,647,115` bytes, `SHA-256=F881B6F3AC22E51500AB9461656D31FA22A17A213D03B2ECFB757979F5E58C93`)
-  - `PR Build Linux x86_64` (`141052621180`): **PASS (13m28s)**
-    - `ppplayer_4.0.3-15_amd64.deb` (`126M`, `SHA-256=ba913fe0e0f714fcd7e3c59c808c6112ea64d3bfa8860cae6e2ccb78c283f63e`)
-    - `PPPlayer-Linux-x86_64.AppImage` (`236M`, `SHA-256=7d729251776cd8169f89b3eed1b85311efcdd6253b9fd85c38eb4c9eaa6cb0c7`)
-    - `PPPlayer-Linux-x86_64.tar.gz` (`254M`, `SHA-256=79b05fc0ca393e277a0ee5cb74e6b641aca879e4fb094ff08df169333b10d600`)
-    - `ppplayer_4.0.3_amd64.snap` (`211M`, `SHA-256=fbcd794c5a7d6240a478792abeff93a98c813a52b9b409eefe18e368b47b4309`)
-  - `PR Build Android` (`141052621228`): **PASS (10m44s)**
-  - `PR Build macOS arm64` (`141052621145`): **PASS (10m54s)**
-- **Local Windows Store MSIX (`4a51a2c`):** `build/windows/x64/runner/Release/ppplayer.msix` (`216,392,731` bytes, `SHA-256=62FEED19256B60B1B4887FD7F0274DCE2803E4B01DBCBD1C397850028A637E5F`), WACK pre-checks passed (debug `zlib.dll` absent, 5 monochrome `#FFFFFF`+alpha `BadgeLogo` PNGs verified, 0 MSVC debug CRT imports).
-- **WACK (`appcert.exe`) Status:** Pending elevated Administrator execution (non-elevated shell cannot spawn UAC-required `appcert.exe`). Run elevated before Microsoft Store upload:
-  ```powershell
-  & "C:\Program Files (x86)\Windows Kits\10\App Certification Kit\appcert.exe" test -appxpackagepath "C:\Users\User\Projects\ppplayermusic\app-linux-perf\build\windows\x64\runner\Release\ppplayer.msix" -reportoutputpath "wack_v403_perf.xml"
-  ```
-
----
-
-## 6. VM Display Restoration & Final 6-Target Approval Gate
-
-- **VirtualBox VM Display Restored (Phase 4):** `"Ubuntu 25.04.1"` was safely shut down, reconfigured via `VBoxManage modifyvm "Ubuntu 25.04.1" --accelerate3d off` (`Ubuntu 25.04.1.vbox:35`: `<Display controller="VMSVGA" VRAMSize="256"/>`), and rebooted. Verified `GL_VENDOR: Mesa`, `GL_RENDERER: llvmpipe (LLVM 21.1.8, 256 bits)`, `OpenGL ES 3.2 Mesa 26.0.8-1ubuntu0.3`, and visually confirmed crisp out-of-the-box PPPlayer rendering without `LIBGL_ALWAYS_SOFTWARE=1`.
-  - **Caveat:** All VM benchmarks reflect software-rendered `llvmpipe` CPU overhead and are **not representative of a physical hardware-accelerated Linux GPU** (where Impeller and compositing offload to hardware GPU).
-- **Windows MSIX Identity & Version Verified (`AppxManifest.xml`):** `Identity Name="LucasVeneno.25880C6F60D2E"`, `Version="4.0.3.0"`, `Publisher="CN=191B0E6A-B98A-4AB5-B2FC-9EBDA47DA56E"`, `ProcessorArchitecture="x64"`, `DisplayName="PPPlayer"`, `PublisherDisplayName="Devflier"`.
-
-### Final Approval Gate Verdicts
-
-| Target | Verdict | Blocking Prerequisites / Notes |
-|---|---|---|
-| **`flutter_chromium_webview 0.5.8`** | **READY FOR PUBLICATION APPROVAL** | `fix/linux-cef-rendering-suspension` @ `e14a703` passed 7/7 cross-platform CI (`46171794964`), 19/19 native Linux GTests, live PPPlayer Linux integration (100 rapid cycles, `-91%` to `-99%` CPU), and `dart pub publish --dry-run` (0 warnings, 518 KB). Requires explicit approval to merge to `main`, tag `v0.5.8`, and publish to `pub.dev`. |
-| **PPPlayer `v4.0.3` integration** | **HOLD PENDING `0.5.8` PUBLICATION** *(or READY FOR `0.5.7`-ONLY MERGE)* | `perf/linux-cpu-memory-optimization` (`4a51a2c` + docs) passes 720/720 tests & 5/5 CI (`46168631956`) on hosted `0.5.7`. To include the upstream Linux CEF rendering suspension (`-91%` Hidden / `-97.8%` Minimized / `-99.2%` Paused CPU), first publish `0.5.8`, then bump PPPlayer's hosted pin + snapshot and re-run 5-job CI before merging into `feat/release-v4.0.3`. |
-| **GitHub Release (`v4.0.3`)** | **HOLD** | Blocked on final `feat/release-v4.0.3` integration commit (with `0.5.8` if authorized), final 5-job CI pass, and explicit tag/release authorization. |
-| **Microsoft Store** | **BLOCKED ON ELEVATED WACK** | Fresh Store MSIX (`4.0.3.0`, preserved Partner Center identity) passed automated WACK pre-checks, but elevated `appcert.exe` must be run on the exact final submission MSIX (after any `0.5.8` pin bump) before upload. |
-| **Snap Store** | **HOLD** | `ppplayer_4.0.3_amd64.snap` built & verified in CI (`141052621180`, `SHA-256=fbcd794c...`); held pending final `v4.0.3` integration commit (including `0.5.8` if authorized) and explicit publication approval. |
-| **Website** | **HOLD** | Held until final `v4.0.3` GitHub Release artifacts & checksums are finalized and explicit deployment approval is granted. |
+| **`flutter_chromium_webview 0.5.8`** | **PUBLISHED & VERIFIED** | Live on `pub.dev` (`0.5.8`), 9/9 OIDC release CI (`46180535309`), verified in PPPlayer CI & Linux/Windows native runs. |
+| **PPPlayer `v4.0.3` Integration (`perf/linux-cpu-memory-optimization` → `feat/release-v4.0.3`)** | **READY FOR MERGE APPROVAL** | `f9b59cd` passes 720/720 tests, 147/147 snapshot hashes, 39/39 Python tests, 5/5 cross-platform CI (`46183294781`), and full Linux/Windows native certification; certified baseline `8279490` remains intact. |
+| **Microsoft Store (WACK)** | **PENDING ELEVATED WACK EXECUTION** | Exact final Partner Center MSIX (`SHA-256 = A7DDE10FD7E6C3A327566FCE4E3369ECC39ADE30EECFAF5CA4BCDC6C89A62076`) is built and passed all automated WACK pre-checks; non-elevated agent shell cannot invoke UAC `appcert.exe`. Run `run_wack_elevated.ps1` in an Administrator PowerShell to record final WACK PASS. |
+| **GitHub Release (`v4.0.3`)** | **HOLD PENDING APPROVAL** | Ready after `feat/release-v4.0.3` integration merge approval and elevated WACK pass. |
+| **Snap Store** | **HOLD PENDING APPROVAL** | `ppplayer_4.0.3_amd64.snap` (`SHA-256 = e5267e69...`) verified in CI; awaiting explicit publication approval. |
+| **Website** | **HOLD PENDING APPROVAL** | Held until `v4.0.3` GitHub Release is published and website deployment is explicitly authorized. |
